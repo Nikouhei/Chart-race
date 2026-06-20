@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>このツールについて｜GraphRace Studio</title>
+  <meta name="description" content="データビジュアライゼーションツール「GraphRace Studio」の開発背景と運営者についてご紹介します。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+
+  <!-- 共有デザイントークン -->
+  <link rel="stylesheet" href="shared/tokens.css">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px; max-width: 1040px; margin: 0 auto;
+    }
+    .brand { font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.2px; text-decoration: none; }
+    .brand .dot { color: var(--accent); }
+    .site-nav { display: flex; align-items: center; gap: 18px; }
+    .nav-link {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-decoration: none; transition: color .15s ease;
+    }
+    .nav-link:hover { color: var(--text-strong); }
+    @media (max-width: 600px) {
+      .site-nav { gap: 12px; }
+      .nav-link { font-size: 12px; }
+    }
+
+    /* 本文レイアウト */
+    .page-title {
+      font-size: clamp(28px, 5vw, 36px);
+      color: var(--text-strong);
+      font-weight: 800;
+      margin: 48px 0 24px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    .content-block {
+      max-width: 700px;
+      margin: 0 auto 56px;
+    }
+    .content-block section {
+      padding: 12px 0;
+    }
+    .content-block h2 {
+      font-size: 22px;
+      color: var(--text-strong);
+      border-bottom: 2px solid var(--panel-border);
+      padding-bottom: 8px;
+      margin-top: 36px;
+    }
+    .content-block p {
+      font-size: 15px;
+      color: var(--text-main);
+      line-height: 1.8;
+      margin: 16px 0;
+    }
+
+    /* フォーム用スタイル */
+    .contact-form-container {
+      background: var(--panel-surface);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 40px 48px;
+      box-shadow: var(--shadow-soft);
+      margin-top: 32px;
+    }
+    .contact-form-container h3 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 18px;
+      color: var(--text-strong);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-strong);
+      margin-bottom: 8px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--app-bg);
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.15s ease;
+    }
+    .form-group textarea {
+      resize: vertical;   /* 縦のみリサイズ可、横方向の拡大を禁止 */
+      max-width: 100%;    /* 枠幅を超えないよう保険 */
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: background 0.15s ease;
+    }
+    .btn-submit:hover {
+      background: var(--accent-strong);
+    }
+    .form-message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .form-message.success {
+      background: rgba(46, 204, 113, 0.1);
+      color: #27ae60;
+      border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+
+    /* フッタ */
+    footer.site-footer {
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-surface);
+      margin-top: 80px;
+    }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .site-header { padding: 14px 18px; }
+      .contact-form-container { padding: 28px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">GraphRace Studio<span class="dot">.</span></a>
+    <nav class="site-nav">
+      <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
+      <a class="nav-link" href="regular-chart/">折れ線グラフ</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <h1 class="page-title">このツールについて</h1>
+
+    <div class="content-block">
+      <section>
+        <h2>開発の背景と想い</h2>
+        <p>開発者は日々データと向き合うデータアナリストです。データは単なる数字の集まりではなく、適切に視覚化されることで、新しい発見やストーリーを伝える強力な道具になります。</p>
+        <p>一方で、データを美しく、かつ分かりやすく表現するには専門的なスキルや時間が必要です。誰もが手軽にデータをビジュアル化し、SNSやYouTubeなどのメディアで発信できる世界を作りたいと考え、このツールの開発を始めました。</p>
+        <p>データの面白さや価値をより多くの人に共有し、データを通じたコミュニケーションを活発にすることが本ツールの目標です。</p>
+      </section>
+
+      <section>
+        <h2>運営者プロフィール</h2>
+        <p>本ツールは法人ではなく、個人のデータアナリストによって開発・運営されています。</p>
+        <p>運営形態：個人開発<br>開発者の専門性：データアナリスト（データ分析、データビジュアライゼーション）</p>
+        <p>個人開発ならではの機動力を活かし、ユーザーの皆様からのフィードバックを迅速に反映した機能追加や改善を行っていきます。</p>
+      </section>
+
+      <section class="contact-form-container">
+        <h3>ご意見・お問い合わせ</h3>
+        <form id="contact-form">
+          <div class="form-group">
+            <label for="name">お名前（任意）</label>
+            <input type="text" id="name" name="name" placeholder="例：山田 太郎">
+          </div>
+          <div class="form-group">
+            <label for="email">メールアドレス（任意）</label>
+            <input type="email" id="email" name="email" placeholder="例：example@example.com">
+          </div>
+          <div class="form-group">
+            <label for="subject">件名（必須）</label>
+            <input type="text" id="subject" name="subject" placeholder="例：機能の改善要望について" required>
+          </div>
+          <div class="form-group">
+            <label for="message">お問い合わせ内容（必須）</label>
+            <textarea id="message" name="message" rows="6" placeholder="こちらにお問い合わせ内容をご記入ください" required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">送信する</button>
+        </form>
+        <div id="form-message" class="form-message" style="display: none;"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <nav>
+        <a href="about.html">このツールについて</a>
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value;
+
+      console.log('送信されたデータ:', { name, email, subject, message });
+
+      const msgDiv = document.getElementById('form-message');
+      msgDiv.textContent = 'お問い合わせを受け付けました。ご意見ありがとうございます。';
+      msgDiv.className = 'form-message success';
+      msgDiv.style.display = 'block';
+
+      this.reset();
+    });
+  </script>
+</body>
+</html>

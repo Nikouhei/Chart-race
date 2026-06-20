@@ -1,0 +1,4945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バーチャートレース作成ツール｜無料・ブラウザだけで動くグラフ動画メーカー</title>
+  <meta name="description" content="CSV / Excel をアップロードするだけで、動くバーチャートレース（棒グラフレース）をブラウザ上で無料作成。色・フォント・サイズを自由に設定でき、インストール不要。">
+  <!-- TODO: 公開ドメイン確定時に example.com を実ドメインへ差し替え -->
+  <link rel="canonical" href="https://example.com/bar-chart-race/app/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Chart Studio">
+  <meta property="og:title" content="バーチャートレース作成ツール｜無料・ブラウザだけ">
+  <meta property="og:description" content="CSV / Excel から動く棒グラフレースを無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:url" content="https://example.com/bar-chart-race/app/">
+  <meta property="og:image" content="https://example.com/bar-chart-race/ogp.png">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="バーチャートレース作成ツール｜無料・ブラウザだけ">
+  <meta name="twitter:description" content="CSV / Excel から動く棒グラフレースを無料作成。インストール不要。">
+  <meta name="twitter:image" content="https://example.com/bar-chart-race/ogp.png">
+  <!-- favicon（暫定: 絵文字SVG。正式アイコン確定時に差し替え） -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- SheetJS(XLSX) は xlsx 読込/書出し時に ensureXLSX() で遅延ロード（初期表示の軽量化） -->
+  <!-- 共有デザイントークン（単一の真実）。<style> より前に読み込み :root を定義 -->
+  <link rel="stylesheet" href="../../shared/tokens.css">
+  <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
+  <script src="../../shared/i18n.js"></script>
+  <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
+  <script src="../../shared/registry.js"></script>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
+    
+    .control-panel { width: 380px; min-width: 320px; max-width: calc(100vw - 480px); background: #333; padding: 20px; overflow-y: auto; scrollbar-gutter: stable; box-shadow: 4px 0 15px rgba(0,0,0,0.5); z-index: 100; box-sizing: border-box; flex: 0 0 380px; }
+    .panel-resizer { width: 8px; flex: 0 0 8px; background: #242424; cursor: col-resize; position: relative; z-index: 200; }
+    .panel-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: #555; opacity: 0.7; }
+    .panel-resizer:hover, body.resizing-panel .panel-resizer { background: #303030; }
+    body.resizing-panel { cursor: col-resize; user-select: none; }
+    .input-group { margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 15px; }
+    .input-group.accordion-section {
+      margin-bottom: 10px;
+      padding: 0;
+      border: 1px solid #474747;
+      border-radius: 6px;
+      background: #2d2d2d;
+      overflow: hidden;
+    }
+    .accordion-toggle {
+      width: 100%;
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 0;
+      background: #2a2a2a;
+      color: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      font-size: 13px;
+    }
+    .accordion-toggle:hover { background: #323232; }
+    .accordion-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .accordion-icon { color: #aaa; font-size: 14px; transition: transform 0.18s ease; }
+    .accordion-section.open .accordion-icon { transform: rotate(180deg); }
+    .accordion-content {
+      display: none;
+      padding: 14px;
+      border-top: 1px solid #444;
+    }
+    .accordion-section.open .accordion-content { display: block; }
+    label { display: block; font-size: 13px; margin-bottom: 8px; color: #bbb; font-weight: bold; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 10px; box-sizing: border-box; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 14px; }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #ddd; margin-top: 10px; }
+    .setting-row { display:flex; gap:10px; margin-bottom:10px; }
+    .setting-field { flex:1; min-width:0; }
+    .setting-field > span, .setting-caption { display:block; font-size:11px; color:#aaa; margin-bottom:5px; }
+    .segmented-control { display: flex; min-height: 38px; gap: 2px; padding: 3px; border-radius: 9px; background: #15181d; border: 1px solid #3a404a; }
+    .segmented-control button { flex: 1; min-width: 0; margin: 0; padding: 7px 10px; border-radius: 6px; background: #2b3038; color: #b8c1cf; font-size: 12px; box-shadow: none; }
+    .segmented-control button:hover:not(:disabled) { transform: none; }
+    .segmented-control button.active { background: #FFFFFF; color: var(--text-strong); box-shadow: var(--shadow-soft); }
+    .segmented-control button:disabled { background: #20242b; color: #6f7886; cursor: not-allowed; }
+    .bar-advanced-settings { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #444; }
+    .bar-advanced-settings.active { display: block; }
+    .color-mode-panel { display: none; margin-top: 12px; }
+    .color-mode-panel.active { display: block; }
+    .color-preset-preview { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 8px; }
+    .color-preset-preview span { height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.14); }
+    .individual-color-list {
+      display: grid;
+      gap: 6px;
+      max-height: 240px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .individual-color-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      background: #1f1f1f;
+    }
+    .individual-color-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #ddd;
+      font-size: 12px;
+    }
+    .individual-color-row input[type="color"] { width: 44px; height: 30px; padding: 2px; }
+    .color-empty-note { color: #999; font-size: 12px; line-height: 1.5; }
+    .file-picker-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .file-picker-row input[type="file"] { flex: 0 0 auto; max-width: 150px; color: transparent; }
+    .file-picker-row input[type="file"]::file-selector-button,
+    .file-picker-row input[type="file"]::-webkit-file-upload-button { color: #111; }
+    .file-name-display { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ddd; font-size: 13px; }
+    .compact-file-input { max-width: 100%; color: #ddd; font-size: 12px; }
+    .compact-file-input::file-selector-button,
+    .compact-file-input::-webkit-file-upload-button { color: #111; }
+
+    .panel-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .panel-tab {
+      background: #222;
+      color: #aaa;
+      border: 1px solid #4a4a4a;
+      margin: 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .panel-tab.active { background: #f2f2f2; color: #222; border-color: #f2f2f2; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .data-editor-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .data-editor-toolbar span { font-size: 12px; color: #aaa; }
+    .storage-panel { margin-bottom: 14px; padding: 12px; border: 1px solid #474747; border-radius: 6px; background: #2d2d2d; }
+    .storage-panel label { margin-bottom: 8px; }
+    .storage-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .storage-actions button { margin: 0; padding: 10px; font-size: 12px; }
+    .storage-actions .wide { grid-column: 1 / -1; }
+    .storage-list { display: grid; gap: 8px; margin-top: 10px; }
+    .storage-item { padding: 10px; border: 1px solid #444; border-radius: 6px; background: #191919; }
+    .storage-item-title { color: #eee; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .storage-item-meta { margin-top: 4px; color: #999; font-size: 11px; }
+    .storage-item-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+    .storage-item-actions button { margin: 0; padding: 8px; font-size: 12px; }
+    .storage-item-actions .danger { background: #6f3030; color: #fff; }
+    .storage-show-all { margin: 2px 0 0; padding: 10px; font-size: 12px; background: #2b3645; color: #f6f8fb; }
+    .storage-empty { color: #999; font-size: 12px; line-height: 1.5; }
+    .data-editor-wrap { max-height: calc(100vh - 150px); overflow: auto; border: 1px solid #d6dce5; background: #fff; border-radius: 4px; }
+    #dataEditorTable { border-collapse: collapse; table-layout: fixed; width: max-content; min-width: 100%; font-size: 12px; color: #1f2937; background: #fff; }
+    #dataEditorTable th, #dataEditorTable td {
+      padding: 7px 8px;
+      border: 1px solid #dfe5ee;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      outline: none;
+    }
+    #dataEditorTable th { position: sticky; top: 0; background: #f3f6fb; color: #334155; z-index: 2; }
+    #dataEditorTable th:first-child, #dataEditorTable td:first-child { position: sticky; left: 0; z-index: 1; }
+    #dataEditorTable th:first-child { z-index: 3; background: #f3f6fb; }
+    #dataEditorTable th[data-header-col] { position: sticky; top: 0; }
+    #dataEditorTable th[data-column-role="label"],
+    #dataEditorTable td[data-column-role="label"] { background: #fff1f1; color: #1f2937; }
+    #dataEditorTable th[data-column-role="image"],
+    #dataEditorTable td[data-column-role="image"] { background: #eef6ff; color: #1f2937; }
+    #dataEditorTable th[data-column-role="value"],
+    #dataEditorTable td[data-column-role="value"] { background: #fff; color: #1f2937; }
+    #dataEditorTable td:first-child { background: #f8fafc; color: #64748b; text-align: right; }
+    /* 1行目（時系列に使うヘッダー行）はデフォルトで太字 */
+    #dataEditorTable td[data-row="0"] { font-weight: 700; }
+    #dataEditorTable th[data-header-col] { position: relative; }
+    .corner-menu-cell { padding: 0 !important; }
+    .corner-menu-button {
+      width: 100%;
+      height: 100%;
+      min-height: 32px;
+      margin: 0;
+      padding: 0;
+      border-radius: 0;
+      background: #f3f6fb;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .corner-menu-button:hover { background: #e2e8f0; color: #1f2937; }
+    .col-resize-handle {
+      position: absolute;
+      top: 0;
+      right: -3px;
+      width: 6px;
+      height: 100%;
+      cursor: col-resize;
+      z-index: 4;
+    }
+    .col-resize-handle:hover { background: rgba(77,171,247,0.35); }
+    body.resizing-column { cursor: col-resize; user-select: none; }
+    #dataEditorTable td[data-row][data-col] { cursor: cell; user-select: none; }
+    #dataEditorTable th[data-header-col],
+    #dataEditorTable td[data-row-header] { cursor: pointer; user-select: none; }
+    #dataEditorTable th.selected-header,
+    #dataEditorTable td.selected-header { background: #dbeafe; color: #1e3a8a; }
+    #dataEditorTable td.selected-cell { background: #dbeafe; box-shadow: inset 0 0 0 1px #3b82f6; }
+    #dataEditorTable td.active-cell { box-shadow: inset 0 0 0 2px #2563eb; }
+    #dataEditorTable td.editing-cell {
+      cursor: text;
+      user-select: text;
+      background: #fff;
+      color: #111827;
+      box-shadow: inset 0 0 0 2px #111827;
+    }
+    #dataEditorTable th[contenteditable="true"]:focus { background: #dbeafe; box-shadow: inset 0 0 0 2px #3b82f6; }
+    .empty-data-editor { color: #64748b; font-size: 13px; line-height: 1.6; padding: 14px; background: #fff; border: 1px dashed #cbd5e1; border-radius: 4px; }
+    .data-column-tooltip {
+      position: fixed;
+      display: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.96);
+      color: #1b1f27;
+      border: 1px solid rgba(20,30,44,0.16);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 5000;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .data-column-tooltip.active { display: block; }
+
+    .context-menu {
+      position: fixed;
+      display: none;
+      min-width: 230px;
+      padding: 6px 0;
+      background: #f7f7f7;
+      color: #111;
+      border: 1px solid #d0d0d0;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.28);
+      border-radius: 4px;
+      z-index: 4000;
+      font-size: 14px;
+    }
+    .context-menu.active { display: block; }
+    .context-menu button {
+      width: 100%;
+      margin: 0;
+      padding: 9px 14px;
+      border-radius: 0;
+      background: transparent;
+      color: #111;
+      text-align: left;
+      font-weight: normal;
+    }
+    .context-menu button:hover:not(:disabled) { background: #e7f0ff; }
+    .context-menu button:disabled { background: transparent; color: #aaa; }
+    .context-menu .separator { height: 1px; margin: 5px 0; background: #ddd; }
+    
+    button { width: 100%; padding: 14px; margin-bottom: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 15px; transition: 0.2s; }
+    #startBtn { background: #28a745; color: white; }
+    #startBtn:hover:not(:disabled) { background: #218838; }
+    button:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+    .preview-area { flex: 1 1 auto; min-width: 480px; background: #000; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    #chartAreaWrapper { display: flex; align-items: center; justify-content: center; width: 100%; height: calc(100% - 92px); margin-bottom: 92px; }
+    
+    #chartArea {
+      background: white; 
+      position: relative; 
+      overflow: hidden; 
+      transform-origin: center center;
+      /* 【最重要修正】自動縮小によるクリッピングを強制ブロック */
+      flex-shrink: 0; 
+    }
+    #svgChart { overflow: hidden; }
+    
+    .chart-title { position: absolute; top: 4%; left: 2%; font-weight: bold; color: #222; z-index: 10; }
+    .source-text { position: absolute; bottom: 3%; right: 2%; color: #666; z-index: 10; }
+    .year-text { position: absolute; left: 95%; top: 95%; transform: translate(-100%, -100%); font-weight: bold; color: rgba(0,0,0,0.08); z-index: 5; line-height: 1; }
+    
+    /* 国旗画像を美しく角丸にする設定 */
+    .flag { clip-path: inset(0% round 4px); }
+    
+    #status { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 10px 15px; border-radius: 6px; font-size: 13px; z-index: 1000; border: 1px solid #444; }
+
+    .timeline-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 92px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      padding: 10px 24px 8px 28px;
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      z-index: 900;
+    }
+    #timelinePlayBtn {
+      width: 56px;
+      min-width: 56px;
+      height: 56px;
+      margin: 0;
+      padding: 0;
+      border-radius: 50%;
+      background: #2d2d2d;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #timelinePlayBtn:disabled { background: #b8b8b8; color: #f3f3f3; }
+    #timelineSvg { flex: 1; height: 74px; min-width: 0; overflow: visible; cursor: pointer; }
+    #timelineSvg.disabled { cursor: default; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.62);
+      z-index: 3000;
+    }
+    .modal-backdrop.active { display: flex; }
+    .confirm-modal {
+      width: min(420px, calc(100vw - 40px));
+      background: #f7f7f7;
+      color: #222;
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+    }
+    .confirm-modal h3 { margin: 0 0 12px; font-size: 18px; }
+    .confirm-modal p { margin: 0 0 20px; color: #444; line-height: 1.6; font-size: 14px; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .confirm-actions button { width: auto; min-width: 104px; margin: 0; padding: 10px 14px; }
+    #confirmReloadCancel { background: #ddd; color: #222; }
+    #confirmReloadNo { background: #555; color: #fff; }
+    #confirmReloadYes { background: var(--accent); color: #fff; }
+    .storage-modal {
+      width: min(560px, calc(100vw - 40px));
+      max-height: min(720px, calc(100vh - 56px));
+      display: flex;
+      flex-direction: column;
+    }
+    .storage-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .storage-modal-header h3 { margin: 0; }
+    .storage-modal-close {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      margin: 0;
+      padding: 0;
+      border-radius: 50%;
+      background: #e4e8ef;
+      color: #19202b;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .storage-modal-list {
+      display: grid;
+      gap: 8px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    body {
+      background: var(--app-bg);
+      color: var(--text-main);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      letter-spacing: -0.005em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .control-panel {
+      background: var(--panel-bg);
+      padding: 18px;
+      border-right: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-deep);
+    }
+
+    .control-panel::-webkit-scrollbar,
+    .data-editor-wrap::-webkit-scrollbar {
+      width: 11px;
+      height: 11px;
+    }
+
+    .control-panel::-webkit-scrollbar-track,
+    .data-editor-wrap::-webkit-scrollbar-track {
+      background: #15181d;
+    }
+
+    .control-panel::-webkit-scrollbar-thumb,
+    .data-editor-wrap::-webkit-scrollbar-thumb {
+      background: #424a56;
+      border: 3px solid #15181d;
+      border-radius: 8px;
+    }
+
+    .control-panel::-webkit-scrollbar-thumb:hover,
+    .data-editor-wrap::-webkit-scrollbar-thumb:hover {
+      background: #5a6675;
+    }
+
+    .panel-title {
+      margin: 0 0 16px;
+      color: var(--text-strong);
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .panel-tabs {
+      gap: 4px;
+      padding: 0;
+      margin-bottom: 18px;
+      border: 0;
+      border-bottom: 1px solid var(--panel-border);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .panel-tab {
+      min-height: 38px;
+      padding: 9px 4px;
+      margin-bottom: -1px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: none;
+    }
+
+    .panel-tab:hover {
+      background: transparent;
+      color: var(--text-main);
+    }
+
+    .panel-tab.active {
+      background: transparent;
+      color: var(--text-strong);
+      border-bottom-color: var(--accent);
+      box-shadow: none;
+    }
+
+    .input-group {
+      border-bottom-color: var(--panel-border-soft);
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+    }
+
+    .input-group.accordion-section {
+      margin-bottom: 0;
+      border: 0;
+      border-bottom: 1px solid var(--panel-border);
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .accordion-toggle {
+      min-height: 44px;
+      padding: 12px 2px;
+      background: transparent;
+      color: var(--text-strong);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+
+    .accordion-toggle:hover {
+      background: transparent;
+      color: var(--accent);
+    }
+
+    .accordion-content {
+      padding: 2px 2px 14px;
+      border-top: 0;
+      background: transparent;
+    }
+
+    .accordion-icon {
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+    }
+    .accordion-toggle:hover .accordion-icon { color: var(--accent); }
+    .accordion-icon svg { width: 16px; height: 16px; display: block; }
+
+    .data-hint {
+      background: #1d2631 !important;
+      padding: 12px !important;
+      border: 1px solid #31445c !important;
+      border-radius: 8px !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+    }
+
+    .data-hint label {
+      color: #86b7ff !important;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .data-hint p {
+      color: #b8c5d6 !important;
+      line-height: 1.55;
+    }
+
+    label {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .setting-field > span,
+    .setting-caption,
+    .input-group span[style*="font-size:11px"] {
+      color: var(--text-muted) !important;
+      font-size: 11px !important;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      min-height: 40px;
+      padding: 9px 11px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      color: var(--text-strong);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: #FFFFFF;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 40px;
+      padding: 4px;
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .checkbox-group {
+      color: var(--text-main);
+      gap: 9px;
+      margin-top: 9px;
+    }
+
+    .file-picker-row {
+      padding: 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      background: var(--panel-surface-2);
+    }
+
+    .file-picker-row input[type="file"],
+    .compact-file-input {
+      color: var(--text-muted);
+    }
+
+    input[type="file"]::file-selector-button,
+    input[type="file"]::-webkit-file-upload-button {
+      padding: 8px 12px;
+      margin-right: 9px;
+      border: 1px solid var(--btn-border);
+      border-radius: 7px;
+      background: var(--btn-bg);
+      color: var(--text-strong);
+      font-weight: 500;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .file-name-display {
+      color: var(--text-main);
+    }
+
+    button {
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--btn-bg);
+      color: var(--text-strong);
+      transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--btn-bg-hover);
+    }
+
+    button:disabled {
+      background: var(--panel-surface-2);
+      color: var(--text-muted);
+    }
+
+    #startBtn {
+      min-height: 44px;
+      margin-top: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #startBtn svg { width: 16px; height: 16px; display: block; }
+
+    #startBtn:hover:not(:disabled) {
+      background: var(--accent-strong);
+    }
+
+    .panel-resizer {
+      background: #111318;
+    }
+
+    .panel-resizer::after {
+      left: 3px;
+      background: #46505d;
+    }
+
+    .panel-resizer:hover,
+    body.resizing-panel .panel-resizer {
+      background: #1d2430;
+    }
+
+    .preview-area {
+      background: var(--panel-surface-2);
+    }
+
+    #chartAreaWrapper {
+      padding: 28px;
+      box-sizing: border-box;
+    }
+
+    #status {
+      top: 18px;
+      right: 18px;
+      background: rgba(255,255,255,0.92);
+      color: var(--text-main);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      font-size: 12px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+    }
+
+    .timeline-bar {
+      height: 92px;
+      background: #FFFFFF;
+      border-top: 1px solid var(--panel-border);
+      box-shadow: 0 -1px 0 var(--panel-border);
+    }
+
+    #timelinePlayBtn {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: var(--shadow-soft);
+    }
+
+    #timelinePlayBtn:hover:not(:disabled) {
+      background: var(--accent-strong);
+    }
+    #timelinePlayBtn svg { width: 22px; height: 22px; display: block; }
+
+    .data-editor-toolbar {
+      padding: 10px 12px;
+      margin-bottom: 0;
+      border: 1px solid var(--panel-border);
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      background: var(--panel-surface);
+    }
+
+    .storage-panel {
+      border-color: var(--panel-border);
+      border-radius: 8px;
+      background: var(--panel-surface);
+    }
+
+    .storage-actions button,
+    .storage-item-actions button {
+      background: var(--btn-bg);
+      color: var(--text-strong);
+    }
+
+    .storage-actions button:hover:not(:disabled),
+    .storage-item-actions button:hover:not(:disabled),
+    .storage-show-all:hover:not(:disabled) {
+      background: var(--btn-bg-hover);
+    }
+
+    .storage-item {
+      border-color: var(--panel-border-soft);
+      border-radius: 8px;
+      background: var(--panel-surface-2);
+    }
+
+    .storage-item-title {
+      color: var(--text-strong);
+    }
+
+    .storage-item-meta,
+    .storage-empty {
+      color: var(--text-muted);
+    }
+
+    .storage-item-actions .danger {
+      background: #743438;
+      color: #fff;
+    }
+
+    .data-editor-toolbar label {
+      color: var(--text-strong) !important;
+      font-size: 13px;
+    }
+
+    .data-editor-toolbar span {
+      color: var(--text-muted);
+    }
+
+    .data-editor-wrap {
+      border-color: #d6dce5;
+      border-radius: 0 0 8px 8px;
+      background: #ffffff;
+    }
+
+    #dataEditorTable {
+      color: #1f2937;
+      font-size: 12px;
+      background: #ffffff;
+    }
+
+    #dataEditorTable th,
+    #dataEditorTable td {
+      border-color: #dfe5ee;
+      padding: 8px 9px;
+    }
+
+    #dataEditorTable th,
+    #dataEditorTable th:first-child,
+    .corner-menu-button {
+      background: #f3f6fb;
+      color: #334155;
+    }
+
+    #dataEditorTable td:first-child {
+      background: #f8fafc;
+      color: #64748b;
+    }
+
+    #dataEditorTable th[data-column-role="label"],
+    #dataEditorTable td[data-column-role="label"] {
+      background: #fff1f1;
+      color: #1f2937;
+    }
+
+    #dataEditorTable th[data-column-role="image"],
+    #dataEditorTable td[data-column-role="image"] {
+      background: #eef6ff;
+      color: #1f2937;
+    }
+
+    #dataEditorTable th[data-column-role="value"],
+    #dataEditorTable td[data-column-role="value"] {
+      background: #ffffff;
+      color: #1f2937;
+    }
+
+    #dataEditorTable tr:nth-child(even) td[data-column-role="label"] {
+      background: #ffeaea;
+    }
+
+    #dataEditorTable tr:nth-child(even) td[data-column-role="image"] {
+      background: #e7f2ff;
+    }
+
+    #dataEditorTable tr:nth-child(even) td[data-column-role="value"] {
+      background: #fbfcfe;
+    }
+
+    #dataEditorTable th.selected-header,
+    #dataEditorTable td.selected-header {
+      background: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    #dataEditorTable td.selected-cell {
+      background: #dbeafe !important;
+      color: #1f2937;
+      box-shadow: inset 0 0 0 1px #3b82f6;
+    }
+
+    #dataEditorTable td.active-cell {
+      box-shadow: inset 0 0 0 2px #2563eb;
+    }
+
+    #dataEditorTable td.editing-cell {
+      background: #ffffff !important;
+      color: #111827;
+      box-shadow: inset 0 0 0 2px #111827;
+    }
+
+    .col-resize-handle:hover {
+      background: rgba(110,98,240,0.40);
+    }
+
+    .empty-data-editor {
+      padding: 18px;
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      color: #64748b;
+    }
+
+    .context-menu {
+      min-width: 240px;
+      padding: 6px;
+      background: #f8fafc;
+      color: #111827;
+      border: 1px solid #d8dee8;
+      border-radius: 8px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .context-menu button {
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: #18202d;
+      font-size: 13px;
+    }
+
+    .context-menu button:hover:not(:disabled) {
+      background: #e8f1ff;
+      color: #0f4bb3;
+      transform: none;
+    }
+
+    .context-menu button:disabled {
+      color: #a0a8b3;
+      background: transparent;
+    }
+
+    .context-menu .separator {
+      margin: 5px 2px;
+      background: #e1e6ef;
+    }
+
+    .confirm-modal {
+      background: #f8fafc;
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.46);
+    }
+
+    .storage-modal .storage-item {
+      background: #ffffff;
+      border-color: #d8dee8;
+    }
+
+    .storage-modal .storage-item-title {
+      color: #18202d;
+    }
+
+    .storage-modal .storage-item-meta {
+      color: #667085;
+    }
+
+    #confirmReloadCancel {
+      background: #e4e8ef;
+      color: #19202b;
+    }
+
+    #confirmReloadNo {
+      background: #4b5563;
+      color: #fff;
+    }
+
+    #confirmReloadYes {
+      background: var(--accent);
+      color: #fff;
+    }
+    #confirmReloadYes:hover:not(:disabled) { background: var(--accent-strong); }
+
+    /* ===== パネルヘッダー（ワードマーク） ===== */
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .panel-header .panel-title { margin: 0; }
+
+    /* ===== ライトテーマ上書き（直書きUI色を新トークンへ）=====
+       変数は :root が一括で支配。ここは var() で表現できない直書き箇所のみ。
+       データ編集テーブル・各種メニュー・モーダルは元から明色なので触らない。
+       チャート描画キャンバス(#chartArea)はユーザー設定なので触らない。 */
+    /* スクロールバー */
+    body.light-mode .control-panel::-webkit-scrollbar-track,
+    body.light-mode .data-editor-wrap::-webkit-scrollbar-track { background: #F2F3F5; }
+    body.light-mode .control-panel::-webkit-scrollbar-thumb,
+    body.light-mode .data-editor-wrap::-webkit-scrollbar-thumb { background: #D5D7DB; border-color: #FFFFFF; }
+    body.light-mode .control-panel::-webkit-scrollbar-thumb:hover,
+    body.light-mode .data-editor-wrap::-webkit-scrollbar-thumb:hover { background: #BFC2C7; }
+    /* アコーディオン hover */
+    body.light-mode .accordion-toggle:hover { background: var(--panel-surface-2); }
+    /* データ形式ヒント */
+    body.light-mode .data-hint { background: var(--accent-soft) !important; border-color: rgba(110,98,240,0.22) !important; }
+    body.light-mode .data-hint label { color: var(--accent-strong) !important; }
+    body.light-mode .data-hint p { color: var(--text-main) !important; }
+    /* 入力フォーカス */
+    body.light-mode input[type="text"]:focus,
+    body.light-mode input[type="number"]:focus,
+    body.light-mode select:focus { background: #FFFFFF; box-shadow: 0 0 0 3px var(--accent-soft); }
+    /* 無効ボタン */
+    body.light-mode button:disabled { background: var(--panel-surface-2); color: var(--text-muted); }
+    /* パネルリサイザー */
+    body.light-mode .panel-resizer { background: var(--panel-border); }
+    body.light-mode .panel-resizer::after { background: #CDD0D5; }
+    body.light-mode .panel-resizer:hover,
+    body.light-mode.resizing-panel .panel-resizer { background: var(--panel-surface-2); }
+    /* プレビュー背景・チャート縁 */
+    body.light-mode .preview-area { background: #F2F3F5; }
+    body.light-mode #chartArea { box-shadow: 0 1px 3px rgba(16,18,22,0.08), 0 0 0 1px var(--panel-border); }
+    /* ステータス表示 */
+    body.light-mode #status { background: rgba(255,255,255,0.92); }
+    /* 保存・プロジェクト系ボタン（セカンダリ調） */
+    body.light-mode .storage-actions button,
+    body.light-mode .storage-item-actions button,
+    body.light-mode .storage-show-all { background: var(--btn-bg); color: var(--text-strong); border: 1px solid var(--btn-border); }
+    body.light-mode .storage-item-actions .danger { background: #FCEBEC; color: #C2383C; border-color: #F3D2D4; }
+    body.light-mode .storage-actions button:hover:not(:disabled),
+    body.light-mode .storage-item-actions button:hover:not(:disabled),
+    body.light-mode .storage-show-all:hover:not(:disabled) { background: var(--btn-bg-hover); color: var(--text-strong); }
+    /* セグメンテッドコントロール */
+    body.light-mode .segmented-control { background: var(--panel-surface-2); border-color: transparent; }
+    body.light-mode .segmented-control button { background: transparent; color: var(--text-muted); }
+    body.light-mode .segmented-control button.active { background: #FFFFFF; color: var(--text-strong); box-shadow: var(--shadow-soft); }
+    body.light-mode .segmented-control button:disabled { background: transparent; color: #C2C5CB; }
+    /* 項目別カラー行 */
+    body.light-mode .individual-color-row { background: var(--panel-surface); border-color: var(--panel-border); }
+    body.light-mode .individual-color-row span { color: var(--text-main); }
+
+    /* ===== モバイル専用要素（デスクトップでは非表示） ===== */
+    .mobile-only { display: none !important; }
+
+    /* データ編集ステージ（既定は非表示。デスクトップのデータタブ時のみ表示） */
+    .data-stage { display: none; }
+
+    /* ===== デスクトップ: 「データ」タブで右領域をエディタに切替 ===== */
+    @media (min-width: 901px) {
+      body.desktop-data-active .preview-area {
+        align-items: stretch;
+        justify-content: flex-start;
+      }
+      body.desktop-data-active #status,
+      body.desktop-data-active .timeline-bar { display: none !important; }
+      /* 編集中はチャートを隠さず、右下に小さなライブプレビューとして浮かべる */
+      body.desktop-data-active #chartAreaWrapper {
+        position: absolute; right: 16px; bottom: 16px;
+        width: 340px; height: 230px; margin: 0; z-index: 60;
+        background: #fff; border: 1px solid var(--panel-border);
+        border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.18); padding: 8px;
+      }
+      body.desktop-data-active #chartAreaWrapper::before {
+        content: "プレビュー";
+        position: absolute; left: 12px; top: 6px;
+        font-size: 11px; color: #9ca3af; font-weight: 600; z-index: 1;
+      }
+      body.desktop-data-active #dataStage {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 18px;
+        box-sizing: border-box;
+      }
+      body.desktop-data-active #dataStage #dataEditorHost {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      body.desktop-data-active #dataStage .data-editor-wrap {
+        max-height: none;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+    }
+
+    /* ===== レスポンシブ対応 (max-width: 900px) ===== */
+    @media (max-width: 900px) {
+      .mobile-only { display: block !important; }
+
+      body {
+        flex-direction: column;
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      /* パネルリサイザーを非表示 */
+      #panelResizer { display: none !important; }
+
+      /* コントロールパネルをフルwidthに */
+      .control-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        border-right: none;
+        border-bottom: 1px solid var(--panel-border);
+        box-shadow: none;
+      }
+
+      /* プレビューエリアはデフォルト非表示（プレビュータブ選択時だけ表示） */
+      .preview-area {
+        display: none !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+      }
+
+      /* プレビュータブがアクティブな時：コントロールパネルをタブバーだけに縮小 */
+      body.mobile-preview-active .control-panel {
+        flex: 0 0 auto !important;
+        padding: 18px 18px 0 !important;
+        overflow: hidden;
+        border-bottom: 1px solid var(--panel-border);
+      }
+      body.mobile-preview-active .tab-panel    { display: none !important; }
+      body.mobile-preview-active .panel-tabs   { margin-bottom: 0; }
+      body.mobile-preview-active .preview-area { display: flex !important; }
+
+      /* タブを3列に */
+      .panel-tabs { grid-template-columns: 1fr 1fr 1fr; }
+
+      /* データエディタの高さを画面に合わせる */
+      .data-editor-wrap {
+        max-height: calc(100dvh - 200px);
+      }
+
+      /* タイムラインバーをコンパクトに */
+      .timeline-bar {
+        height: 72px;
+        padding: 8px 14px 6px;
+        gap: 14px;
+      }
+      #timelinePlayBtn {
+        width: 46px;
+        min-width: 46px;
+        height: 46px;
+        font-size: 20px;
+      }
+      #timelineSvg { height: 58px; }
+      #chartAreaWrapper { height: calc(100% - 72px); margin-bottom: 72px; }
+    }
+  </style>
+</head>
+<body class="light-mode">
+
+  <div class="control-panel">
+    <div class="panel-header">
+      <h2 class="panel-title">Chart Studio</h2>
+    </div>
+
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="settingsTab">設定</button>
+      <button class="panel-tab" data-tab="dataTab">データ</button>
+      <button class="panel-tab mobile-only" data-tab="previewTab">プレビュー</button>
+    </div>
+
+    <div id="settingsTab" class="tab-panel active">
+
+    <div class="input-group">
+      <label>キャンバスサイズ (幅 x 高さ px)</label>
+      <div style="margin-bottom:10px;">
+        <span style="font-size:11px; color:#aaa;">アスペクト比</span>
+        <select id="aspectRatioPreset">
+          <option value="custom">カスタム</option>
+          <option value="1:1">1:1</option>
+          <option value="9:16" selected>9:16</option>
+          <option value="16:9">16:9</option>
+          <option value="3:4">3:4</option>
+          <option value="4:3">4:3</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <input type="number" id="canvasWidth" value="720" max="2500">
+        <input type="number" id="canvasHeight" value="1280" max="2500">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="autoHeight">
+        <span>項目数に応じて高さを自動拡張</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>レイアウト</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>フォント</span>
+          <select id="mainFont">
+            <option value="'Helvetica Neue', Arial, sans-serif">Helvetica Neue</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="'Hiragino Sans', 'Yu Gothic', sans-serif">Hiragino / Yu Gothic</option>
+            <option value="'Noto Sans JP', sans-serif">Noto Sans JP</option>
+            <option value="Georgia, serif">Georgia</option>
+          </select>
+        </div>
+        <div class="setting-field">
+          <span>テキスト色</span>
+          <input type="color" id="layoutTextColor" value="#222222">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>背景色</span>
+          <input type="color" id="layoutBackgroundColor" value="#ffffff">
+        </div>
+        <div class="setting-field">
+          <span>背景画像</span>
+          <input type="file" id="backgroundImageFile" class="compact-file-input" accept="image/*">
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="enableBackgroundColor" checked>
+        <span>背景色を使う</span>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="enableBackgroundImage">
+        <span>背景画像を使う</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>グラフ</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>グラフの種類</span>
+          <select id="chartToolSwitcher" title="別のグラフツールへ切り替え（編集中データは引き継がれます）"></select>
+        </div>
+        <div class="setting-field">
+          <span>表示形式</span>
+          <select id="chartStyle">
+            <option value="score">データスコア</option>
+            <option value="ranking">ランキング</option>
+          </select>
+        </div>
+      </div>
+      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:12px 0 10px;">
+      <input type="text" id="sourceInput" placeholder="出典を入力">
+    </div>
+
+    <div class="input-group">
+      <label>グラフの色</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>色の決め方</span>
+          <select id="barColorMode">
+            <option value="pattern">パターン選択</option>
+            <option value="single">単色</option>
+            <option value="custom">指定</option>
+          </select>
+        </div>
+      </div>
+      <div id="barColorPatternPanel" class="color-mode-panel active">
+        <div class="setting-field">
+          <span>パターン</span>
+          <select id="barColorPalette">
+            <option value="standard">スタンダード</option>
+            <option value="light">ライト</option>
+            <option value="dark">ダーク</option>
+            <option value="vivid">ビビッド</option>
+            <option value="pastel">パステル</option>
+            <option value="earth">アース</option>
+            <option value="ocean">オーシャン</option>
+            <option value="sunset">サンセット</option>
+            <option value="forest">フォレスト</option>
+            <option value="mono">モノトーン</option>
+          </select>
+          <div id="barColorPalettePreview" class="color-preset-preview" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div id="barColorSinglePanel" class="color-mode-panel">
+        <div class="setting-field">
+          <span>バーの色</span>
+          <input type="color" id="singleBarColor" value="#4f8cff">
+        </div>
+      </div>
+      <div id="barColorCustomPanel" class="color-mode-panel">
+        <div id="customColorList" class="individual-color-list"></div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>ラベル</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>文字サイズ(px)</span>
+          <input type="number" id="labelFontSize" value="18" min="1" max="120">
+        </div>
+        <div class="setting-field">
+          <span>項目名の色</span>
+          <input type="color" id="nameLabelColor" value="#333333">
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showNameLabels" checked>
+        <span>項目名を表示</span>
+      </div>
+      <div class="setting-row" style="margin-top:12px;">
+        <div class="setting-field">
+          <span>値の色</span>
+          <input type="color" id="valueLabelColor" value="#333333">
+        </div>
+        <div class="setting-field">
+          <span>値の余白(px)</span>
+          <input type="number" id="valueLabelSpace" value="15" min="-80" max="200" step="0.5">
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showValueLabels" checked>
+        <span>値を表示</span>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showRankingItemAfterBar" checked>
+        <span>ランキング: バー後方に項目名</span>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showRankingValueInsideBar" checked>
+        <span>ランキング: バー内左端にデータ</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>画像</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>右余白(px)</span>
+          <input type="number" id="imageMarginRight" value="8" min="-200" max="300" step="1">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>画像の収め方</span>
+          <select id="imageSizing">
+            <option value="fill">埋める</option>
+            <option value="fit">収める</option>
+            <option value="stretch">引き伸ばし</option>
+          </select>
+        </div>
+        <div class="setting-field">
+          <span>形状</span>
+          <select id="imageShape">
+            <option value="rectangle">四角</option>
+            <option value="circle">丸</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>バーの設定</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>向き</span>
+          <input type="hidden" id="barOrientation" value="horizontal">
+          <div class="segmented-control" aria-label="バーの向き">
+            <button type="button" class="active" data-bar-orientation="horizontal">横向き</button>
+            <button type="button" data-bar-orientation="vertical" disabled title="縦向きは今後対応予定です">縦向き</button>
+          </div>
+        </div>
+        <div class="setting-field">
+          <span>表示本数</span>
+          <input type="number" id="topN" value="10" min="1">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>間隔（%）</span>
+          <input type="number" id="barSpacing" value="15" min="0" max="80" step="1">
+        </div>
+        <div class="setting-field">
+          <span>並べ替え</span>
+          <div class="segmented-control" aria-label="並べ替え">
+            <button type="button" class="active" data-sort-enabled="true">オン</button>
+            <button type="button" data-sort-enabled="false">オフ</button>
+          </div>
+          <input type="checkbox" id="sortEnabled" checked hidden>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>並び順</span>
+          <select id="sortMode">
+            <option value="desc">大きい順</option>
+            <option value="asc">小さい順</option>
+          </select>
+        </div>
+        <div class="setting-field">
+          <span>詳細設定</span>
+          <div class="segmented-control" aria-label="詳細設定">
+            <button type="button" data-bar-advanced="false">オフ</button>
+            <button type="button" class="active" data-bar-advanced="true">オン</button>
+          </div>
+          <input type="checkbox" id="showAdvancedBarSettings" checked hidden>
+        </div>
+      </div>
+      <div id="barAdvancedSettings" class="bar-advanced-settings active">
+        <div class="setting-field">
+          <span>バー開始位置（X軸 0 の位置）</span>
+          <input type="number" id="barStartOffset" value="0" step="1">
+        </div>
+        <p style="font-size:11px; margin:8px 0 0; color:#aaa;">1 = 5px / 0 = 標準 / マイナス = 0軸が左 / プラス = 0軸が右<br>項目名・バー・X軸目盛が連動（グラフ幅は固定）</p>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>数値フォーマット</label>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">接頭辞</span>
+          <input type="text" id="valuePrefix" placeholder="$">
+        </div>
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">接尾辞</span>
+          <input type="text" id="valueSuffix" placeholder="M">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">小数点桁数</span>
+          <input type="number" id="decimalPlaces" value="0" min="0" max="8">
+        </div>
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">負の数</span>
+          <select id="negativeStyle">
+            <option value="minus">-100</option>
+            <option value="parentheses">(100)</option>
+          </select>
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="trimTrailingZeros">
+        <span>末尾の0を削除</span>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="hideSmallThousands">
+        <span>10,000未満は桁区切りを隠す</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>時系列表示</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showTimeCounter" checked>
+        <span>時系列を表示</span>
+      </div>
+      <div class="setting-row" style="margin-top:12px;">
+        <div class="setting-field">
+          <span>色</span>
+          <input type="color" id="timeCounterColor" value="#000000">
+        </div>
+        <div class="setting-field">
+          <span>濃さ (%)</span>
+          <input type="number" id="timeCounterOpacity" value="8" min="0" max="100" step="1">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>テキストサイズ (%)</span>
+          <input type="number" id="timeCounterSize" value="12" min="1" max="40" step="0.5">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>位置 X (%)</span>
+          <input type="number" id="timeCounterX" value="95" min="0" max="100" step="0.5">
+        </div>
+        <div class="setting-field">
+          <span>位置 Y (%)</span>
+          <input type="number" id="timeCounterY" value="95" min="0" max="100" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>X軸・目盛り設定</label>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">文字色</span>
+          <input type="color" id="axisTextColor" value="#999999">
+        </div>
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">文字サイズ(px)</span>
+          <input type="number" id="axisTextSize" value="11" min="1" max="80">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">線の色</span>
+          <input type="color" id="axisLineColor" value="#d2d2d2">
+        </div>
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">線の太さ(px)</span>
+          <input type="number" id="axisLineWidth" value="1" min="0" max="10" step="0.5">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">最大値</span>
+          <select id="axisScaleMode">
+            <option value="dynamic">自動</option>
+            <option value="fixed">固定</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <span style="font-size:11px; color:#aaa;">点線間隔</span>
+          <input type="number" id="axisLineDash" value="4" min="0" max="30">
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <span style="font-size:11px; color:#aaa;">固定最大値（空白 = 自動）</span>
+        <input type="number" id="axisFixedMax" placeholder="自動" min="0" step="0.01">
+      </div>
+    </div>
+
+    <button id="startBtn" disabled><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>再生プレビュー</span></button>
+    <p style="font-size:11px; margin:0; color:#888; text-align:center;">Spaceキー: 再生 / 一時停止 / 再開</p>
+    </div>
+
+    <div id="dataTab" class="tab-panel">
+      <div class="input-group data-hint" style="background:#2a2a2a; padding:10px; border-radius:4px; border:1px dashed #555;">
+        <label style="color:#4dabf7;">データ形式 (CSV / Excel)</label>
+        <p style="font-size:11px; margin:0; color:#ccc;">A列: 項目名<br>B列: 画像URL (空欄でもOK)<br>C列以降: 年ごとの数値</p>
+      </div>
+
+      <div class="input-group" data-no-accordion="true">
+        <label>データ (CSV / Excel)</label>
+        <div class="file-picker-row">
+          <input type="file" id="dataFile" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+          <span id="selectedFileName" class="file-name-display">選択されていません</span>
+        </div>
+      </div>
+
+      <div class="storage-panel">
+        <label>保存済みデータ</label>
+        <div class="storage-actions">
+          <button type="button" id="saveProjectBtn" disabled>保存</button>
+          <button type="button" id="exportProjectBtn" disabled>バックアップ</button>
+          <button type="button" id="importProjectBtn" class="wide">バックアップ読込</button>
+          <input type="file" id="projectImportFile" accept="application/json,.json" hidden>
+        </div>
+        <div id="storageList" class="storage-list"></div>
+      </div>
+      <div id="dataEditorHost">
+        <div class="data-editor-toolbar">
+          <label style="margin:0;">データ編集</label>
+          <span id="dataEditorSummary">未読み込み</span>
+        </div>
+        <div id="dataEditor" class="empty-data-editor">
+          CSV または Excel を読み込むと、ここで表を直接編集できます。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panelResizer" class="panel-resizer" title="パネル幅を変更"></div>
+
+  <div class="preview-area">
+    <div id="status">準備中... CSV または Excel ファイルを選択してください。</div>
+    <div id="dataStage" class="data-stage"></div>
+    <div id="chartAreaWrapper">
+      <div id="chartArea">
+        <div id="chartTitle" class="chart-title"></div>
+        <div id="yearDisplay" class="year-text"></div>
+        <div id="sourceDisplay" class="source-text"></div>
+        <svg id="svgChart"></svg>
+      </div>
+    </div>
+    <div class="timeline-bar">
+      <button id="timelinePlayBtn" disabled aria-label="再生"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <svg id="timelineSvg"></svg>
+    </div>
+  </div>
+
+  <div id="reloadConfirmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reloadConfirmTitle">
+    <div class="confirm-modal">
+      <h3 id="reloadConfirmTitle">データを新しく読み込みますか？</h3>
+      <p>今あるデータは消去されます。元のスタイルを維持しますか？</p>
+      <div class="confirm-actions">
+        <button id="confirmReloadCancel" type="button">キャンセル</button>
+        <button id="confirmReloadNo" type="button">いいえ</button>
+        <button id="confirmReloadYes" type="button">はい</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="storageSelectModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="storageSelectTitle">
+    <div class="confirm-modal storage-modal">
+      <div class="storage-modal-header">
+        <h3 id="storageSelectTitle">保存済みデータを選択</h3>
+        <button id="storageSelectClose" class="storage-modal-close" type="button" aria-label="閉じる">×</button>
+      </div>
+      <div id="storageModalList" class="storage-modal-list"></div>
+    </div>
+  </div>
+
+  <div id="dataContextMenu" class="context-menu">
+    <button type="button" data-menu-action="insert-row-above">上に行を挿入</button>
+    <button type="button" data-menu-action="insert-row-below">下に行を挿入</button>
+    <div class="separator"></div>
+    <button type="button" data-menu-action="insert-col-left">左に列を挿入</button>
+    <button type="button" data-menu-action="insert-col-right">右に列を挿入</button>
+    <div class="separator"></div>
+    <button type="button" data-menu-action="remove-row">行を削除</button>
+    <button type="button" data-menu-action="remove-col">列を削除</button>
+    <div class="separator"></div>
+    <button type="button" data-menu-action="sort-asc">この列で並べ替え（A→Z）</button>
+    <button type="button" data-menu-action="sort-desc">この列で並べ替え（Z→A）</button>
+    <button type="button" data-menu-action="unpivot" disabled>列を結合（unpivot）</button>
+    <div class="separator"></div>
+    <button type="button" data-menu-action="upload-file">ファイルを読み込む</button>
+  </div>
+
+  <div id="editorCornerMenu" class="context-menu">
+    <button type="button" data-corner-action="transpose">行と列の入れ替え</button>
+    <button type="button" data-corner-action="clear-all">全消去</button>
+    <div class="separator"></div>
+    <button type="button" data-corner-action="download-csv">CSVをダウンロード</button>
+    <button type="button" data-corner-action="download-excel">Excelをダウンロード</button>
+  </div>
+
+    <script>
+
+    /* ===== インラインSVGアイコン（絵文字を排し線/塗りアイコンに統一） ===== */
+    const ICONS = {
+      play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+      pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+      chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>'
+    };
+
+    let csvData = [];
+    let years = [];
+    let playback = {
+      state: 'idle', // idle | playing | paused
+      yearIndex: 0,
+      pauseGate: null,
+      runId: 0
+    };
+    let chartMetrics = null;
+    let frozenMetrics = null;
+    let editorRenderLocked = false;
+    let editorRefreshTimer = null;
+    let selectedCells = new Set();
+    let activeCell = null;
+    let selectionAnchor = null;
+    let isSelectingCells = false;
+    let dragMode = 'cell';            // 'cell' | 'column' | 'row'
+    let dragLastRow = 0;              // ヘッダ上/隙間でのクランプ用に直前のセル行/列を保持
+    let dragLastCol = 0;
+    let dragPointer = { x: 0, y: 0 }; // 自動スクロール用の最新ポインタ座標
+    let dragSelectScheduled = false;  // rAF スロットル
+    let autoScrollRAF = null;
+    let editingCell = null;
+    let editingOriginalValue = '';
+    let pendingDataFile = null;
+    let undoStack = [];
+    let redoStack = [];
+    let columnWidths = [];
+    let resizingColumn = null;
+    let contextMenuTarget = null;
+    let backgroundImageDataUrl = '';
+    let customBarColors = {};
+    let previousBarColorMode = 'pattern';
+    let defaultProjectSettings = null;
+    let timelineMarkerScale = null;
+    let lastRenderedYearDisplayText = '';
+    const MAX_HISTORY = 100;
+    const ZERO_AXIS_PX_PER_POINT = 5;
+    const MAX_CANVAS_SIZE = 2500;
+    const PANEL_MIN_WIDTH = 320;
+    const PREVIEW_MIN_WIDTH = 480;
+    const PANEL_WIDTH_STORAGE_KEY = 'chartToolPanelWidth';
+    const PROJECT_STORAGE_KEY = 'chartToolSavedProjects';
+    const DEFAULT_COLUMN_WIDTH = 112;
+    const MIN_COLUMN_WIDTH = 54;
+    const MAX_COLUMN_WIDTH = 420;
+    const BLANK_COLUMN_PREFIX = '__blank_column_';
+    const PROJECT_SETTING_IDS = [
+      'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
+      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage',
+      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
+      'showRankingItemAfterBar', 'showRankingValueInsideBar',
+      'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
+      'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
+      'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
+      'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax'
+    ];
+    const COLOR_PALETTES = {
+      standard: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
+      light: ['#8EC5FF', '#FFD166', '#B8E986', '#FFB3BA', '#CDB4DB', '#A0E7E5', '#FDD6A2', '#BDE0FE', '#D8F3DC', '#F1F5F9'],
+      dark: ['#1F4E79', '#6B3E26', '#7A1E26', '#245953', '#2F5D50', '#6C584C', '#4A3F73', '#633974', '#334155', '#111827'],
+      vivid: ['#2563EB', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'],
+      pastel: ['#A7C7E7', '#F7C8E0', '#C1E1C1', '#F9E2AE', '#D7BDE2', '#B5EAD7', '#FFDAC1', '#E2F0CB', '#C7CEEA', '#F8BBD0'],
+      earth: ['#8D6E63', '#A1887F', '#6D4C41', '#9CCC65', '#7CB342', '#C0A16B', '#B08968', '#D4A373', '#5F6F52', '#A3B18A'],
+      ocean: ['#0EA5E9', '#0284C7', '#0369A1', '#0891B2', '#14B8A6', '#2DD4BF', '#38BDF8', '#67E8F9', '#1D4ED8', '#155E75'],
+      sunset: ['#F97316', '#FB923C', '#FBBF24', '#F43F5E', '#E11D48', '#BE123C', '#C026D3', '#7C3AED', '#FDBA74', '#FECDD3'],
+      forest: ['#166534', '#15803D', '#16A34A', '#65A30D', '#84CC16', '#3F6212', '#4D7C0F', '#0F766E', '#2F855A', '#A3E635'],
+      mono: ['#111827', '#374151', '#4B5563', '#6B7280', '#9CA3AF', '#D1D5DB', '#52525B', '#71717A', '#A1A1AA', '#E5E7EB']
+    };
+
+    // --- 画面サイズフィッティング ---
+    function fitToScreen() {
+      const wrapper = document.getElementById('chartAreaWrapper');
+      const chart = document.getElementById('chartArea');
+      const w = resolveCanvasWidth();
+      const h = resolveCanvasHeight();
+      
+      chart.style.width = w + 'px';
+      chart.style.height = h + 'px';
+      
+      // 文字サイズをキャンバス幅に連動させる（見切れ防止）
+      document.getElementById('chartTitle').style.fontSize = (w * 0.025) + 'px';
+      document.getElementById('sourceDisplay').style.fontSize = (w * 0.015) + 'px';
+      applyTimeCounterSettings(w);
+      applyLayoutAppearance();
+
+      const scale = Math.min((wrapper.clientWidth * 0.95) / w, (wrapper.clientHeight * 0.95) / h, 1);
+      chart.style.transform = `scale(${scale})`;
+    }
+    window.addEventListener('resize', () => {
+      applyPanelWidth(getPanelWidth());
+      applyTabLayout();
+    });
+    fitToScreen();
+
+    function getMaxPanelWidth() {
+      return Math.max(PANEL_MIN_WIDTH, window.innerWidth - PREVIEW_MIN_WIDTH - 8);
+    }
+
+    function clampPanelWidth(width) {
+      return Math.min(Math.max(PANEL_MIN_WIDTH, width), getMaxPanelWidth());
+    }
+
+    function applyPanelWidth(width) {
+      const panel = document.querySelector('.control-panel');
+      const nextWidth = clampPanelWidth(width);
+      panel.style.width = `${nextWidth}px`;
+      panel.style.flexBasis = `${nextWidth}px`;
+      localStorage.setItem(PANEL_WIDTH_STORAGE_KEY, String(nextWidth));
+      fitToScreen();
+      renderTimeline();
+    }
+
+    function getPanelWidth() {
+      const saved = parseFloat(localStorage.getItem(PANEL_WIDTH_STORAGE_KEY));
+      if (Number.isFinite(saved)) return saved;
+      return document.querySelector('.control-panel').getBoundingClientRect().width || 380;
+    }
+
+    applyPanelWidth(getPanelWidth());
+
+    // --- データ読み込み ---
+    function stopPlayback() {
+      playback.runId++;
+      playback.state = 'idle';
+      frozenMetrics = null;
+      if (playback.pauseGate) {
+        playback.pauseGate();
+        playback.pauseGate = null;
+      }
+      updatePlaybackUI();
+    }
+
+    function updatePlaybackUI() {
+      const btn = document.getElementById('startBtn');
+      const timelineBtn = document.getElementById('timelinePlayBtn');
+      if (playback.state === 'playing') {
+        btn.innerHTML = ICONS.pause + '<span>一時停止</span>';
+        timelineBtn.innerHTML = ICONS.pause;
+      } else if (playback.state === 'paused') {
+        btn.innerHTML = ICONS.play + '<span>再生再開</span>';
+        timelineBtn.innerHTML = ICONS.play;
+      } else {
+        btn.innerHTML = ICONS.play + '<span>再生プレビュー</span>';
+        timelineBtn.innerHTML = ICONS.play;
+      }
+      timelineBtn.disabled = !years.length || btn.disabled;
+      document.getElementById('timelineSvg').classList.toggle('disabled', !years.length || btn.disabled);
+    }
+
+    let currentPanelTab = 'settingsTab';
+
+    function isDesktop() {
+      return window.matchMedia('(min-width: 901px)').matches;
+    }
+
+    // データ編集ホストをビューポートに応じて移動する。
+    // デスクトップ: プレビュー領域(#dataStage) / モバイル: 左パネル(#dataTab)
+    function placeDataEditorHost() {
+      const host = document.getElementById('dataEditorHost');
+      if (!host) return;
+      const target = isDesktop()
+        ? document.getElementById('dataStage')
+        : document.getElementById('dataTab');
+      if (target && host.parentElement !== target) {
+        target.appendChild(host);
+      }
+    }
+
+    function switchPanelTab(tabId) {
+      currentPanelTab = tabId;
+      applyTabLayout();
+    }
+
+    function applyTabLayout() {
+      const body = document.body;
+      const desktop = isDesktop();
+      // デスクトップには previewTab が無いので settings 扱いにフォールバック
+      const tabId = (desktop && currentPanelTab === 'previewTab') ? 'settingsTab' : currentPanelTab;
+
+      document.querySelectorAll('.panel-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+
+      placeDataEditorHost();
+
+      if (desktop) {
+        body.classList.remove('mobile-preview-active');
+        body.classList.toggle('desktop-data-active', tabId === 'dataTab');
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          panel.classList.toggle('active', panel.id === tabId);
+        });
+        // チャートが見える状態（フルor編集中オーバーレイ）になったら、常に最新データで再描画
+        // - データタブ: 右下オーバーレイの初回スケール合わせ
+        // - データ以外: フル表示へ戻す際に最新データを反映（古い表示が残らない）
+        requestAnimationFrame(() => requestAnimationFrame(() => refreshCurrentPreview({ reset: true })));
+      } else {
+        body.classList.remove('desktop-data-active');
+        if (tabId === 'previewTab') {
+          body.classList.add('mobile-preview-active');
+          requestAnimationFrame(() => requestAnimationFrame(() => refreshCurrentPreview({ reset: true })));
+        } else {
+          body.classList.remove('mobile-preview-active');
+          document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.toggle('active', panel.id === tabId);
+          });
+        }
+      }
+    }
+
+    function setupSettingsAccordions() {
+      document.querySelectorAll('#settingsTab > .input-group').forEach((section, index) => {
+        if (section.dataset.noAccordion === 'true') return;
+        const label = section.querySelector(':scope > label');
+        if (!label) return;
+
+        const title = label.textContent.trim();
+        const content = document.createElement('div');
+        content.className = 'accordion-content';
+        content.id = `settingsAccordionContent${index}`;
+
+        Array.from(section.childNodes).forEach(node => {
+          if (node !== label) content.appendChild(node);
+        });
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'accordion-toggle';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-controls', content.id);
+        toggle.innerHTML = `<span class="accordion-title">${title}</span><span class="accordion-icon">${ICONS.chevron}</span>`;
+
+        section.removeAttribute('style');
+        section.classList.add('accordion-section');
+        label.remove();
+        section.appendChild(toggle);
+        section.appendChild(content);
+
+        toggle.addEventListener('click', () => {
+          const isOpen = section.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', String(isOpen));
+        });
+      });
+    }
+
+    function hasLoadedData() {
+      return csvData.length > 0 || years.length > 0;
+    }
+
+    function updateProjectActionButtons() {
+      const hasData = hasEditableContent();
+      document.getElementById('saveProjectBtn').disabled = !hasData;
+      document.getElementById('exportProjectBtn').disabled = !hasData;
+    }
+
+    function getStoredProjects() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(PROJECT_STORAGE_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function setStoredProjects(projects) {
+      localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(projects));
+    }
+
+    function getProjectSettingsSnapshot() {
+      const settings = {};
+      PROJECT_SETTING_IDS.forEach(id => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        settings[id] = element.type === 'checkbox' ? element.checked : element.value;
+      });
+      return settings;
+    }
+
+    function applyProjectSettings(settings = {}) {
+      PROJECT_SETTING_IDS.forEach(id => {
+        if (!Object.prototype.hasOwnProperty.call(settings, id)) return;
+        const element = document.getElementById(id);
+        if (!element) return;
+        if (element.type === 'checkbox') element.checked = Boolean(settings[id]);
+        else element.value = settings[id];
+      });
+      syncBarSettingsControls();
+      updateBarColorControls();
+      previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
+    }
+
+    function setSegmentedActive(selector, activeValue, attributeName) {
+      document.querySelectorAll(selector).forEach(button => {
+        button.classList.toggle('active', String(button.dataset[attributeName]) === String(activeValue));
+      });
+    }
+
+    function syncBarSettingsControls() {
+      const orientation = document.getElementById('barOrientation')?.value || 'horizontal';
+      const sortEnabled = document.getElementById('sortEnabled')?.checked;
+      const showAdvanced = document.getElementById('showAdvancedBarSettings')?.checked;
+      setSegmentedActive('[data-bar-orientation]', orientation, 'barOrientation');
+      setSegmentedActive('[data-sort-enabled]', sortEnabled, 'sortEnabled');
+      setSegmentedActive('[data-bar-advanced]', showAdvanced, 'barAdvanced');
+      document.getElementById('barAdvancedSettings')?.classList.toggle('active', Boolean(showAdvanced));
+    }
+
+    function hashString(value) {
+      return String(value || '').split('').reduce((hash, char) => {
+        return ((hash << 5) - hash + char.charCodeAt(0)) | 0;
+      }, 0);
+    }
+
+    function getItemDefinitions() {
+      if (!csvData.length || !csvData.columns?.length) return [];
+      const nameCounts = new Map();
+      return csvData.slice(1).map((row, dataIndex) => {
+        const rowIndex = dataIndex + 1;
+        const rawName = String(row[csvData.columns[0]] ?? '').trim();
+        const baseName = rawName || 'No item';
+        const count = (nameCounts.get(baseName) || 0) + 1;
+        nameCounts.set(baseName, count);
+        const name = count === 1 ? baseName : `${baseName} ${count}`;
+        return { key: `${rowIndex}:${name}`, name };
+      });
+    }
+
+    function getSelectedPaletteColors() {
+      const paletteKey = document.getElementById('barColorPalette')?.value || 'standard';
+      return COLOR_PALETTES[paletteKey] || COLOR_PALETTES.standard;
+    }
+
+    function getPaletteColor(name) {
+      const colors = getSelectedPaletteColors();
+      const index = Math.abs(hashString(name)) % colors.length;
+      return colors[index];
+    }
+
+    function getBarColorForMode(item, mode) {
+      if (mode === 'single') {
+        return document.getElementById('singleBarColor')?.value || '#4f8cff';
+      }
+      if (mode === 'custom') {
+        return customBarColors[item.key] || getPaletteColor(item.name);
+      }
+      return getPaletteColor(item.name);
+    }
+
+    function getBarColor(item) {
+      const mode = document.getElementById('barColorMode')?.value || 'pattern';
+      return getBarColorForMode(item, mode);
+    }
+
+    function seedCustomColorsFromMode(mode) {
+      getItemDefinitions().forEach(item => {
+        customBarColors[item.key] = getBarColorForMode(item, mode);
+      });
+    }
+
+    function renderPalettePreview() {
+      const preview = document.getElementById('barColorPalettePreview');
+      if (!preview) return;
+      preview.innerHTML = getSelectedPaletteColors()
+        .map(color => `<span style="background:${escapeHtml(color)}"></span>`)
+        .join('');
+    }
+
+    function renderCustomColorList() {
+      const list = document.getElementById('customColorList');
+      if (!list) return;
+      const items = getItemDefinitions();
+      if (!items.length) {
+        list.innerHTML = '<div class="color-empty-note">データを読み込むと、バーごとに色を指定できます。</div>';
+        return;
+      }
+      list.innerHTML = items.map(item => {
+        const color = customBarColors[item.key] || getPaletteColor(item.name);
+        return `
+          <label class="individual-color-row">
+            <span title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+            <input type="color" data-custom-color-key="${escapeHtml(item.key)}" value="${escapeHtml(color)}">
+          </label>
+        `;
+      }).join('');
+    }
+
+    function updateBarColorControls() {
+      const mode = document.getElementById('barColorMode')?.value || 'pattern';
+      document.getElementById('barColorPatternPanel')?.classList.toggle('active', mode === 'pattern');
+      document.getElementById('barColorSinglePanel')?.classList.toggle('active', mode === 'single');
+      document.getElementById('barColorCustomPanel')?.classList.toggle('active', mode === 'custom');
+      renderPalettePreview();
+      renderCustomColorList();
+    }
+
+    function onBarColorSettingChange() {
+      updateBarColorControls();
+      refreshCurrentPreview({ reset: true });
+    }
+
+    function onBarColorModeChange() {
+      const nextMode = document.getElementById('barColorMode')?.value || 'pattern';
+      if (nextMode === 'custom' && previousBarColorMode !== 'custom') {
+        seedCustomColorsFromMode(previousBarColorMode);
+      }
+      previousBarColorMode = nextMode;
+      onBarColorSettingChange();
+    }
+
+    function resetStyleSettingsToDefault() {
+      if (defaultProjectSettings) applyProjectSettings(defaultProjectSettings);
+      backgroundImageDataUrl = '';
+      customBarColors = {};
+      const backgroundFile = document.getElementById('backgroundImageFile');
+      if (backgroundFile) backgroundFile.value = '';
+      previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
+      applyLayoutAppearance();
+      syncOverlayText();
+      updateBarColorControls();
+    }
+
+    function makeProjectPayload(name) {
+      return {
+        version: 1,
+        id: `project-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        savedAt: new Date().toISOString(),
+        data: cloneDataState(),
+        columnWidths: [...columnWidths],
+        settings: getProjectSettingsSnapshot(),
+        backgroundImageDataUrl,
+        customBarColors: { ...customBarColors }
+      };
+    }
+
+    function formatSavedAt(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      const fmtLocale = (window.I18N && window.I18N.formatLocale) ? window.I18N.formatLocale() : 'ja-JP';
+      return date.toLocaleString(fmtLocale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function renderStorageItems(projects) {
+      return projects.map(project => {
+        const rowCount = Math.max(0, project.data?.rows?.length ? project.data.rows.length - 1 : 0);
+        const yearCount = Math.max(0, (project.data?.columns?.length || 0) - 2);
+        return `
+          <div class="storage-item" data-project-id="${escapeHtml(project.id)}">
+            <div class="storage-item-title">${escapeHtml(project.name || '無題のデータ')}</div>
+            <div class="storage-item-meta">${escapeHtml(formatSavedAt(project.savedAt))} / ${rowCount}行 / ${yearCount}期間</div>
+            <div class="storage-item-actions">
+              <button type="button" data-storage-action="load">復元</button>
+              <button type="button" class="danger" data-storage-action="delete">削除</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderStorageList() {
+      const list = document.getElementById('storageList');
+      if (!list) return;
+      const projects = getStoredProjects();
+      if (!projects.length) {
+        list.innerHTML = '<div class="storage-empty">まだ保存されていません。データを読み込んだ後に「保存」を押してください。</div>';
+        return;
+      }
+
+      const visibleProjects = projects.length >= 3 ? projects.slice(0, 2) : projects;
+      const showAllButton = projects.length >= 3
+        ? `<button type="button" class="storage-show-all" id="storageShowAllBtn">全て表示（${projects.length}件）</button>`
+        : '';
+      list.innerHTML = renderStorageItems(visibleProjects) + showAllButton;
+    }
+
+    function renderStorageModalList() {
+      const modalList = document.getElementById('storageModalList');
+      if (!modalList) return;
+      const projects = getStoredProjects();
+      modalList.innerHTML = projects.length
+        ? renderStorageItems(projects)
+        : '<div class="storage-empty">まだ保存されていません。</div>';
+    }
+
+    function openStorageSelectModal() {
+      renderStorageModalList();
+      document.getElementById('storageSelectModal')?.classList.add('active');
+    }
+
+    function closeStorageSelectModal() {
+      document.getElementById('storageSelectModal')?.classList.remove('active');
+    }
+
+    function handleStorageAction(button) {
+      const item = button.closest('.storage-item');
+      const projectId = item?.dataset.projectId;
+      const projects = getStoredProjects();
+      const project = projects.find(entry => entry.id === projectId);
+      if (!project) return;
+
+      if (button.dataset.storageAction === 'load') {
+        try {
+          loadProjectPayload(project);
+          closeStorageSelectModal();
+        } catch (err) {
+          document.getElementById('status').innerText = "❌ 復元失敗: " + err.message;
+        }
+        return;
+      }
+
+      if (button.dataset.storageAction === 'delete') {
+        if (!window.confirm(`「${project.name || '無題のデータ'}」を削除しますか？`)) return;
+        setStoredProjects(projects.filter(entry => entry.id !== projectId));
+        renderStorageList();
+        renderStorageModalList();
+        if (!getStoredProjects().length) closeStorageSelectModal();
+        document.getElementById('status').innerText = '✅ 保存済みデータを削除しました';
+      }
+    }
+
+    function saveCurrentProject() {
+      if (!csvData.length || !csvData.columns?.length) return;
+      commitCellEdit();
+      const fallbackName = document.getElementById('titleInput').value.trim() || `チャートデータ ${formatSavedAt(new Date().toISOString())}`;
+      const name = window.prompt('保存名を入力してください', fallbackName);
+      if (name === null) return;
+      const cleanName = name.trim() || fallbackName;
+      const projects = getStoredProjects();
+      projects.unshift(makeProjectPayload(cleanName));
+      try {
+        setStoredProjects(projects);
+        renderStorageList();
+        document.getElementById('status').innerText = `✅ 「${cleanName}」を保存しました`;
+      } catch (err) {
+        document.getElementById('status').innerText = '❌ 保存できませんでした。バックアップ書き出しを使ってください';
+      }
+    }
+
+    function validateProjectPayload(project) {
+      if (!project?.data?.rows?.length || !project.data.columns?.length || project.data.columns.length < 3) {
+        throw new Error('保存データの形式が正しくありません');
+      }
+      return project;
+    }
+
+    function loadProjectPayload(project) {
+      validateProjectPayload(project);
+      stopPlayback();
+      undoStack = [];
+      redoStack = [];
+      applyProjectSettings(project.settings || {});
+      backgroundImageDataUrl = project.backgroundImageDataUrl || '';
+      customBarColors = { ...(project.customBarColors || {}) };
+      csvData = project.data.rows.map(row => ({ ...row }));
+      csvData.columns = [...project.data.columns];
+      columnWidths = Array.isArray(project.columnWidths) ? [...project.columnWidths] : csvData.columns.map(() => DEFAULT_COLUMN_WIDTH);
+      years = getYearColumns();
+      if (!years.length) throw new Error('C列以降に年別の列がありません');
+      playback.yearIndex = 0;
+      document.getElementById('startBtn').disabled = false;
+      updatePlaybackUI();
+      recomputeChartMetrics();
+      fitToScreen();
+      renderDataEditor();
+      updateBarColorControls();
+      renderTimeline();
+      renderPreviewFrame(0, { instant: true, reset: true });
+      updateProjectActionButtons();
+      updateSelectedFileName({ name: project.name || '保存済みデータ' });
+      document.getElementById('status').innerText = `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
+    }
+
+    function exportCurrentProject() {
+      if (!csvData.length || !csvData.columns?.length) return;
+      commitCellEdit();
+      const name = document.getElementById('titleInput').value.trim() || 'chart-data';
+      const payload = makeProjectPayload(name);
+      const safeName = name.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'chart-data';
+      downloadBlob(`${safeName}.chart-project.json`, 'application/json;charset=utf-8', JSON.stringify(payload, null, 2));
+      document.getElementById('status').innerText = '✅ バックアップを書き出しました';
+    }
+
+    function importProjectFile(file) {
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const project = validateProjectPayload(JSON.parse(event.target.result));
+          loadProjectPayload(project);
+          const projects = getStoredProjects();
+          projects.unshift({
+            ...project,
+            id: `project-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            savedAt: new Date().toISOString()
+          });
+          try {
+            setStoredProjects(projects);
+            renderStorageList();
+          } catch (err) {
+            document.getElementById('status').innerText = '✅ 復元しました。ブラウザ内保存には失敗したため、バックアップファイルを保管してください';
+          }
+        } catch (err) {
+          document.getElementById('status').innerText = "❌ バックアップ読込失敗: " + err.message;
+        } finally {
+          document.getElementById('projectImportFile').value = '';
+        }
+      };
+      reader.onerror = () => {
+        document.getElementById('status').innerText = '❌ バックアップファイルの読み込みに失敗しました';
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function resetFileInput() {
+      document.getElementById('dataFile').value = '';
+    }
+
+    function updateSelectedFileName(file) {
+      document.getElementById('selectedFileName').textContent = file?.name || '選択されていません';
+    }
+
+    function openReloadConfirm(file) {
+      pendingDataFile = file;
+      document.getElementById('reloadConfirmModal').classList.add('active');
+      document.getElementById('confirmReloadYes').focus();
+    }
+
+    function closeReloadConfirm() {
+      pendingDataFile = null;
+      document.getElementById('reloadConfirmModal').classList.remove('active');
+    }
+
+    function parseNumber(value) {
+      const text = String(value ?? '').replace(/,/g, '').trim();
+      if (text === '') return null;
+      const number = parseFloat(text);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function parseDisplayedNumber(value) {
+      const isParenthesizedNegative = /^\s*\(.*\)\s*$/.test(String(value ?? ''));
+      const text = String(value ?? '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/);
+      if (!text) return 0;
+      const number = parseFloat(text[0]);
+      if (!Number.isFinite(number)) return 0;
+      return isParenthesizedNegative ? -Math.abs(number) : number;
+    }
+
+    function getDecimalPlacesFromValue(value) {
+      const text = String(value ?? '').replace(/,/g, '').trim();
+      if (!text || Number.isNaN(Number(text))) return 0;
+      const decimalPart = text.split(/[eE]/)[0].split('.')[1];
+      return decimalPart ? decimalPart.length : 0;
+    }
+
+    function detectDecimalPlaces(rows, columns) {
+      const yearColumns = columns.slice(2);
+      return rows.reduce((maxPlaces, row) => {
+        const rowMax = yearColumns.reduce((max, column) => {
+          return Math.max(max, getDecimalPlacesFromValue(row[column]));
+        }, 0);
+        return Math.max(maxPlaces, rowMax);
+      }, 0);
+    }
+
+    function applyDetectedDecimalPlaces(rows, columns) {
+      const places = Math.min(8, detectDecimalPlaces(rows, columns));
+      document.getElementById('decimalPlaces').value = places;
+    }
+
+    function getNumberFormatSettings() {
+      return {
+        prefix: document.getElementById('valuePrefix').value,
+        suffix: document.getElementById('valueSuffix').value,
+        decimalPlaces: Math.min(8, Math.max(0, +document.getElementById('decimalPlaces').value || 0)),
+        trimTrailingZeros: document.getElementById('trimTrailingZeros').checked,
+        hideSmallThousands: document.getElementById('hideSmallThousands').checked,
+        negativeStyle: document.getElementById('negativeStyle').value
+      };
+    }
+
+    function formatNumberValue(value) {
+      const settings = getNumberFormatSettings();
+      const isNegative = value < 0;
+      const absoluteValue = Math.abs(value);
+      const useGrouping = !(settings.hideSmallThousands && absoluteValue < 10000);
+      let numberText = absoluteValue.toLocaleString(undefined, {
+        minimumFractionDigits: settings.trimTrailingZeros ? 0 : settings.decimalPlaces,
+        maximumFractionDigits: settings.decimalPlaces,
+        useGrouping
+      });
+
+      if (settings.negativeStyle === 'parentheses' && isNegative) {
+        return `(${settings.prefix}${numberText}${settings.suffix})`;
+      }
+
+      return `${isNegative ? '-' : ''}${settings.prefix}${numberText}${settings.suffix}`;
+    }
+
+    function getAxisSettings() {
+      const textSizeValue = +document.getElementById('axisTextSize').value;
+      const lineWidthValue = +document.getElementById('axisLineWidth').value;
+      const lineDashValue = +document.getElementById('axisLineDash').value;
+      const fixedMaxValue = parseNumber(document.getElementById('axisFixedMax').value);
+      return {
+        textColor: document.getElementById('axisTextColor').value || '#999999',
+        textSize: Number.isFinite(textSizeValue) ? Math.max(1, textSizeValue) : 11,
+        lineColor: document.getElementById('axisLineColor').value || '#d2d2d2',
+        lineWidth: Number.isFinite(lineWidthValue) ? Math.max(0, lineWidthValue) : 1,
+        lineDash: Number.isFinite(lineDashValue) ? Math.max(0, lineDashValue) : 0,
+        scaleMode: document.getElementById('axisScaleMode').value || 'dynamic',
+        fixedMax: fixedMaxValue !== null && fixedMaxValue > 0 ? fixedMaxValue : null
+      };
+    }
+
+    function getLayoutAppearanceSettings() {
+      return {
+        font: document.getElementById('mainFont').value || "'Helvetica Neue', Arial, sans-serif",
+        textColor: document.getElementById('layoutTextColor').value || '#222222',
+        useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
+        backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
+        useBackgroundImage: document.getElementById('enableBackgroundImage').checked
+      };
+    }
+
+    function applyLayoutAppearance() {
+      const settings = getLayoutAppearanceSettings();
+      const chart = document.getElementById('chartArea');
+      const title = document.getElementById('chartTitle');
+      const source = document.getElementById('sourceDisplay');
+
+      chart.style.fontFamily = settings.font;
+      chart.style.color = settings.textColor;
+      chart.style.backgroundColor = settings.useBackgroundColor ? settings.backgroundColor : 'transparent';
+      chart.style.backgroundImage = settings.useBackgroundImage && backgroundImageDataUrl ? `url("${backgroundImageDataUrl}")` : 'none';
+      chart.style.backgroundSize = 'cover';
+      chart.style.backgroundPosition = 'center';
+      chart.style.backgroundRepeat = 'no-repeat';
+      title.style.color = settings.textColor;
+      source.style.color = settings.textColor;
+    }
+
+    function getGraphSettings() {
+      const topNValue = +document.getElementById('topN').value;
+      const spacingValue = +document.getElementById('barSpacing').value;
+      return {
+        chartStyle: document.getElementById('chartStyle').value || 'score',
+        topN: Number.isFinite(topNValue) ? Math.max(1, topNValue) : 10,
+        barSpacing: Number.isFinite(spacingValue) ? Math.min(Math.max(0, spacingValue), 80) : 15,
+        sortEnabled: document.getElementById('sortEnabled').checked,
+        sortMode: document.getElementById('sortMode').value || 'desc'
+      };
+    }
+
+    function getLabelSettings() {
+      const fontSizeValue = +document.getElementById('labelFontSize').value;
+      const valueSpaceValue = +document.getElementById('valueLabelSpace').value;
+      return {
+        fontSize: Number.isFinite(fontSizeValue) ? Math.max(1, fontSizeValue) : 18,
+        showNames: document.getElementById('showNameLabels').checked,
+        nameColor: document.getElementById('nameLabelColor').value || '#333333',
+        showValues: document.getElementById('showValueLabels').checked,
+        valueColor: document.getElementById('valueLabelColor').value || '#333333',
+        valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
+        showRankingItemAfterBar: document.getElementById('showRankingItemAfterBar').checked,
+        showRankingValueInsideBar: document.getElementById('showRankingValueInsideBar').checked
+      };
+    }
+
+    function getImageSettings() {
+      const marginRightValue = +document.getElementById('imageMarginRight').value;
+      const sizing = document.getElementById('imageSizing').value || 'fill';
+      return {
+        marginRight: Number.isFinite(marginRightValue) ? marginRightValue : 8,
+        sizing,
+        shape: document.getElementById('imageShape').value || 'rectangle',
+        preserveAspectRatio: sizing === 'stretch' ? 'none' : `xMidYMid ${sizing === 'fit' ? 'meet' : 'slice'}`
+      };
+    }
+
+    function hexToRgb(hex) {
+      const clean = String(hex || '#000000').replace('#', '');
+      const normalized = clean.length === 3
+        ? clean.split('').map(char => char + char).join('')
+        : clean.padEnd(6, '0').slice(0, 6);
+      const value = parseInt(normalized, 16);
+      return {
+        r: (value >> 16) & 255,
+        g: (value >> 8) & 255,
+        b: value & 255
+      };
+    }
+
+    function getTimeCounterSettings() {
+      const opacityValue = +document.getElementById('timeCounterOpacity').value;
+      const sizeValue = +document.getElementById('timeCounterSize').value;
+      const xValue = +document.getElementById('timeCounterX').value;
+      const yValue = +document.getElementById('timeCounterY').value;
+      return {
+        show: document.getElementById('showTimeCounter').checked,
+        color: document.getElementById('timeCounterColor').value || '#000000',
+        opacity: Number.isFinite(opacityValue) ? Math.min(Math.max(0, opacityValue), 100) / 100 : 0.08,
+        sizePercent: Number.isFinite(sizeValue) ? Math.min(Math.max(1, sizeValue), 40) : 12,
+        xPercent: Number.isFinite(xValue) ? Math.min(Math.max(0, xValue), 100) : 95,
+        yPercent: Number.isFinite(yValue) ? Math.min(Math.max(0, yValue), 100) : 95
+      };
+    }
+
+    function applyTimeCounterSettings(canvasWidth = resolveCanvasWidth()) {
+      const yearDisplay = document.getElementById('yearDisplay');
+      const settings = getTimeCounterSettings();
+      const rgb = hexToRgb(settings.color);
+      yearDisplay.style.display = settings.show ? 'block' : 'none';
+      yearDisplay.style.color = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${settings.opacity})`;
+      yearDisplay.style.fontSize = (canvasWidth * (settings.sizePercent / 100)) + 'px';
+      yearDisplay.style.left = `${settings.xPercent}%`;
+      yearDisplay.style.top = `${settings.yPercent}%`;
+      yearDisplay.style.right = 'auto';
+      yearDisplay.style.bottom = 'auto';
+      yearDisplay.style.transform = `translate(${-settings.xPercent}%, ${-settings.yPercent}%)`;
+    }
+
+    function getColumnLetter(index) {
+      let value = index + 1;
+      let label = '';
+      while (value > 0) {
+        value--;
+        label = String.fromCharCode(65 + (value % 26)) + label;
+        value = Math.floor(value / 26);
+      }
+      return label;
+    }
+
+    function getHeaderRow() {
+      return csvData[0] || {};
+    }
+
+    function getYearColumns() {
+      const headerRow = getHeaderRow();
+      return (csvData.columns || [])
+        .slice(2)
+        .filter(column => String(headerRow[column] ?? '').trim() !== '');
+    }
+
+    function getYearLabel(yearColumn) {
+      return String(getHeaderRow()[yearColumn] ?? yearColumn).trim() || yearColumn;
+    }
+
+    // 直編集用：空の編集グリッドを生成（列=A,B,C… / 行は空オブジェクト）
+    function createBlankData(rowCount = 9, colCount = 5) {
+      const columns = Array.from({ length: colCount }, (_, i) => getColumnLetter(i));
+      const rows = Array.from({ length: rowCount }, () => {
+        const row = {};
+        columns.forEach(col => { row[col] = ''; });
+        return row;
+      });
+      rows.columns = columns;
+      return rows;
+    }
+
+    // 保存・再生に値する実データ（年列＋数値）が入っているか
+    function hasEditableContent() {
+      if (!csvData.length || !csvData.columns?.length) return false;
+      const yearCols = getYearColumns();
+      if (!yearCols.length) return false;
+      return csvData.slice(1).some(row =>
+        yearCols.some(year => parseNumber(row[year]) !== null)
+      );
+    }
+
+    function normalizeLoadedData(rows, columns) {
+      const originalColumns = columns || [];
+      const cleanColumns = (columns || []).map(col => String(col ?? '').trim());
+      if (cleanColumns.length < 3) {
+        throw new Error('A列:項目名、B列:画像URL、C列以降:年別数値 の形式にしてください');
+      }
+
+      const table = [
+        cleanColumns,
+        ...rows
+          .filter(row => originalColumns.some(col => String(row[col] ?? '').trim() !== ''))
+          .map(row => originalColumns.map(col => row[col] ?? ''))
+      ];
+      const columnCount = Math.max(...table.map(row => row.length));
+      const generatedColumns = Array.from({ length: columnCount }, (_, index) => getColumnLetter(index));
+      const headerRowValues = table[0] || [];
+      const yearColumns = generatedColumns
+        .slice(2)
+        .filter((column, index) => String(headerRowValues[index + 2] ?? '').trim() !== '');
+      if (!yearColumns.length) {
+        throw new Error('C列以降に年別の列がありません');
+      }
+
+      const normalizedRows = table.map(rowValues => {
+        const normalized = {};
+        generatedColumns.forEach((column, index) => {
+          normalized[column] = rowValues[index] ?? '';
+        });
+        return normalized;
+      });
+
+      const hasDisplayableData = normalizedRows.slice(1).some(row =>
+        yearColumns.some(year => parseNumber(row[year]) !== null)
+      );
+      if (!hasDisplayableData) {
+        throw new Error('表示できるデータ行がありません。1行目の項目と年別数値を確認してください');
+      }
+
+      normalizedRows.columns = generatedColumns;
+      return { rows: normalizedRows, columns: generatedColumns, years: yearColumns };
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getRowHeaderWidth() {
+      const digits = Math.max(1, String(Math.max(1, csvData.length)).length);
+      return Math.max(34, digits * 8 + 22);
+    }
+
+    function ensureColumnWidths() {
+      columnWidths = csvData.columns.map((_, index) => {
+        const existing = columnWidths[index];
+        return Number.isFinite(existing) ? existing : DEFAULT_COLUMN_WIDTH;
+      });
+    }
+
+    function clampColumnWidth(width) {
+      return Math.min(Math.max(MIN_COLUMN_WIDTH, width), MAX_COLUMN_WIDTH);
+    }
+
+    function isBlankColumnKey(column) {
+      return String(column ?? '').startsWith(BLANK_COLUMN_PREFIX);
+    }
+
+    function getColumnDisplayName(column) {
+      return isBlankColumnKey(column) ? '' : column;
+    }
+
+    function makeBlankColumnKey(index, existing = new Set(csvData.columns)) {
+      let key = `${BLANK_COLUMN_PREFIX}${Date.now()}_${index}`;
+      let suffix = 2;
+      while (existing.has(key)) {
+        key = `${BLANK_COLUMN_PREFIX}${Date.now()}_${index}_${suffix}`;
+        suffix++;
+      }
+      existing.add(key);
+      return key;
+    }
+
+    function getDataColumnRole(colIndex) {
+      if (colIndex === 0) return { key: 'label', title: 'ラベル列' };
+      if (colIndex === 1) return { key: 'image', title: '画像列' };
+      return { key: 'value', title: '値列' };
+    }
+
+    function renderDataEditor() {
+      const editor = document.getElementById('dataEditor');
+      const summary = document.getElementById('dataEditorSummary');
+      if (!editor || !summary) return;
+
+      // データ未読込でも空の編集グリッドを表示し、直接入力できるようにする
+      if (!csvData.length || !csvData.columns?.length) {
+        csvData = createBlankData();
+        columnWidths = csvData.columns.map(() => DEFAULT_COLUMN_WIDTH);
+      }
+
+      editorRenderLocked = true;
+      summary.innerText = `${csvData.length}行 / ${csvData.columns.length}列`;
+      editor.className = 'data-editor-wrap';
+      ensureColumnWidths();
+
+      const colGroup = [
+        `<col style="width:${getRowHeaderWidth()}px">`,
+        ...columnWidths.map(width => `<col style="width:${clampColumnWidth(width)}px">`)
+      ].join('');
+      const headerCells = csvData.columns.map((column, colIndex) => {
+        const role = getDataColumnRole(colIndex);
+        return `<th tabindex="0" data-header-col="${colIndex}" data-column-role="${role.key}" data-column-tooltip="${role.title}">${escapeHtml(getColumnLetter(colIndex))}<span class="col-resize-handle" data-resize-col="${colIndex}" title="ドラッグで幅変更 / ダブルクリックで自動調整"></span></th>`;
+      }).join('');
+      const bodyRows = csvData.map((row, rowIndex) => {
+        const cells = csvData.columns.map((column, colIndex) => {
+          const role = getDataColumnRole(colIndex);
+          return `<td tabindex="0" data-row="${rowIndex}" data-col="${colIndex}" data-column-role="${role.key}">${escapeHtml(row[column] ?? '')}</td>`;
+        }).join('');
+        const rowHeaderTip = rowIndex === 0 ? ' data-column-tooltip="時系列"' : '';
+        return `<tr><td tabindex="0" data-row-header="${rowIndex}"${rowHeaderTip}>${rowIndex + 1}</td>${cells}</tr>`;
+      }).join('');
+
+      editor.innerHTML = `<div id="dataColumnTooltip" class="data-column-tooltip"></div><table id="dataEditorTable"><colgroup>${colGroup}</colgroup><thead><tr><th class="corner-menu-cell"><button type="button" class="corner-menu-button" id="editorCornerMenuButton" title="データ操作メニュー">▾</button></th>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+      clearCellSelection();
+      editorRenderLocked = false;
+    }
+
+    function cellKey(rowIndex, colIndex) {
+      return `${rowIndex}:${colIndex}`;
+    }
+
+    function parseCellKey(key) {
+      const [rowIndex, colIndex] = key.split(':').map(Number);
+      return { rowIndex, colIndex };
+    }
+
+    function getSelectionBounds() {
+      const cells = [...selectedCells].map(parseCellKey);
+      if (!cells.length && activeCell) cells.push(activeCell);
+      if (!cells.length) return null;
+      return {
+        rowStart: Math.min(...cells.map(cell => cell.rowIndex)),
+        rowEnd: Math.max(...cells.map(cell => cell.rowIndex)),
+        colStart: Math.min(...cells.map(cell => cell.colIndex)),
+        colEnd: Math.max(...cells.map(cell => cell.colIndex))
+      };
+    }
+
+    function getEditorCell(rowIndex, colIndex) {
+      return document.querySelector(`#dataEditorTable td[data-row="${rowIndex}"][data-col="${colIndex}"]`);
+    }
+
+    function cloneDataState() {
+      return {
+        columns: [...(csvData.columns || [])],
+        rows: csvData.map(row => {
+          const copy = {};
+          (csvData.columns || []).forEach(column => {
+            copy[column] = row[column] ?? '';
+          });
+          return copy;
+        })
+      };
+    }
+
+    function restoreDataState(state) {
+      csvData = state.rows.map(row => ({ ...row }));
+      csvData.columns = [...state.columns];
+      years = getYearColumns();
+      renderDataEditor();
+      renderCustomColorList();
+      renderTimeline();
+      refreshCurrentPreview({ reset: true });
+      updateProjectActionButtons();
+      const firstCell = getEditorCell(0, 0);
+      if (firstCell) {
+        selectedCells = new Set([cellKey(0, 0)]);
+        activeCell = { rowIndex: 0, colIndex: 0 };
+        selectionAnchor = { rowIndex: 0, colIndex: 0 };
+        paintCellSelection();
+        firstCell.focus({ preventScroll: true });
+      }
+    }
+
+    function recordHistory(action) {
+      undoStack.push(action);
+      if (undoStack.length > MAX_HISTORY) undoStack.shift();
+      redoStack = [];
+    }
+
+    function recordSnapshot(before, after) {
+      recordHistory({ type: 'snapshot', before, after });
+    }
+
+    function recordCellHistory(rowIndex, colIndex, before, after) {
+      if (before === after) return;
+      recordHistory({ type: 'cells', changes: [{ rowIndex, colIndex, before, after }] });
+    }
+
+    function applyCellChanges(changes, direction) {
+      changes.forEach(change => {
+        const column = csvData.columns[change.colIndex];
+        if (!column || !csvData[change.rowIndex]) return;
+        const value = direction === 'undo' ? change.before : change.after;
+        csvData[change.rowIndex][column] = value;
+        const cell = getEditorCell(change.rowIndex, change.colIndex);
+        if (cell) cell.innerText = value;
+      });
+      scheduleChartRefreshFromEditor();
+    }
+
+    function undoEdit() {
+      commitCellEdit();
+      const action = undoStack.pop();
+      if (!action) return;
+      redoStack.push(action);
+      if (action.type === 'snapshot') restoreDataState(action.before);
+      else if (action.type === 'cells') applyCellChanges(action.changes, 'undo');
+    }
+
+    function redoEdit() {
+      commitCellEdit();
+      const action = redoStack.pop();
+      if (!action) return;
+      undoStack.push(action);
+      if (action.type === 'snapshot') restoreDataState(action.after);
+      else if (action.type === 'cells') applyCellChanges(action.changes, 'redo');
+    }
+
+    function getCellFromEventTarget(target) {
+      return target.closest('#dataEditorTable td[data-row][data-col]');
+    }
+
+    function getColumnHeaderFromEventTarget(target) {
+      return target.closest('#dataEditorTable th[data-header-col]');
+    }
+
+    function getRowHeaderFromEventTarget(target) {
+      return target.closest('#dataEditorTable td[data-row-header]');
+    }
+
+    function getColumnResizeHandleFromEventTarget(target) {
+      return target.closest('.col-resize-handle[data-resize-col]');
+    }
+
+    function applyColumnWidth(colIndex, width) {
+      ensureColumnWidths();
+      columnWidths[colIndex] = clampColumnWidth(width);
+      const col = document.querySelector(`#dataEditorTable colgroup col:nth-child(${colIndex + 2})`);
+      if (col) col.style.width = `${columnWidths[colIndex]}px`;
+    }
+
+    function getSelectedColumnIndexesForResize(targetColIndex) {
+      const bounds = getSelectionBounds();
+      if (!bounds || targetColIndex < bounds.colStart || targetColIndex > bounds.colEnd) {
+        return [targetColIndex];
+      }
+      const indexes = [];
+      for (let colIndex = bounds.colStart; colIndex <= bounds.colEnd; colIndex++) {
+        indexes.push(colIndex);
+      }
+      return indexes;
+    }
+
+    function measureEditorTextWidth(text, font) {
+      const canvas = measureEditorTextWidth.canvas || (measureEditorTextWidth.canvas = document.createElement('canvas'));
+      const ctx = canvas.getContext('2d');
+      ctx.font = font;
+      return ctx.measureText(String(text ?? '')).width;
+    }
+
+    function getAutoColumnWidth(colIndex) {
+      const table = document.getElementById('dataEditorTable');
+      const tableStyle = table ? getComputedStyle(table) : null;
+      const cellFont = tableStyle
+        ? `${tableStyle.fontStyle} ${tableStyle.fontWeight} ${tableStyle.fontSize} ${tableStyle.fontFamily}`
+        : '12px Helvetica Neue, Arial, sans-serif';
+      const header = csvData.columns[colIndex] ?? '';
+      let maxWidth = measureEditorTextWidth(getColumnDisplayName(header), cellFont);
+
+      csvData.forEach(row => {
+        maxWidth = Math.max(maxWidth, measureEditorTextWidth(row[header] ?? '', cellFont));
+      });
+
+      return clampColumnWidth(Math.ceil(maxWidth + 34));
+    }
+
+    function autoFitColumns(targetColIndex) {
+      if (!csvData.columns?.length) return;
+      commitCellEdit();
+      ensureColumnWidths();
+      getSelectedColumnIndexesForResize(targetColIndex).forEach(colIndex => {
+        applyColumnWidth(colIndex, getAutoColumnWidth(colIndex));
+      });
+    }
+
+    function makeUniqueColumnName(baseName = 'New column') {
+      const existing = new Set(csvData.columns);
+      let name = baseName;
+      let index = 2;
+      while (existing.has(name)) {
+        name = `${baseName} ${index}`;
+        index++;
+      }
+      return name;
+    }
+
+    function getContextTargetFromEvent(e) {
+      const cell = getCellFromEventTarget(e.target);
+      if (cell) return { rowIndex: +cell.dataset.row, colIndex: +cell.dataset.col };
+
+      const rowHeader = getRowHeaderFromEventTarget(e.target);
+      if (rowHeader) return { rowIndex: +rowHeader.dataset.rowHeader, colIndex: activeCell?.colIndex ?? 0 };
+
+      const columnHeader = getColumnHeaderFromEventTarget(e.target);
+      if (columnHeader) return { rowIndex: activeCell?.rowIndex ?? 0, colIndex: +columnHeader.dataset.headerCol };
+
+      return activeCell || { rowIndex: 0, colIndex: 0 };
+    }
+
+    function refreshEditorAfterStructureChange(before) {
+      recordSnapshot(before, cloneDataState());
+      renderDataEditor();
+      refreshChartFromEditor();
+    }
+
+    function insertRowsAt(index, count = 1) {
+      const before = cloneDataState();
+      const safeIndex = Math.max(0, Math.min(index, csvData.length));
+      const rows = Array.from({ length: Math.max(1, count) }, () => {
+        const row = {};
+        csvData.columns.forEach(column => { row[column] = ''; });
+        return row;
+      });
+      csvData.splice(safeIndex, 0, ...rows);
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function removeRows(indices) {
+      if (!csvData.length) return;
+      const unique = [...new Set(indices)].filter(index => index >= 0 && index < csvData.length);
+      if (!unique.length) return;
+      const before = cloneDataState();
+      unique.sort((a, b) => b - a).forEach(index => csvData.splice(index, 1));
+      if (!csvData.length) {
+        const row = {};
+        csvData.columns.forEach(column => { row[column] = ''; });
+        csvData.push(row);
+      }
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function insertColumnsAt(index, count = 1) {
+      const before = cloneDataState();
+      const safeIndex = Math.max(0, Math.min(index, csvData.columns.length));
+      const existing = new Set(csvData.columns);
+      const names = Array.from({ length: Math.max(1, count) }, (_, offset) => makeBlankColumnKey(offset, existing));
+      csvData.columns.splice(safeIndex, 0, ...names);
+      csvData.forEach(row => {
+        names.forEach(name => { row[name] = ''; });
+      });
+      columnWidths.splice(safeIndex, 0, ...names.map(() => DEFAULT_COLUMN_WIDTH));
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function removeColumns(indices) {
+      if (csvData.columns.length <= 3) return;
+      const unique = [...new Set(indices)].filter(index => index >= 0 && index < csvData.columns.length);
+      if (!unique.length || csvData.columns.length - unique.length < 3) return;
+      const before = cloneDataState();
+      unique.sort((a, b) => b - a).forEach(index => {
+        const column = csvData.columns[index];
+        csvData.columns.splice(index, 1);
+        columnWidths.splice(index, 1);
+        csvData.forEach(row => delete row[column]);
+      });
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function compareCellValues(a, b, column, direction) {
+      const aNum = parseNumber(a[column]);
+      const bNum = parseNumber(b[column]);
+      let result;
+      if (aNum !== null && bNum !== null) {
+        result = aNum - bNum;
+      } else {
+        result = String(a[column] ?? '').localeCompare(String(b[column] ?? ''), undefined, { numeric: true, sensitivity: 'base' });
+      }
+      return direction === 'asc' ? result : -result;
+    }
+
+    function sortByColumn(colIndex, direction) {
+      const column = csvData.columns[colIndex];
+      if (!column) return;
+      const before = cloneDataState();
+      const headerRow = csvData[0];
+      const bodyRows = csvData.slice(1);
+      bodyRows.sort((a, b) => compareCellValues(a, b, column, direction));
+      csvData = [headerRow, ...bodyRows];
+      csvData.columns = before.columns;
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function getDataAsTable() {
+      return csvData.map(row => csvData.columns.map(column => row[column] ?? ''));
+    }
+
+    function makeUniqueHeaders(headers) {
+      const counts = new Map();
+      return headers.map((header, index) => {
+        const base = String(header ?? '').trim() || `列${index + 1}`;
+        const count = (counts.get(base) || 0) + 1;
+        counts.set(base, count);
+        return count === 1 ? base : `${base} ${count}`;
+      });
+    }
+
+    function transposeTable() {
+      if (!csvData.length || !csvData.columns?.length) return;
+      const before = cloneDataState();
+      const table = getDataAsTable();
+      const width = Math.max(...table.map(row => row.length));
+      const normalized = table.map(row => {
+        const next = [...row];
+        while (next.length < width) next.push('');
+        return next;
+      });
+      const transposed = Array.from({ length: width }, (_, colIndex) =>
+        normalized.map(row => row[colIndex] ?? '')
+      );
+
+      const columnCount = Math.max(3, transposed[0]?.length || 0);
+      const columns = Array.from({ length: columnCount }, (_, index) => getColumnLetter(index));
+      let rows = transposed.map(rowValues => {
+        const row = {};
+        columns.forEach((column, index) => { row[column] = rowValues[index] ?? ''; });
+        return row;
+      });
+      if (!rows.length) {
+        const row = {};
+        columns.forEach(column => { row[column] = ''; });
+        rows = [row];
+      }
+
+      csvData = rows;
+      csvData.columns = columns;
+      columnWidths = columns.map(() => DEFAULT_COLUMN_WIDTH);
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function clearAllDataCells() {
+      if (!csvData.length || !csvData.columns?.length) return;
+      const before = cloneDataState();
+      csvData.forEach(row => {
+        csvData.columns.forEach(column => { row[column] = ''; });
+      });
+      refreshEditorAfterStructureChange(before);
+    }
+
+    function downloadBlob(filename, mimeType, content) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function escapeCsvValue(value) {
+      const text = String(value ?? '');
+      return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function downloadCsv() {
+      if (!csvData.columns?.length) return;
+      const csv = getDataAsTable()
+        .map(row => row.map(escapeCsvValue).join(','))
+        .join('\n');
+      downloadBlob('chart-data.csv', 'text/csv;charset=utf-8', '\uFEFF' + csv);
+    }
+
+    async function downloadExcel() {
+      if (!csvData.columns?.length) return;
+      try {
+        await ensureXLSX();
+      } catch (err) {
+        document.getElementById('status').innerText = "❌ " + err.message;
+        return;
+      }
+      const worksheet = XLSX.utils.aoa_to_sheet(getDataAsTable());
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+      XLSX.writeFile(workbook, 'chart-data.xlsx');
+    }
+
+    function runCornerMenuAction(action) {
+      if (action === 'transpose') transposeTable();
+      else if (action === 'clear-all') clearAllDataCells();
+      else if (action === 'download-csv') downloadCsv();
+      else if (action === 'download-excel') downloadExcel();
+      hideEditorCornerMenu();
+    }
+
+    function getSelectedRowIndices(fallbackRowIndex) {
+      if (!selectedCells.size) return [fallbackRowIndex];
+      return [...new Set([...selectedCells].map(key => parseCellKey(key).rowIndex))];
+    }
+
+    function getSelectedColumnIndices(fallbackColIndex) {
+      if (!selectedCells.size) return [fallbackColIndex];
+      return [...new Set([...selectedCells].map(key => parseCellKey(key).colIndex))];
+    }
+
+    function hideDataContextMenu() {
+      document.getElementById('dataContextMenu').classList.remove('active');
+    }
+
+    function showDataContextMenu(x, y) {
+      const menu = document.getElementById('dataContextMenu');
+      menu.classList.add('active');
+      const rect = menu.getBoundingClientRect();
+      menu.style.left = `${Math.min(x, window.innerWidth - rect.width - 8)}px`;
+      menu.style.top = `${Math.min(y, window.innerHeight - rect.height - 8)}px`;
+    }
+
+    function hideEditorCornerMenu() {
+      document.getElementById('editorCornerMenu').classList.remove('active');
+    }
+
+    function showEditorCornerMenu(button) {
+      const menu = document.getElementById('editorCornerMenu');
+      const rect = button.getBoundingClientRect();
+      menu.classList.add('active');
+      const menuRect = menu.getBoundingClientRect();
+      menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menuRect.width - 8))}px`;
+      menu.style.top = `${Math.max(8, Math.min(rect.bottom, window.innerHeight - menuRect.height - 8))}px`;
+    }
+
+    function hideDataColumnTooltip() {
+      document.getElementById('dataColumnTooltip')?.classList.remove('active');
+    }
+
+    function showDataColumnTooltip(header) {
+      const tooltip = document.getElementById('dataColumnTooltip');
+      const text = header?.dataset?.columnTooltip;
+      if (!tooltip || !text) {
+        hideDataColumnTooltip();
+        return;
+      }
+      tooltip.textContent = text;
+      tooltip.classList.add('active');
+      const headerRect = header.getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      tooltip.style.left = `${Math.max(8, Math.min(headerRect.left + headerRect.width / 2 - tooltipRect.width / 2, window.innerWidth - tooltipRect.width - 8))}px`;
+      tooltip.style.top = `${Math.max(8, headerRect.top - tooltipRect.height - 8)}px`;
+    }
+
+    function runContextMenuAction(action) {
+      const target = contextMenuTarget || activeCell || { rowIndex: 0, colIndex: 0 };
+      const rowIndices = getSelectedRowIndices(target.rowIndex);
+      const colIndices = getSelectedColumnIndices(target.colIndex);
+      const rowStart = Math.min(...rowIndices);
+      const rowEnd = Math.max(...rowIndices);
+      const colStart = Math.min(...colIndices);
+      const colEnd = Math.max(...colIndices);
+      if (action === 'insert-row-above') insertRowsAt(rowStart, rowIndices.length);
+      else if (action === 'insert-row-below') insertRowsAt(rowEnd + 1, rowIndices.length);
+      else if (action === 'insert-col-left') insertColumnsAt(colStart, colIndices.length);
+      else if (action === 'insert-col-right') insertColumnsAt(colEnd + 1, colIndices.length);
+      else if (action === 'remove-row') removeRows(rowIndices);
+      else if (action === 'remove-col') removeColumns(colIndices);
+      else if (action === 'sort-asc') sortByColumn(target.colIndex, 'asc');
+      else if (action === 'sort-desc') sortByColumn(target.colIndex, 'desc');
+      else if (action === 'upload-file') document.getElementById('dataFile').click();
+      hideDataContextMenu();
+    }
+
+    function clearCellSelection() {
+      selectedCells.clear();
+      activeCell = null;
+      selectionAnchor = null;
+      document.querySelectorAll('#dataEditorTable td.selected-cell, #dataEditorTable td.active-cell')
+        .forEach(cell => cell.classList.remove('selected-cell', 'active-cell'));
+      document.querySelectorAll('#dataEditorTable .selected-header')
+        .forEach(cell => cell.classList.remove('selected-header'));
+    }
+
+    function paintCellSelection() {
+      const table = document.getElementById('dataEditorTable');
+      if (!table) return;
+      // 1パスで全データセルのクラスをトグル（セル毎 querySelector を廃止＝広範囲でも軽い）
+      table.querySelectorAll('td[data-row][data-col]').forEach(cell => {
+        const r = +cell.dataset.row, c = +cell.dataset.col;
+        cell.classList.toggle('selected-cell', selectedCells.has(cellKey(r, c)));
+        cell.classList.toggle('active-cell',
+          !!activeCell && r === activeCell.rowIndex && c === activeCell.colIndex);
+      });
+      table.querySelectorAll('.selected-header')
+        .forEach(cell => cell.classList.remove('selected-header'));
+      // 選択は常に矩形なので bounds はアンカー↔アクティブから算出（全集合走査を回避）
+      const bounds = (activeCell && selectionAnchor)
+        ? {
+            rowStart: Math.min(selectionAnchor.rowIndex, activeCell.rowIndex),
+            rowEnd: Math.max(selectionAnchor.rowIndex, activeCell.rowIndex),
+            colStart: Math.min(selectionAnchor.colIndex, activeCell.colIndex),
+            colEnd: Math.max(selectionAnchor.colIndex, activeCell.colIndex)
+          }
+        : getSelectionBounds();
+      if (!bounds) return;
+      if (bounds.rowStart === 0 && bounds.rowEnd === csvData.length - 1) {
+        for (let colIndex = bounds.colStart; colIndex <= bounds.colEnd; colIndex++) {
+          document.querySelector(`#dataEditorTable th[data-header-col="${colIndex}"]`)?.classList.add('selected-header');
+        }
+      }
+      if (bounds.colStart === 0 && bounds.colEnd === csvData.columns.length - 1) {
+        for (let rowIndex = bounds.rowStart; rowIndex <= bounds.rowEnd; rowIndex++) {
+          document.querySelector(`#dataEditorTable td[data-row-header="${rowIndex}"]`)?.classList.add('selected-header');
+        }
+      }
+    }
+
+    function selectCell(rowIndex, colIndex) {
+      commitCellEdit();
+      selectedCells = new Set([cellKey(rowIndex, colIndex)]);
+      activeCell = { rowIndex, colIndex };
+      selectionAnchor = { rowIndex, colIndex };
+      paintCellSelection();
+      getEditorCell(rowIndex, colIndex)?.focus({ preventScroll: true });
+    }
+
+    function selectCellRange(fromCell, toCell) {
+      commitCellEdit();
+      selectedCells.clear();
+      const rowStart = Math.min(fromCell.rowIndex, toCell.rowIndex);
+      const rowEnd = Math.max(fromCell.rowIndex, toCell.rowIndex);
+      const colStart = Math.min(fromCell.colIndex, toCell.colIndex);
+      const colEnd = Math.max(fromCell.colIndex, toCell.colIndex);
+      for (let rowIndex = rowStart; rowIndex <= rowEnd; rowIndex++) {
+        for (let colIndex = colStart; colIndex <= colEnd; colIndex++) {
+          selectedCells.add(cellKey(rowIndex, colIndex));
+        }
+      }
+      activeCell = { rowIndex: toCell.rowIndex, colIndex: toCell.colIndex };
+      paintCellSelection();
+    }
+
+    function selectColumn(colIndex) {
+      if (!csvData.length) return;
+      selectionAnchor = { rowIndex: 0, colIndex };
+      selectCellRange(selectionAnchor, { rowIndex: csvData.length - 1, colIndex });
+      getEditorCell(0, colIndex)?.focus({ preventScroll: true });
+    }
+
+    function selectRow(rowIndex) {
+      if (!csvData.columns.length) return;
+      selectionAnchor = { rowIndex, colIndex: 0 };
+      selectCellRange(selectionAnchor, { rowIndex, colIndex: csvData.columns.length - 1 });
+      getEditorCell(rowIndex, 0)?.focus({ preventScroll: true });
+    }
+
+    function selectAllCells() {
+      if (!csvData.length || !csvData.columns.length) return;
+      selectionAnchor = { rowIndex: 0, colIndex: 0 };
+      selectCellRange(selectionAnchor, {
+        rowIndex: csvData.length - 1,
+        colIndex: csvData.columns.length - 1
+      });
+      getEditorCell(0, 0)?.focus({ preventScroll: true });
+    }
+
+    // 指定セルを可視化。scrollRow/scrollCol が false の軸はスクロール位置を保持する。
+    function scrollCellIntoView(rowIndex, colIndex, scrollRow, scrollCol) {
+      const cell = getEditorCell(rowIndex, colIndex);
+      const wrap = document.getElementById('dataEditor');
+      if (!cell || !wrap) return;
+      const sl = wrap.scrollLeft, st = wrap.scrollTop;
+      cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (!scrollRow) wrap.scrollTop = st;   // 縦移動でなければ縦位置を戻す
+      if (!scrollCol) wrap.scrollLeft = sl;  // 横移動でなければ横位置を戻す
+    }
+
+    // アクティブセルを指定座標へ（キーボード用。端ジャンプ/拡張に利用）
+    function setActiveCellTo(rowIndex, colIndex, extendSelection) {
+      const prev = activeCell;
+      const r = Math.max(0, Math.min(csvData.length - 1, rowIndex));
+      const c = Math.max(0, Math.min(csvData.columns.length - 1, colIndex));
+      if (extendSelection && selectionAnchor) {
+        selectCellRange(selectionAnchor, { rowIndex: r, colIndex: c });
+      } else {
+        selectCell(r, c);
+      }
+      scrollCellIntoView(r, c,
+        !prev || prev.rowIndex !== r,   // 行が変わったときだけ縦スクロール
+        !prev || prev.colIndex !== c);  // 列が変わったときだけ横スクロール
+    }
+
+    // 座標から対象セル(row/col)を判定。ヘッダ/隙間では該当軸のみ返す（もう一方は呼び元で保持）
+    function dragTargetFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y);
+      if (!el || !el.closest) return null;
+      const cell = el.closest('#dataEditorTable td[data-row][data-col]');
+      if (cell) return { rowIndex: +cell.dataset.row, colIndex: +cell.dataset.col };
+      const colH = el.closest('#dataEditorTable th[data-header-col]');
+      if (colH) return { rowIndex: null, colIndex: +colH.dataset.headerCol };
+      const rowH = el.closest('#dataEditorTable td[data-row-header]');
+      if (rowH) return { rowIndex: +rowH.dataset.rowHeader, colIndex: null };
+      return null;
+    }
+
+    // ドラッグ中の選択更新（rAF スロットル）
+    function updateDragSelection() {
+      if (!isSelectingCells || !selectionAnchor) return;
+      // ポインタがコンテナ外（自動スクロール中など）でも端のセルへ届くよう座標をクランプ
+      const wrap = document.getElementById('dataEditor');
+      let px = dragPointer.x, py = dragPointer.y;
+      if (wrap) {
+        const wr = wrap.getBoundingClientRect();
+        // 右下はスクロールバーを避けて内側にインセット（最終可視セルに当てる）
+        px = Math.max(wr.left + 1, Math.min(wr.right - 18, px));
+        py = Math.max(wr.top + 1, Math.min(wr.bottom - 18, py));
+      }
+      const hit = dragTargetFromPoint(px, py);
+      if (!hit) return; // ヘッダ外の隙間など → 直前の選択を維持
+      let row = hit.rowIndex, col = hit.colIndex;
+      if (row == null) row = dragLastRow;
+      if (col == null) col = dragLastCol;
+      row = Math.max(0, Math.min(csvData.length - 1, row));
+      col = Math.max(0, Math.min(csvData.columns.length - 1, col));
+      dragLastRow = row; dragLastCol = col;
+      if (dragMode === 'column') {
+        selectCellRange({ rowIndex: 0, colIndex: selectionAnchor.colIndex },
+          { rowIndex: csvData.length - 1, colIndex: col });
+      } else if (dragMode === 'row') {
+        selectCellRange({ rowIndex: selectionAnchor.rowIndex, colIndex: 0 },
+          { rowIndex: row, colIndex: csvData.columns.length - 1 });
+      } else {
+        selectCellRange(selectionAnchor, { rowIndex: row, colIndex: col });
+      }
+    }
+
+    function scheduleDragSelection() {
+      if (dragSelectScheduled) return;
+      dragSelectScheduled = true;
+      requestAnimationFrame(() => { dragSelectScheduled = false; updateDragSelection(); });
+    }
+
+    // ドラッグ中、コンテナ端付近でポインタが居る間 自動スクロールし続ける
+    function autoScrollTick() {
+      const wrap = document.getElementById('dataEditor');
+      if (!isSelectingCells || !wrap) { autoScrollRAF = null; return; }
+      const r = wrap.getBoundingClientRect();
+      const EDGE = 36, SPEED = 20;
+      let dx = 0, dy = 0;
+      // 行ヘッダドラッグは全列にまたがるため水平スクロール不要、
+      // 列ヘッダドラッグは全行にまたがるため垂直スクロール不要（端へ吸い寄せ防止）。
+      if (dragMode !== 'column') {
+        if (dragPointer.y < r.top + EDGE) dy = -SPEED;
+        else if (dragPointer.y > r.bottom - EDGE) dy = SPEED;
+      }
+      if (dragMode !== 'row') {
+        if (dragPointer.x < r.left + EDGE) dx = -SPEED;
+        else if (dragPointer.x > r.right - EDGE) dx = SPEED;
+      }
+      if (dx || dy) {
+        wrap.scrollLeft += dx;
+        wrap.scrollTop += dy;
+        updateDragSelection();
+        autoScrollRAF = requestAnimationFrame(autoScrollTick);
+      } else {
+        autoScrollRAF = null;
+      }
+    }
+
+    function maybeStartAutoScroll() {
+      if (autoScrollRAF == null) autoScrollRAF = requestAnimationFrame(autoScrollTick);
+    }
+
+    function placeCaretAtEnd(element) {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function selectCellText(element) {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function beginCellEdit(cell, replacementText = null) {
+      if (!cell) return;
+      commitCellEdit();
+      const rowIndex = +cell.dataset.row;
+      const colIndex = +cell.dataset.col;
+      selectedCells = new Set([cellKey(rowIndex, colIndex)]);
+      activeCell = { rowIndex, colIndex };
+      selectionAnchor = { rowIndex, colIndex };
+      paintCellSelection();
+
+      editingCell = cell;
+      editingOriginalValue = cell.innerText;
+      cell.classList.add('editing-cell');
+      cell.setAttribute('contenteditable', 'true');
+      cell.innerText = replacementText ?? editingOriginalValue;
+      cell.focus();
+      if (replacementText === null) selectCellText(cell);
+      else placeCaretAtEnd(cell);
+    }
+
+    function commitCellEdit() {
+      if (!editingCell) return;
+      const cell = editingCell;
+      const before = editingOriginalValue.trim();
+      const after = cell.innerText.trim();
+      const rowIndex = +cell.dataset.row;
+      const colIndex = +cell.dataset.col;
+      editingCell = null;
+      cell.removeAttribute('contenteditable');
+      cell.classList.remove('editing-cell');
+      updateCellFromEditor(rowIndex, colIndex, after, { record: false });
+      recordCellHistory(rowIndex, colIndex, before, after);
+      window.getSelection()?.removeAllRanges();
+    }
+
+    function cancelCellEdit() {
+      if (!editingCell) return;
+      const cell = editingCell;
+      editingCell = null;
+      cell.innerText = editingOriginalValue;
+      cell.removeAttribute('contenteditable');
+      cell.classList.remove('editing-cell');
+      window.getSelection()?.removeAllRanges();
+    }
+
+    function clearSelectedCells() {
+      if (!selectedCells.size) return;
+      commitCellEdit();
+      const before = cloneDataState();
+      selectedCells.forEach(key => {
+        const { rowIndex, colIndex } = parseCellKey(key);
+        const cell = getEditorCell(rowIndex, colIndex);
+        const column = csvData.columns[colIndex];
+        if (cell) cell.innerText = '';
+        if (column && csvData[rowIndex]) csvData[rowIndex][column] = '';
+      });
+      recordSnapshot(before, cloneDataState());
+      scheduleChartRefreshFromEditor();
+    }
+
+    function getSelectedCellsAsText() {
+      const bounds = getSelectionBounds();
+      if (!bounds) return '';
+
+      const rows = [];
+      for (let rowIndex = bounds.rowStart; rowIndex <= bounds.rowEnd; rowIndex++) {
+        const rowValues = [];
+        for (let colIndex = bounds.colStart; colIndex <= bounds.colEnd; colIndex++) {
+          const key = cellKey(rowIndex, colIndex);
+          const column = csvData.columns[colIndex];
+          rowValues.push(selectedCells.has(key) ? String(csvData[rowIndex]?.[column] ?? '') : '');
+        }
+        rows.push(rowValues.join('\t'));
+      }
+      return rows.join('\n');
+    }
+
+    function parseClipboardTable(text) {
+      return String(text ?? '')
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\n$/, '')
+        .split('\n')
+        .map(row => row.split('\t'));
+    }
+
+    function selectPastedRange(rowStart, colStart, rowCount, colCount) {
+      const rowEnd = Math.min(csvData.length - 1, rowStart + rowCount - 1);
+      const colEnd = Math.min(csvData.columns.length - 1, colStart + colCount - 1);
+      if (rowEnd < rowStart || colEnd < colStart) return;
+      selectionAnchor = { rowIndex: rowStart, colIndex: colStart };
+      selectCellRange(selectionAnchor, { rowIndex: rowEnd, colIndex: colEnd });
+    }
+
+    function pasteClipboardTable(text) {
+      const table = parseClipboardTable(text);
+      if (!table.length || !table[0].length) return;
+
+      commitCellEdit();
+      const bounds = getSelectionBounds();
+      const startRow = bounds ? bounds.rowStart : activeCell?.rowIndex ?? 0;
+      const startCol = bounds ? bounds.colStart : activeCell?.colIndex ?? 0;
+      let changed = false;
+      const before = cloneDataState();
+
+      if (table.length === 1 && table[0].length === 1 && selectedCells.size > 1) {
+        const value = table[0][0];
+        selectedCells.forEach(key => {
+          const { rowIndex, colIndex } = parseCellKey(key);
+          const column = csvData.columns[colIndex];
+          if (!column || !csvData[rowIndex]) return;
+          csvData[rowIndex][column] = value;
+          const cell = getEditorCell(rowIndex, colIndex);
+          if (cell) cell.innerText = value;
+          changed = true;
+        });
+        if (changed) {
+          recordSnapshot(before, cloneDataState());
+          scheduleChartRefreshFromEditor();
+        }
+        return;
+      }
+
+      table.forEach((row, rowOffset) => {
+        const rowIndex = startRow + rowOffset;
+        if (rowIndex >= csvData.length) return;
+        row.forEach((value, colOffset) => {
+          const colIndex = startCol + colOffset;
+          if (colIndex >= csvData.columns.length) return;
+          const column = csvData.columns[colIndex];
+          csvData[rowIndex][column] = value;
+          const cell = getEditorCell(rowIndex, colIndex);
+          if (cell) cell.innerText = value;
+          changed = true;
+        });
+      });
+
+      if (!changed) return;
+      selectPastedRange(startRow, startCol, table.length, Math.max(...table.map(row => row.length)));
+      recordSnapshot(before, cloneDataState());
+      scheduleChartRefreshFromEditor();
+    }
+
+    function fillSelection(direction) {
+      const bounds = getSelectionBounds();
+      if (!bounds) return;
+      const before = cloneDataState();
+      let changed = false;
+
+      if (direction === 'down' && bounds.rowEnd > bounds.rowStart) {
+        for (let rowIndex = bounds.rowStart + 1; rowIndex <= bounds.rowEnd; rowIndex++) {
+          for (let colIndex = bounds.colStart; colIndex <= bounds.colEnd; colIndex++) {
+            const column = csvData.columns[colIndex];
+            const value = csvData[bounds.rowStart]?.[column] ?? '';
+            csvData[rowIndex][column] = value;
+            const cell = getEditorCell(rowIndex, colIndex);
+            if (cell) cell.innerText = value;
+            changed = true;
+          }
+        }
+      }
+
+      if (direction === 'right' && bounds.colEnd > bounds.colStart) {
+        for (let rowIndex = bounds.rowStart; rowIndex <= bounds.rowEnd; rowIndex++) {
+          const sourceColumn = csvData.columns[bounds.colStart];
+          const value = csvData[rowIndex]?.[sourceColumn] ?? '';
+          for (let colIndex = bounds.colStart + 1; colIndex <= bounds.colEnd; colIndex++) {
+            const column = csvData.columns[colIndex];
+            csvData[rowIndex][column] = value;
+            const cell = getEditorCell(rowIndex, colIndex);
+            if (cell) cell.innerText = value;
+            changed = true;
+          }
+        }
+      }
+
+      if (!changed) return;
+      recordSnapshot(before, cloneDataState());
+      scheduleChartRefreshFromEditor();
+    }
+
+    function moveActiveCell(rowDelta, colDelta, extendSelection) {
+      if (!activeCell) return;
+      const rowIndex = Math.max(0, Math.min(csvData.length - 1, activeCell.rowIndex + rowDelta));
+      const colIndex = Math.max(0, Math.min(csvData.columns.length - 1, activeCell.colIndex + colDelta));
+      if (extendSelection && selectionAnchor) {
+        selectCellRange(selectionAnchor, { rowIndex, colIndex });
+      } else {
+        selectCell(rowIndex, colIndex);
+      }
+      scrollCellIntoView(rowIndex, colIndex, rowDelta !== 0, colDelta !== 0);
+    }
+
+    function refreshChartFromEditor() {
+      if (!csvData.length || !csvData.columns?.length) return;
+
+      years = getYearColumns();
+
+      // 直編集の内容に応じて保存・再生ボタンの有効/無効を更新
+      const valid = hasEditableContent();
+      document.getElementById('startBtn').disabled = !valid;
+      updateProjectActionButtons();
+      updatePlaybackUI();
+      if (!valid) {
+        document.getElementById('status').innerText = '入力待ち — A列:項目 / C列以降:年と数値を入力してください';
+        return;
+      }
+
+      try {
+        recomputeChartMetrics();
+        if (playback.state !== 'idle') frozenMetrics = chartMetrics;
+        fitToScreen();
+        renderTimeline();
+        renderCustomColorList();
+        renderPreviewFrame(getCurrentYearIndex(), { instant: true, reset: true });
+        document.getElementById('status').innerText = `✅ データ編集中 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
+      } catch (err) {
+        document.getElementById('status').innerText = "❌ データ編集エラー: " + err.message;
+      }
+    }
+
+    function scheduleChartRefreshFromEditor() {
+      clearTimeout(editorRefreshTimer);
+      editorRefreshTimer = setTimeout(refreshChartFromEditor, 120);
+    }
+
+    function updateHeaderFromEditor(colIndex, nextName) {
+      const oldName = csvData.columns[colIndex];
+      const typedName = String(nextName ?? '').trim();
+      const cleanName = typedName || oldName || `列${colIndex + 1}`;
+      if (cleanName === oldName) return;
+
+      const before = cloneDataState();
+      csvData.columns[colIndex] = cleanName;
+      csvData.forEach(row => {
+        row[cleanName] = row[oldName] ?? '';
+        if (cleanName !== oldName) delete row[oldName];
+      });
+      csvData.columns = csvData.columns;
+      renderDataEditor();
+      recordSnapshot(before, cloneDataState());
+      refreshChartFromEditor();
+    }
+
+    function updateCellFromEditor(rowIndex, colIndex, value, { record = false } = {}) {
+      const column = csvData.columns[colIndex];
+      if (!column || !csvData[rowIndex]) return;
+      const before = String(csvData[rowIndex][column] ?? '');
+      csvData[rowIndex][column] = value;
+      if (record) recordCellHistory(rowIndex, colIndex, before, value);
+      scheduleChartRefreshFromEditor();
+    }
+
+    function applyLoadedData(rows, columns, { preserveStyle = true } = {}) {
+      stopPlayback();
+      undoStack = [];
+      redoStack = [];
+      const normalized = normalizeLoadedData(rows, columns);
+      if (!preserveStyle) resetStyleSettingsToDefault();
+      csvData = normalized.rows;
+      csvData.columns = normalized.columns;
+      columnWidths = csvData.columns.map(() => DEFAULT_COLUMN_WIDTH);
+      years = normalized.years; // C列以降を年号として取得
+      applyDetectedDecimalPlaces(csvData, csvData.columns);
+      document.getElementById('startBtn').disabled = false;
+      updatePlaybackUI();
+      document.getElementById('status').innerText = `✅ データの読み込み完了 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
+      recomputeChartMetrics();
+      fitToScreen();
+      renderDataEditor();
+      updateBarColorControls();
+      renderTimeline();
+      renderPreviewFrame(0, { instant: true, reset: true });
+      updateProjectActionButtons();
+      resetFileInput();
+    }
+
+    // SheetJS(XLSX) は xlsx の読込/書出し時のみ使用。初期表示を軽くするため遅延ロードする。
+    let xlsxLoaderPromise = null;
+    function ensureXLSX() {
+      if (window.XLSX) return Promise.resolve(window.XLSX);
+      if (!xlsxLoaderPromise) {
+        xlsxLoaderPromise = new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+          s.onload = () => resolve(window.XLSX);
+          s.onerror = () => { xlsxLoaderPromise = null; reject(new Error('XLSXライブラリの読み込みに失敗しました')); };
+          document.head.appendChild(s);
+        });
+      }
+      return xlsxLoaderPromise;
+    }
+
+    function parseExcel(arrayBuffer) {
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const table = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      if (table.length < 2) throw new Error('データ行がありません');
+      const columns = table[0].map(col => String(col ?? '').trim());
+      const rows = table.slice(1)
+        .filter(row => row.some(cell => String(cell ?? '').trim() !== ''))
+        .map(row => {
+          const obj = {};
+          columns.forEach((col, i) => { obj[col] = row[i] ?? ''; });
+          return obj;
+        });
+      return { rows, columns };
+    }
+
+    function readDataFile(file, options = {}) {
+      updateSelectedFileName(file);
+      const ext = file.name.split('.').pop().toLowerCase();
+      const isExcel = ext === 'xlsx' || ext === 'xls';
+
+      const reader = new FileReader();
+      reader.onload = async event => {
+        try {
+          if (isExcel) {
+            await ensureXLSX();
+            const { rows, columns } = parseExcel(event.target.result);
+            applyLoadedData(rows, columns, options);
+          } else {
+            const parsed = d3.csvParse(event.target.result);
+            applyLoadedData(parsed, parsed.columns, options);
+          }
+        } catch (err) {
+          document.getElementById('startBtn').disabled = true;
+          document.getElementById('status').innerText = "❌ 読み込み失敗: " + err.message;
+        }
+      };
+      reader.onerror = () => {
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('status').innerText = "❌ ファイルの読み込みに失敗しました";
+      };
+
+      if (isExcel) reader.readAsArrayBuffer(file);
+      else reader.readAsText(file, 'UTF-8');
+    }
+
+    document.getElementById('dataFile').addEventListener('click', e => {
+      e.target.value = '';
+    });
+
+    document.getElementById('dataFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (hasLoadedData()) {
+        openReloadConfirm(file);
+        return;
+      }
+
+      readDataFile(file);
+    });
+
+    function clampCanvasSize(value, fallback) {
+      const number = +value || fallback;
+      return Math.min(Math.max(1, number), MAX_CANVAS_SIZE);
+    }
+
+    function applyAspectRatioPreset() {
+      const preset = document.getElementById('aspectRatioPreset').value;
+      if (preset === 'custom') return;
+
+      const [ratioWidth, ratioHeight] = preset.split(':').map(Number);
+      if (!ratioWidth || !ratioHeight) return;
+
+      document.getElementById('autoHeight').checked = false;
+      const widthInput = document.getElementById('canvasWidth');
+      const heightInput = document.getElementById('canvasHeight');
+      let width = clampCanvasSize(widthInput.value, 720);
+      let height = Math.round(width * ratioHeight / ratioWidth);
+
+      if (height > MAX_CANVAS_SIZE) {
+        height = MAX_CANVAS_SIZE;
+        width = Math.round(height * ratioWidth / ratioHeight);
+      }
+
+      widthInput.value = clampCanvasSize(width, 720);
+      heightInput.value = clampCanvasSize(height, 1280);
+      refreshCurrentPreview({ reset: true });
+    }
+
+    function resolveCanvasHeight() {
+      const heightInput = document.getElementById('canvasHeight');
+      if (document.getElementById('autoHeight').checked) {
+        const graphSettings = getGraphSettings();
+        const labelSettings = getLabelSettings();
+        const height = clampCanvasSize(graphSettings.topN * (labelSettings.fontSize * 2.8) + 180, 1280);
+        heightInput.value = height;
+        return height;
+      }
+      const height = clampCanvasSize(heightInput.value, 1280);
+      heightInput.value = height;
+      return height;
+    }
+
+    function resolveCanvasWidth() {
+      const widthInput = document.getElementById('canvasWidth');
+      const width = clampCanvasSize(widthInput.value, 720);
+      widthInput.value = width;
+      return width;
+    }
+
+    function getLayout() {
+      const width = resolveCanvasWidth();
+      const height = resolveCanvasHeight();
+      const graphSettings = getGraphSettings();
+      const labelSettings = getLabelSettings();
+      const zeroAxisPoints = +document.getElementById('barStartOffset').value || 0;
+      const zeroAxisPx = zeroAxisPoints * ZERO_AXIS_PX_PER_POINT;
+
+      return {
+        width,
+        height,
+        topN: graphSettings.topN,
+        labelFontSize: labelSettings.fontSize,
+        barSpacing: graphSettings.barSpacing,
+        sortEnabled: graphSettings.sortEnabled,
+        sortMode: graphSettings.sortMode,
+        chartStyle: graphSettings.chartStyle,
+        labelSettings,
+        zeroAxisPoints,
+        zeroAxisPx,
+        tickDuration: 1200
+      };
+    }
+
+    function getYearData(year, topN, options = {}) {
+      const nameCounts = new Map();
+      const sortEnabled = options.sortEnabled ?? getGraphSettings().sortEnabled;
+      const sortMode = options.sortMode ?? getGraphSettings().sortMode;
+      const yearData = csvData.slice(1).map((d, dataIndex) => {
+        const rowIndex = dataIndex + 1;
+        const rawName = String(d[csvData.columns[0]] ?? '').trim();
+        const baseName = rawName || 'No item';
+        const count = (nameCounts.get(baseName) || 0) + 1;
+        nameCounts.set(baseName, count);
+        const name = count === 1 ? baseName : `${baseName} ${count}`;
+
+        return {
+          key: `${rowIndex}:${name}`,
+          name,
+          imageUrl: String(d[csvData.columns[1]] ?? '').trim(),
+          value: parseNumber(d[year]) // 空白は null（値なし）
+        };
+      }).filter(item => item.value != null); // 値なしの年はその項目を除外（ランキング・本数から外す）
+
+      if (sortEnabled) {
+        yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
+      }
+      const limit = Number.isFinite(topN) ? topN : yearData.length;
+      return yearData.slice(0, limit);
+    }
+
+    function getInterpolatedYearData(fromYear, toYear, progress, topN, options = {}) {
+      const safeProgress = Math.min(Math.max(progress, 0), 1);
+      const startData = getYearData(fromYear, Number.MAX_SAFE_INTEGER, { ...options, sortEnabled: false });
+      const endData = getYearData(toYear, Number.MAX_SAFE_INTEGER, { ...options, sortEnabled: false });
+      const endMap = new Map(endData.map(item => [item.key, item]));
+      const sortEnabled = options.sortEnabled ?? getGraphSettings().sortEnabled;
+      const sortMode = options.sortMode ?? getGraphSettings().sortMode;
+
+      const yearData = startData.map(item => {
+        const target = endMap.get(item.key) || item;
+        return {
+          ...item,
+          value: item.value + (target.value - item.value) * safeProgress
+        };
+      });
+
+      if (sortEnabled) {
+        yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
+      }
+      const limit = Number.isFinite(topN) ? topN : yearData.length;
+      return yearData.slice(0, limit);
+    }
+
+    function getDynamicDomainMax(year, topN, options = {}) {
+      const yearData = options.yearData || getYearData(year, topN);
+      const maxValue = d3.max(yearData, d => d.value) || 1;
+      return Math.max(1, maxValue * 1.04);
+    }
+
+    function getInterpolatedDynamicDomainMax(fromYear, toYear, progress, topN, layout) {
+      const safeProgress = Math.min(Math.max(progress, 0), 1);
+      const startMax = getDynamicDomainMax(fromYear, topN, {
+        yearData: getYearData(fromYear, topN, layout)
+      });
+      const endMax = getDynamicDomainMax(toYear, topN, {
+        yearData: getYearData(toYear, topN, layout)
+      });
+      return startMax + (endMax - startMax) * safeProgress;
+    }
+
+    function getDisplayNameForMetrics(item, index, layout) {
+      if (layout.chartStyle === 'ranking') return `${index + 1}位`;
+      return item.name;
+    }
+
+    function recomputeChartMetrics() {
+      if (!years.length) {
+        chartMetrics = null;
+        return null;
+      }
+
+      const layout = getLayout();
+      let globalMaxValue = 1;
+      let globalMaxNameLength = 1;
+      let globalMaxItemNameLength = 1;
+
+      years.forEach(year => {
+        const yearData = getYearData(year, layout.topN, layout);
+        globalMaxValue = Math.max(globalMaxValue, d3.max(yearData, d => d.value) || 1);
+        globalMaxNameLength = Math.max(
+          globalMaxNameLength,
+          d3.max(yearData.map((d, index) => getDisplayNameForMetrics(d, index, layout).length)) || 1
+        );
+        globalMaxItemNameLength = Math.max(
+          globalMaxItemNameLength,
+          d3.max(yearData, d => d.name.length) || 1
+        );
+      });
+
+      const globalDomainMax = globalMaxValue * 1.04;
+      const maxValueStringLength = formatNumberValue(globalDomainMax).length;
+      const labelSettings = layout.labelSettings;
+      const shouldShowNameLabels = layout.chartStyle === 'ranking' || labelSettings.showNames;
+      const shouldShowValueLabels = layout.chartStyle !== 'ranking' && labelSettings.showValues;
+      const shouldShowRankingItemAfterBar = layout.chartStyle === 'ranking' && labelSettings.showRankingItemAfterBar;
+      const nameLabelSpace = shouldShowNameLabels ? globalMaxNameLength * layout.labelFontSize * 1.05 + 12 : 22;
+      const defaultValueSpace = shouldShowValueLabels
+        ? (maxValueStringLength * layout.labelFontSize * 0.62) + Math.max(12, labelSettings.valueSpace + 9)
+        : 18;
+      const rankingItemAfterBarSpace = shouldShowRankingItemAfterBar
+        ? (globalMaxItemNameLength * layout.labelFontSize * 0.62) + 28
+        : 0;
+      const valueLabelSpace = Math.max(defaultValueSpace, rankingItemAfterBarSpace || 18);
+
+      const margin = {
+        top: layout.height * 0.12,
+        right: valueLabelSpace,
+        bottom: layout.height * 0.05,
+        left: nameLabelSpace
+      };
+
+      const innerWidth = layout.width - margin.left - margin.right;
+      const innerHeight = layout.height - margin.top - margin.bottom;
+      if (innerWidth < 80 || innerHeight < 80) {
+        throw new Error('キャンバスが狭すぎます。幅・高さ・文字サイズを調整してください');
+      }
+      const zeroAxisPx = layout.zeroAxisPx;
+
+      chartMetrics = {
+        layout,
+        margin,
+        innerWidth,
+        innerHeight,
+        globalDomainMax,
+        zeroAxisPx,
+        nameLabelX: zeroAxisPx - 15
+      };
+      return chartMetrics;
+    }
+
+    function getActiveMetrics() {
+      if (playback.state !== 'idle' && frozenMetrics) return frozenMetrics;
+      if (!chartMetrics) recomputeChartMetrics();
+      return chartMetrics;
+    }
+
+    function getCurrentYearIndex() {
+      if (!years.length) return 0;
+      return Math.max(0, Math.min(Math.round(playback.yearIndex), years.length - 1));
+    }
+
+    function createTimelineScale(width) {
+      const padding = 18;
+      if (years.length <= 1) {
+        return () => width / 2;
+      }
+      return d3.scaleLinear()
+        .domain([0, years.length - 1])
+        .range([padding, width - padding]);
+    }
+
+    function renderTimeline() {
+      const svg = d3.select('#timelineSvg');
+      const node = svg.node();
+      if (!node) return;
+
+      const width = Math.max(220, node.clientWidth || 220);
+      const height = 74;
+      svg.attr('viewBox', `0 0 ${width} ${height}`);
+      svg.selectAll('*').remove();
+
+      timelineMarkerScale = null;
+      if (!years.length) return;
+
+      const x = createTimelineScale(width);
+      timelineMarkerScale = x;
+      const axisY = 28;
+      const labelY = 58;
+      const markerY = 20;
+      const labelEvery = Math.max(1, Math.ceil(years.length / Math.max(2, Math.floor(width / 90))));
+      const visibleYears = years
+        .map((year, index) => ({ year, index }))
+        .filter((d, i) => i === 0 || i === years.length - 1 || i % labelEvery === 0);
+
+      svg.append('rect')
+        .attr('class', 'timeline-hit-area')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'transparent')
+        .attr('pointer-events', 'all');
+
+      svg.append('line')
+        .attr('x1', x(0))
+        .attr('x2', x(years.length - 1))
+        .attr('y1', axisY)
+        .attr('y2', axisY)
+        .attr('stroke', '#9f9f9f')
+        .attr('stroke-width', 1.5);
+
+      const ticks = svg.selectAll('g.timeline-tick')
+        .data(visibleYears)
+        .enter()
+        .append('g')
+        .attr('class', 'timeline-tick')
+        .attr('transform', d => `translate(${x(d.index)},0)`);
+
+      ticks.append('line')
+        .attr('y1', axisY)
+        .attr('y2', axisY + 10)
+        .attr('stroke', '#9f9f9f')
+        .attr('stroke-width', 1.5);
+
+      ticks.append('text')
+        .attr('y', labelY)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', 16)
+        .attr('fill', '#9b9b9b')
+        .text(d => getYearLabel(d.year));
+
+      svg.append('path')
+        .attr('class', 'timeline-marker')
+        .attr('fill', '#9b9b9b')
+        .attr('d', 'M -8 0 L 8 0 L 0 10 Z')
+        .attr('transform', `translate(${x(getCurrentYearIndex())},${markerY})`);
+    }
+
+    function updateTimelineMarker(yearIndex) {
+      const svg = d3.select('#timelineSvg');
+      const node = svg.node();
+      if (!node || !years.length) return;
+
+      const marker = svg.select('.timeline-marker');
+      if (marker.empty()) {
+        renderTimeline();
+        return;
+      }
+
+      const x = timelineMarkerScale || createTimelineScale(Math.max(220, node.clientWidth || 220));
+      marker.attr('transform', `translate(${x(yearIndex)},20)`);
+    }
+
+    function getTimelineIndexFromEvent(event) {
+      const svg = document.getElementById('timelineSvg');
+      if (!svg || !years.length) return 0;
+      if (years.length === 1) return 0;
+
+      const width = Math.max(220, svg.clientWidth || 220);
+      const x = createTimelineScale(width);
+      const [pointerX] = d3.pointer(event, svg);
+      const rawIndex = x.invert(pointerX);
+      return Math.max(0, Math.min(years.length - 1, Math.round(rawIndex)));
+    }
+
+    function seekTimeline(yearIndex) {
+      if (!years.length || document.getElementById('startBtn').disabled) return;
+
+      const nextIndex = Math.max(0, Math.min(years.length - 1, yearIndex));
+      stopPlayback();
+      playback.yearIndex = nextIndex;
+
+      try {
+        recomputeChartMetrics();
+        fitToScreen();
+        renderPreviewFrame(nextIndex, { instant: true, reset: true });
+        document.getElementById('status').innerText = `✅ ${years[nextIndex]} を表示中`;
+      } catch (err) {
+        document.getElementById('status').innerText = "❌ 表示更新失敗: " + err.message;
+      }
+    }
+
+    function syncOverlayText() {
+      document.getElementById('chartTitle').innerText = document.getElementById('titleInput').value;
+      document.getElementById('sourceDisplay').innerText = document.getElementById('sourceInput').value;
+    }
+
+    function refreshCurrentPreview({ reset = true } = {}) {
+      syncOverlayText();
+      if (!years.length) {
+        fitToScreen();
+        return;
+      }
+
+      try {
+        recomputeChartMetrics();
+        if (playback.state !== 'idle') frozenMetrics = chartMetrics;
+        fitToScreen();
+        renderPreviewFrame(getCurrentYearIndex(), { instant: true, reset });
+      } catch (err) {
+        document.getElementById('status').innerText = "❌ 表示更新失敗: " + err.message;
+      }
+    }
+
+    function onLayoutSettingChange(source) {
+      if (source === 'canvasHeight') {
+        document.getElementById('autoHeight').checked = false;
+      }
+      refreshCurrentPreview({ reset: true });
+    }
+
+    function barGeometry(xScale, value) {
+      const startX = xScale(0);
+      const endX = xScale(value);
+      return {
+        x: Math.min(startX, endX),
+        width: Math.max(0, endX - startX)
+      };
+    }
+
+    function imageGeometry(xScale, value, imageWidth, marginRight = 8) {
+      const bar = barGeometry(xScale, value);
+      const width = Math.min(imageWidth, bar.width);
+      const maxX = bar.x + bar.width - width;
+      const desiredX = xScale(value) - width - marginRight;
+      return {
+        x: Math.max(bar.x, Math.min(maxX, desiredX)),
+        width
+      };
+    }
+
+    function createXScale(metrics) {
+      return d3.scaleLinear()
+        .domain([0, metrics.domainMax || metrics.globalDomainMax])
+        .range([metrics.zeroAxisPx, metrics.innerWidth]);
+    }
+
+    function getXAxisTickCount(innerWidth) {
+      return innerWidth < 600 ? 2 : 3;
+    }
+
+    function renderPreviewFrame(yearIndex, { instant = false, reset = false, nextYearIndex = null, transitionProgress = 0, timelinePosition = yearIndex, yearLabelOverride = null, rowMotionDuration = null } = {}) {
+      if (!years.length) return;
+      const metrics = getActiveMetrics();
+      if (!metrics) return;
+
+      const layout = metrics.layout;
+      const year = years[yearIndex];
+      const duration = instant ? 0 : layout.tickDuration;
+      const isInterpolating = Number.isInteger(nextYearIndex) && nextYearIndex > yearIndex;
+      const motionTopN = isInterpolating ? layout.topN + 1 : layout.topN;
+      const yearDataWithOverflow = isInterpolating
+        ? getInterpolatedYearData(year, years[nextYearIndex], transitionProgress, motionTopN, layout)
+        : getYearData(year, motionTopN, layout);
+      const yearData = yearDataWithOverflow.slice(0, layout.topN);
+      if (!yearData.length) {
+        document.getElementById('status').innerText = "❌ 表示できるデータがありません";
+        return;
+      }
+      const axisSettings = getAxisSettings();
+      const frameMetrics = {
+        ...metrics,
+        domainMax: axisSettings.scaleMode === 'fixed'
+          ? (axisSettings.fixedMax || metrics.globalDomainMax)
+          : (isInterpolating
+            ? getInterpolatedDynamicDomainMax(year, years[nextYearIndex], transitionProgress, layout.topN, layout)
+            : getDynamicDomainMax(year, layout.topN, { yearData }))
+      };
+      const { margin, innerWidth, innerHeight, nameLabelX } = frameMetrics;
+      const xScale = createXScale(frameMetrics);
+      const labelSettings = layout.labelSettings;
+      const shouldShowNameLabels = layout.chartStyle === 'ranking' || labelSettings.showNames;
+      const shouldShowValueLabels = layout.chartStyle !== 'ranking' && labelSettings.showValues;
+      const shouldShowRankingItemAfterBar = layout.chartStyle === 'ranking' && labelSettings.showRankingItemAfterBar;
+      const shouldShowRankingValueInsideBar = layout.chartStyle === 'ranking' && labelSettings.showRankingValueInsideBar;
+      const layoutAppearance = getLayoutAppearanceSettings();
+      const imageSettings = getImageSettings();
+      const yScale = d3.scaleBand()
+        .domain(yearData.map(d => d.key))
+        .range([0, innerHeight])
+        .padding(layout.barSpacing / 100);
+      const overflowStep = yScale.step ? yScale.step() : (innerHeight / Math.max(1, layout.topN));
+      const overflowY = innerHeight + Math.max(2, overflowStep * 0.25);
+      const getRowY = d => yScale(d.key) ?? overflowY;
+      const transition = sel => instant ? sel : sel.transition().duration(duration).ease(d3.easeLinear);
+      const rowTransition = sel => {
+        const motionDuration = rowMotionDuration ?? (instant ? 0 : duration);
+        return motionDuration > 0
+          ? sel.transition('rank-shift').duration(motionDuration).ease(d3.easeCubicOut)
+          : transition(sel);
+      };
+
+      const svg = d3.select("#svgChart")
+        .attr("width", layout.width)
+        .attr("height", layout.height)
+        .style("font-family", layoutAppearance.font);
+      applyLayoutAppearance();
+      document.getElementById('chartTitle').innerText = document.getElementById('titleInput').value;
+      document.getElementById('sourceDisplay').innerText = document.getElementById('sourceInput').value;
+      const yearDisplayText = yearLabelOverride ?? getYearLabel(year);
+      if (yearDisplayText !== lastRenderedYearDisplayText) {
+        document.getElementById('yearDisplay').innerText = yearDisplayText;
+        lastRenderedYearDisplayText = yearDisplayText;
+      }
+      updateTimelineMarker(timelinePosition);
+
+      if (reset) {
+        svg.selectAll("*").interrupt();
+        svg.selectAll("*").remove();
+        lastRenderedYearDisplayText = '';
+      }
+
+      const g = svg.selectAll("g.container").data([null]);
+      const gMerged = g.enter().append("g").attr("class", "container")
+        .merge(g).attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const xAxis = d3.axisTop(xScale)
+        .ticks(getXAxisTickCount(innerWidth))
+        .tickSize(-innerHeight)
+        .tickFormat(d => formatNumberValue(d));
+      let xAxisGroup = gMerged.select(".x-axis");
+      if (xAxisGroup.empty()) xAxisGroup = gMerged.append("g").attr("class", "x-axis");
+
+      transition(xAxisGroup).call(xAxis);
+      xAxisGroup.select(".domain").remove();
+      xAxisGroup.selectAll("line")
+        .style("stroke", axisSettings.lineColor)
+        .style("stroke-width", axisSettings.lineWidth)
+        .style("stroke-dasharray", axisSettings.lineDash > 0 ? `${axisSettings.lineDash},${axisSettings.lineDash}` : "none");
+      xAxisGroup.selectAll("text")
+        .style("font-size", axisSettings.textSize + "px")
+        .style("fill", axisSettings.textColor);
+
+      const rows = gMerged.selectAll(".row").data(yearDataWithOverflow, d => d.key);
+      const rowsEnter = rows.enter().append("g").attr("class", "row")
+        .attr("transform", d => `translate(0, ${getRowY(d)})`);
+
+      rowsEnter.append("rect").attr("class", "bar").attr("rx", 4);
+      rowsEnter.append("image").attr("class", "flag");
+      rowsEnter.append("text").attr("class", "name-label").attr("text-anchor", "end").attr("dominant-baseline", "central");
+      rowsEnter.append("text").attr("class", "value-label").attr("text-anchor", "start").attr("dominant-baseline", "central");
+      rowsEnter.append("text").attr("class", "ranking-item-label").attr("text-anchor", "start").attr("dominant-baseline", "central");
+      rowsEnter.append("text").attr("class", "ranking-value-label").attr("text-anchor", "start").attr("dominant-baseline", "central");
+
+      const rowsUpdate = rowsEnter.merge(rows);
+      const imgHeight = yScale.bandwidth() * 0.7;
+      const imgWidth = imageSettings.shape === 'circle' ? imgHeight : imgHeight * 1.4;
+
+      rowTransition(rowsUpdate)
+        .attr("transform", d => `translate(0, ${getRowY(d)})`)
+        .style("opacity", d => yScale(d.key) === undefined ? 0 : 1);
+
+      rowsUpdate.select(".bar")
+        .attr("fill", d => getBarColor(d))
+        .attr("height", yScale.bandwidth());
+      transition(rowsUpdate.select(".bar"))
+        .attr("x", d => barGeometry(xScale, d.value).x)
+        .attr("width", d => barGeometry(xScale, d.value).width);
+
+      rowsUpdate.select(".flag")
+        .attr("preserveAspectRatio", imageSettings.preserveAspectRatio)
+        .attr("href", d => d.imageUrl || "")
+        .style("clip-path", imageSettings.shape === 'circle' ? "circle(50%)" : "inset(0% round 4px)")
+        .style("display", d => d.imageUrl ? "block" : "none");
+      transition(rowsUpdate.select(".flag"))
+        .attr("y", d => {
+          const renderedHeight = imageSettings.shape === 'circle'
+            ? imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width
+            : imgHeight;
+          return (yScale.bandwidth() - renderedHeight) / 2;
+        })
+        .attr("height", d => imageSettings.shape === 'circle'
+          ? imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width
+          : imgHeight)
+        .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).x)
+        .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width);
+
+      rowsUpdate.select(".name-label")
+        .attr("y", yScale.bandwidth() / 2)
+        .style("font-size", layout.labelFontSize + "px")
+        .style("fill", labelSettings.nameColor)
+        .style("display", shouldShowNameLabels ? "block" : "none")
+        .text((d, index) => layout.chartStyle === 'ranking' ? `${index + 1}位` : d.name);
+      transition(rowsUpdate.select(".name-label")).attr("x", nameLabelX);
+
+      const rankingItemLabels = rowsUpdate.select(".ranking-item-label")
+        .attr("y", yScale.bandwidth() / 2)
+        .style("font-size", layout.labelFontSize + "px")
+        .style("fill", labelSettings.nameColor)
+        .style("display", shouldShowRankingItemAfterBar ? "block" : "none")
+        .text(d => shouldShowRankingItemAfterBar ? d.name : '');
+
+      transition(rankingItemLabels)
+        .attr("x", d => xScale(d.value) + 12);
+
+      const valueLabels = rowsUpdate.select(".value-label")
+        .attr("y", yScale.bandwidth() / 2)
+        .style("font-size", layout.labelFontSize + "px")
+        .style("fill", labelSettings.valueColor)
+        .style("display", shouldShowValueLabels ? "block" : "none");
+
+      if (instant) {
+        valueLabels
+          .attr("x", d => xScale(d.value) + labelSettings.valueSpace)
+          .text(d => shouldShowValueLabels ? formatNumberValue(d.value) : '');
+      } else {
+        valueLabels.transition().duration(duration).ease(d3.easeLinear)
+          .attr("x", d => xScale(d.value) + labelSettings.valueSpace)
+          .tween("text", function(d) {
+            if (!shouldShowValueLabels) {
+              this.textContent = '';
+              return function() {};
+            }
+            const currentVal = parseDisplayedNumber(this.textContent);
+            const i = d3.interpolateNumber(currentVal, d.value);
+            return function(t) { this.textContent = formatNumberValue(i(t)); };
+          });
+      }
+
+      const rankingValueLabels = rowsUpdate.select(".ranking-value-label")
+        .attr("y", yScale.bandwidth() / 2)
+        .style("font-size", layout.labelFontSize + "px")
+        .style("fill", labelSettings.valueColor)
+        .style("display", shouldShowRankingValueInsideBar ? "block" : "none");
+
+      if (instant) {
+        rankingValueLabels
+          .attr("x", d => barGeometry(xScale, d.value).x + 10)
+          .text(d => shouldShowRankingValueInsideBar ? formatNumberValue(d.value) : '');
+      } else {
+        rankingValueLabels.transition().duration(duration).ease(d3.easeLinear)
+          .attr("x", d => barGeometry(xScale, d.value).x + 10)
+          .tween("text", function(d) {
+            if (!shouldShowRankingValueInsideBar) {
+              this.textContent = '';
+              return function() {};
+            }
+            const currentVal = parseDisplayedNumber(this.textContent);
+            const i = d3.interpolateNumber(currentVal, d.value);
+            return function(t) { this.textContent = formatNumberValue(i(t)); };
+          });
+      }
+
+      rowTransition(rows.exit())
+        .attr("transform", `translate(0, ${overflowY})`)
+        .style("opacity", 0)
+        .remove();
+    }
+
+    function waitWhilePaused(runId) {
+      return new Promise(resolve => {
+        const tryResume = () => {
+          if (runId !== playback.runId) return resolve(false);
+          if (playback.state === 'paused') {
+            playback.pauseGate = tryResume;
+            return;
+          }
+          playback.pauseGate = null;
+          resolve(true);
+        };
+        tryResume();
+      });
+    }
+
+    async function waitTick(duration, runId) {
+      const step = 50;
+      let elapsed = 0;
+      while (elapsed < duration) {
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') {
+          const ok = await waitWhilePaused(runId);
+          if (!ok) return false;
+          continue;
+        }
+        await new Promise(r => setTimeout(r, step));
+        elapsed += step;
+      }
+      return true;
+    }
+
+    async function animateYearTransition(fromIndex, toIndex, runId) {
+      const duration = getLayout().tickDuration;
+      let elapsed = 0;
+      let lastTimestamp = performance.now();
+      let reset = false;
+
+      while (elapsed < duration) {
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') {
+          const ok = await waitWhilePaused(runId);
+          if (!ok) return false;
+          lastTimestamp = performance.now();
+          continue;
+        }
+
+        const now = performance.now();
+        elapsed += now - lastTimestamp;
+        lastTimestamp = now;
+        const progress = Math.min(1, elapsed / duration);
+        playback.yearIndex = fromIndex + progress * (toIndex - fromIndex);
+        renderPreviewFrame(fromIndex, {
+          instant: true,
+          reset,
+          nextYearIndex: toIndex,
+          transitionProgress: progress,
+          timelinePosition: playback.yearIndex,
+          rowMotionDuration: reset ? 0 : 340
+        });
+        reset = false;
+        await new Promise(requestAnimationFrame);
+      }
+
+      playback.yearIndex = toIndex;
+      renderPreviewFrame(fromIndex, {
+        instant: true,
+        reset: false,
+        nextYearIndex: toIndex,
+        transitionProgress: 1,
+        timelinePosition: toIndex,
+        yearLabelOverride: getYearLabel(years[toIndex]),
+        rowMotionDuration: 340
+      });
+      return true;
+    }
+
+    async function runChartRace(fromIndex = 0) {
+      if (!years.length) return;
+
+      const runId = ++playback.runId;
+      playback.state = 'playing';
+      playback.yearIndex = fromIndex;
+      try {
+        recomputeChartMetrics();
+      } catch (err) {
+        playback.state = 'idle';
+        updatePlaybackUI();
+        document.getElementById('status').innerText = "❌ 再生できません: " + err.message;
+        return;
+      }
+      frozenMetrics = chartMetrics;
+      fitToScreen();
+      updatePlaybackUI();
+      document.getElementById('status').innerText = "再生中... (Spaceで一時停止)";
+
+      const hasNextFrame = fromIndex < years.length - 1;
+      renderPreviewFrame(fromIndex, {
+        instant: true,
+        reset: false,
+        nextYearIndex: hasNextFrame ? fromIndex + 1 : null,
+        transitionProgress: 0,
+        timelinePosition: fromIndex,
+        rowMotionDuration: 0
+      });
+
+      for (let i = fromIndex; i < years.length - 1; i++) {
+        if (runId !== playback.runId) return;
+        playback.yearIndex = i;
+        const ok = await animateYearTransition(i, i + 1, runId);
+        if (!ok) return;
+      }
+
+      if (runId === playback.runId && years.length) {
+        playback.yearIndex = years.length - 1;
+      }
+
+      if (runId !== playback.runId) return;
+      playback.state = 'idle';
+      frozenMetrics = null;
+      updatePlaybackUI();
+      document.getElementById('status').innerText = "✅ 再生完了";
+    }
+
+    function togglePlayback() {
+      if (!years.length || document.getElementById('startBtn').disabled) return;
+
+      if (playback.state === 'playing') {
+        playback.state = 'paused';
+        updatePlaybackUI();
+        document.getElementById('status').innerText = "一時停止中 (Spaceで再開)";
+        return;
+      }
+
+      if (playback.state === 'paused') {
+        playback.state = 'playing';
+        updatePlaybackUI();
+        document.getElementById('status').innerText = "再生中... (Spaceで一時停止)";
+        if (playback.pauseGate) playback.pauseGate();
+        return;
+      }
+
+      const currentIndex = getCurrentYearIndex();
+      runChartRace(currentIndex >= years.length - 1 ? 0 : currentIndex);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', togglePlayback);
+    document.getElementById('timelinePlayBtn').addEventListener('click', togglePlayback);
+    document.getElementById('timelineSvg').addEventListener('click', e => {
+      seekTimeline(getTimelineIndexFromEvent(e));
+    });
+    document.getElementById('confirmReloadYes').addEventListener('click', () => {
+      const file = pendingDataFile;
+      closeReloadConfirm();
+      if (file) readDataFile(file, { preserveStyle: true });
+    });
+    document.getElementById('confirmReloadNo').addEventListener('click', () => {
+      const file = pendingDataFile;
+      closeReloadConfirm();
+      if (file) readDataFile(file, { preserveStyle: false });
+    });
+    document.getElementById('confirmReloadCancel').addEventListener('click', () => {
+      closeReloadConfirm();
+      resetFileInput();
+    });
+    document.getElementById('reloadConfirmModal').addEventListener('click', e => {
+      if (e.target.id !== 'reloadConfirmModal') return;
+      closeReloadConfirm();
+      resetFileInput();
+    });
+    document.querySelectorAll('.panel-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchPanelTab(tab.dataset.tab));
+    });
+    applyTabLayout();
+    setupSettingsAccordions();
+    syncBarSettingsControls();
+    updateBarColorControls();
+    defaultProjectSettings = getProjectSettingsSnapshot();
+    previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
+    renderStorageList();
+    renderDataEditor();
+    updateProjectActionButtons();
+
+    // --- ツール切替ドロップダウン（共有レジストリから生成）---
+    if (window.populateChartToolSwitcher) {
+      const switcher = document.getElementById('chartToolSwitcher');
+      window.populateChartToolSwitcher(switcher, 'bar-chart-race');
+      switcher.addEventListener('change', e => {
+        const targetId = e.target.value;
+        if (targetId === 'bar-chart-race') return; // 自分自身は何もしない
+        try { commitCellEdit(); } catch (err) {}
+        const payload = (typeof hasEditableContent === 'function' && hasEditableContent())
+          ? makeProjectPayload('__active__')
+          : null;
+        window.saveActiveProjectAndGo(targetId, payload);
+      });
+    }
+
+    // --- 別ツールから引き継いだ編集中データの復元（あれば）---
+    let handoffLoaded = false;
+    if (window.consumeActiveProject) {
+      const handoff = window.consumeActiveProject();
+      if (handoff) {
+        try {
+          loadProjectPayload(handoff);
+          handoffLoaded = true;
+        } catch (err) {
+          document.getElementById('status').innerText = '引き継ぎデータを読み込めませんでした: ' + err.message;
+        }
+      }
+    }
+
+    // --- 離脱時の自動下書き保存（摩擦ゼロ。保存可否のポップアップは出さない）---
+    function persistSessionDraft() {
+      if (!window.saveSessionDraft) return;
+      try { commitCellEdit(); } catch (e) {}
+      if (typeof hasEditableContent === 'function' && hasEditableContent()) {
+        window.saveSessionDraft('bar-chart-race', makeProjectPayload('前回の続き'));
+      }
+    }
+    // pagehide が離脱時に最も確実。モバイル等の取りこぼしに備え hidden でも保存。
+    window.addEventListener('pagehide', persistSessionDraft);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') persistSessionDraft();
+    });
+
+    // --- 引き継ぎが無いときだけ、前回の自動下書きから復元を提案 ---
+    if (!handoffLoaded && window.offerSessionDraftRestore) {
+      window.offerSessionDraftRestore('bar-chart-race', payload => {
+        try {
+          loadProjectPayload(payload);
+        } catch (err) {
+          document.getElementById('status').innerText = '前回の続きを読み込めませんでした: ' + err.message;
+        }
+      });
+    }
+
+    document.getElementById('saveProjectBtn').addEventListener('click', saveCurrentProject);
+    document.getElementById('exportProjectBtn').addEventListener('click', exportCurrentProject);
+    document.getElementById('importProjectBtn').addEventListener('click', () => {
+      document.getElementById('projectImportFile').click();
+    });
+    document.getElementById('projectImportFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      importProjectFile(file);
+    });
+    document.getElementById('storageList').addEventListener('click', e => {
+      if (e.target.closest('#storageShowAllBtn')) {
+        openStorageSelectModal();
+        return;
+      }
+      const button = e.target.closest('button[data-storage-action]');
+      if (!button) return;
+      handleStorageAction(button);
+    });
+    document.getElementById('storageModalList').addEventListener('click', e => {
+      const button = e.target.closest('button[data-storage-action]');
+      if (!button) return;
+      handleStorageAction(button);
+    });
+    document.getElementById('storageSelectClose').addEventListener('click', closeStorageSelectModal);
+    document.getElementById('storageSelectModal').addEventListener('click', e => {
+      if (e.target.id === 'storageSelectModal') closeStorageSelectModal();
+    });
+
+    const panelResizer = document.getElementById('panelResizer');
+    let isResizingPanel = false;
+
+    panelResizer.addEventListener('pointerdown', e => {
+      isResizingPanel = true;
+      panelResizer.setPointerCapture(e.pointerId);
+      document.body.classList.add('resizing-panel');
+      e.preventDefault();
+    });
+
+    panelResizer.addEventListener('pointermove', e => {
+      if (!isResizingPanel) return;
+      applyPanelWidth(e.clientX);
+    });
+
+    panelResizer.addEventListener('pointerup', e => {
+      isResizingPanel = false;
+      panelResizer.releasePointerCapture(e.pointerId);
+      document.body.classList.remove('resizing-panel');
+    });
+
+    panelResizer.addEventListener('pointercancel', e => {
+      isResizingPanel = false;
+      panelResizer.releasePointerCapture(e.pointerId);
+      document.body.classList.remove('resizing-panel');
+    });
+
+    const dataEditor = document.getElementById('dataEditor');
+
+    dataEditor.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      hideDataContextMenu();
+      const resizeHandle = getColumnResizeHandleFromEventTarget(e.target);
+      if (resizeHandle) {
+        e.preventDefault();
+        e.stopPropagation();
+        const colIndex = +resizeHandle.dataset.resizeCol;
+        resizingColumn = {
+          colIndex,
+          startX: e.clientX,
+          startWidth: columnWidths[colIndex] || DEFAULT_COLUMN_WIDTH
+        };
+        document.body.classList.add('resizing-column');
+        return;
+      }
+
+      const columnHeader = getColumnHeaderFromEventTarget(e.target);
+      if (columnHeader && !editingCell) {
+        e.preventDefault();
+        isSelectingCells = true;
+        dragMode = 'column';
+        dragPointer = { x: e.clientX, y: e.clientY };
+        selectColumn(+columnHeader.dataset.headerCol);
+        dragLastRow = csvData.length - 1; dragLastCol = +columnHeader.dataset.headerCol;
+        return;
+      }
+
+      const rowHeader = getRowHeaderFromEventTarget(e.target);
+      if (rowHeader && !editingCell) {
+        e.preventDefault();
+        isSelectingCells = true;
+        dragMode = 'row';
+        dragPointer = { x: e.clientX, y: e.clientY };
+        selectRow(+rowHeader.dataset.rowHeader);
+        dragLastRow = +rowHeader.dataset.rowHeader; dragLastCol = csvData.columns.length - 1;
+        return;
+      }
+
+      const cell = getCellFromEventTarget(e.target);
+      if (!cell) return;
+      if (editingCell && cell === editingCell) return;
+      e.preventDefault();
+      const rowIndex = +cell.dataset.row;
+      const colIndex = +cell.dataset.col;
+      isSelectingCells = true;
+      dragMode = 'cell';
+      dragPointer = { x: e.clientX, y: e.clientY };
+      dragLastRow = rowIndex; dragLastCol = colIndex;
+      if (e.shiftKey && selectionAnchor) {
+        // Shift+クリック: アンカーを保持して矩形範囲選択
+        selectCellRange(selectionAnchor, { rowIndex, colIndex });
+      } else {
+        selectCell(rowIndex, colIndex);
+      }
+    });
+
+    dataEditor.addEventListener('contextmenu', e => {
+      if (!csvData.length || !csvData.columns?.length) return;
+      const target = getContextTargetFromEvent(e);
+      e.preventDefault();
+      commitCellEdit();
+      contextMenuTarget = target;
+      const key = cellKey(target.rowIndex, target.colIndex);
+      if (!selectedCells.has(key)) selectCell(target.rowIndex, target.colIndex);
+      showDataContextMenu(e.clientX, e.clientY);
+    });
+
+    document.getElementById('dataContextMenu').addEventListener('click', e => {
+      const button = e.target.closest('button[data-menu-action]');
+      if (!button || button.disabled) return;
+      runContextMenuAction(button.dataset.menuAction);
+    });
+
+    document.getElementById('editorCornerMenu').addEventListener('click', e => {
+      const button = e.target.closest('button[data-corner-action]');
+      if (!button || button.disabled) return;
+      runCornerMenuAction(button.dataset.cornerAction);
+    });
+
+    document.addEventListener('click', e => {
+      if (e.target.closest('#dataContextMenu')) return;
+      if (e.target.closest('#editorCornerMenu')) return;
+      if (e.target.closest('#editorCornerMenuButton')) return;
+      hideDataContextMenu();
+      hideEditorCornerMenu();
+    });
+
+    dataEditor.addEventListener('click', e => {
+      const cornerButton = e.target.closest('#editorCornerMenuButton');
+      if (!cornerButton) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hideDataContextMenu();
+      if (document.getElementById('editorCornerMenu').classList.contains('active')) {
+        hideEditorCornerMenu();
+      } else {
+        showEditorCornerMenu(cornerButton);
+      }
+    });
+
+    dataEditor.addEventListener('mouseover', e => {
+      // ツールチップ表示のみ。選択拡張は document の mousemove（座標ベース）で行う。
+      showDataColumnTooltip(getColumnHeaderFromEventTarget(e.target) || getRowHeaderFromEventTarget(e.target));
+    });
+
+    dataEditor.addEventListener('mouseout', e => {
+      if (e.relatedTarget && dataEditor.contains(e.relatedTarget)) {
+        const nextHeader = getColumnHeaderFromEventTarget(e.relatedTarget) || getRowHeaderFromEventTarget(e.relatedTarget);
+        if (nextHeader) return;
+      }
+      hideDataColumnTooltip();
+    });
+
+    dataEditor.addEventListener('scroll', hideDataColumnTooltip);
+
+    document.addEventListener('mouseup', () => {
+      isSelectingCells = false;
+      resizingColumn = null;
+      if (autoScrollRAF != null) { cancelAnimationFrame(autoScrollRAF); autoScrollRAF = null; }
+      document.body.classList.remove('resizing-column');
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (resizingColumn) {
+        const delta = e.clientX - resizingColumn.startX;
+        applyColumnWidth(resizingColumn.colIndex, resizingColumn.startWidth + delta);
+        return;
+      }
+      if (!isSelectingCells) return;
+      dragPointer = { x: e.clientX, y: e.clientY };
+      scheduleDragSelection();
+      maybeStartAutoScroll();
+    });
+
+    dataEditor.addEventListener('dblclick', e => {
+      const resizeHandle = getColumnResizeHandleFromEventTarget(e.target);
+      if (resizeHandle) {
+        e.preventDefault();
+        e.stopPropagation();
+        autoFitColumns(+resizeHandle.dataset.resizeCol);
+        return;
+      }
+
+      const columnHeader = getColumnHeaderFromEventTarget(e.target);
+      if (columnHeader) {
+        e.preventDefault();
+        return;
+      }
+
+      const cell = getCellFromEventTarget(e.target);
+      if (!cell) return;
+      e.preventDefault();
+      beginCellEdit(cell);
+    });
+
+    dataEditor.addEventListener('input', e => {
+      if (editorRenderLocked) return;
+      const cell = e.target.closest('td[data-row][data-col]');
+      if (!cell || cell !== editingCell) return;
+      updateCellFromEditor(+cell.dataset.row, +cell.dataset.col, cell.innerText.trim());
+    });
+
+    dataEditor.addEventListener('focusout', e => {
+      if (editorRenderLocked) return;
+      const header = e.target.closest('th[data-header-col]');
+      if (header) {
+        header.removeAttribute('contenteditable');
+        return;
+      }
+      if (e.target === editingCell) commitCellEdit();
+    });
+
+    dataEditor.addEventListener('keydown', e => {
+      if (editingCell) {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          e.stopPropagation();
+          commitCellEdit();
+          if (e.shiftKey) redoEdit();
+          else undoEdit();
+          return;
+        }
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          commitCellEdit();
+          moveActiveCell(1, 0, false);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelCellEdit();
+        }
+        return;
+      }
+
+      const isMod = e.metaKey || e.ctrlKey;
+      const key = e.key.toLowerCase();
+
+      if (isMod && key === 'z') {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.shiftKey) redoEdit();
+        else undoEdit();
+        return;
+      }
+
+      if (isMod && key === 'y') {
+        e.preventDefault();
+        e.stopPropagation();
+        redoEdit();
+        return;
+      }
+
+      if (isMod && key === 'a') {
+        e.preventDefault();
+        selectAllCells();
+        return;
+      }
+
+      if (!activeCell) return;
+
+      if (isMod && key === 'd') {
+        e.preventDefault();
+        fillSelection('down');
+        return;
+      }
+
+      if (isMod && key === 'r') {
+        e.preventDefault();
+        fillSelection('right');
+        return;
+      }
+
+      if (isMod && key === 'c') {
+        return;
+      }
+
+      if (isMod && key === 'x') {
+        return;
+      }
+
+      if (isMod && key === 'v') {
+        return;
+      }
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        clearSelectedCells();
+        return;
+      }
+
+      if (e.key === 'Enter' || e.key === 'F2') {
+        e.preventDefault();
+        beginCellEdit(getEditorCell(activeCell.rowIndex, activeCell.colIndex));
+        return;
+      }
+
+      const arrowDir = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
+      if (arrowDir) {
+        e.preventDefault();
+        const [dr, dc] = arrowDir;
+        if (isMod) {
+          // Cmd/Ctrl+矢印: データの端へ。Shift 併用で端まで選択拡張。
+          const r = dr < 0 ? 0 : dr > 0 ? csvData.length - 1 : activeCell.rowIndex;
+          const c = dc < 0 ? 0 : dc > 0 ? csvData.columns.length - 1 : activeCell.colIndex;
+          setActiveCellTo(r, c, e.shiftKey);
+        } else {
+          moveActiveCell(dr, dc, e.shiftKey);
+        }
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        moveActiveCell(0, e.shiftKey ? -1 : 1, false);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        if (isMod) selectCell(0, 0);
+        else selectCell(activeCell.rowIndex, 0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        if (isMod) selectCell(csvData.length - 1, csvData.columns.length - 1);
+        else selectCell(activeCell.rowIndex, csvData.columns.length - 1);
+      } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        beginCellEdit(getEditorCell(activeCell.rowIndex, activeCell.colIndex), e.key);
+      }
+    });
+
+    dataEditor.addEventListener('copy', e => {
+      if (editingCell || !selectedCells.size) return;
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', getSelectedCellsAsText());
+    });
+
+    dataEditor.addEventListener('cut', e => {
+      if (editingCell || !selectedCells.size) return;
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', getSelectedCellsAsText());
+      clearSelectedCells();
+    });
+
+    dataEditor.addEventListener('paste', e => {
+      if (editingCell) return;
+      const text = e.clipboardData.getData('text/plain');
+      if (!text) return;
+      e.preventDefault();
+      pasteClipboardTable(text);
+    });
+
+    document.querySelectorAll('[data-bar-orientation]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.disabled) return;
+        document.getElementById('barOrientation').value = button.dataset.barOrientation;
+        syncBarSettingsControls();
+        onLayoutSettingChange('barOrientation');
+      });
+    });
+    document.querySelectorAll('[data-sort-enabled]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById('sortEnabled').checked = button.dataset.sortEnabled === 'true';
+        syncBarSettingsControls();
+        onLayoutSettingChange('sortEnabled');
+      });
+    });
+    document.querySelectorAll('[data-bar-advanced]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById('showAdvancedBarSettings').checked = button.dataset.barAdvanced === 'true';
+        syncBarSettingsControls();
+      });
+    });
+
+    document.getElementById('barStartOffset').addEventListener('input', () => onLayoutSettingChange('barStartOffset'));
+    document.getElementById('barColorMode').addEventListener('change', onBarColorModeChange);
+    document.getElementById('barColorPalette').addEventListener('change', onBarColorSettingChange);
+    document.getElementById('singleBarColor').addEventListener('input', onBarColorSettingChange);
+    document.getElementById('customColorList').addEventListener('input', e => {
+      const input = e.target.closest('input[type="color"][data-custom-color-key]');
+      if (!input) return;
+      customBarColors[input.dataset.customColorKey] = input.value;
+      refreshCurrentPreview({ reset: true });
+    });
+    document.getElementById('aspectRatioPreset').addEventListener('change', applyAspectRatioPreset);
+    document.getElementById('canvasWidth').addEventListener('input', () => {
+      document.getElementById('aspectRatioPreset').value = 'custom';
+      onLayoutSettingChange('canvasWidth');
+    });
+    document.getElementById('canvasHeight').addEventListener('input', () => {
+      document.getElementById('aspectRatioPreset').value = 'custom';
+      onLayoutSettingChange('canvasHeight');
+    });
+    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage'].forEach(id => {
+      const eventName = ['mainFont', 'enableBackgroundColor', 'enableBackgroundImage'].includes(id) ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => {
+        applyLayoutAppearance();
+        refreshCurrentPreview({ reset: true });
+      });
+    });
+    document.getElementById('backgroundImageFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = event => {
+        backgroundImageDataUrl = event.target.result;
+        document.getElementById('enableBackgroundImage').checked = true;
+        applyLayoutAppearance();
+        refreshCurrentPreview({ reset: true });
+      };
+      reader.readAsDataURL(file);
+    });
+    ['topN', 'barSpacing', 'labelFontSize', 'nameLabelColor', 'valueLabelColor', 'valueLabelSpace'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => onLayoutSettingChange(id));
+    });
+    document.getElementById('chartStyle').addEventListener('change', () => {
+      document.getElementById('barStartOffset').value = 0;
+      onLayoutSettingChange('chartStyle');
+    });
+    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
+      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
+    });
+    ['imageMarginRight', 'imageSizing', 'imageShape'].forEach(id => {
+      const eventName = id === 'imageMarginRight' ? 'input' : 'change';
+      document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
+    });
+    ['showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY'].forEach(id => {
+      const eventName = id === 'showTimeCounter' ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => applyTimeCounterSettings());
+    });
+    document.getElementById('autoHeight').addEventListener('change', () => onLayoutSettingChange('autoHeight'));
+    ['titleInput', 'sourceInput'].forEach(id => {
+      document.getElementById(id).addEventListener('input', syncOverlayText);
+    });
+    ['valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands'].forEach(id => {
+      const eventName = ['negativeStyle', 'trimTrailingZeros', 'hideSmallThousands'].includes(id) ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
+    });
+    ['axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisLineDash', 'axisScaleMode', 'axisFixedMax'].forEach(id => {
+      const eventName = id === 'axisScaleMode' ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
+    });
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('reloadConfirmModal').classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closeReloadConfirm();
+          resetFileInput();
+        }
+        return;
+      }
+      if (e.key === 'Escape') hideDataContextMenu();
+
+      const isMod = e.metaKey || e.ctrlKey;
+      const key = e.key.toLowerCase();
+      const isDataTabActive = document.getElementById('dataTab').classList.contains('active');
+      const isTypingTarget = e.target.matches('input, textarea, select') || e.target.isContentEditable;
+
+      if (isDataTabActive && isMod && (key === 'z' || key === 'y') && !isTypingTarget && !e.defaultPrevented) {
+        e.preventDefault();
+        if (key === 'y' || e.shiftKey) redoEdit();
+        else undoEdit();
+        return;
+      }
+
+      if (e.code !== 'Space') return;
+      if (isTypingTarget || e.target.closest('#dataEditor')) return;
+      e.preventDefault();
+      togglePlayback();
+    });
+  </script>
+</body>
+</html>

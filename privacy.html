@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー｜GraphRace Studio</title>
+  <meta name="description" content="データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+
+  <!-- 共有デザイントークン -->
+  <link rel="stylesheet" href="shared/tokens.css">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px; max-width: 1040px; margin: 0 auto;
+    }
+    .brand { font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.2px; text-decoration: none; }
+    .brand .dot { color: var(--accent); }
+    .site-nav { display: flex; align-items: center; gap: 18px; }
+    .nav-link {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-decoration: none; transition: color .15s ease;
+    }
+    .nav-link:hover { color: var(--text-strong); }
+    @media (max-width: 600px) {
+      .site-nav { gap: 12px; }
+      .nav-link { font-size: 12px; }
+    }
+
+    /* 本文レイアウト */
+    .page-title {
+      font-size: clamp(28px, 5vw, 36px);
+      color: var(--text-strong);
+      font-weight: 800;
+      margin: 48px 0 24px;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    .content-block {
+      max-width: 700px;
+      margin: 0 auto 56px;
+    }
+    .content-block section {
+      padding: 12px 0;
+    }
+    .content-block h2 {
+      font-size: 22px;
+      color: var(--text-strong);
+      border-bottom: 2px solid var(--panel-border);
+      padding-bottom: 8px;
+      margin-top: 36px;
+    }
+    .content-block h3 {
+      font-size: 16px;
+      color: var(--text-strong);
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    .content-block p {
+      font-size: 15px;
+      color: var(--text-main);
+      line-height: 1.8;
+      margin: 16px 0;
+    }
+
+    /* フッタ */
+    footer.site-footer {
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-surface);
+      margin-top: 80px;
+    }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .site-header { padding: 14px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">GraphRace Studio<span class="dot">.</span></a>
+    <nav class="site-nav">
+      <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
+      <a class="nav-link" href="regular-chart/">折れ線グラフ</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <h1 class="page-title">プライバシーポリシー</h1>
+
+    <div class="content-block">
+      <section>
+        <p>本ツール（以下、当サービス）は、ユーザーの皆様の個人情報およびデータのプライバシーを尊重し、安全なデータ管理に努めます。</p>
+      </section>
+
+      <section>
+        <h2>安全性について（データの非保存）</h2>
+        <p>当サービスはプライバシーと安全性を重視した設計になっており、以下の特徴があります。</p>
+
+        <h3>外部サーバーへの送信は一切ありません</h3>
+        <p>読み込んだファイルデータや作成したグラフのデータが、外部のサーバーにアップロードされることはありません。すべての処理がユーザーのブラウザ内（ローカル環境）だけで完結するため、データがインターネット経由で漏洩する心配はありません。</p>
+
+        <h3>データはご自身のブラウザ内でのみ保持されます</h3>
+        <p>データの保存先はユーザー自身のブラウザの保存領域（LocalStorage等）のみです。開発者を含む第三者がそのデータにアクセスすることはできません。</p>
+
+        <h3>信頼性の高いライブラリを使用しています</h3>
+        <p>グラフの描画にはD3.js、Excelファイルの解析にはSheetJSといった、世界中で広く利用されている安全な標準的ライブラリを使用しています。これらもすべてブラウザ上でのみ動作します。</p>
+      </section>
+
+      <section>
+        <h2>アクセス解析とCookieの利用</h2>
+        <p>当サービスでは、サイトの利用状況の把握およびサービス向上のため、Cookie（クッキー）を使用し、Googleアナリティクスなどのアクセス解析ツールを利用することがあります。</p>
+        <p>収集されるデータ：トラフィックデータ（アクセス日時、閲覧ページ、ブラウザ情報など）が匿名で収集されます。このデータは個人を特定するものではありません。</p>
+        <p>Cookieの無効化：ユーザーはブラウザの設定によりCookieの受け取りを拒否することができます。</p>
+      </section>
+
+      <section>
+        <h2>お問い合わせにおける個人情報の取り扱い</h2>
+        <p>今後設置予定のお問い合わせフォーム等において、ユーザーから氏名やメールアドレスなどの個人情報をご提供いただく場合があります。</p>
+        <p>利用目的：お寄せいただいたお問い合わせへの回答や、サービス改善のための連絡にのみ利用します。</p>
+        <p>第三者への提供：法令に基づく場合を除き、取得した個人情報を本人の同意なく第三者に開示・提供することはありません。</p>
+      </section>
+
+      <section>
+        <h2>プライバシーポリシーの変更</h2>
+        <p>当サービスは、必要に応じて本プライバシーポリシーを変更することがあります。変更したポリシーは当サイト上に掲載した時点で効力が発生するものとします。</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <nav>
+        <a href="about.html">このツールについて</a>
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

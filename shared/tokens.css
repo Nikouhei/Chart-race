@@ -1,0 +1,29 @@
+/*
+ * 共有デザイントークン（単一の真実 / single source of truth）
+ * 全ツール（各 /<tool>/app）および将来の WordPress テーマがこの :root を参照する。
+ * 色・フォント・間隔・角丸・影をここで一括管理し、ツール間の見た目を揃える。
+ * 値はツール固有CSSで上書きせず、必要な追加トークンはこのファイルに足すこと。
+ */
+:root {
+  --app-bg: #FFFFFF;
+  --panel-bg: #FFFFFF;
+  --panel-surface: #F7F8FA;
+  --panel-surface-2: #F2F3F5;
+  --panel-border: #ECEDEF;
+  --panel-border-soft: #F1F2F4;
+  --text-strong: #1A1B1E;
+  --text-main: #3C4149;
+  --text-muted: #8A8F98;
+  --input-bg: #FFFFFF;
+  --accent: #6E62F0;
+  --accent-strong: #5B4FE0;
+  --accent-soft: rgba(110,98,240,0.10);
+  --btn-bg: #E7E9ED;
+  --btn-bg-hover: #DCDFE4;
+  --btn-border: #D7DAE0;
+  --success: #3FB37F;
+  --danger: #E5484D;
+  --shadow-deep: 0 1px 2px rgba(16,18,22,0.05);
+  --shadow-soft: 0 1px 2px rgba(16,18,22,0.05);
+  --shadow-pop: 0 8px 28px rgba(16,18,22,0.10);
+}

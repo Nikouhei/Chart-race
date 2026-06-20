@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GraphRace Studio｜無料・ブラウザで動くグラフ動画を作成</title>
+  <meta name="description" content="CSVやExcelデータをアップロードするだけで、動くバーチャートレース（棒グラフレース）や折れ線グラフを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+
+  <!-- 共有デザイントークン -->
+  <link rel="stylesheet" href="shared/tokens.css">
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px; max-width: 1040px; margin: 0 auto;
+    }
+    .brand { font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.2px; text-decoration: none; }
+    .brand .dot { color: var(--accent); }
+    .site-nav { display: flex; align-items: center; gap: 18px; }
+    .nav-link {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-decoration: none; transition: color .15s ease;
+    }
+    .nav-link:hover { color: var(--text-strong); }
+    @media (max-width: 600px) {
+      .site-nav { gap: 12px; }
+      .nav-link { font-size: 12px; }
+    }
+
+    /* Hero */
+    .hero { padding: 80px 0 48px; text-align: center; }
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 48px); line-height: 1.25; margin: 0 0 18px;
+      color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px;
+    }
+    .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
+
+    /* セクション共通 */
+    section { padding: 56px 0; }
+    .section-title { text-align: center; font-size: clamp(22px, 3vw, 30px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
+
+    /* ツールグリッド（カード型） */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .tool-card {
+      background: var(--panel-surface);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-pop);
+    }
+    .tool-card .icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+    .tool-card h3 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      color: var(--text-strong);
+      font-weight: 800;
+    }
+    .tool-card p {
+      margin: 0 0 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+    .btn-tool {
+      display: inline-block;
+      text-align: center;
+      padding: 12px 24px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: var(--shadow-soft);
+      transition: background 0.15s ease;
+    }
+    .btn-tool:hover {
+      background: var(--accent-strong);
+    }
+
+    /* 特長グリッド */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .feature-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft);
+    }
+    .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
+    .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* フッタ */
+    footer.site-footer {
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-surface);
+      margin-top: 56px;
+    }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 48px 0 32px; }
+      section { padding: 40px 0; }
+      .site-header { padding: 14px 18px; }
+      .tools-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="./" class="brand">GraphRace Studio<span class="dot">.</span></a>
+    <nav class="site-nav">
+      <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
+      <a class="nav-link" href="regular-chart/">折れ線グラフ</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>データを美しく、カンタンに視覚化</h1>
+        <p class="lead">CSVやExcelデータをアップロードするだけで、動きのあるチャート動画や時系列比較グラフをブラウザ内で無料作成できます。</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">ツールを選択する</h2>
+        <p class="section-sub">用途に合わせて2つのビジュアライズツールをご利用いただけます。</p>
+        
+        <div class="tools-grid">
+          <div class="tool-card">
+            <div>
+              <div class="icon">📊</div>
+              <h3>バーチャートレース作成ツール</h3>
+              <p>時系列データのランキング変動を、走るアニメーション棒グラフとして視覚化します。SNSでの発信やYouTubeの動画コンテンツに最適です。</p>
+            </div>
+            <a class="btn-tool" href="bar-chart-race/">ツールを使う</a>
+          </div>
+
+          <div class="tool-card">
+            <div>
+              <div class="icon">📈</div>
+              <h3>折れ線グラフ作成ツール</h3>
+              <p>複数項目の時系列データをすっきりと比較する静的グラフを作成します。プレゼン資料やブログ、ニュースメディアでの図解に適しています。</p>
+            </div>
+            <a class="btn-tool" href="regular-chart/">ツールを使う</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">安全と安心の設計</h2>
+        <p class="section-sub">本サイトは、プライバシーの保護と操作の軽快さにこだわって作られています。</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico">🔒</div>
+            <h3>外部送信なし</h3>
+            <p>データ処理は100%ユーザーのブラウザ（端末内）で完結。サーバーにデータがアップロードされることはありません。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico">💾</div>
+            <h3>ブラウザ内保存</h3>
+            <p>データはブラウザの保存領域にのみ安全に保持されます。第三者が勝手にアクセスすることはできません。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico">🛡️</div>
+            <h3>安全な標準ライブラリ</h3>
+            <p>D3.jsやSheetJSなど、世界的によく使われている信頼のおけるオープンソースライブラリのみを使用しています。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <nav>
+        <a href="about.html">このツールについて</a>
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
