@@ -13,14 +13,14 @@
   <meta property="og:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
   <meta property="og:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
   <meta property="og:url" content="https://graphrace-studio.com/regular-chart/">
-  <meta property="og:image" content="https://graphrace-studio.com/regular-chart/ogp.png">
+  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
-  <meta name="twitter:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要。">
-  <meta name="twitter:image" content="https://graphrace-studio.com/regular-chart/ogp.png">
+  <meta name="twitter:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- favicon（暫定: 絵文字SVG。アプリと統一。正式アイコン確定時に差し替え） -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
   <meta name="google-adsense-account" content="ca-pub-7525273601757171">
@@ -94,7 +94,21 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 24px; max-width: 1040px; margin: 0 auto;
     }
-    .brand { font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.2px; }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+    .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
     .brand .dot { color: var(--accent); }
     .nav-cta {
       display: inline-block; padding: 9px 16px; border-radius: 8px;
@@ -177,7 +191,10 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="../" class="brand">GraphRace Studio<span class="dot">.</span></a>
+    <a href="../" class="brand">
+      <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+      GraphRace Studio<span class="dot">.</span>
+    </a>
     <nav class="site-nav">
       <a class="nav-link" href="../bar-chart-race/">バーチャートレース</a>
       <a class="nav-link is-active" href="./" aria-current="page">折れ線グラフ</a>

@@ -1356,6 +1356,11 @@
           <input type="number" id="barStartOffset" value="0" step="1">
         </div>
         <p style="font-size:11px; margin:8px 0 0; color:#aaa;">1 = 5px / 0 = 標準 / マイナス = 0軸が左 / プラス = 0軸が右<br>項目名・バー・X軸目盛が連動（グラフ幅は固定）</p>
+        <div class="setting-field" style="margin-top:10px;">
+          <span>バー終了位置（右端 / 最大値の位置）</span>
+          <input type="number" id="barEndOffset" value="0" min="0" step="1">
+        </div>
+        <p style="font-size:11px; margin:8px 0 0; color:#aaa;">0 = 標準（右端まで）/ プラスでバーが短くなり右側に余白ができる（項目名の見切れ防止）<br>短くしすぎるとバーが極端に縮むため自動で上限を適用</p>
       </div>
     </div>
 
@@ -1637,7 +1642,7 @@
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
-      'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
+      'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax'
@@ -3669,6 +3674,8 @@
       const labelSettings = getLabelSettings();
       const zeroAxisPoints = +document.getElementById('barStartOffset').value || 0;
       const zeroAxisPx = zeroAxisPoints * ZERO_AXIS_PX_PER_POINT;
+      const barEndOffsetPoints = Math.max(0, +document.getElementById('barEndOffset').value || 0);
+      const barEndOffsetPx = barEndOffsetPoints * ZERO_AXIS_PX_PER_POINT;
 
       return {
         width,
@@ -3682,8 +3689,24 @@
         labelSettings,
         zeroAxisPoints,
         zeroAxisPx,
+        barEndOffsetPoints,
+        barEndOffsetPx,
         tickDuration: 1200
       };
+    }
+
+    function assignDenseRanks(sortedData) {
+      // 同値（同スコア）の隣接項目には同じ順位を割り当てる稠密順位（1,1,2,…）
+      let rank = 0;
+      let prevValue;
+      sortedData.forEach((d, i) => {
+        if (i === 0 || d.value !== prevValue) {
+          rank += 1;
+          prevValue = d.value;
+        }
+        d.rank = rank;
+      });
+      return sortedData;
     }
 
     function getYearData(year, topN, options = {}) {
@@ -3709,6 +3732,7 @@
       if (sortEnabled) {
         yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
       }
+      assignDenseRanks(yearData);
       const limit = Number.isFinite(topN) ? topN : yearData.length;
       return yearData.slice(0, limit);
     }
@@ -3732,6 +3756,7 @@
       if (sortEnabled) {
         yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
       }
+      assignDenseRanks(yearData);
       const limit = Number.isFinite(topN) ? topN : yearData.length;
       return yearData.slice(0, limit);
     }
@@ -3754,7 +3779,7 @@
     }
 
     function getDisplayNameForMetrics(item, index, layout) {
-      if (layout.chartStyle === 'ranking') return `${index + 1}位`;
+      if (layout.chartStyle === 'ranking') return `${item.rank ?? index + 1}位`;
       return item.name;
     }
 
@@ -3811,6 +3836,12 @@
       }
       const zeroAxisPx = layout.zeroAxisPx;
 
+      const barSpan = innerWidth - zeroAxisPx;
+      const minBarSpan = Math.max(80, barSpan * 0.4);          // 破綻防止：バー領域の最小幅
+      const maxBarEndOffsetPx = Math.max(0, barSpan - minBarSpan);
+      const barEndOffsetPx = Math.min(layout.barEndOffsetPx || 0, maxBarEndOffsetPx); // 上限クランプ
+      const barAreaRight = innerWidth - barEndOffsetPx;
+
       chartMetrics = {
         layout,
         margin,
@@ -3818,6 +3849,7 @@
         innerHeight,
         globalDomainMax,
         zeroAxisPx,
+        barAreaRight,
         nameLabelX: zeroAxisPx - 15
       };
       return chartMetrics;
@@ -4007,7 +4039,7 @@
     function createXScale(metrics) {
       return d3.scaleLinear()
         .domain([0, metrics.domainMax || metrics.globalDomainMax])
-        .range([metrics.zeroAxisPx, metrics.innerWidth]);
+        .range([metrics.zeroAxisPx, metrics.barAreaRight ?? metrics.innerWidth]);
     }
 
     function getXAxisTickCount(innerWidth) {
@@ -4155,7 +4187,7 @@
         .style("font-size", layout.labelFontSize + "px")
         .style("fill", labelSettings.nameColor)
         .style("display", shouldShowNameLabels ? "block" : "none")
-        .text((d, index) => layout.chartStyle === 'ranking' ? `${index + 1}位` : d.name);
+        .text((d, index) => layout.chartStyle === 'ranking' ? `${d.rank ?? index + 1}位` : d.name);
       transition(rowsUpdate.select(".name-label")).attr("x", nameLabelX);
 
       const rankingItemLabels = rowsUpdate.select(".ranking-item-label")
@@ -4845,6 +4877,7 @@
     });
 
     document.getElementById('barStartOffset').addEventListener('input', () => onLayoutSettingChange('barStartOffset'));
+    document.getElementById('barEndOffset').addEventListener('input', () => onLayoutSettingChange('barEndOffset'));
     document.getElementById('barColorMode').addEventListener('change', onBarColorModeChange);
     document.getElementById('barColorPalette').addEventListener('change', onBarColorSettingChange);
     document.getElementById('singleBarColor').addEventListener('input', onBarColorSettingChange);
