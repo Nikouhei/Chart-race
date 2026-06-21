@@ -95,7 +95,7 @@
         '<!-- ▼ Google Adsense 広告コード ▼ -->' +
         '<ins class="adsbygoogle"' +
         '     style="display:block;width:100%;min-height:250px"' +
-        '     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"' +
+        '     data-ad-client="ca-pub-7525273601757171"' +
         '     data-ad-slot="XXXXXXXXXX"' +
         '     data-ad-format="auto"' +
         '     data-full-width-responsive="true"></ins>' +
@@ -104,21 +104,14 @@
     document.body.appendChild(container);
 
     // ──────────────────────────────
-    //  Adsense ライブラリの読み込みと広告の初期化
+    //  Adsense 広告の初期化
+    //  （adsbygoogle.js は各ページの <head> で既に読み込み済み）
     // ──────────────────────────────
-    var adScript = document.createElement('script');
-    adScript.async = true;
-    adScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX';
-    adScript.crossOrigin = 'anonymous';
-    document.head.appendChild(adScript);
-
-    adScript.onload = function () {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        // 広告ブロッカー等でエラーが出る場合があるため握りつぶす
-      }
-    };
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      // 広告ブロッカー等でエラーが出る場合があるため握りつぶす
+    }
 
     // ──────────────────────────────
     //  表示アニメーション
