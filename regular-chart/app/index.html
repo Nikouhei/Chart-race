@@ -2924,6 +2924,23 @@
       refreshEditorAfterStructureChange(before);
     }
 
+    // 貼り付け範囲に合わせて行・列を拡張する（履歴・再描画は呼び出し側に委ねる）
+    function ensureGridCapacity(neededRows, neededCols) {
+      if (neededCols > csvData.columns.length) {
+        const addCount = neededCols - csvData.columns.length;
+        const existing = new Set(csvData.columns);
+        const names = Array.from({ length: addCount }, (_, i) => makeBlankColumnKey(i, existing));
+        csvData.columns.push(...names);
+        csvData.forEach(row => names.forEach(name => { row[name] = ''; }));
+        columnWidths.push(...names.map(() => DEFAULT_COLUMN_WIDTH));
+      }
+      while (csvData.length < neededRows) {
+        const row = {};
+        csvData.columns.forEach(column => { row[column] = ''; });
+        csvData.push(row);
+      }
+    }
+
     function removeColumns(indices) {
       if (csvData.columns.length <= 3) return;
       const unique = [...new Set(indices)].filter(index => index >= 0 && index < csvData.columns.length);
@@ -3476,6 +3493,11 @@
         }
         return;
       }
+
+      const neededRows = startRow + table.length;
+      const neededCols = startCol + Math.max(...table.map(row => row.length));
+      ensureGridCapacity(neededRows, neededCols);
+      renderDataEditor(); // 新セルのDOMを生成（getEditorCell が拾えるように）
 
       table.forEach((row, rowOffset) => {
         const rowIndex = startRow + rowOffset;
