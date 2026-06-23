@@ -943,7 +943,21 @@
       gap: 10px;
       margin-bottom: 18px;
     }
-    .panel-header .panel-title { margin: 0; }
+    .panel-header .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+    .panel-header .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
 
     /* ===== ライトテーマ上書き（直書きUI色を新トークンへ）=====
        変数は :root が一括で支配。ここは var() で表現できない直書き箇所のみ。
@@ -1113,7 +1127,10 @@
 
   <div class="control-panel">
     <div class="panel-header">
-      <h2 class="panel-title">Chart Studio</h2>
+      <a href="../../" class="brand">
+        <img src="../../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
     </div>
 
     <div class="panel-tabs">
@@ -4607,9 +4624,28 @@
       });
     }
 
+    // --- SEOページの「サンプルで試す」からの遷移（?sample=...）---
+    // サンプルが指定された時は、引き継ぎ/自動下書きより優先してサンプルを読み込む。
+    const sampleId = new URLSearchParams(location.search).get('sample');
+    if (sampleId) {
+      (async () => {
+        const file = (sampleId === '1') ? 'sample.json' : `${sampleId.replace(/[^a-zA-Z0-9_-]/g, '')}.json`;
+        try {
+          const res = await fetch(`../samples/${file}`, { cache: 'no-cache' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          loadProjectPayload(validateProjectPayload(await res.json()));
+          switchPanelTab('settingsTab');
+          // URLから sample を除去（リロード時の再読込＝編集消失を防止）
+          history.replaceState(null, '', location.pathname);
+        } catch (err) {
+          // サンプル読込失敗時は通常起動にフォールバック（空のツールとして使える）
+        }
+      })();
+    }
+
     // --- 別ツールから引き継いだ編集中データの復元（あれば）---
     let handoffLoaded = false;
-    if (window.consumeActiveProject) {
+    if (!sampleId && window.consumeActiveProject) {
       const handoff = window.consumeActiveProject();
       if (handoff) {
         try {
@@ -4635,8 +4671,8 @@
       if (document.visibilityState === 'hidden') persistSessionDraft();
     });
 
-    // --- 引き継ぎが無いときだけ、前回の自動下書きから復元を提案 ---
-    if (!handoffLoaded && window.offerSessionDraftRestore) {
+    // --- 引き継ぎ・サンプル読込が無いときだけ、前回の自動下書きから復元を提案 ---
+    if (!sampleId && !handoffLoaded && window.offerSessionDraftRestore) {
       window.offerSessionDraftRestore('regular-chart', payload => {
         try {
           loadProjectPayload(payload);
@@ -5138,6 +5174,5 @@
       }
     });
   </script>
-  <script src="../../shared/ads.js" defer></script>
 </body>
 </html>

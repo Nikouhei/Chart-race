@@ -141,6 +141,14 @@
       text-decoration: none; box-shadow: var(--shadow-pop); transition: background .15s ease, transform .15s ease;
     }
     .btn-primary:hover { background: var(--accent-strong); transform: translateY(-1px); }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-secondary {
+      display: inline-block; padding: 13px 28px; border-radius: 10px;
+      background: transparent; color: var(--accent); font-size: 16px; font-weight: 700;
+      text-decoration: none; border: 2px solid var(--accent);
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .btn-secondary:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
     .hero .sub-note { display: block; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
 
     /* セクション共通 */
@@ -193,7 +201,7 @@
   <header class="site-header">
     <a href="../" class="brand">
       <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
-      GraphRace Studio<span class="dot">.</span>
+      GraphRace Studio
     </a>
     <nav class="site-nav">
       <a class="nav-link" href="../bar-chart-race/">バーチャートレース</a>
@@ -207,7 +215,10 @@
       <div class="wrap">
         <h1>折れ線グラフを<br>無料でカンタンに作成</h1>
         <p class="lead">CSV / Excel をアップロードするか、表に直接入力するだけ。色・フォント・サイズを自由に設定して、複数項目の時系列を比べる折れ線グラフをブラウザだけで作れます。</p>
-        <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+        <div class="hero-cta">
+          <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+          <a class="btn-secondary" href="app/?sample=1">サンプルで試す</a>
+        </div>
         <span class="sub-note">インストール不要・登録なしですぐ使えます</span>
       </div>
     </section>
