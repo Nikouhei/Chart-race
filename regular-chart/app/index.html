@@ -4277,7 +4277,11 @@
       const xMode = lineSettings.xMode;
       let xPx;
       if (xMode === 'grow') {
-        const denom = Math.max(pos, 1e-6);
+        // 序盤はファーストビュー（約5列）に収め、それ以降から軸を伸ばす。
+        // 全期間が短い場合は全幅に収める（左に圧縮されたままにしない）。
+        const GROW_MIN_SPAN = 4;                       // 0..4 の5列を初期ビューに収める
+        const minSpan = Math.min(GROW_MIN_SPAN, lastIdx);
+        const denom = Math.max(pos, minSpan, 1e-6);
         xPx = i => innerWidth * (i / denom);
       } else {
         const step = lastIdx > 0 ? innerWidth / lastIdx : 0;

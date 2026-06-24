@@ -198,7 +198,7 @@
     .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
     .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
-    /* 動画セクション（左右分割 9:16用） */
+    /* 動画セクション（左右分割 3:4用） */
     .demo-split {
       display: flex;
       align-items: center;
@@ -207,8 +207,8 @@
       max-width: 860px;
     }
     .demo-split-video {
-      flex: 0 0 260px; /* スマホサイズ */
-      aspect-ratio: 9 / 16; /* CLS対策 */
+      flex: 0 0 300px; /* 3:4動画向けに少し幅を広げる */
+      aspect-ratio: 3 / 4; /* CLS対策 */
       border-radius: 16px;
       overflow: hidden;
       box-shadow: var(--shadow-pop);
@@ -288,8 +288,7 @@
         <div class="demo-split">
           <div class="demo-split-video">
             <video id="promo-video" preload="none" muted loop playsinline width="100%" height="auto">
-              <source data-src="demo.webm" type="video/webm">
-              <source data-src="demo.mp4" type="video/mp4">
+              <source data-src="line-chart-race-example-720x960.webm" type="video/webm">
               お使いのブラウザは動画タグをサポートしていません。
             </video>
           </div>
