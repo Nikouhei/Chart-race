@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>折れ線グラフ作成ツール｜無料・ブラウザだけで作れるレギュラーグラフ</title>
-  <meta name="description" content="CSV / Excel をアップロードするか直接入力するだけで、静的な折れ線グラフ（複数国・時系列比較）を無料で作成。色・フォント・サイズを自由に設定でき、インストール不要・ブラウザだけで完結します。">
+  <meta name="description" content="CSV / Excel をアップロードするか直接入力するだけで、動的な折れ線グラフ（複数国・時系列比較）を無料で作成。色・フォント・サイズを自由に設定でき、インストール不要・ブラウザだけで完結します。">
   <link rel="canonical" href="https://graphrace-studio.com/regular-chart/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
   <meta property="og:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
-  <meta property="og:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:description" content="CSV / Excel から動的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
   <meta property="og:url" content="https://graphrace-studio.com/regular-chart/">
   <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
-  <meta name="twitter:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:description" content="CSV / Excel から動的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- favicon（暫定: 絵文字SVG。アプリと統一。正式アイコン確定時に差し替え） -->
   <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
@@ -39,7 +39,7 @@
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://graphrace-studio.com/regular-chart/",
-        "description": "CSV / Excel から静的な折れ線グラフ（時系列比較）をブラウザだけで無料作成できるツール。",
+        "description": "CSV / Excel から動的な折れ線グラフ（時系列比較）をブラウザだけで無料作成できるツール。",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -184,6 +184,66 @@
     .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
     .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
 
+    /* ユースケース */
+    .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px; }
+    .use-case-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; text-align: left;
+    }
+    .use-case-card .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    }
+    .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 動画セクション（左右分割 9:16用） */
+    .demo-split {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      margin: 0 auto 20px;
+      max-width: 860px;
+    }
+    .demo-split-video {
+      flex: 0 0 260px; /* スマホサイズ */
+      aspect-ratio: 9 / 16; /* CLS対策 */
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-pop);
+      border: 4px solid var(--panel-surface); /* ベゼルのような枠 */
+      background: #000;
+    }
+    .demo-split-video video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .demo-split-text {
+      flex: 1;
+      text-align: left;
+    }
+    .demo-split-text h3 {
+      font-size: 22px;
+      color: var(--text-strong);
+      margin: 0 0 16px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .demo-split-text p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+    @media (max-width: 600px) {
+      .demo-split { flex-direction: column; text-align: center; gap: 24px; }
+      .demo-split-text { text-align: center; }
+      .demo-split-video { flex-basis: auto; width: 60%; min-width: 200px; }
+    }
+
     /* フッタ */
     footer.site-footer { padding: 32px 0; color: var(--text-muted); font-size: 13px; }
     .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
@@ -214,12 +274,30 @@
     <section class="hero">
       <div class="wrap">
         <h1>折れ線グラフを<br>無料でカンタンに作成</h1>
-        <p class="lead">CSV / Excel をアップロードするか、表に直接入力するだけ。色・フォント・サイズを自由に設定して、複数項目の時系列を比べる折れ線グラフをブラウザだけで作れます。</p>
+        <p class="lead">CSVやExcelファイルを読み込むだけで、見やすく整った複数ラインの折れ線グラフが瞬時に立ち上がります。時系列データや比較データをすっきりと見やすく整理し、ビジネスやメディアの発信に役立つ動的グラフをすぐ作成できます。</p>
         <div class="hero-cta">
           <a class="btn-primary" href="app/">今すぐ無料で作る</a>
           <a class="btn-secondary" href="app/?sample=1">サンプルで試す</a>
         </div>
         <span class="sub-note">インストール不要・登録なしですぐ使えます</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="demo-split">
+          <div class="demo-split-video">
+            <video id="promo-video" preload="none" muted loop playsinline width="100%" height="auto">
+              <source data-src="demo.webm" type="video/webm">
+              <source data-src="demo.mp4" type="video/mp4">
+              お使いのブラウザは動画タグをサポートしていません。
+            </video>
+          </div>
+          <div class="demo-split-text">
+            <h3>SNSに最適な縦型動画でデータを図解</h3>
+            <p>スマホの縦画面表示に合わせた、スタイリッシュな折れ線グラフをアニメーション付きで書き出せます。複雑に変化する数値の推移や市場動向をわかりやすく解説する動画素材として、各種SNSでの情報発信に最適です。線の太さやフォント、カラーパレットなどを直感的に調整して、美しく説得力のある図解をデザインできます。</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -234,19 +312,43 @@
             <p>手持ちの表データをそのままアップロード。ブラウザ内の表で直接入力・編集もできます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🎨</div>
+            <div class="ico"><img src="../shared/images/feature_design.webp" alt="見た目を自由に設定" width="48" height="48" loading="lazy" decoding="async" style="object-fit: contain;"></div>
             <h3>見た目を自由に設定</h3>
             <p>色・フォント・キャンバスサイズ・線の太さ・ラベルなどを細かく調整できます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🏳️</div>
+            <div class="ico"><img src="../shared/images/feature_flag.webp" alt="線の末端に国旗＋値" width="48" height="48" loading="lazy" decoding="async" style="object-fit: contain;"></div>
             <h3>線の末端に国旗＋値</h3>
             <p>各系列の終点にアイコン（国旗など）と最新値を表示。どの線が何かひと目で分かります。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🔄</div>
+            <div class="ico"><img src="../shared/images/feature_sync.webp" alt="他ツールと相互連携" width="48" height="48" loading="lazy" decoding="async" style="object-fit: contain;"></div>
             <h3>他ツールと相互連携</h3>
             <p>設定内のドロップダウンでバーチャートレースなど他のグラフへ切り替え。編集中データも引き継げます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">活用シーン（ユースケース）</h2>
+        <p class="section-sub">さまざまな場面で、データの変化を分かりやすく伝えます。</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">ビジネス・会議</span>
+            <h3>時系列推移の報告</h3>
+            <p>売上やアクセス数など、複数の項目の変化をひと目で比較でき、会議やプレゼンの資料に最適です。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">ブログ・Webサイト</span>
+            <h3>データや統計の図解</h3>
+            <p>記事内の統計データや調査レポートを視覚化し、読者に内容を分かりやすく伝えます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">SNS（X/Instagram）</span>
+            <h3>トレンドや情報の発信</h3>
+            <p>データを楽しく可視化できるため、SNSでのトレンド情報やデータ分析の視覚的な発信に役立ちます。</p>
           </div>
         </div>
       </div>
@@ -296,5 +398,40 @@
       </nav>
     </div>
   </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const video = document.getElementById('promo-video');
+      if (!video) return;
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const sources = video.querySelectorAll('source');
+              sources.forEach(source => {
+                if (source.dataset.src) {
+                  source.src = source.dataset.src;
+                  source.removeAttribute('data-src');
+                }
+              });
+              video.load();
+              video.play().catch(err => console.log('自動再生がブロックされました:', err));
+              obs.unobserve(video);
+            }
+          });
+        }, { rootMargin: '100px' });
+        observer.observe(video);
+      } else {
+        const sources = video.querySelectorAll('source');
+        sources.forEach(source => {
+          if (source.dataset.src) {
+            source.src = source.dataset.src;
+            source.removeAttribute('data-src');
+          }
+        });
+        video.load();
+      }
+    });
+  </script>
 </body>
 </html>

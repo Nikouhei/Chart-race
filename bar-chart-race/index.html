@@ -184,6 +184,66 @@
     .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
     .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
 
+    /* ユースケース */
+    .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px; }
+    .use-case-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; text-align: left;
+    }
+    .use-case-card .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    }
+    .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 動画セクション（左右分割 3:4用） */
+    .demo-split {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      margin: 0 auto 20px;
+      max-width: 860px;
+    }
+    .demo-split-video {
+      flex: 0 0 300px; /* 3:4動画向けに少し幅を広げる */
+      aspect-ratio: 3 / 4; /* CLS対策 */
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-pop);
+      border: 4px solid var(--panel-surface); /* ベゼルのような枠 */
+      background: #000;
+    }
+    .demo-split-video video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .demo-split-text {
+      flex: 1;
+      text-align: left;
+    }
+    .demo-split-text h3 {
+      font-size: 22px;
+      color: var(--text-strong);
+      margin: 0 0 16px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+    .demo-split-text p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+    @media (max-width: 600px) {
+      .demo-split { flex-direction: column; text-align: center; gap: 24px; }
+      .demo-split-text { text-align: center; }
+      .demo-split-video { flex-basis: auto; width: 60%; min-width: 200px; }
+    }
+
     /* フッタ */
     footer.site-footer { padding: 32px 0; color: var(--text-muted); font-size: 13px; }
     .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
@@ -214,12 +274,29 @@
     <section class="hero">
       <div class="wrap">
         <h1>バーチャートレースを<br>無料でカンタンに作成</h1>
-        <p class="lead">CSV / Excel をアップロードするか、表に直接入力するだけ。色・フォント・サイズを自由に設定して、動く棒グラフレースをブラウザだけで作れます。</p>
+        <p class="lead">お持ちのデータをアップロードするだけで、動きのある華やかなランキング動画が完成。データに命を吹き込み、時系列の推移を劇的に表現するバーチャートレースをブラウザだけで制作できます。</p>
         <div class="hero-cta">
           <a class="btn-primary" href="app/">今すぐ無料で作る</a>
           <a class="btn-secondary" href="app/?sample=1">サンプルで試す</a>
         </div>
         <span class="sub-note">インストール不要・登録なしですぐ使えます</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="demo-split">
+          <div class="demo-split-video">
+            <video id="promo-video" preload="none" muted loop playsinline width="100%" height="auto">
+              <source data-src="barchart-race-sample-720x960.webm" type="video/webm">
+              お使いのブラウザは動画タグをサポートしていません。
+            </video>
+          </div>
+          <div class="demo-split-text">
+            <h3>SNSに最適な縦型動画をサクッと作成</h3>
+            <p>YouTube ShortsやTikTok、Instagramリールなどでよく見かける「走る棒グラフ動画」を最短数分で作れます。スマートフォンの画面にフィットする縦長サイズでの動画作成が可能で、視聴者の目を釘付けにするランキングコンテンツの発信に最適です。色やアニメーション速度を自由に調整して、独自の演出を加えましょう。</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -234,7 +311,7 @@
             <p>手持ちの表データをそのままアップロード。ブラウザ内の表で直接入力・編集もできます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🎨</div>
+            <div class="ico"><img src="../shared/images/feature_design.webp" alt="見た目を自由に設定" width="48" height="48" loading="lazy" decoding="async" style="object-fit: contain;"></div>
             <h3>見た目を自由に設定</h3>
             <p>色・フォント・キャンバスサイズ・ラベルなどを細かく調整。SNS向けの縦型にも対応。</p>
           </div>
@@ -247,6 +324,30 @@
             <div class="ico">💾</div>
             <h3>保存・バックアップ</h3>
             <p>作成中のデータはブラウザに保存。バックアップ書き出し／読み込みにも対応します。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">活用シーン（ユースケース）</h2>
+        <p class="section-sub">さまざまな場面で、データを分かりやすく伝えます。</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">SNS・動画クリエイター</span>
+            <h3>ランキング動画の作成</h3>
+            <p>YouTubeやTikTok向けの、目を引く登録者数・売上推移などのランキング動画を素早く作成できます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">ビジネス・プレゼン</span>
+            <h3>会議でのデータ報告</h3>
+            <p>市場シェアや売上の推移を動きのあるグラフで可視化し、プレゼンテーションの説得力を高めます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">教育・研究機関</span>
+            <h3>歴史・統計の学習教材</h3>
+            <p>国別の人口推移やGDPの変遷など、長期的な統計データを直感的に理解できる教材として活用できます。</p>
           </div>
         </div>
       </div>
@@ -295,5 +396,40 @@
       </nav>
     </div>
   </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const video = document.getElementById('promo-video');
+      if (!video) return;
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const sources = video.querySelectorAll('source');
+              sources.forEach(source => {
+                if (source.dataset.src) {
+                  source.src = source.dataset.src;
+                  source.removeAttribute('data-src');
+                }
+              });
+              video.load();
+              video.play().catch(err => console.log('自動再生がブロックされました:', err));
+              obs.unobserve(video);
+            }
+          });
+        }, { rootMargin: '100px' });
+        observer.observe(video);
+      } else {
+        const sources = video.querySelectorAll('source');
+        sources.forEach(source => {
+          if (source.dataset.src) {
+            source.src = source.dataset.src;
+            source.removeAttribute('data-src');
+          }
+        });
+        video.load();
+      }
+    });
+  </script>
 </body>
 </html>

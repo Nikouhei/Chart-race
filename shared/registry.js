@@ -100,8 +100,23 @@
       });
     } catch (e) {}
 
+    // スマホ幅では縦積みに切り替えるためのレスポンシブCSSを一度だけ注入する。
+    // インラインスタイルより優先度が低いため !important で上書きする。
+    if (!document.getElementById('cts-restore-style')) {
+      var st = document.createElement('style');
+      st.id = 'cts-restore-style';
+      st.textContent =
+        '@media (max-width:480px){' +
+        '.cts-restore-bar{flex-direction:column !important;align-items:stretch !important;gap:10px !important;}' +
+        '.cts-restore-bar .cts-restore-btns{width:100%;}' +
+        '.cts-restore-bar .cts-restore-btns button{flex:1 1 0;}' +
+        '}';
+      (document.head || document.documentElement).appendChild(st);
+    }
+
     var bar = document.createElement('div');
     bar.setAttribute('role', 'status');
+    bar.className = 'cts-restore-bar';
     bar.style.cssText = [
       'position:fixed', 'left:50%', 'top:16px', 'transform:translateX(-50%)',
       'z-index:2500', 'display:flex', 'align-items:center', 'gap:14px',
@@ -146,9 +161,14 @@
       remove();
     });
 
+    var btns = document.createElement('div');
+    btns.className = 'cts-restore-btns';
+    btns.style.cssText = 'display:flex;gap:10px;flex:0 0 auto;';
+    btns.appendChild(restoreBtn);
+    btns.appendChild(discardBtn);
+
     bar.appendChild(msg);
-    bar.appendChild(restoreBtn);
-    bar.appendChild(discardBtn);
+    bar.appendChild(btns);
 
     if (document.body) document.body.appendChild(bar);
     else document.addEventListener('DOMContentLoaded', function () {

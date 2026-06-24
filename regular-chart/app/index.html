@@ -5,20 +5,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>折れ線グラフ作成ツール｜無料・ブラウザだけで作れるレギュラーグラフメーカー</title>
-  <meta name="description" content="CSV / Excel をアップロードするだけで、静的な折れ線グラフ（複数国・時系列比較）をブラウザ上で無料作成。色・フォント・サイズを自由に設定でき、インストール不要。">
+  <meta name="description" content="CSV / Excel をアップロードするだけで、動的な折れ線グラフ（複数国・時系列比較）をブラウザ上で無料作成。色・フォント・サイズを自由に設定でき、インストール不要。">
   <link rel="canonical" href="https://graphrace-studio.com/regular-chart/app/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
   <meta property="og:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
-  <meta property="og:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:description" content="CSV / Excel から動的な折れ線グラフを無料作成。インストール不要、ブラウザだけで完結。">
   <meta property="og:url" content="https://graphrace-studio.com/regular-chart/app/">
   <meta property="og:image" content="https://graphrace-studio.com/regular-chart/ogp.png">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="折れ線グラフ作成ツール｜無料・ブラウザだけ">
-  <meta name="twitter:description" content="CSV / Excel から静的な折れ線グラフを無料作成。インストール不要。">
+  <meta name="twitter:description" content="CSV / Excel から動的な折れ線グラフを無料作成。インストール不要。">
   <meta name="twitter:image" content="https://graphrace-studio.com/regular-chart/ogp.png">
   <!-- favicon（暫定: 絵文字SVG。正式アイコン確定時に差し替え） -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
@@ -1556,7 +1556,7 @@
           <input type="number" id="axisLineDash" value="4" min="0" max="30">
         </div>
       </div>
-      <div style="margin-top:10px;">
+      <div id="axisFixedMaxWrap" style="margin-top:10px;">
         <span style="font-size:11px; color:#aaa;">固定最大値（空白 = 自動）</span>
         <input type="number" id="axisFixedMax" placeholder="自動" min="0" step="0.01">
       </div>
@@ -1969,6 +1969,7 @@
       });
       syncBarSettingsControls();
       updateBarColorControls();
+      syncAxisFixedMaxVisibility();
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     }
 
@@ -1976,6 +1977,13 @@
       document.querySelectorAll(selector).forEach(button => {
         button.classList.toggle('active', String(button.dataset[attributeName]) === String(activeValue));
       });
+    }
+
+    // 「固定最大値」欄は軸スケールが「固定」のときだけ表示する
+    function syncAxisFixedMaxVisibility() {
+      const mode = document.getElementById('axisScaleMode')?.value;
+      const wrap = document.getElementById('axisFixedMaxWrap');
+      if (wrap) wrap.style.display = mode === 'fixed' ? '' : 'none';
     }
 
     function syncBarSettingsControls() {
@@ -3900,6 +3908,9 @@
         };
       });
 
+      // 値が1つも無い系列（空行・未入力行）は表示対象から除外する
+      series = series.filter(s => s.points.some(p => Number.isFinite(p.value)));
+
       // 本数（項目数）の絞り込み＋並べ替え（基準は最新年＝末尾pointの値）
       const lineSettings = getLineSettings();
       if (lineSettings.sortEnabled) {
@@ -4625,6 +4636,7 @@
     setupSettingsAccordions();
     syncBarSettingsControls();
     updateBarColorControls();
+    syncAxisFixedMaxVisibility();
     defaultProjectSettings = getProjectSettingsSnapshot();
     previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     renderStorageList();
@@ -5166,6 +5178,7 @@
       const eventName = id === 'axisScaleMode' ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
     });
+    document.getElementById('axisScaleMode').addEventListener('change', syncAxisFixedMaxVisibility);
 
     document.addEventListener('keydown', e => {
       if (document.getElementById('reloadConfirmModal').classList.contains('active')) {
