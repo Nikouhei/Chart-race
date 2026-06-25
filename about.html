@@ -207,7 +207,7 @@
     </a>
     <nav class="site-nav">
       <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
-      <a class="nav-link" href="regular-chart/">折れ線グラフ</a>
+      <a class="nav-link" href="regular-chart/">線グラフレース</a>
     </nav>
   </header>
 
@@ -229,28 +229,11 @@
         <p>個人開発ならではの機動力を活かし、ユーザーの皆様からのフィードバックを迅速に反映した機能追加や改善を行っていきます。</p>
       </section>
 
-      <section class="contact-form-container">
-        <h3>ご意見・お問い合わせ</h3>
-        <form id="contact-form">
-          <div class="form-group">
-            <label for="name">お名前（任意）</label>
-            <input type="text" id="name" name="name" placeholder="例：山田 太郎">
-          </div>
-          <div class="form-group">
-            <label for="email">メールアドレス（任意）</label>
-            <input type="email" id="email" name="email" placeholder="例：example@example.com">
-          </div>
-          <div class="form-group">
-            <label for="subject">件名（必須）</label>
-            <input type="text" id="subject" name="subject" placeholder="例：機能の改善要望について" required>
-          </div>
-          <div class="form-group">
-            <label for="message">お問い合わせ内容（必須）</label>
-            <textarea id="message" name="message" rows="6" placeholder="こちらにお問い合わせ内容をご記入ください" required></textarea>
-          </div>
-          <button type="submit" class="btn-submit">送信する</button>
-        </form>
-        <div id="form-message" class="form-message" style="display: none;"></div>
+      <section class="contact-form-container" style="padding: 24px 16px; overflow: hidden;">
+        <h3 style="text-align: center; margin-bottom: 24px;">ご意見・お問い合わせ</h3>
+        <div style="width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden;">
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSchxKUs_LAC1PG0gRVSdovzT-1VDAX2cd88yZemmdu4O6HUYQ/viewform?embedded=true" width="100%" height="980" frameborder="0" marginheight="0" marginwidth="0" style="width: 100%; border: none; display: block;">読み込んでいます…</iframe>
+        </div>
       </section>
     </div>
   </main>
@@ -265,25 +248,5 @@
       </nav>
     </div>
   </footer>
-
-  <script>
-    document.getElementById('contact-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const subject = document.getElementById('subject').value;
-      const message = document.getElementById('message').value;
-
-      console.log('送信されたデータ:', { name, email, subject, message });
-
-      const msgDiv = document.getElementById('form-message');
-      msgDiv.textContent = 'お問い合わせを受け付けました。ご意見ありがとうございます。';
-      msgDiv.className = 'form-message success';
-      msgDiv.style.display = 'block';
-
-      this.reset();
-    });
-  </script>
 </body>
 </html>

@@ -10,7 +10,7 @@
 (function () {
   window.CHART_TOOLS = [
     { id: 'bar-chart-race', label: 'バーチャートレース（動く）', path: '../../bar-chart-race/app/', kind: 'animated' },
-    { id: 'regular-chart',  label: 'レギュラーグラフ（折れ線）', path: '../../regular-chart/app/', kind: 'static' }
+    { id: 'regular-chart',  label: 'レギュラーグラフ（線グラフレース）', path: '../../regular-chart/app/', kind: 'static' }
   ];
 
   // 編集中プロジェクトの一時引き継ぎ枠。保存済み一覧(chartToolSavedProjects)とは別管理。
