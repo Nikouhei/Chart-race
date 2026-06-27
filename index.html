@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-NS736Y3MY9');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GraphRace Studio｜無料・ブラウザで動くグラフ動画を作成</title>
@@ -74,24 +83,128 @@
     }
 
     /* Hero */
-    .hero { padding: 80px 0 48px; text-align: center; }
+    .hero { padding: 80px 0 48px; }
+    .hero-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+    }
+    .hero-text {
+      flex: 1.2;
+    }
     .hero h1 {
-      font-size: clamp(30px, 5vw, 48px); line-height: 1.25; margin: 0 0 18px;
+      font-size: clamp(30px, 4vw, 42px); line-height: 1.25; margin: 0 0 18px;
       color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px;
     }
-    .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
+    .hero p.lead { font-size: clamp(15px, 2vw, 17px); color: var(--text-muted); margin: 0 0 30px; }
+    
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .hero-badges .badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* デモパネル */
+    .hero-visual {
+      flex: 0.8;
+      width: 100%;
+      max-width: 420px;
+      background: var(--panel-surface);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-pop);
+      position: relative;
+      overflow: hidden;
+    }
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 8px;
+    }
+    .demo-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-strong);
+    }
+    .demo-year {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .demo-container {
+      height: 200px;
+      position: relative;
+    }
+    .demo-bar-item {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .demo-label {
+      width: 80px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-strong);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .demo-track {
+      flex-grow: 1;
+      height: 14px;
+      background: var(--panel-surface-2);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .demo-bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+    .demo-value {
+      width: 35px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-strong);
+      text-align: right;
+    }
 
     /* セクション共通 */
-    section { padding: 56px 0; }
-    .section-title { text-align: center; font-size: clamp(22px, 3vw, 30px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
-    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
+    section { padding: 64px 0; }
+    .section-title { text-align: center; font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; font-size: 15px; }
 
     /* ツールグリッド（カード型） */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
     }
     .tool-card {
       background: var(--panel-surface);
@@ -142,6 +255,50 @@
       background: var(--accent-strong);
     }
 
+    /* どう活用できるか（ユースケース） */
+    .use-cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .use-case-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .use-case-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-pop);
+      border-color: var(--accent);
+    }
+    .use-case-card .icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .use-case-card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: var(--text-strong);
+      font-weight: 800;
+    }
+    .use-case-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
     /* 特長グリッド */
     .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
     .feature-card {
@@ -151,6 +308,65 @@
     .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
     .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
     .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* FAQ */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .faq-item {
+      background: var(--panel-surface);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .faq-item[open] {
+      border-color: var(--accent);
+      background: var(--panel-bg);
+    }
+    .faq-item summary {
+      padding: 18px 24px;
+      color: var(--text-strong);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-item summary h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: inherit;
+      color: inherit;
+      display: inline;
+    }
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+    .faq-item summary::after {
+      content: "+";
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+    .faq-item[open] summary::after {
+      content: "−";
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+    .faq-content {
+      padding: 0 24px 24px;
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
 
     /* フッタ */
     footer.site-footer {
@@ -165,8 +381,24 @@
     .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
     .site-footer nav a:hover { color: var(--text-main); }
 
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
       .hero { padding: 48px 0 32px; }
+      .hero-flex {
+        flex-direction: column;
+        text-align: center;
+        gap: 32px;
+      }
+      .hero-text {
+        max-width: 100%;
+      }
+      .hero-badges {
+        justify-content: center;
+      }
+      .hero-visual {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
       section { padding: 40px 0; }
       .site-header { padding: 14px 18px; }
       .tools-grid { grid-template-columns: 1fr; }
@@ -206,7 +438,7 @@
 <body>
   <header class="site-header">
     <a href="./" class="brand">
-      <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+      <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
       GraphRace Studio
     </a>
     <nav class="site-nav">
@@ -218,12 +450,31 @@
   <main>
     <section class="hero">
       <div class="wrap">
-        <h1>データを美しく、カンタンに視覚化</h1>
-        <p class="lead">CSVやExcelデータをアップロードするだけで、動きのあるチャート動画や時系列比較グラフをブラウザ内で無料作成できます。</p>
+        <div class="hero-flex">
+          <div class="hero-text">
+            <div class="hero-badges">
+              <span class="badge">✨ インストール不要</span>
+              <span class="badge">🎁 試用期間無料（クレジット要）</span>
+              <span class="badge">💼 商用利用OK</span>
+              <span class="badge">🔒 外部送信なし</span>
+            </div>
+            <h1>データに命を吹き込み、<br>ストーリーを伝える</h1>
+            <p class="lead">CSVやExcelデータをアップロードするだけで、動きのあるチャート動画や時系列比較グラフをブラウザ内で無料作成できます。</p>
+          </div>
+          <div class="hero-visual">
+            <div class="demo-header">
+              <span class="demo-title">📊 人気の果物ランキング（デモ）</span>
+              <span id="demo-year" class="demo-year">2020年</span>
+            </div>
+            <div id="demo-container" class="demo-container">
+              <!-- JSで動的に追加されます -->
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
+    <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
         <h2 class="section-title">ツールを選択する</h2>
         <p class="section-sub">用途に合わせて2つのビジュアライズツールをご利用いただけます。</p>
@@ -245,6 +496,30 @@
               <p>複数項目の時系列データをすっきりと比較する動的グラフを作成します。プレゼン資料やブログ、ニュースメディアでの図解に適しています。</p>
             </div>
             <a class="btn-tool" href="regular-chart/">ツールを使う</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="border-top: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">あらゆるシーンでデータを魅力的に</h2>
+        <p class="section-sub">GraphRace Studioは、数字の羅列から動きのあるストーリーを創り出すためのツールです。</p>
+        <div class="use-cases-grid">
+          <div class="use-case-card">
+            <div class="icon-wrapper">📱</div>
+            <h3>SNSや動画投稿で視聴者を惹きつける</h3>
+            <p>時系列のランキング推移やトレンドの変遷をダイナミックな動画にして、YouTube、TikTok、Xなどで発信。視覚的なインパクトでエンゲージメントを高めます。</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">💼</div>
+            <h3>ビジネスプレゼンやレポートの説得力を高める</h3>
+            <p>単なる静止画のグラフではなく、売上や市場シェアが変化するプロセスを見せることで、意思決定者やクライアントへの説得力を最大化します。</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">🎓</div>
+            <h3>複雑な統計データを誰もが理解できる形にする</h3>
+            <p>人口推移や経済指標など、時間とともに変化する複雑なデータを直感的なアニメーションにし、教育現場、ニュースメディア、個人ブログでの解説に活用。</p>
           </div>
         </div>
       </div>
@@ -273,6 +548,39 @@
         </div>
       </div>
     </section>
+
+    <section style="border-bottom: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">よくあるご質問</h2>
+        <p class="section-sub">ツールの利用方法や仕様に関するよくある疑問にお答えします。</p>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary><h3>完全に無料で使えますか？</h3></summary>
+            <div class="faq-content">
+              現在はサイト開設キャンペーンの試用期間中につき、すべての機能を無料でご利用いただけます。商用利用（YouTube動画の作成、ビジネスプレゼンテーションなど）も可能ですが、作成したグラフ画像や動画を一般に公開する際は、当サイトへのクレジット表記（例: 「Created by GraphRace Studio」の記載やリンクの設置）を必須条件とさせていただいております。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>アップロードしたデータが外部に漏れる心配はありませんか？</h3></summary>
+            <div class="faq-content">
+              心配ありません。データ処理は100%お使いのブラウザ（端末内）で完結しており、読み込んだデータやCSV/Excelファイルが外部のサーバーに送信されることは一切ありません。なお、グラフ描画ライブラリ（D3.js等）の初期読み込みを行うため、ツールの起動にはインターネット接続が必要となります。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>作成したグラフを動画ファイルとして保存できますか？</h3></summary>
+            <div class="faq-content">
+              ブラウザの画面録画機能（Chrome拡張機能やOS標準のキャプチャツール等）を使用して録画・保存していただくか、ツール内でプレビュー再生しながらプレゼン等でご利用ください。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>推奨されるデータのフォーマットは？</h3></summary>
+            <div class="faq-content">
+              1行目に日付や時間（時系列キー）、1列目に項目名が入ったCSVまたはExcelファイルに対応しています。各ツール内にサンプルデータを用意していますので、そちらをダウンロードしてご参照ください。
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -285,5 +593,79 @@
       </nav>
     </div>
   </footer>
+
+  <script>
+    // インタラクティブデモの制御
+    (function() {
+      const items = [
+        { id: 'apple', label: '🍎 りんご', color: '#ff7675', value: 80, target: 80 },
+        { id: 'banana', label: '🍌 バナナ', color: '#ffeaa7', value: 65, target: 65 },
+        { id: 'grape', label: '🍇 ぶどう', color: '#a29bfe', value: 50, target: 50 },
+        { id: 'melon', label: '🍈 メロン', color: '#55efc4', value: 35, target: 35 }
+      ];
+
+      const demoContainer = document.getElementById('demo-container');
+      const demoYear = document.getElementById('demo-year');
+      if (!demoContainer || !demoYear) return;
+
+      // 初期要素生成
+      items.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = 'demo-bar-item';
+        el.id = `demo-item-${item.id}`;
+        el.style.transform = `translateY(${idx * 50}px)`;
+        el.innerHTML = `
+          <span class="demo-label">${item.label}</span>
+          <div class="demo-track">
+            <div class="demo-bar-fill" style="width: 0%; background: ${item.color};"></div>
+          </div>
+          <span class="demo-value">0</span>
+        `;
+        demoContainer.appendChild(el);
+      });
+
+      let year = 2020;
+      
+      function updateDemo() {
+        year += 1;
+        if (year > 2030) {
+          year = 2020;
+          items[0].target = 80;
+          items[1].target = 65;
+          items[2].target = 50;
+          items[3].target = 35;
+        } else {
+          items.forEach(item => {
+            const diff = Math.floor(Math.random() * 40) - 15;
+            item.target = Math.max(10, Math.min(100, item.target + diff));
+          });
+        }
+
+        demoYear.textContent = year + '年';
+
+        items.forEach(item => {
+          item.value = item.target;
+        });
+
+        const sorted = [...items].sort((a, b) => b.value - a.value);
+
+        items.forEach(item => {
+          const el = document.getElementById(`demo-item-${item.id}`);
+          if (el) {
+            const index = sorted.findIndex(s => s.id === item.id);
+            el.style.transform = `translateY(${index * 50}px)`;
+            const fill = el.querySelector('.demo-bar-fill');
+            if (fill) fill.style.width = `${item.value}%`;
+            const valEl = el.querySelector('.demo-value');
+            if (valEl) valEl.textContent = Math.round(item.value);
+          }
+        });
+      }
+
+      // 初回遅延実行（ページ読み込み時のトランジションをスムーズに見せるため）
+      setTimeout(updateDemo, 100);
+      setInterval(updateDemo, 1800);
+    })();
+  </script>
 </body>
 </html>
