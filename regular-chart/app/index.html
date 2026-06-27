@@ -20,8 +20,8 @@
   <meta name="twitter:title" content="線グラフレース作成ツール｜無料・ブラウザだけ">
   <meta name="twitter:description" content="CSV / Excel から動的な線グラフレースを無料作成。インストール不要。">
   <meta name="twitter:image" content="https://graphrace-studio.com/regular-chart/ogp.png">
-  <!-- favicon（暫定: 絵文字SVG。正式アイコン確定時に差し替え） -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+  <!-- favicon -->
+  <link rel="icon" href="/Logo/GraphRace_Studio_Logo.png" type="image/png">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <!-- SheetJS(XLSX) は xlsx 読込/書出し時に ensureXLSX() で遅延ロード（初期表示の軽量化） -->
   <!-- Google AdSense -->
@@ -1127,8 +1127,8 @@
 
   <div class="control-panel">
     <div class="panel-header">
-      <a href="../../" class="brand">
-        <img src="../../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+      <a href="/" class="brand">
+        <img src="/Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
         GraphRace Studio
       </a>
     </div>
@@ -1204,17 +1204,14 @@
     </div>
 
     <div class="input-group">
-      <label>グラフ</label>
+      <label>グラフの種類</label>
       <div class="setting-row">
         <div class="setting-field">
-          <span>グラフの種類</span>
           <select id="chartToolSwitcher" title="別のグラフツールへ切り替え（編集中データは引き継がれます）"></select>
         </div>
       </div>
       <!-- chartStyle はレギュラーグラフでは未使用。getGraphSettings 等の互換のため hidden で保持 -->
       <input type="hidden" id="chartStyle" value="score">
-      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:12px 0 10px;">
-      <input type="text" id="sourceInput" placeholder="出典を入力">
     </div>
 
     <div class="input-group">
@@ -1260,6 +1257,28 @@
 
     <div class="input-group">
       <label>ラベル</label>
+      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>タイトル文字サイズ(%)</span>
+          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>タイトル色</span>
+          <input type="color" id="titleColor" value="#222222">
+        </div>
+      </div>
+      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
+      <div class="setting-row" style="margin-bottom:14px;">
+        <div class="setting-field">
+          <span>出典文字サイズ(%)</span>
+          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>出典色</span>
+          <input type="color" id="sourceColor" value="#666666">
+        </div>
+      </div>
       <div class="setting-row">
         <div class="setting-field">
           <span>文字サイズ(px)</span>
@@ -1728,7 +1747,7 @@
     const PROJECT_SETTING_IDS = [
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage',
-      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput',
+      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
@@ -1761,9 +1780,8 @@
       chart.style.width = w + 'px';
       chart.style.height = h + 'px';
       
-      // 文字サイズをキャンバス幅に連動させる（見切れ防止）
-      document.getElementById('chartTitle').style.fontSize = (w * 0.025) + 'px';
-      document.getElementById('sourceDisplay').style.fontSize = (w * 0.015) + 'px';
+      // タイトル・出典の文字サイズ（キャンバス幅連動）と色を適用
+      applyTitleSourceStyle(w);
       applyTimeCounterSettings(w);
       applyLayoutAppearance();
 
@@ -4149,6 +4167,17 @@
       document.getElementById('sourceDisplay').innerText = document.getElementById('sourceInput').value;
     }
 
+    function applyTitleSourceStyle(canvasWidth = resolveCanvasWidth()) {
+      const titleSize = parseFloat(document.getElementById('titleSize').value);
+      const sourceSize = parseFloat(document.getElementById('sourceSize').value);
+      const title = document.getElementById('chartTitle');
+      const source = document.getElementById('sourceDisplay');
+      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100) + 'px';
+      title.style.color = document.getElementById('titleColor').value || '#222222';
+      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100) + 'px';
+      source.style.color = document.getElementById('sourceColor').value || '#666666';
+    }
+
     function refreshCurrentPreview({ reset = true } = {}) {
       syncOverlayText();
       if (!years.length) {
@@ -5173,6 +5202,9 @@
     document.getElementById('autoHeight').addEventListener('change', () => onLayoutSettingChange('autoHeight'));
     ['titleInput', 'sourceInput'].forEach(id => {
       document.getElementById(id).addEventListener('input', syncOverlayText);
+    });
+    ['titleSize', 'titleColor', 'sourceSize', 'sourceColor'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => applyTitleSourceStyle());
     });
     ['valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands'].forEach(id => {
       const eventName = ['negativeStyle', 'trimTrailingZeros', 'hideSmallThousands'].includes(id) ? 'change' : 'input';
