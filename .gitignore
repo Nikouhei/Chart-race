@@ -1,6 +1,8 @@
 .DS_Store
 .claude/
-*.jpg
-*.jpeg
-*.png
-*.gif
+# Ignore specific screenshots or raw assets
+スクリーンショット*.jpg
+スクリーンショット*.jpeg
+スクリーンショット*.png
+*.mp4
+*.webm
