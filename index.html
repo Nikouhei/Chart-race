@@ -8,7 +8,10 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-NS736Y3MY9');
+    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      gtag('config', 'G-NS736Y3MY9');
+    }
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -453,10 +456,10 @@
         <div class="hero-flex">
           <div class="hero-text">
             <div class="hero-badges">
-              <span class="badge">✨ インストール不要</span>
-              <span class="badge">🎁 試用期間無料（クレジット要）</span>
-              <span class="badge">💼 商用利用OK</span>
-              <span class="badge">🔒 外部送信なし</span>
+              <span class="badge">インストール不要</span>
+              <span class="badge">無料（クレジット表記要）</span>
+              <span class="badge">商用利用OK</span>
+              <span class="badge">外部送信なし</span>
             </div>
             <h1>データに命を吹き込み、<br>ストーリーを伝える</h1>
             <p class="lead">CSVやExcelデータをアップロードするだけで、動きのあるチャート動画や時系列比較グラフをブラウザ内で無料作成できます。</p>

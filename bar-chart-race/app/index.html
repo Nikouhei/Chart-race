@@ -1373,6 +1373,7 @@
         <div class="setting-field">
           <span>並び順</span>
           <select id="sortMode">
+            <option value="data">データ順</option>
             <option value="desc">大きい順</option>
             <option value="asc">小さい順</option>
           </select>
@@ -2380,7 +2381,7 @@
         topN: Number.isFinite(topNValue) ? Math.max(1, topNValue) : 10,
         barSpacing: Number.isFinite(spacingValue) ? Math.min(Math.max(0, spacingValue), 80) : 15,
         sortEnabled: document.getElementById('sortEnabled').checked,
-        sortMode: document.getElementById('sortMode').value || 'desc'
+        sortMode: document.getElementById('sortMode').value || 'data'
       };
     }
 
@@ -3786,7 +3787,7 @@
         };
       }).filter(item => item.value != null); // 値なしの年はその項目を除外（ランキング・本数から外す）
 
-      if (sortEnabled) {
+      if (sortEnabled && sortMode !== 'data') {
         yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
       }
       assignDenseRanks(yearData);
@@ -3810,7 +3811,7 @@
         };
       });
 
-      if (sortEnabled) {
+      if (sortEnabled && sortMode !== 'data') {
         yearData.sort((a, b) => sortMode === 'asc' ? a.value - b.value : b.value - a.value);
       }
       assignDenseRanks(yearData);
