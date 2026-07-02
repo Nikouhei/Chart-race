@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>バーチャートレース（動く棒グラフ）の作り方完全ガイド｜GraphRace Studio</title>
-  <meta name="description" content="SNSやYouTubeで人気の動く棒グラフ「バーチャートレース」の作り方をデータアナリストが詳しく解説。プログラミング不要・ブラウザだけで作れる無料ツールやExcelデータの準備手順、バズる動画にするためのコツまで網羅。">
+  <meta name="description"
+    content="SNSやYouTubeで人気の動く棒グラフ「バーチャートレース」の作り方をデータアナリストが詳しく解説。プログラミング不要・ブラウザだけで作れる無料ツールやExcelデータの準備手順、バズる動画にするためのコツまで網羅。">
   <link rel="canonical" href="https://graphrace-studio.com/blog/how-to-make-bar-chart-race">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
@@ -28,8 +30,14 @@
   <link rel="stylesheet" href="../../shared/tokens.css">
 
   <style>
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
@@ -38,19 +46,34 @@
       line-height: 1.8;
       -webkit-font-smoothing: antialiased;
     }
-    a { color: inherit; }
-    .wrap { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+    a {
+      color: inherit;
+    }
+
+    .wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
     /* ヘッダー */
     .site-header {
       border-bottom: 1px solid var(--panel-border);
       background: var(--panel-surface);
-      position: sticky; top: 0; z-index: 100;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
+
     .site-header .wrap {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 24px; max-width: 1040px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
     }
+
     .brand {
       display: inline-flex;
       align-items: center;
@@ -61,12 +84,19 @@
       letter-spacing: 0.2px;
       text-decoration: none;
     }
+
     .brand img {
       height: 24px;
       width: auto;
       display: block;
     }
-    .site-nav { display: flex; align-items: center; gap: 18px; }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
     .nav-link {
       color: var(--text-muted);
       text-decoration: none;
@@ -74,18 +104,23 @@
       font-weight: 600;
       transition: color 0.15s ease;
     }
-    .nav-link:hover { color: var(--text-main); }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
 
     /* メイン・ブログレイアウト */
     .blog-container {
       margin-top: 48px;
       margin-bottom: 80px;
     }
+
     .blog-header {
       margin-bottom: 40px;
       border-bottom: 1px solid var(--panel-border-soft);
       padding-bottom: 24px;
     }
+
     .blog-title {
       font-size: 32px;
       line-height: 1.4;
@@ -93,13 +128,14 @@
       margin: 0 0 16px;
       font-weight: 800;
     }
+
     .blog-meta {
       font-size: 13px;
       color: var(--text-muted);
       display: flex;
       gap: 16px;
     }
-    
+
     .blog-content h2 {
       font-size: 22px;
       color: var(--text-strong);
@@ -109,6 +145,7 @@
       margin-bottom: 20px;
       font-weight: 700;
     }
+
     .blog-content h3 {
       font-size: 18px;
       color: var(--text-strong);
@@ -116,10 +153,11 @@
       margin-bottom: 14px;
       font-weight: 700;
     }
+
     .blog-content p {
       margin: 0 0 20px;
     }
-    
+
     /* 比較表 */
     .compare-table {
       width: 100%;
@@ -127,11 +165,14 @@
       margin: 24px 0;
       font-size: 14px;
     }
-    .compare-table th, .compare-table td {
+
+    .compare-table th,
+    .compare-table td {
       border: 1px solid var(--panel-border);
       padding: 12px;
       text-align: left;
     }
+
     .compare-table th {
       background: var(--panel-surface);
       color: var(--text-strong);
@@ -146,15 +187,19 @@
       font-size: 13px;
       font-family: monospace;
     }
-    .data-table th, .data-table td {
+
+    .data-table th,
+    .data-table td {
       border: 1px solid var(--panel-border);
       padding: 8px 12px;
       text-align: center;
     }
+
     .data-table th {
       background: var(--panel-surface);
       color: var(--text-strong);
     }
+
     .data-table td.highlight {
       background: rgba(110, 98, 240, 0.08);
       font-weight: 600;
@@ -168,12 +213,14 @@
       padding: 20px;
       margin: 28px 0;
     }
+
     .info-box h4 {
       margin: 0 0 10px;
       color: var(--accent);
       font-weight: 700;
       font-size: 16px;
     }
+
     .info-box p {
       margin: 0;
       font-size: 14px;
@@ -189,16 +236,19 @@
       text-align: center;
       box-shadow: var(--shadow-soft);
     }
+
     .cta-card h4 {
       margin: 0 0 12px;
       font-size: 18px;
       color: var(--text-strong);
     }
+
     .cta-card p {
       font-size: 14px;
       margin-bottom: 20px;
       color: var(--text-muted);
     }
+
     .btn-cta {
       display: inline-block;
       padding: 12px 28px;
@@ -210,6 +260,7 @@
       text-decoration: none;
       transition: background 0.15s ease, transform 0.15s ease;
     }
+
     .btn-cta:hover {
       background: var(--accent-strong);
       transform: translateY(-1px);
@@ -224,17 +275,46 @@
       background: var(--panel-surface);
       margin-top: 80px;
     }
-    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; max-width: 1040px; }
-    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
-    .site-footer nav a:hover { color: var(--text-main); }
+
+    .site-footer .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1040px;
+    }
+
+    .site-footer nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 18px;
+    }
+
+    .site-footer nav a:hover {
+      color: var(--text-main);
+    }
 
     @media (max-width: 600px) {
-      .site-header { padding: 14px 18px; }
-      .blog-title { font-size: 26px; }
-      .compare-table, .data-table { font-size: 12px; display: block; overflow-x: auto; white-space: nowrap; }
+      .site-header {
+        padding: 14px 18px;
+      }
+
+      .blog-title {
+        font-size: 26px;
+      }
+
+      .compare-table,
+      .data-table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
+
 <body>
   <header class="site-header">
     <div class="wrap">
@@ -260,9 +340,13 @@
       </header>
 
       <div class="blog-content">
-        <p>YouTubeのデータ比較動画やSNSのインフォグラフィックスで、棒グラフが時間の経過とともにダイナミックに順位を入れ替える動画を見たことはありませんか？</p>
-        <p>あの視覚的に惹きつけられるアニメーショングラフは「バーチャートレース（棒グラフレース）」と呼ばれています。国別の人口推移、企業価値のランキング推移、スポーツ選手の通算成績など、時系列のランキングデータを視覚化するのに最も適した手法です。</p>
-        <p>一見すると作成が難しそうに思えるバーチャートレースですが、実はプログラミング知識がなくても、ブラウザだけで誰でも数分で作成できる方法があります。この記事では、作成手段の比較から具体的なデータの準備手順、視聴者を惹きつけるデザインのコツまで、データアナリストの視点で詳しく解説します。</p>
+        <p>YouTubeのデータ比較動画やSNSで、時間の経過とともに順位が入れ替わる棒グラフ動画を見たことはありませんか？</p>
+        <p>
+          あの視覚的に惹きつけられるアニメーショングラフは「バーチャートレース（棒グラフレース）」と呼ばれています。国別の人口推移、企業価値のランキング推移、スポーツ選手の通算成績など、時系列のランキングデータを視覚化するのに最も適した手法です。
+        </p>
+        <p>
+          どうやって作ってるんだと思いますが、実はプログラミング知識がなくても、誰でも簡単に作成できる方法があります。この記事では、作成手段の比較から具体的なデータの準備手順、視聴者を惹きつけるデザインのコツまで、データアナリストの視点で詳しく解説します。
+        </p>
 
         <h2>バーチャートレースを作成する3つのアプローチ</h2>
         <p>動くグラフを作成する方法は、大きく分けて以下の3つのアプローチがあります。それぞれの特徴やスキルレベルに合わせて選ぶことができます。</p>
@@ -286,19 +370,19 @@
             <tr>
               <td>海外のWebツール</td>
               <td>機能が豊富でバリエーションが多い</td>
-              <td>英語表記、ユーザー登録が必須</td>
+              <td>英語表記<br>ユーザー登録が必須</td>
               <td>海外ツールの利用に慣れている方</td>
             </tr>
             <tr>
               <td>国内ブラウザ完結ツール（本サイト）</td>
-              <td>登録不要ですぐ使え、日本語で簡単</td>
+              <td>登録不要ですぐ使える<br>日本語で簡単</td>
               <td>超複雑なグラフ形式は非対応</td>
-              <td>初心者、素早く高品質に作りたい方</td>
+              <td>初心者、素早く簡単に作りたい方</td>
             </tr>
           </tbody>
         </table>
 
-        <p>プログラミングを学ぶ時間がない方や、英語ツールに抵抗がある場合は、インストールや登録が不要で、ブラウザにデータを貼り付けるだけで完成する国内ツールを使用するのが最も効率的です。</p>
+        <p>プログラミングはさすがにハードルが高いと思いますので、Flourishなどの海外ツールや本サイトのようなデータを読み込むだけで作れるものが最も効率的です。</p>
 
         <h2>作成に必要な「時系列データ」の基本構造</h2>
         <p>バーチャートレースを作る上で、初心者が最もつまずきやすいのが「データの準備」です。ツールにデータを読み込ませるには、Excelやスプレッドシートで以下のような特定のテーブル構造を用意する必要があります。</p>
@@ -307,7 +391,7 @@
           <thead>
             <tr>
               <th>名前（A列）</th>
-              <th>カテゴリ（B列）</th>
+              <th>画像URL（B列）</th>
               <th class="highlight">2020年（C列）</th>
               <th class="highlight">2021年（D列）</th>
               <th class="highlight">2022年（E列）</th>
@@ -316,45 +400,48 @@
           <tbody>
             <tr>
               <td>日本</td>
-              <td>アジア</td>
+              <td>https://example.com/flags/jp.webp</td>
               <td class="highlight">100</td>
               <td class="highlight">102</td>
               <td class="highlight">101</td>
             </tr>
             <tr>
               <td>アメリカ</td>
-              <td>北米</td>
+              <td>https://example.com/flags/us.webp</td>
               <td class="highlight">200</td>
               <td class="highlight">205</td>
               <td class="highlight">210</td>
             </tr>
             <tr>
               <td>ドイツ</td>
-              <td>欧州</td>
+              <td>https://example.com/flags/de.webp</td>
               <td class="highlight">80</td>
               <td class="highlight">82</td>
               <td class="highlight">83</td>
             </tr>
           </tbody>
         </table>
-
+        <p>ただ、今は ChatGPT や Claude といったAIで、指定した形式に整えてくれるので、データの用意は相当楽にできるようになりました。 </p>
         <p>データを作成する際の重要なルールは以下の通りです。</p>
         <ul>
           <li><strong>1列目（A列）：</strong> 比較したい対象の名前（国名、商品名、企業名など）を入力します。</li>
-          <li><strong>2列目（B列）：</strong> 任意でカテゴリ（地域や業種など）を入力します。これによって、バーの色分けをカテゴリごとに自動で行うことができます。</li>
+          <li><strong>2列目（B列）：</strong> 任意で画像URLを入力します。これによって、バーに画像をつけることができます。</li>
           <li><strong>3列目以降（C列以降）：</strong> 時系列のデータ（年、月、日付など）を左から右へ順番に入力します。値は必ず半角数値である必要があります。</li>
         </ul>
 
         <div class="info-box">
           <h4>よくあるデータ作成のエラーと対策</h4>
-          <p>データを読み込んだ際にエラーが発生する場合、数値データ内に全角スペースやカンマ（,）、円記号（¥）などの文字が含まれているケースがほとんどです。データセルは純粋な半角数値（例: 10000）で入力し、単位や表記はツールの表示設定で後から調整するようにしましょう。</p>
+          <p>データを読み込んだ際にエラーが発生する場合、数値データ内に全角スペースやカンマ（,）、円記号（¥）などの文字が含まれているケースがほとんどです。データセルは純粋な半角数値（例:
+            10000）で入力し、単位や表記はツールの表示設定で後から調整するようにしましょう。</p>
         </div>
 
         <h2>無料ツール「GraphRace Studio」を使った簡単4ステップ作成手順</h2>
         <p>当サイトが提供している無料ツール「GraphRace Studio」を使い、登録なしでバーチャートレース動画を作る具体的な手順を紹介します。</p>
 
         <h3>ステップ1：サンプルデータの確認</h3>
-        <p>まずは、どのような動きになるか確認するため、ツールの紹介ページにあるサンプルデータで試すか、ツール内の標準テンプレートを読み込んで再生ボタンを押してみましょう。どのような構造のデータがあれば動くのかが視覚的に理解できます。</p>
+        <p>
+          まずは、どのような動きになるか確認するため、ツールの紹介ページにあるサンプルデータで試すか、ツール内の標準テンプレートを読み込んで再生ボタンを押してみましょう。どのような構造のデータがあれば動くのかが視覚的に理解できます。
+        </p>
 
         <h3>ステップ2：データの貼り付け・アップロード</h3>
         <p>ご自身でExcelやCSVで作成したデータをコピーし、ツールのデータエディタ画面にそのままペースト（貼り付け）するか、CSVファイルを画面上にドラッグ＆ドロップして読み込ませます。</p>
@@ -364,11 +451,14 @@
         <ul>
           <li><strong>色とテーマ：</strong> 暗い背景の「ダークモード」や、やさしい色合いのパレットから選択できます。</li>
           <li><strong>再生スピード：</strong> 変化をじっくり見せたい場合は再生時間を長めに、ダイナミックに見せたい場合は短めに設定します。</li>
-          <li><strong>画面比率：</strong> YouTube用の横画面（16:9）だけでなく、TikTokやYouTube Shortsなどの縦型動画（9:16）向けのデザインレイアウトにもワンクリックで調整可能です。</li>
+          <li><strong>画面比率：</strong> YouTube用の横画面（16:9）だけでなく、TikTokやYouTube
+            Shortsなどの縦型動画（9:16）向けのデザインレイアウトにもワンクリックで調整可能です。</li>
         </ul>
 
         <h3>ステップ4：動画としての保存・書き出し</h3>
-        <p>グラフが期待通りに動くようになったら、PCやスマートフォンの画面録画機能（キャプチャ機能）や、録画ツールを用いてブラウザ上の再生画面を撮影し、動画ファイルとして保存します。これにより、簡単にSNSやプレゼンテーションで使える動画素材が完成します。</p>
+        <p>
+          グラフが期待通りに動くようになったら、PCやスマートフォンの画面録画機能（キャプチャ機能）や、録画ツールを用いてブラウザ上の再生画面を撮影し、動画ファイルとして保存します。これにより、簡単にSNSやプレゼンテーションで使える動画素材が完成します。
+        </p>
 
         <div class="cta-card">
           <h4>今すぐブラウザでバーチャートレースを作ってみる</h4>
@@ -377,19 +467,26 @@
         </div>
 
         <h2>バズるグラフ動画に仕上げるための3つのデータ表現テクニック</h2>
-        <p>検索エンジンやSNSの視聴者に評価される「質の高い動画」にするために、データアナリストが実践している表現のコツを紹介します。</p>
+        <p>SNSの視聴者に評価される「質の高い動画」にするために、実践している表現のコツを紹介します。これらのコツは、ツールを作ってバーチャートレースを作った後に、動画編集ソフトを使って少し編集を加えてあげると良いです。</p>
 
         <h3>1. 再生速度のチューニングで「ドラマ性」を演出する</h3>
-        <p>ただ一定の速度でグラフを動かすのではなく、データが急激に変化する区間（歴史的なイベントや大きな順位変動があった瞬間）の再生速度をあえて少し緩やかにするなど、視聴者が変化を追えるような適切な時間設計を行います。一般的に、1回のレース動画は30秒から1分程度に収めるのが、飽きずに最後まで見てもらえる最適な長さです。</p>
+        <p>
+          ただ一定の速度でグラフを動かすのではなく、データが急激に変化する区間（歴史的なイベントや大きな順位変動があった瞬間）の再生速度をあえて少し緩やかにするなど、視聴者が変化を追えるような適切な時間設計を行います。一般的に、1回のレース動画は30秒から1分程度に収めるのが、飽きずに最後まで見てもらえる最適な長さです。
+        </p>
 
         <h3>2. 色数を抑え、特定の項目だけを目立たせる</h3>
-        <p>すべてのバーをカラフルな別々の色にしてしまうと、視線が散らばって何を見せたいのかが伝わらなくなります。基本はカテゴリごとに同じトーンの色でまとめ、特に注目させたい項目（自社ブランドや、劇的な成長を遂げた項目など）にだけ、アクセントとなる強い配色を適用すると、一目で情報が伝わる高品質な動画になります。</p>
+        <p>
+          すべてのバーをカラフルな別々の色にしてしまうと、視線が散らばって何を見せたいのかが伝わらなくなります。基本はカテゴリごとに同じトーンの色でまとめ、特に注目させたい項目（自社ブランドや、劇的な成長を遂げた項目など）にだけ、アクセントとなる強い配色を適用すると、一目で情報が伝わる高品質な動画になります。
+        </p>
 
         <h3>3. 安全なツールを使用して作業効率をアップさせる</h3>
-        <p>社外秘の売上データや、競合との機密性の高い推移データを可視化する際は、データの取り扱いに配慮されたツールを使用することが重要です。GraphRace Studioは、読み込んだデータが外部のサーバーに一切送信されず、すべて利用者のブラウザ内（ローカル環境）で完結して処理されるように設計されているため、業務利用でも安心してグラフ作成が行えます。</p>
+        <p>社外秘の売上データや、競合との機密性の高い推移データを可視化する際は、データの取り扱いに配慮されたツールを使用することが重要です。GraphRace
+          Studioは、読み込んだデータが外部のサーバーに一切送信されず、すべて利用者のブラウザ内（ローカル環境）で完結して処理されるように設計されているため、業務利用でも安心してグラフ作成が行えます。</p>
 
         <h2>まとめ</h2>
-        <p>バーチャートレースは、時間の経過に伴うデータのダイナミックな変化を伝えるのに最も優れたビジュアル表現の1つです。プログラミングの学習や海外ツールの英語に苦労することなく、データの並び方さえ理解できれば、誰でも簡単に美しいグラフ動画を作成することができます。</p>
+        <p>
+          バーチャートレースは、時間の経過に伴うデータのダイナミックな変化を伝えるのに最も優れたビジュアル表現の1つです。プログラミングの学習や海外ツールの英語に苦労することなく、データの並び方さえ理解できれば、誰でも簡単に美しいグラフ動画を作成することができます。
+        </p>
         <p>まずは、手元の小さなデータを使って、当サイトの無料ツールでどのような動きになるか試してみてはいかがでしょうか。データの新しい価値や面白いストーリーが、アニメーションを通じて見つかるはずです。</p>
       </div>
     </article>
@@ -406,4 +503,5 @@
     </div>
   </footer>
 </body>
+
 </html>
