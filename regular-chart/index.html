@@ -267,6 +267,101 @@
       section { padding: 40px 0; }
       .site-header { padding: 14px 18px; }
     }
+
+    /* 更新履歴セクション */
+    .update-history {
+      background: var(--app-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 56px 0;
+    }
+    .update-history .section-title {
+      margin-bottom: 32px;
+    }
+    .update-list-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .update-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .update-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--panel-border-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .update-item:first-child {
+      border-top: 1px solid var(--panel-border-soft);
+    }
+    .update-item.is-hidden {
+      display: none;
+    }
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .update-date {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .update-content {
+      color: var(--text-main);
+      flex-grow: 1;
+    }
+    .update-more-container {
+      text-align: center;
+    }
+    .btn-more {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .btn-more:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 600px) {
+      .update-item {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 0;
+      }
+      .update-date {
+        width: auto;
+      }
+      .badge-new {
+        margin-top: 0;
+      }
+      .update-history {
+        padding: 40px 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -394,12 +489,69 @@
         <a class="btn-primary" href="app/">今すぐ無料で作る</a>
       </div>
     </section>
+
+    <section class="update-history">
+      <div class="wrap">
+        <h2 class="section-title">更新履歴</h2>
+        <div class="update-list-container">
+          <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.07.01</span>
+              <span class="update-content">線グラフレースとバーチャートレースの相互データ切り替え機能を追加しました。</span>
+            </li>
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.06.29</span>
+              <span class="update-content">CSV / Excelの読み込み互換性を向上させ、一部の特殊な文字コードでも正しく読み込めるように修正しました。</span>
+            </li>
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.06.27</span>
+              <span class="update-content">アニメーション再生時のデザインカスタマイズオプション（背景色、グリッド線など）を追加しました。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.25</span>
+              <span class="update-content">バックアップ機能（保存・復元）をリリースしました。ブラウザ内に自動保存されるようになります。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.24</span>
+              <span class="update-content">モバイル表示に最適化し、スマートフォンでの表示速度と操作性を改善しました。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.23</span>
+              <span class="update-content">グラフの見た目を自由にカスタマイズできるフォント・サイズ設定機能を追加しました。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.22</span>
+              <span class="update-content">線の末端にアイコンと最新数値を表示する機能を追加しました（線グラフレース）。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.21</span>
+              <span class="update-content">バーチャートレースのSNS（縦動画）向けレイアウト調整機能をリリースしました。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.20</span>
+              <span class="update-content">グラフの再生・一時停止・巻き戻し機能のUIを刷新し、操作性を向上させました。</span>
+            </li>
+            <li class="update-item is-hidden">
+              <span class="update-date">2026.06.20</span>
+              <span class="update-content">GraphRace Studioを公開し、無料でのグラフ動画作成機能の提供を開始しました。</span>
+            </li>
+          </ul>
+          <div class="update-more-container">
+            <button id="btn-show-more" class="btn-more">さらに表示</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
       <span>© GraphRace Studio — 線グラフレース作成ツール</span>
       <nav>
+        <a href="../blog/">ブログ</a>
         <a href="../bar-chart-race/">バーチャートレース</a>
         <a href="../about.html">このツールについて</a>
         <a href="../terms.html">利用規約</a>
@@ -439,6 +591,18 @@
           }
         });
         video.load();
+      }
+
+      // 更新履歴のさらに表示機能
+      const btnMore = document.getElementById('btn-show-more');
+      if (btnMore) {
+        btnMore.addEventListener('click', () => {
+          const hiddenItems = document.querySelectorAll('.update-list .update-item.is-hidden');
+          hiddenItems.forEach(item => {
+            item.classList.remove('is-hidden');
+          });
+          btnMore.style.display = 'none';
+        });
       }
     });
   </script>
