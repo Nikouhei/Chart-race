@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      gtag('config', 'G-NS736Y3MY9');
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>トーナメント表作成ツール無料｜動くトーナメント表メーカー</title>
+  <meta name="description" content="名前を入力するだけで、動くトーナメント表（勝ち上がり表）を無料で作成。参加人数4〜32名、レイアウトや配色を自由に設定でき、勝敗のアニメーション再生にも対応。インストール不要・ブラウザだけで完結します。">
+  <link rel="canonical" href="https://graphrace-studio.com/tournament-bracket-animator/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content="トーナメント表作成ツール無料｜動くトーナメント表メーカー">
+  <meta property="og:description" content="名前を入力するだけで動くトーナメント表を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:url" content="https://graphrace-studio.com/tournament-bracket-animator/">
+  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="トーナメント表作成ツール無料｜動くトーナメント表メーカー">
+  <meta name="twitter:description" content="名前を入力するだけで動くトーナメント表を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- favicon（アプリと統一） -->
+  <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="stylesheet" href="../shared/tokens.css">
+
+  <!-- 構造化データ: ソフトウェア＋使い方 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "トーナメント表作成ツール",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "url": "https://graphrace-studio.com/tournament-bracket-animator/",
+        "description": "参加者名を入力するだけで、動くトーナメント表（勝ち上がり表）をブラウザだけで無料作成できるツール。",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "JPY"
+        }
+      },
+      {
+        "@type": "HowTo",
+        "name": "トーナメント表の作り方",
+        "description": "3ステップで動くトーナメント表を作成します。",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "参加者を入力する",
+            "text": "参加人数（4〜32名）を選び、入力欄に1行1名で参加者名を入力します。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "レイアウトと配色を選ぶ",
+            "text": "横・両側・縦のレイアウトや、組合せ・配色・フォントなどをお好みで設定します。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "勝者を決めて再生する",
+            "text": "スロットをクリックして勝者を選ぶか「再生」ボタンで勝ち上がりをアニメーション表示します。"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    .site-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; max-width: 1040px; margin: 0 auto; }
+    .brand { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 17px; color: var(--text-strong); letter-spacing: 0.2px; text-decoration: none; }
+    .brand img { height: 24px; width: auto; display: block; }
+    .site-nav { display: flex; align-items: center; gap: 18px; }
+    .nav-link { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: color .15s ease; }
+    .nav-link:hover { color: var(--text-strong); }
+    .nav-link.is-active { color: var(--text-strong); }
+    @media (max-width: 600px) { .site-nav { gap: 12px; } .nav-link { font-size: 12px; } }
+
+    /* Hero */
+    .hero { padding: 64px 0 48px; text-align: center; }
+    .hero h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.25; margin: 0 0 18px; color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px; }
+    .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
+    .btn-primary { display: inline-block; padding: 15px 30px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: var(--shadow-pop); transition: background .15s ease, transform .15s ease; }
+    .btn-primary:hover { background: var(--accent-strong); transform: translateY(-1px); }
+    .hero .sub-note { display: block; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+
+    /* セクション共通 */
+    section { padding: 56px 0; }
+    .section-title { text-align: center; font-size: clamp(22px, 3vw, 30px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
+
+    /* 特長グリッド */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .feature-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft); }
+    .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
+    .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 使い方ステップ */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .step { position: relative; background: var(--app-bg); border: 1px solid var(--panel-border); border-radius: 14px; padding: 28px 24px 24px; }
+    .step .num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-weight: 800; font-size: 15px; margin-bottom: 14px; }
+    .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 末尾CTA */
+    .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
+    .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
+
+    /* ユースケース */
+    .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px; }
+    .use-case-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; text-align: left;
+    }
+    .use-case-card .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    }
+    .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 更新履歴セクション */
+    .update-history {
+      background: var(--app-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 56px 0;
+    }
+    .update-history .section-title {
+      margin-bottom: 32px;
+    }
+    .update-list-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .update-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .update-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--panel-border-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .update-item:first-child {
+      border-top: 1px solid var(--panel-border-soft);
+    }
+    .update-item.is-hidden {
+      display: none;
+    }
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .update-date {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .update-content {
+      color: var(--text-main);
+      flex-grow: 1;
+    }
+    .update-more-container {
+      text-align: center;
+    }
+    .btn-more {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .btn-more:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 600px) {
+      .update-item {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 0;
+      }
+      .update-date {
+        width: auto;
+      }
+      .badge-new {
+        margin-top: 0;
+      }
+      .update-history {
+        padding: 40px 0;
+      }
+    }
+
+    /* フッタ */
+    footer.site-footer { padding: 32px 0; color: var(--text-muted); font-size: 13px; }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 44px 0 34px; }
+      section { padding: 40px 0; }
+      .site-header { padding: 14px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="../" class="brand">
+      <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+      GraphRace Studio
+    </a>
+    <nav class="site-nav">
+      <a class="nav-link" href="../bar-chart-race/">バーチャートレース</a>
+      <a class="nav-link" href="../regular-chart/">線グラフレース</a>
+      <a class="nav-link is-active" href="./" aria-current="page">トーナメント表</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>動くトーナメント表を<br>無料でカンタン作成</h1>
+        <p class="lead">参加者名を入力するだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表が完成。人数・レイアウト・配色を自由に設定でき、ブラウザだけで制作できます。</p>
+        <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+        <span class="sub-note">インストール不要・登録なしですぐ使えます</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">特長</h2>
+        <p class="section-sub">必要なものはブラウザだけ。名前を入れればすぐ組み上がります。</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏆</div>
+            <h3>4〜32名に対応</h3>
+            <p>参加人数を選ぶだけで、標準シード・ランダム・順序どおりの組み合わせを自動生成します。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">▶️</div>
+            <h3>勝ち上がりをアニメーション</h3>
+            <p>「再生」で1回戦から決勝までの勝者確定を動きで演出。1ラウンドずつ進めることもできます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico"><img src="../shared/images/customize_graph.webp" alt="見た目を自由に設定" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <h3>見た目を自由に設定</h3>
+            <p>横・両側・縦のレイアウト、配色、フォント、接続線のスタイルを細かく調整できます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <h3>インストール不要</h3>
+            <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐに作成を始められます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">トーナメント表アニメーターの活用シーン例</h2>
+        <p class="section-sub">大会の運営からSNSの投稿まで、さまざまな場面で活躍します。</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">スポーツ・ゲーム大会</span>
+            <h3>大会の進行と結果発表</h3>
+            <p>eスポーツイベントや部活動、サークルなどの対戦トーナメント表をサクッと作成。勝ち上がりをアニメーションで演出し、リアルタイムでの進行や結果報告に活用できます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">配信・イベント企画</span>
+            <h3>視聴者参加型イベントの演出</h3>
+            <p>YouTube等のゲーム配信での対戦企画や、コミュニティ内イベントのトーナメントを視覚化。参加人数に合わせた組み合わせを自動で構築し、配信を盛り上げます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">エンタメ・SNS投稿</span>
+            <h3>対決シミュレーションや考察</h3>
+            <p>キャラクターの強さ議論や、お気に入りテーマのナンバーワン決定戦など、エンタメ・考察系のコンテンツ作りやSNS投稿の図解素材として役立ちます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">使い方は3ステップ</h2>
+        <p class="section-sub">はじめてでも数分で動くトーナメント表が完成します。</p>
+        <div class="steps">
+          <div class="step">
+            <span class="num">1</span>
+            <h3>参加者を入力</h3>
+            <p>参加人数（4〜32名）を選び、入力欄に1行1名で名前を入力します。</p>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <h3>レイアウトと配色を選ぶ</h3>
+            <p>横・両側・縦のレイアウトや、組合せ・配色・フォントをお好みで設定します。</p>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <h3>勝者を決めて再生</h3>
+            <p>スロットをクリックして勝者を選ぶか、「再生」で勝ち上がりをアニメーション表示します。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>さっそく作ってみましょう</h2>
+        <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+      </div>
+    </section>
+
+    <section class="update-history">
+      <div class="wrap">
+        <h2 class="section-title">更新履歴</h2>
+        <div class="update-list-container">
+          <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.07.04</span>
+              <span class="update-content">トーナメント表：勝ち上がりがアニメーションで動くトーナメント表作成ツール（トーナメント表アニメーター）をリリースしました。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — トーナメント表作成ツール</span>
+      <nav>
+        <a href="../blog/">ブログ</a>
+        <a href="../about.html">このツールについて</a>
+        <a href="../terms.html">利用規約</a>
+        <a href="../privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 更新履歴のさらに表示機能
+      const btnMore = document.getElementById('btn-show-more');
+      if (btnMore) {
+        btnMore.addEventListener('click', () => {
+          const hiddenItems = document.querySelectorAll('.update-list .update-item.is-hidden');
+          hiddenItems.forEach(item => {
+            item.classList.remove('is-hidden');
+          });
+          btnMore.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
