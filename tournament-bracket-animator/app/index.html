@@ -329,7 +329,46 @@
       background: var(--panel-surface-2);
       display: flex; align-items: center; justify-content: center;
       overflow: auto; padding: 28px;
+      position: relative;
     }
+
+    /* プレビュー操作Tips（右上の ? アイコン） */
+    .tt-tips { position: absolute; top: 12px; right: 14px; z-index: 8000; }
+    .tt-tips-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--panel-bg); border: 1px solid var(--panel-border);
+      color: var(--text-muted); font-size: 14px; font-weight: 700; font-family: inherit;
+      cursor: pointer; box-shadow: var(--shadow-pop);
+      transition: transform 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+    }
+    .tt-tips-btn:hover, .tt-tips.open .tt-tips-btn { color: var(--accent); border-color: var(--accent); transform: scale(1.12); }
+    .tt-tips-hover {
+      position: absolute; top: 34px; right: 0; white-space: nowrap;
+      background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 8px;
+      box-shadow: var(--shadow-pop); padding: 6px 10px;
+      font-size: 12px; color: var(--text-strong);
+      opacity: 0; transform: translateY(4px); pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .tt-tips-btn:hover + .tt-tips-hover { opacity: 1; transform: translateY(0); animation: tipsPop 0.28s ease; }
+    .tt-tips.open .tt-tips-btn:hover + .tt-tips-hover { opacity: 0; }
+    @keyframes tipsPop {
+      0% { opacity: 0; transform: translateY(6px) scale(0.96); }
+      60% { transform: translateY(-1px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .tt-tips-panel {
+      position: absolute; top: 34px; right: 0; display: none;
+      width: max-content; max-width: min(320px, calc(100vw - 32px));
+      background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 10px;
+      box-shadow: var(--shadow-pop); padding: 12px 14px;
+    }
+    .tt-tips-panel.open { display: block; animation: tipsPop 0.22s ease; }
+    .tt-tips-panel h3 { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: var(--text-strong); }
+    .tt-tips-panel ul { margin: 0; padding: 0; list-style: none; }
+    .tt-tips-panel li { display: flex; gap: 8px; font-size: 12px; line-height: 1.5; color: var(--text-strong); padding: 3px 0; }
+    .tt-tips-panel li .tip-ic { flex-shrink: 0; }
 
     /* =========================================
        Bracket 可視化（ロジック依存・原則そのまま）
@@ -436,7 +475,8 @@
     .tt-imgmenu button { display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:8px 10px; font-size:13px; font-family:inherit; color:var(--text-strong); background:transparent; border:none; border-radius:6px; cursor:pointer; }
     .tt-imgmenu button:hover { background:var(--panel-surface-2); }
     .tt-imgmenu button .ti { color:var(--text-muted); font-size:15px; }
-    .slot .avatar { width:1.5em; height:1.5em; border-radius:4px; object-fit:cover; flex-shrink:0; display:block; }
+    /* 高さドラッグ（--slot-minh）に画像サイズも追従。未指定時は従来の em サイズ */
+    .slot .avatar { width:auto; height:max(1.5em, calc(var(--slot-minh, 0px) * 0.68)); aspect-ratio:1/1; border-radius:4px; object-fit:cover; flex-shrink:0; display:block; }
     /* カードの表示内容: text=名前のみ / img=画像のみ（画像なしエントリーは名前で代替表示） */
     .tt-wrap[data-slotcontent="text"] .slot .avatar,
     .tt-wrap[data-slotcontent="text"] .champ .cw-name .avatar,
@@ -444,11 +484,11 @@
     .tt-wrap[data-slotcontent="img"] .slot:has(.avatar) .name,
     .tt-wrap[data-slotcontent="img"] .cw-name:has(.avatar) .cw-nm,
     .tt-wrap[data-slotcontent="img"] .fx-ghost:has(.avatar) span { display:none; }
-    .tt-wrap[data-slotcontent="img"] .slot .avatar { width:2.2em; height:2.2em; }
+    .tt-wrap[data-slotcontent="img"] .slot .avatar { height:max(2.2em, calc(var(--slot-minh, 0px) * 0.85)); }
     .tt-wrap[data-slotcontent="img"] .champ .cw-name .avatar,
     .tt-wrap[data-slotcontent="img"] .fx-ghost .avatar { width:2em; height:2em; }
     /* 横並び（縦長カード）では画像をカード面いっぱいに */
-    .tt-wrap[data-slotcontent="img"][data-slotaxis="row"] .slot .avatar { flex:1 1 auto; align-self:stretch; width:auto; height:auto; min-height:0; }
+    .tt-wrap[data-slotcontent="img"][data-slotaxis="row"] .slot .avatar { flex:1 1 auto; align-self:stretch; width:auto; height:auto; aspect-ratio:auto; min-height:0; }
     .slot.bye { cursor:default; }
     .slot.bye:hover { background:transparent; }
     .slot.bye .bye-name { color:var(--text-muted-tt); font-style:italic; opacity:0.8; }
@@ -785,6 +825,22 @@
   <div class="panel-resizer" id="panelResizer"></div>
 
   <div class="preview-area">
+    <div class="tt-tips" id="tt-tips">
+      <button class="tt-tips-btn" id="tt-tips-btn" type="button" aria-label="操作ヒント" aria-expanded="false">?</button>
+      <div class="tt-tips-hover" aria-hidden="true">クリックで操作のコツを表示</div>
+      <div class="tt-tips-panel" id="tt-tips-panel" role="dialog" aria-label="プレビューの操作ヒント">
+        <h3>プレビューの操作ヒント</h3>
+        <ul>
+          <li><span class="tip-ic">🖱️</span><span>選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）</span></li>
+          <li><span class="tip-ic">▶️</span><span>再生ボタンで全ラウンドを自動進行。速度スライダーでエフェクト速度を調整</span></li>
+          <li><span class="tip-ic">✎</span><span>カードにマウスを乗せて ✎ ボタンで名前をその場で編集</span></li>
+          <li><span class="tip-ic">📷</span><span>カードの 📷 ボタンで画像をアップロード / URL指定</span></li>
+          <li><span class="tip-ic">↔️</span><span>カードの右端・下端をドラッグでサイズ変更</span></li>
+          <li><span class="tip-ic">✏️</span><span>タイトルをダブルクリックで直接編集</span></li>
+          <li><span class="tip-ic">🖼️</span><span>プレビューは画面サイズに自動でフィットします</span></li>
+        </ul>
+      </div>
+    </div>
     <div class="tt-canvas" id="tt-canvas" data-count="8">
       <div class="tt-title-line hidden" id="tt-title-line" contenteditable="true" spellcheck="false" aria-label="大会タイトル"></div>
       <svg class="tt-lines" id="tt-lines" preserveAspectRatio="none"></svg>
@@ -2020,6 +2076,20 @@
     if (imgMenu.classList.contains('open') && !imgMenu.contains(e.target) && !e.target.closest('.name-img')) closeImageMenu();
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeImageMenu(); });
+
+  const tipsRoot = document.getElementById('tt-tips');
+  const tipsBtn = document.getElementById('tt-tips-btn');
+  const tipsPanel = document.getElementById('tt-tips-panel');
+  function setTipsOpen(open) {
+    tipsPanel.classList.toggle('open', open);
+    tipsRoot.classList.toggle('open', open);
+    tipsBtn.setAttribute('aria-expanded', String(open));
+  }
+  tipsBtn.addEventListener('click', () => setTipsOpen(!tipsPanel.classList.contains('open')));
+  document.addEventListener('click', (e) => {
+    if (tipsPanel.classList.contains('open') && !tipsRoot.contains(e.target)) setTipsOpen(false);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setTipsOpen(false); });
 
   fillDefaultNames();
   syncFxT();

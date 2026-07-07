@@ -55,15 +55,30 @@
 
     /* ヘッダ */
     .site-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 24px; max-width: 1040px; margin: 0 auto;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+      transition: background 0.3s ease;
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
     }
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-weight: 700;
-      font-size: 17px;
+      font-size: 16px;
       color: var(--text-strong);
       letter-spacing: 0.2px;
       text-decoration: none;
@@ -74,15 +89,51 @@
       display: block;
     }
     .brand .dot { color: var(--accent); }
-    .site-nav { display: flex; align-items: center; gap: 18px; }
-    .nav-link {
-      font-size: 13px; font-weight: 600; color: var(--text-muted);
-      text-decoration: none; transition: color .15s ease;
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .nav-link:hover { color: var(--text-strong); }
-    @media (max-width: 600px) {
-      .site-nav { gap: 12px; }
-      .nav-link { font-size: 12px; }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+    .nav-link.is-active {
+      color: var(--accent-strong);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
     }
 
     /* Hero */
@@ -403,7 +454,6 @@
         margin: 0 auto;
       }
       section { padding: 40px 0; }
-      .site-header { padding: 14px 18px; }
       .tools-grid { grid-template-columns: 1fr; }
     }
 
@@ -535,15 +585,18 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="./" class="brand">
-      <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
-      GraphRace Studio
-    </a>
-    <nav class="site-nav">
-      <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
-      <a class="nav-link" href="regular-chart/">線グラフレース</a>
-      <a class="nav-link" href="tournament-bracket-animator/">トーナメント表</a>
-    </nav>
+    <div class="site-header-inner">
+      <a href="./" class="brand">
+        <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
+        <a class="nav-link" href="regular-chart/">線グラフレース</a>
+        <a class="nav-link" href="tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link" href="ranking-video-maker/">ランキング動画</a>
+      </nav>
+    </div>
   </header>
 
   <main>
@@ -576,7 +629,7 @@
     <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
         <h2 class="section-title">ツールを選択する</h2>
-        <p class="section-sub">用途に合わせて3つのビジュアライズツールをご利用いただけます。</p>
+        <p class="section-sub">用途に合わせて4つのビジュアライズツールをご利用いただけます。</p>
         
         <div class="tools-grid">
           <div class="tool-card">
@@ -604,6 +657,15 @@
               <p>参加人数や組み合わせを選ぶだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表を作成します。大会の演出やゲームの配信に最適です。</p>
             </div>
             <a class="btn-tool" href="tournament-bracket-animator/">ツールを使う</a>
+          </div>
+
+          <div class="tool-card">
+            <div>
+              <div class="icon">🏅</div>
+              <h3>ランキング動画メーカー</h3>
+              <p>順位・画像・名称・説明を入力するだけで、カードが右から流れてくるランキング紹介動画を作成します。SNSのショート動画や商品紹介に最適です。</p>
+            </div>
+            <a class="btn-tool" href="ranking-video-maker/">ツールを使う</a>
           </div>
         </div>
       </div>
@@ -695,6 +757,11 @@
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.07.07</span>
+              <span class="update-content">ランキング動画：カードが右から流れてくるランキング紹介動画の作成ツール（ランキング動画メーカー）をリリースしました。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.07.04</span>

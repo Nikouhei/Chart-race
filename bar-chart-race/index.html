@@ -101,17 +101,32 @@
     a { color: inherit; }
     .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
 
-    /* ヘッダ（最小） */
+    /* ヘッダ */
     .site-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 24px; max-width: 1040px; margin: 0 auto;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+      transition: background 0.3s ease;
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
     }
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-weight: 700;
-      font-size: 17px;
+      font-size: 16px;
       color: var(--text-strong);
       letter-spacing: 0.2px;
       text-decoration: none;
@@ -128,16 +143,51 @@
       text-decoration: none; box-shadow: var(--shadow-soft);
     }
     .nav-cta:hover { background: var(--accent-strong); }
-    .site-nav { display: flex; align-items: center; gap: 18px; }
-    .nav-link {
-      font-size: 13px; font-weight: 600; color: var(--text-muted);
-      text-decoration: none; transition: color .15s ease;
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .nav-link:hover { color: var(--text-strong); }
-    .nav-link.is-active { color: var(--text-strong); }
-    @media (max-width: 600px) {
-      .site-nav { gap: 12px; }
-      .nav-link { font-size: 12px; }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+    .nav-link.is-active {
+      color: var(--accent-strong);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
     }
 
     /* Hero */
@@ -265,7 +315,6 @@
     @media (max-width: 600px) {
       .hero { padding: 44px 0 34px; }
       section { padding: 40px 0; }
-      .site-header { padding: 14px 18px; }
     }
 
     /* 更新履歴セクション */
@@ -366,15 +415,18 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="../" class="brand">
-      <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
-      GraphRace Studio
-    </a>
-    <nav class="site-nav">
-      <a class="nav-link is-active" href="./" aria-current="page">バーチャートレース</a>
-      <a class="nav-link" href="../regular-chart/">線グラフレース</a>
-      <a class="nav-link" href="../tournament-bracket-animator/">トーナメント表</a>
-    </nav>
+    <div class="site-header-inner">
+      <a href="../" class="brand">
+        <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link is-active" href="./" aria-current="page">バーチャートレース</a>
+        <a class="nav-link" href="../regular-chart/">線グラフレース</a>
+        <a class="nav-link" href="../tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link" href="../ranking-video-maker/">ランキング動画</a>
+      </nav>
+    </div>
   </header>
 
   <main>
