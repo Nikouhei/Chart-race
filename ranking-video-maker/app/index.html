@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="robots" content="noindex">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ランキング動画メーカー｜GraphRace Studio</title>
+  <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png?v=1" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="stylesheet" href="../../shared/tokens.css">
+
+  <!-- ツール共通レジストリ（下書き自動保存に使用） -->
+  <script src="../../shared/registry.js"></script>
+
+  <!-- アイコンフォント -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+
+  <!-- カード表示用の追加日本語フォント（丸ゴシック・ポップ・手書き風） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&family=Mochiy+Pop+One&family=Klee+One:wght@400;600&display=swap">
+
+  <style>
+    /* =========================================
+       Widget design tokens（ランキングカード用）
+       ── data-accent でサイトのブランド色に追従
+       ========================================= */
+    .rv-wrap {
+      --surface-1: #f9fafb;
+      --surface-2: #ffffff;
+      --border: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted-rv: #9ca3af;
+
+      --bg-accent: #EDEBFC;
+      --text-accent: #3B2E9E;
+      --fill-accent: #6E62F0;
+      --on-accent: #ffffff;
+
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      --font-voice: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans Mono", monospace;
+
+      /* カスタマイズ用トークン（設定パネルから変更） */
+      --fsx-rank: 1;        /* 文字サイズ倍率: 順位 */
+      --fsx-name: 1;        /* 文字サイズ倍率: 名称 */
+      --fsx-desc: 1;        /* 文字サイズ倍率: 説明 */
+      --fsx-title: 1;       /* 文字サイズ倍率: タイトル */
+      --card-r: 10px;       /* カード角丸 */
+      --canvas-bg: #101216; /* キャンバス背景（ベルトの地の色） */
+      --desc-bg: #1f242e;   /* 説明帯の背景 */
+      --desc-fg: #e8ebf1;   /* 説明帯の文字色 */
+      --slot-w: 320px;      /* 1枠の幅（JSが設定） */
+      --slot-gap: 8px;      /* 枠間の隙間（JSが設定） */
+    }
+    .rv-wrap[data-accent="blue"]   { --bg-accent:#E6F1FB; --text-accent:#185FA5; --fill-accent:#378ADD; --on-accent:#fff; }
+    .rv-wrap[data-accent="purple"] { --bg-accent:#EDEBFC; --text-accent:#3B2E9E; --fill-accent:#6E62F0; --on-accent:#fff; }
+    .rv-wrap[data-accent="teal"]   { --bg-accent:#E1F5EE; --text-accent:#085041; --fill-accent:#1D9E75; --on-accent:#fff; }
+    .rv-wrap[data-accent="coral"]  { --bg-accent:#FAECE7; --text-accent:#712B13; --fill-accent:#D85A30; --on-accent:#fff; }
+    .rv-wrap[data-accent="pink"]   { --bg-accent:#FBEAF0; --text-accent:#72243E; --fill-accent:#D4537E; --on-accent:#fff; }
+    .rv-wrap[data-accent="red"]    { --bg-accent:#FBEAEA; --text-accent:#7A1F1F; --fill-accent:#D64545; --on-accent:#fff; }
+    .rv-wrap[data-accent="amber"]  { --bg-accent:#FBF3E2; --text-accent:#6E4A0E; --fill-accent:#E3A03A; --on-accent:#fff; }
+    .rv-wrap[data-accent="green"]  { --bg-accent:#E5F5E7; --text-accent:#1F5227; --fill-accent:#3FA34D; --on-accent:#fff; }
+    .rv-wrap[data-accent="navy"]   { --bg-accent:#E8EEF8; --text-accent:#22355C; --fill-accent:#34558B; --on-accent:#fff; }
+    .rv-wrap[data-accent="slate"]  { --bg-accent:#EBEDF1; --text-accent:#1F252E; --fill-accent:#37404E; --on-accent:#fff; }
+    .rv-wrap { --font-current: var(--font-sans); }
+    .rv-wrap[data-font="serif"]   { --font-current: var(--font-voice); }
+    .rv-wrap[data-font="mono"]    { --font-current: var(--font-mono); }
+    .rv-wrap[data-font="rounded"] { --font-current: 'M PLUS Rounded 1c', 'Hiragino Maru Gothic ProN', 'Yu Gothic', sans-serif; }
+    .rv-wrap[data-font="pop"]     { --font-current: 'Mochiy Pop One', 'Hiragino Sans', sans-serif; }
+    .rv-wrap[data-font="hand"]    { --font-current: 'Klee One', 'Yu Kyokasho', cursive; }
+
+    /* キャンバス背景テーマ（ベルトの地の色） */
+    .rv-wrap[data-canvasbg="dark"]  { --canvas-bg:#101216; }
+    .rv-wrap[data-canvasbg="light"] { --canvas-bg:#FFFFFF; }
+    .rv-wrap[data-canvasbg="soft"]  { --canvas-bg:#F3F4F8; }
+    .rv-wrap[data-canvasbg="accent"]{ --canvas-bg:var(--fill-accent); }
+
+    /* カード角丸 */
+    .rv-wrap[data-cardr="none"]  { --card-r: 0px; }
+    .rv-wrap[data-cardr="std"]   { --card-r: 10px; }
+    .rv-wrap[data-cardr="round"] { --card-r: 22px; }
+
+    /* =========================================
+       App shell（コントロールパネル＋プレビュー）
+       ========================================= */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      letter-spacing: -0.005em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    #rv-wrap { display: flex; height: 100vh; overflow: hidden; padding: 0; }
+
+    .control-panel {
+      width: 380px; min-width: 320px; max-width: calc(100vw - 480px);
+      flex: 0 0 380px;
+      background: var(--panel-bg);
+      padding: 16px 18px 24px;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      border-right: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-deep);
+    }
+    .panel-header { display: flex; align-items: center; margin-bottom: 12px; }
+    .brand { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; color: var(--text-strong); letter-spacing: 0.2px; text-decoration: none; }
+    .brand img { height: 22px; width: auto; display: block; }
+
+    .panel-subtitle { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text-strong); margin: 4px 0 10px; }
+    .panel-subtitle .ti { color: var(--accent); font-size: 16px; }
+
+    .panel-tabs { display: none; }
+
+    .accordion-section { border-bottom: 1px solid var(--panel-border); }
+    .accordion-toggle {
+      width: 100%; min-height: 44px; padding: 12px 2px;
+      background: transparent; border: 0; cursor: pointer; font-family: inherit;
+      color: var(--text-strong); font-size: 13px; font-weight: 600; letter-spacing: -0.005em;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .accordion-toggle:hover { color: var(--accent); }
+    .accordion-icon { color: var(--text-muted); display: inline-flex; align-items: center; transition: transform 0.18s ease; }
+    .accordion-toggle:hover .accordion-icon { color: var(--accent); }
+    .accordion-section.open .accordion-icon { transform: rotate(180deg); }
+    .accordion-content { display: none; padding: 2px 2px 16px; }
+    .accordion-section.open .accordion-content { display: block; }
+
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 2px; }
+    .field-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .field > .hint { font-size: 11px; color: var(--text-muted); margin: 8px 0 0; line-height: 1.5; }
+
+    /* セグメントコントロール（アプリ調・明色） */
+    .rv-seg { display: flex; width: 100%; gap: 2px; padding: 3px; border-radius: 9px; background: var(--panel-surface-2); border: 1px solid var(--panel-border); }
+    .rv-seg button { flex: 1; min-width: 0; padding: 7px 8px; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: var(--text-muted); font-size: 12px; font-family: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rv-seg button:hover:not(.on) { color: var(--text-strong); }
+    .rv-seg button.on { background: #fff; color: var(--text-strong); font-weight: 600; box-shadow: var(--shadow-soft); }
+
+    /* select / text / number 入力（アプリ調） */
+    .app-input {
+      width: 100%; min-height: 40px; padding: 9px 11px;
+      background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 8px;
+      color: var(--text-strong); font-size: 13px; font-family: inherit; outline: none;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .app-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .size-row { display: flex; gap: 10px; }
+    .size-row .app-input { min-width: 0; }
+    .fs-item { margin-bottom: 10px; }
+    .fs-item:last-child { margin-bottom: 0; }
+    .fs-item label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+    .fs-item input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    /* 配色スウォッチ */
+    .rv-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rv-sw { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--panel-border); cursor: pointer; transition: transform 0.15s; padding: 0; }
+    .rv-sw:hover { transform: scale(1.12); }
+    .rv-sw.on { border-width: 2px; border-color: var(--text-strong); transform: scale(1.12); }
+    .rv-sw[data-c="blue"] { background:#378ADD; }
+    .rv-sw[data-c="purple"] { background:#6E62F0; }
+    .rv-sw[data-c="teal"] { background:#1D9E75; }
+    .rv-sw[data-c="coral"] { background:#D85A30; }
+    .rv-sw[data-c="pink"] { background:#D4537E; }
+    .rv-sw[data-c="red"] { background:#D64545; }
+    .rv-sw[data-c="amber"] { background:#E3A03A; }
+    .rv-sw[data-c="green"] { background:#3FA34D; }
+    .rv-sw[data-c="navy"] { background:#34558B; }
+    .rv-sw[data-c="slate"] { background:#37404E; }
+
+    /* ランキング項目エディタ */
+    .item-list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; scrollbar-gutter: stable; padding-right: 2px; }
+    .item-row { border: 1px solid var(--panel-border); border-radius: 9px; background: var(--panel-surface); padding: 8px; }
+    .item-row-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .item-rank { flex-shrink: 0; min-width: 34px; text-align: center; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 4px 4px; font-variant-numeric: tabular-nums; }
+    .item-name { flex: 1 1 auto; min-width: 0; min-height: 32px; padding: 6px 9px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 7px; color: var(--text-strong); font-size: 13px; font-family: inherit; outline: none; }
+    .item-name:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .item-img-btn { flex-shrink: 0; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: 1px dashed var(--panel-border); background: var(--input-bg); color: var(--text-muted); cursor: pointer; border-radius: 7px; padding: 0; font-size: 15px; overflow: hidden; }
+    .item-img-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .item-img-btn img { width: 100%; height: 100%; object-fit: cover; }
+    .item-img-del { flex-shrink: 0; width: 24px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 6px; padding: 0; font-size: 14px; }
+    .item-img-del:hover { color: var(--danger); background: var(--panel-surface-2); }
+    .item-row-bottom { display: flex; align-items: center; gap: 6px; }
+    .item-desc { flex: 1 1 auto; min-width: 0; min-height: 32px; padding: 6px 9px; background: var(--input-bg); border: 1px solid var(--panel-border); border-radius: 7px; color: var(--text-strong); font-size: 12px; font-family: inherit; outline: none; resize: none; line-height: 1.4; }
+    .item-desc:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .item-ctrl { flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; }
+    .item-ctrl button, .item-del {
+      width: 24px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+      border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 5px; padding: 0; font-size: 13px;
+    }
+    .item-ctrl button:hover, .item-del:hover { color: var(--accent); background: var(--panel-surface-2); }
+    .item-ctrl button:disabled { opacity: 0.25; cursor: default; }
+    .item-ctrl button:disabled:hover { color: var(--text-muted); background: transparent; }
+    .item-del { width: 24px; height: 42px; }
+    .item-del:hover { color: var(--danger); }
+    .item-add {
+      width: 100%; margin-top: 8px; min-height: 38px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      border: 1px dashed var(--panel-border); background: transparent; border-radius: 8px;
+      color: var(--text-muted); font-size: 13px; font-family: inherit; cursor: pointer;
+    }
+    .item-add:hover { color: var(--accent); border-color: var(--accent); }
+    /* 画像の収め方ミニセグメント（画像設定時のみ表示） */
+    .item-fit-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+    .item-fit-label { flex-shrink: 0; font-size: 10px; color: var(--text-muted); }
+    .item-fit-seg { display: flex; flex: 1; gap: 2px; padding: 2px; border-radius: 7px; background: var(--panel-surface-2); border: 1px solid var(--panel-border); }
+    .item-fit-seg button { flex: 1; min-width: 0; padding: 4px 6px; border-radius: 5px; background: transparent; border: none; cursor: pointer; color: var(--text-muted); font-size: 10px; font-family: inherit; white-space: nowrap; }
+    .item-fit-seg button:hover:not(.on) { color: var(--text-strong); }
+    .item-fit-seg button.on { background: #fff; color: var(--text-strong); font-weight: 600; box-shadow: var(--shadow-soft); }
+
+    /* 再生コントロール（常時表示） */
+    .play-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--panel-border); }
+    .rv-play-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .rv-play-controls button {
+      padding: 9px 13px; min-height: 40px; font-size: 13px; font-family: inherit; cursor: pointer;
+      background: var(--btn-bg); color: var(--text-strong); border: none; border-radius: 8px;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .rv-play-controls button:hover { background: var(--btn-bg-hover); }
+    .rv-play-controls button.primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-soft); }
+    .rv-play-controls button.primary:hover { background: var(--accent-strong); }
+    .rv-play-controls .spd { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); width: 100%; margin-top: 6px; }
+    .rv-play-controls .spd input { flex: 1; accent-color: var(--accent); }
+    .rv-seek-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .rv-seek-row input { flex: 1; accent-color: var(--accent); cursor: pointer; }
+    .rec-hint { margin: 10px 0 0; font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+
+    /* リサイザー */
+    .panel-resizer { width: 8px; flex: 0 0 8px; background: var(--panel-border); cursor: col-resize; position: relative; z-index: 200; }
+    .panel-resizer::after { content: ""; position: absolute; top: 0; bottom: 0; left: 3px; width: 2px; background: #CDD0D5; opacity: 0.7; }
+    .panel-resizer:hover, body.resizing-panel .panel-resizer { background: var(--panel-surface-2); }
+    body.resizing-panel { cursor: col-resize; user-select: none; }
+
+    /* プレビュー領域 */
+    .preview-area {
+      flex: 1 1 auto; min-width: 0;
+      background: var(--panel-surface-2);
+      display: flex; align-items: center; justify-content: center;
+      overflow: auto; padding: 28px;
+      position: relative;
+    }
+
+    /* =========================================
+       ランキング動画キャンバス（ベルトコンベア）
+       ========================================= */
+    .rv-canvas {
+      background: var(--canvas-bg); border: 1px solid var(--panel-border); border-radius: 12px; box-shadow: var(--shadow-pop);
+      flex-shrink: 0; transform-origin: center center;
+      position: relative; overflow: hidden; box-sizing: border-box; font-family: var(--font-current);
+    }
+    .rv-track {
+      position: absolute; top: 0; left: 0; height: 100%;
+      display: flex; align-items: stretch;
+      gap: var(--slot-gap);
+      padding: var(--slot-gap) 0;
+      will-change: transform;
+    }
+    /* タイトルカード（先頭・全画面幅、カードと一緒に流れる） */
+    .rv-title-card {
+      flex: 0 0 auto; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5em;
+      border-radius: var(--card-r);
+      background: var(--fill-accent); color: var(--on-accent);
+      padding: 4%; text-align: center;
+    }
+    .rv-title-card .rv-title-main { font-size: calc(var(--title-fs, 48px) * var(--fsx-title)); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+    .rv-title-card .rv-title-sub { font-size: calc(var(--title-fs, 48px) * 0.42 * var(--fsx-title)); opacity: 0.85; line-height: 1.4; overflow-wrap: anywhere; }
+    .rv-title-card.empty { display: none; }
+    /* ランキングカード（縦4段: 順位/画像/名称/説明） */
+    .rv-card {
+      flex: 0 0 var(--slot-w); width: var(--slot-w); height: 100%;
+      display: flex; flex-direction: column;
+      border-radius: var(--card-r); overflow: hidden;
+      background: var(--surface-2);
+      will-change: opacity, transform;
+    }
+    .rv-card .rv-rank {
+      flex: 0 0 13%; display: flex; align-items: center; justify-content: center;
+      background: var(--fill-accent); color: var(--on-accent);
+      font-size: calc(var(--slot-w) * 0.085 * var(--fsx-rank)); font-weight: 700;
+      letter-spacing: 0.04em; white-space: nowrap;
+    }
+    .rv-card .rv-img {
+      flex: 1 1 auto; min-height: 0;
+      background: #DBDBDB; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .rv-card .rv-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* 画像の収め方: fill=全面(既定) / fit=全体表示 / zoom=拡大クロップ */
+    .rv-card .rv-img[data-fit="fit"] img { object-fit: contain; }
+    .rv-card .rv-img[data-fit="zoom"] img { object-fit: cover; transform: scale(1.4); }
+    .rv-card .rv-img .ph { color: #AeaEAE; font-size: calc(var(--slot-w) * 0.18); }
+    .rv-card .rv-name {
+      flex: 0 0 14%; display: flex; align-items: center; justify-content: center;
+      background: var(--surface-2); color: var(--text-primary);
+      font-size: calc(var(--slot-w) * 0.075 * var(--fsx-name)); font-weight: 700;
+      padding: 0 6%; text-align: center;
+      overflow: hidden;
+    }
+    .rv-card .rv-name span { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .rv-card .rv-desc {
+      flex: 0 0 30%; display: flex; align-items: flex-start; justify-content: center;
+      background: var(--desc-bg); color: var(--desc-fg);
+      font-size: calc(var(--slot-w) * 0.052 * var(--fsx-desc)); line-height: 1.55;
+      padding: 4.5% 7%; overflow: hidden;
+    }
+    .rv-card .rv-desc span { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+
+    /* =========================================
+       レスポンシブ（≤900px）: 縦積み＋タブ
+       ========================================= */
+    @media (max-width: 900px) {
+      #rv-wrap { flex-direction: column; height: 100dvh; }
+      .control-panel { width: 100% !important; max-width: 100% !important; flex: 1 1 auto !important; border-right: none; border-bottom: 1px solid var(--panel-border); }
+      .preview-area { display: none !important; }
+      .panel-resizer { display: none !important; }
+      .panel-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+      .panel-tab { padding: 9px 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--panel-surface); color: var(--text-muted); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+      .panel-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+      body.mobile-preview-active .control-panel { flex: 0 0 auto !important; overflow: hidden; }
+      body.mobile-preview-active .panel-body { display: none !important; }
+      body.mobile-preview-active .preview-area { display: flex !important; }
+    }
+  </style>
+</head>
+<body class="light-mode">
+
+<div class="rv-wrap" id="rv-wrap" data-accent="purple" data-font="sans" data-canvasbg="dark" data-cardr="std">
+  <h1 class="sr-only">ランキング動画メーカー</h1>
+
+  <div class="control-panel">
+    <div class="panel-header">
+      <a href="../../" class="brand">
+        <img src="../../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
+    </div>
+    <p class="panel-subtitle"><i class="ti ti-list-numbers" aria-hidden="true"></i>ランキング動画メーカー</p>
+
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="settings">設定</button>
+      <button class="panel-tab" data-tab="preview">プレビュー</button>
+    </div>
+
+    <div class="panel-body">
+      <div class="accordion-section open">
+        <button type="button" class="accordion-toggle" aria-expanded="true"><span>タイトル</span><span class="accordion-icon"><i class="ti ti-chevron-down" aria-hidden="true"></i></span></button>
+        <div class="accordion-content">
+          <div class="field">
+            <span class="field-label">タイトル（動画の冒頭に表示）</span>
+            <input type="text" id="titleInput" class="app-input" maxlength="40" placeholder="例：好きなラーメンランキングTOP5" value="好きなラーメンランキングTOP5">
+          </div>
+          <div class="field">
+            <span class="field-label">サブタイトル（任意）</span>
+            <input type="text" id="subTitleInput" class="app-input" maxlength="60" placeholder="例：2026年版・独断と偏見">
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-section open">
+        <button type="button" class="accordion-toggle" aria-expanded="true"><span>ランキング項目</span><span class="accordion-icon"><i class="ti ti-chevron-down" aria-hidden="true"></i></span></button>
+        <div class="accordion-content">
+          <div class="field">
+            <div class="item-list" id="itemList"></div>
+            <button type="button" class="item-add" id="itemAdd"><i class="ti ti-plus" aria-hidden="true"></i> 項目を追加</button>
+            <p class="hint">上の行が1位。📷から画像をアップロード（自動で縮小されます）</p>
+          </div>
+          <div class="field">
+            <span class="field-label">登場順</span>
+            <div class="rv-seg" id="rv-order-seg">
+              <button class="on" data-o="asc">最下位から</button>
+              <button data-o="desc">1位から</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-section open">
+        <button type="button" class="accordion-toggle" aria-expanded="true"><span>キャンバス</span><span class="accordion-icon"><i class="ti ti-chevron-down" aria-hidden="true"></i></span></button>
+        <div class="accordion-content">
+          <div class="field">
+            <span class="field-label">アスペクト比</span>
+            <div class="rv-seg" id="rv-aspect-seg">
+              <button class="on" data-ar="16:9">16:9（横）</button>
+              <button data-ar="9:16">9:16（縦）</button>
+              <button data-ar="3:4">3:4</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">サイズ (幅 × 高さ px)</span>
+            <div class="size-row">
+              <input type="number" id="canvasWidth" class="app-input" value="1280" min="1" max="2500">
+              <input type="number" id="canvasHeight" class="app-input" value="720" min="1" max="2500">
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">背景</span>
+            <div class="rv-seg" id="rv-canvasbg-seg">
+              <button class="on" data-bg="dark">ダーク</button>
+              <button data-bg="light">ライト</button>
+              <button data-bg="soft">ソフト</button>
+              <button data-bg="accent">アクセント</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-section">
+        <button type="button" class="accordion-toggle" aria-expanded="false"><span>デザイン</span><span class="accordion-icon"><i class="ti ti-chevron-down" aria-hidden="true"></i></span></button>
+        <div class="accordion-content">
+          <div class="field">
+            <span class="field-label">アクセント</span>
+            <div class="rv-swatches" id="rv-swatches">
+              <button class="rv-sw" data-c="blue" aria-label="ブルー"></button>
+              <button class="rv-sw on" data-c="purple" aria-label="パープル"></button>
+              <button class="rv-sw" data-c="teal" aria-label="ティール"></button>
+              <button class="rv-sw" data-c="coral" aria-label="コーラル"></button>
+              <button class="rv-sw" data-c="pink" aria-label="ピンク"></button>
+              <button class="rv-sw" data-c="red" aria-label="レッド"></button>
+              <button class="rv-sw" data-c="amber" aria-label="アンバー"></button>
+              <button class="rv-sw" data-c="green" aria-label="グリーン"></button>
+              <button class="rv-sw" data-c="navy" aria-label="ネイビー"></button>
+              <button class="rv-sw" data-c="slate" aria-label="スレート"></button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">フォント</span>
+            <select id="fontSelect" class="app-input">
+              <option value="sans" selected>ゴシック</option>
+              <option value="rounded">丸ゴシック</option>
+              <option value="pop">ポップ</option>
+              <option value="hand">手書き風</option>
+              <option value="serif">明朝</option>
+              <option value="mono">等幅</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="field-label">角丸</span>
+            <div class="rv-seg" id="rv-cardr-seg">
+              <button data-r="none">角なし</button>
+              <button class="on" data-r="std">標準</button>
+              <button data-r="round">丸め</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field-label">文字サイズ</span>
+            <div class="fs-item"><label>タイトル<span id="fsTitleVal">100%</span></label><input type="range" id="fsTitle" min="60" max="220" step="10" value="100"></div>
+            <div class="fs-item"><label>順位<span id="fsRankVal">100%</span></label><input type="range" id="fsRank" min="60" max="200" step="10" value="100"></div>
+            <div class="fs-item"><label>名称<span id="fsNameVal">100%</span></label><input type="range" id="fsName" min="60" max="200" step="10" value="100"></div>
+            <div class="fs-item"><label>説明<span id="fsDescVal">100%</span></label><input type="range" id="fsDesc" min="60" max="200" step="10" value="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="play-block">
+      <div class="rv-seek-row">
+        <input type="range" id="rv-seek" min="0" max="1000" step="1" value="0" aria-label="再生位置">
+      </div>
+      <div class="rv-play-controls">
+        <button class="primary" id="rv-play"><i class="ti ti-player-play" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 再生</button>
+        <button id="rv-reset"><i class="ti ti-refresh" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> リセット</button>
+        <div class="spd">
+          <label for="rv-speed">速度</label>
+          <input type="range" id="rv-speed" min="1" max="5" step="1" value="3" />
+        </div>
+      </div>
+      <p class="rec-hint">動画として保存する場合は、再生中の画面をOSの画面録画機能（macOS: Shift+Cmd+5 / Windows: Win+G など）でキャプチャしてください。</p>
+    </div>
+  </div>
+
+  <div class="panel-resizer" id="panelResizer"></div>
+
+  <div class="preview-area">
+    <div class="rv-canvas" id="rv-canvas">
+      <div class="rv-track" id="rv-track"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TOOL_ID = 'ranking-video-maker';
+  const $ = (id) => document.getElementById(id);
+  const wrap = $('rv-wrap'), canvasEl = $('rv-canvas'), trackEl = $('rv-track');
+  const previewArea = document.querySelector('.preview-area');
+  const itemListEl = $('itemList');
+  const MAX_CANVAS_SIZE = 2500;
+  const MAX_ITEMS = 50;
+  const IMG_MAX_EDGE = 512; // アップロード画像の縮小上限（localStorage容量対策）
+
+  // --- 状態 ---
+  let items = [
+    { name: '中華そば しんいち', desc: '鶏と煮干しのダブルスープ。朝7時から行列ができる王道の一杯。', img: '' },
+    { name: '麺屋 こがね',       desc: '濃厚豚骨魚介つけ麺の名店。自家製の極太麺は小麦の香りが強い。', img: '' },
+    { name: 'らぁめん 灯火',     desc: '淡麗塩の最高峰。貝出汁の透き通ったスープに手揉み細麺。', img: '' },
+    { name: '味噌屋 雪國',       desc: '三種の味噌をブレンドした熟成スープ。炙りチャーシューが名物。', img: '' },
+    { name: '家系 剛力家',       desc: '鶏油たっぷりの直系スタイル。ほうれん草と海苔の追加が定番。', img: '' },
+  ];
+  let order = 'asc';       // asc=最下位から登場 / desc=1位から
+  let speed = 3;           // 1..5
+  let playing = false;
+  let offset = 0;          // ベルトの現在位置(px)
+  let maxOffset = 0;
+  let rafId = null, lastTs = 0;
+  let cardEls = [];        // フェード計算対象（タイトルカード含む）
+
+  // --- キャンバスサイズ ---
+  function clampCanvasSize(value, fallback) {
+    let n = Math.round(Number(value));
+    if (!Number.isFinite(n) || n < 1) n = fallback;
+    return Math.min(MAX_CANVAS_SIZE, Math.max(1, n));
+  }
+  function resolveCanvasWidth() {
+    const el = $('canvasWidth');
+    const w = clampCanvasSize(el.value, 1280);
+    el.value = w;
+    return w;
+  }
+  function resolveCanvasHeight() {
+    const el = $('canvasHeight');
+    const h = clampCanvasSize(el.value, 720);
+    el.value = h;
+    return h;
+  }
+  function applyAspectRatioPreset(preset) {
+    const [rw, rh] = preset.split(':').map(Number);
+    if (!rw || !rh) return;
+    // プリセットごとの標準幅（縦系は720、横系は1280）
+    let width = rw >= rh ? 1280 : 720;
+    let height = Math.round(width * rh / rw);
+    if (height > MAX_CANVAS_SIZE) {
+      height = MAX_CANVAS_SIZE;
+      width = Math.round(height * rw / rh);
+    }
+    $('canvasWidth').value = clampCanvasSize(width, 1280);
+    $('canvasHeight').value = clampCanvasSize(height, 720);
+  }
+  // アスペクト比に応じた表示枠数（16:9=4枠 / 3:4=2枠 / 9:16=1.5枠）
+  function slotsForRatio(w, h) {
+    const r = w / h;
+    if (r >= 1.4) return 4;
+    if (r >= 1.0) return 3;
+    if (r >= 0.65) return 2;
+    return 1.5;
+  }
+
+  // --- トラック構築（カードDOM再生成） ---
+  const escHtml = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function buildTrack() {
+    const w = resolveCanvasWidth(), h = resolveCanvasHeight();
+    canvasEl.style.width = w + 'px';
+    canvasEl.style.height = h + 'px';
+
+    const gap = Math.max(4, Math.round(w * 0.008));
+    const slots = slotsForRatio(w, h);
+    const slotW = Math.round((w - gap * (Math.ceil(slots) + 1)) / slots);
+    wrap.style.setProperty('--slot-w', slotW + 'px');
+    wrap.style.setProperty('--slot-gap', gap + 'px');
+    wrap.style.setProperty('--title-fs', Math.round(w * 0.045) + 'px');
+
+    const title = $('titleInput').value.trim();
+    const sub = $('subTitleInput').value.trim();
+    const seq = order === 'asc' ? items.slice().reverse() : items.slice();
+
+    let html = '';
+    // タイトルカード: 先頭・キャンバス幅いっぱい（スタート時点で全面表示）
+    if (title || sub) {
+      html += `<div class="rv-title-card" style="width:${w - gap * 2}px">`
+        + (title ? `<div class="rv-title-main">${escHtml(title)}</div>` : '')
+        + (sub ? `<div class="rv-title-sub">${escHtml(sub)}</div>` : '')
+        + `</div>`;
+    }
+    for (const it of seq) {
+      const rank = items.indexOf(it) + 1;
+      html += `<div class="rv-card">`
+        + `<div class="rv-rank">第${rank}位</div>`
+        + `<div class="rv-img" data-fit="${escHtml(it.fit || 'fill')}">${it.img ? `<img src="${escHtml(it.img)}" alt="">` : '<i class="ti ti-photo ph" aria-hidden="true"></i>'}</div>`
+        + `<div class="rv-name"><span>${escHtml(it.name)}</span></div>`
+        + `<div class="rv-desc"><span>${escHtml(it.desc)}</span></div>`
+        + `</div>`;
+    }
+    trackEl.innerHTML = html;
+    trackEl.style.paddingLeft = gap + 'px';
+    trackEl.style.paddingRight = gap + 'px';
+    cardEls = Array.from(trackEl.children);
+
+    // ベルトの終端 = 最後のカードが右端に揃う位置で停止
+    maxOffset = Math.max(0, trackEl.scrollWidth - w);
+    offset = Math.min(offset, maxOffset);
+    applyFrame();
+  }
+
+  // --- ベルトコンベア再生（rAF） ---
+  function pxPerSec() {
+    const w = resolveCanvasWidth();
+    return w * [0.06, 0.10, 0.15, 0.22, 0.32][speed - 1];
+  }
+  function applyFrame() {
+    trackEl.style.transform = `translateX(${-offset}px)`;
+    if (!seeking) seekEl.value = String(maxOffset ? Math.round(offset / maxOffset * 1000) : 0);
+    const w = canvasEl.offsetWidth;
+    const fadeZone = w * 0.22; // 右端フェードインゾーン
+    for (const el of cardEls) {
+      const left = el.offsetLeft - offset; // カード左端の画面内位置
+      if (left >= w) { el.style.opacity = '0'; el.style.transform = 'translateY(10px)'; continue; }
+      const p = Math.min(1, Math.max(0, (w - left) / fadeZone));
+      el.style.opacity = String(p);
+      el.style.transform = p < 1 ? `translateY(${Math.round((1 - p) * 10)}px)` : '';
+    }
+  }
+  function tick(ts) {
+    if (!playing) return;
+    const dt = lastTs ? (ts - lastTs) / 1000 : 0;
+    lastTs = ts;
+    offset += pxPerSec() * dt;
+    if (offset >= maxOffset) {
+      offset = maxOffset;
+      applyFrame();
+      setPlaying(false);
+      return;
+    }
+    applyFrame();
+    rafId = requestAnimationFrame(tick);
+  }
+  function setPlaying(on) {
+    playing = on;
+    lastTs = 0;
+    const btn = $('rv-play');
+    btn.innerHTML = on
+      ? '<i class="ti ti-player-pause" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 一時停止'
+      : '<i class="ti ti-player-play" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 再生';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (on) rafId = requestAnimationFrame(tick);
+  }
+  $('rv-play').addEventListener('click', () => {
+    if (!playing && offset >= maxOffset) offset = 0; // 終端で再生 → 最初から
+    setPlaying(!playing);
+  });
+  $('rv-reset').addEventListener('click', () => { setPlaying(false); offset = 0; applyFrame(); });
+  $('rv-speed').addEventListener('input', (e) => { speed = Number(e.target.value) || 3; });
+
+  // --- シークバー（任意の位置へ即ジャンプ / スクラブ中は一時停止） ---
+  const seekEl = $('rv-seek');
+  let seeking = false, resumeAfterSeek = false;
+  seekEl.addEventListener('pointerdown', () => {
+    seeking = true;
+    resumeAfterSeek = playing;
+    if (playing) setPlaying(false);
+  });
+  seekEl.addEventListener('input', () => {
+    offset = (Number(seekEl.value) || 0) / 1000 * maxOffset;
+    applyFrame();
+  });
+  const endSeek = () => {
+    if (!seeking) return;
+    seeking = false;
+    if (resumeAfterSeek && offset < maxOffset) setPlaying(true);
+    resumeAfterSeek = false;
+  };
+  seekEl.addEventListener('pointerup', endSeek);
+  seekEl.addEventListener('pointercancel', endSeek);
+  // キーボード操作（矢印キー）にも対応
+  seekEl.addEventListener('change', () => { if (!seeking) { offset = (Number(seekEl.value) || 0) / 1000 * maxOffset; applyFrame(); } });
+
+  // --- 項目エディタ ---
+  let pendingImgIndex = null;
+  const imgFileInput = document.createElement('input');
+  imgFileInput.type = 'file'; imgFileInput.accept = 'image/*'; imgFileInput.style.display = 'none';
+  document.body.appendChild(imgFileInput);
+  imgFileInput.addEventListener('change', () => {
+    const file = imgFileInput.files && imgFileInput.files[0];
+    const idx = pendingImgIndex;
+    imgFileInput.value = '';
+    pendingImgIndex = null;
+    if (!file || idx == null || !items[idx]) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      shrinkImage(reader.result, (dataUrl) => {
+        if (!dataUrl) {
+          alert('この画像は読み込めませんでした。JPEG / PNG / WebP / GIF 形式の画像をお使いください（HEIC等はブラウザで表示できない場合があります）。');
+          return;
+        }
+        items[idx].img = dataUrl;
+        renderItemList();
+        buildTrack();
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+  // 長辺 IMG_MAX_EDGE px に縮小して dataURL 化（容量対策）
+  function shrinkImage(src, cb) {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, IMG_MAX_EDGE / Math.max(img.width, img.height));
+      if (scale === 1 && src.length < 400000) { cb(src); return; }
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width * scale));
+      c.height = Math.max(1, Math.round(img.height * scale));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      cb(c.toDataURL('image/jpeg', 0.82));
+    };
+    // デコード不能（HEIC等ブラウザ非対応形式）はカードにも表示できないため null を返す
+    img.onerror = () => cb(null);
+    img.src = src;
+  }
+
+  function renderItemList() {
+    itemListEl.innerHTML = '';
+    items.forEach((it, i) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML =
+        `<div class="item-row-top">`
+        + `<span class="item-rank">${i + 1}位</span>`
+        + `<input type="text" class="item-name" placeholder="名称" value="${escHtml(it.name)}">`
+        + `<button type="button" class="item-img-btn" title="${it.img ? '画像を変更' : '画像を追加'}">`
+        + (it.img ? `<img src="${escHtml(it.img)}" alt="">` : '<i class="ti ti-photo" aria-hidden="true"></i>')
+        + `</button>`
+        + (it.img ? `<button type="button" class="item-img-del" title="画像を削除"><i class="ti ti-photo-x" aria-hidden="true"></i></button>` : '')
+        + `</div>`
+        + `<div class="item-row-bottom">`
+        + `<textarea class="item-desc" rows="2" placeholder="説明">${escHtml(it.desc)}</textarea>`
+        + `<div class="item-ctrl">`
+        + `<button type="button" class="mv-up" title="上へ" ${i === 0 ? 'disabled' : ''}><i class="ti ti-chevron-up" aria-hidden="true"></i></button>`
+        + `<button type="button" class="mv-down" title="下へ" ${i === items.length - 1 ? 'disabled' : ''}><i class="ti ti-chevron-down" aria-hidden="true"></i></button>`
+        + `</div>`
+        + `<button type="button" class="item-del" title="削除"><i class="ti ti-trash" aria-hidden="true"></i></button>`
+        + `</div>`
+        + (it.img
+          ? `<div class="item-fit-row"><span class="item-fit-label">画像の収め方</span><div class="item-fit-seg">`
+            + `<button type="button" data-fit="fill" ${(it.fit || 'fill') === 'fill' ? 'class="on"' : ''}>Fill</button>`
+            + `<button type="button" data-fit="fit" ${it.fit === 'fit' ? 'class="on"' : ''}>Fit</button>`
+            + `<button type="button" data-fit="zoom" ${it.fit === 'zoom' ? 'class="on"' : ''}>Zoom</button>`
+            + `</div></div>`
+          : '');
+      row.querySelector('.item-name').addEventListener('input', (e) => { it.name = e.target.value; buildTrack(); });
+      row.querySelector('.item-desc').addEventListener('input', (e) => { it.desc = e.target.value; buildTrack(); });
+      // クリック＝常に選択ダイアログ（差し替え）。削除は専用ボタンで明示的に行う
+      row.querySelector('.item-img-btn').addEventListener('click', () => {
+        pendingImgIndex = i;
+        imgFileInput.click();
+      });
+      const imgDel = row.querySelector('.item-img-del');
+      if (imgDel) {
+        imgDel.addEventListener('click', () => {
+          it.img = '';
+          renderItemList(); buildTrack();
+        });
+      }
+      const fitSeg = row.querySelector('.item-fit-seg');
+      if (fitSeg) {
+        fitSeg.addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          it.fit = btn.dataset.fit;
+          fitSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+          buildTrack();
+        });
+      }
+      row.querySelector('.mv-up').addEventListener('click', () => { swapItems(i, i - 1); });
+      row.querySelector('.mv-down').addEventListener('click', () => { swapItems(i, i + 1); });
+      row.querySelector('.item-del').addEventListener('click', () => {
+        items.splice(i, 1);
+        renderItemList(); buildTrack();
+      });
+      itemListEl.appendChild(row);
+    });
+  }
+  function swapItems(a, b) {
+    if (b < 0 || b >= items.length) return;
+    [items[a], items[b]] = [items[b], items[a]];
+    renderItemList(); buildTrack();
+  }
+  $('itemAdd').addEventListener('click', () => {
+    if (items.length >= MAX_ITEMS) { alert(`項目は最大${MAX_ITEMS}件までです`); return; }
+    items.push({ name: '', desc: '', img: '' });
+    renderItemList(); buildTrack();
+    const rows = itemListEl.querySelectorAll('.item-name');
+    if (rows.length) rows[rows.length - 1].focus();
+  });
+
+  // --- プレビューのフィット表示 ---
+  function fitToScreen() {
+    const w = resolveCanvasWidth(), h = resolveCanvasHeight();
+    const availW = previewArea.clientWidth || window.innerWidth;
+    const availH = previewArea.clientHeight || window.innerHeight;
+    const scale = Math.min(availW * 0.95 / w, availH * 0.95 / h, 1);
+    canvasEl.style.transform = `scale(${scale})`;
+  }
+  function rebuild() { buildTrack(); fitToScreen(); }
+
+  // --- 設定パネルの配線 ---
+  function wireSeg(segId, dataKey, onPick) {
+    const seg = $(segId);
+    seg.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      onPick(btn.dataset[dataKey]);
+    });
+  }
+  wireSeg('rv-order-seg', 'o', (v) => { order = v; offset = 0; setPlaying(false); rebuild(); });
+  wireSeg('rv-aspect-seg', 'ar', (v) => { applyAspectRatioPreset(v); offset = 0; setPlaying(false); rebuild(); });
+  wireSeg('rv-canvasbg-seg', 'bg', (v) => { wrap.dataset.canvasbg = v; });
+  wireSeg('rv-cardr-seg', 'r', (v) => { wrap.dataset.cardr = v; });
+
+  ['canvasWidth', 'canvasHeight'].forEach(id => {
+    $(id).addEventListener('change', () => {
+      // 手入力はカスタム扱い（枠数は比率から自動決定）
+      const seg = $('rv-aspect-seg');
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('on'));
+      offset = 0; setPlaying(false); rebuild();
+    });
+  });
+  ['titleInput', 'subTitleInput'].forEach(id => {
+    $(id).addEventListener('input', () => { buildTrack(); });
+  });
+
+  $('rv-swatches').addEventListener('click', (e) => {
+    const btn = e.target.closest('.rv-sw');
+    if (!btn) return;
+    document.querySelectorAll('.rv-sw').forEach(b => b.classList.toggle('on', b === btn));
+    wrap.dataset.accent = btn.dataset.c;
+  });
+  $('fontSelect').addEventListener('change', (e) => { wrap.dataset.font = e.target.value; });
+
+  function wireFontSlider(id, valId, cssVar) {
+    $(id).addEventListener('input', (e) => {
+      const v = Number(e.target.value) || 100;
+      $(valId).textContent = v + '%';
+      wrap.style.setProperty(cssVar, String(v / 100));
+    });
+  }
+  wireFontSlider('fsTitle', 'fsTitleVal', '--fsx-title');
+  wireFontSlider('fsRank', 'fsRankVal', '--fsx-rank');
+  wireFontSlider('fsName', 'fsNameVal', '--fsx-name');
+  wireFontSlider('fsDesc', 'fsDescVal', '--fsx-desc');
+
+  // --- アプリシェル: アコーディオン開閉 ---
+  document.querySelectorAll('.accordion-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const sec = toggle.closest('.accordion-section');
+      const open = sec.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) setTimeout(fitToScreen, 20);
+    });
+  });
+
+  // --- アプリシェル: モバイル用タブ（設定 / プレビュー）---
+  document.querySelectorAll('.panel-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.panel-tab').forEach(x => x.classList.remove('active'));
+      tab.classList.add('active');
+      if (tab.dataset.tab === 'preview') {
+        document.body.classList.add('mobile-preview-active');
+        setTimeout(fitToScreen, 40);
+      } else {
+        document.body.classList.remove('mobile-preview-active');
+      }
+    });
+  });
+
+  // --- アプリシェル: パネル幅リサイズ ---
+  const panelResizer = $('panelResizer');
+  const panelEl = document.querySelector('.control-panel');
+  let resizingPanel = false;
+  const clampPanelWidth = (w) => Math.max(320, Math.min(window.innerWidth - 480, w));
+  panelResizer.addEventListener('pointerdown', e => {
+    resizingPanel = true; panelResizer.setPointerCapture(e.pointerId);
+    document.body.classList.add('resizing-panel'); e.preventDefault();
+  });
+  panelResizer.addEventListener('pointermove', e => {
+    if (!resizingPanel) return;
+    const w = clampPanelWidth(e.clientX);
+    panelEl.style.width = w + 'px'; panelEl.style.flexBasis = w + 'px';
+    fitToScreen();
+  });
+  const endResize = e => {
+    if (!resizingPanel) return;
+    resizingPanel = false;
+    try { panelResizer.releasePointerCapture(e.pointerId); } catch (_) {}
+    document.body.classList.remove('resizing-panel');
+    fitToScreen();
+  };
+  panelResizer.addEventListener('pointerup', endResize);
+  panelResizer.addEventListener('pointercancel', endResize);
+
+  // --- 下書きの自動保存/復元（registry.js 共通機構） ---
+  function makeProjectPayload() {
+    return {
+      title: $('titleInput').value,
+      subTitle: $('subTitleInput').value,
+      items: items,
+      order: order,
+      canvas: { width: resolveCanvasWidth(), height: resolveCanvasHeight() },
+      style: {
+        accent: wrap.dataset.accent,
+        font: wrap.dataset.font,
+        canvasbg: wrap.dataset.canvasbg,
+        cardr: wrap.dataset.cardr,
+        fsTitle: $('fsTitle').value, fsRank: $('fsRank').value,
+        fsName: $('fsName').value, fsDesc: $('fsDesc').value
+      },
+      speed: speed
+    };
+  }
+  function loadProjectPayload(p) {
+    if (!p) return;
+    if (typeof p.title === 'string') $('titleInput').value = p.title;
+    if (typeof p.subTitle === 'string') $('subTitleInput').value = p.subTitle;
+    if (Array.isArray(p.items) && p.items.length) {
+      items = p.items.map(it => ({
+        name: String(it.name || ''), desc: String(it.desc || ''), img: String(it.img || ''),
+        fit: ['fill', 'fit', 'zoom'].includes(it.fit) ? it.fit : 'fill'
+      }));
+    }
+    if (p.order === 'asc' || p.order === 'desc') {
+      order = p.order;
+      $('rv-order-seg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.o === order));
+    }
+    if (p.canvas) {
+      $('canvasWidth').value = clampCanvasSize(p.canvas.width, 1280);
+      $('canvasHeight').value = clampCanvasSize(p.canvas.height, 720);
+      const r = resolveCanvasWidth() / resolveCanvasHeight();
+      $('rv-aspect-seg').querySelectorAll('button').forEach(b => {
+        const [rw, rh] = b.dataset.ar.split(':').map(Number);
+        b.classList.toggle('on', Math.abs(rw / rh - r) < 0.01);
+      });
+    }
+    const st = p.style || {};
+    if (st.accent) {
+      wrap.dataset.accent = st.accent;
+      document.querySelectorAll('.rv-sw').forEach(b => b.classList.toggle('on', b.dataset.c === st.accent));
+    }
+    if (st.font) { wrap.dataset.font = st.font; $('fontSelect').value = st.font; }
+    if (st.canvasbg) {
+      wrap.dataset.canvasbg = st.canvasbg;
+      $('rv-canvasbg-seg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.bg === st.canvasbg));
+    }
+    if (st.cardr) {
+      wrap.dataset.cardr = st.cardr;
+      $('rv-cardr-seg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.r === st.cardr));
+    }
+    [['fsTitle','fsTitleVal','--fsx-title'],['fsRank','fsRankVal','--fsx-rank'],['fsName','fsNameVal','--fsx-name'],['fsDesc','fsDescVal','--fsx-desc']].forEach(([id, valId, cssVar]) => {
+      const v = Number(st[id]);
+      if (v) { $(id).value = v; $(valId).textContent = v + '%'; wrap.style.setProperty(cssVar, String(v / 100)); }
+    });
+    if (p.speed >= 1 && p.speed <= 5) { speed = p.speed; $('rv-speed').value = speed; }
+    offset = 0;
+    renderItemList();
+    rebuild();
+  }
+  window.addEventListener('pagehide', () => {
+    if (window.saveSessionDraft) window.saveSessionDraft(TOOL_ID, makeProjectPayload());
+  });
+
+  // --- 起動 ---
+  renderItemList();
+  rebuild();
+  window.addEventListener('resize', fitToScreen);
+  if (window.offerSessionDraftRestore) window.offerSessionDraftRestore(TOOL_ID, loadProjectPayload);
+})();
+</script>
+</body>
+</html>

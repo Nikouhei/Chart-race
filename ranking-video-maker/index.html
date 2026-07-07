@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      gtag('config', 'G-NS736Y3MY9');
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ランキング動画作成ツール無料｜流れるランキング動画メーカー</title>
+  <meta name="description" content="人気のトピックや流行りのテーマを比較動画に。初心者でも簡単に、順位・画像・名称・説明を入力するだけで、カードが右から流れるランキング紹介動画を無料で作成。16:9・9:16・3:4のキャンバスに対応し、SNSやYouTube向けの動画がブラウザだけで完結します。">
+  <link rel="canonical" href="https://graphrace-studio.com/ranking-video-maker/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content="ランキング動画作成ツール無料｜流れるランキング動画メーカー">
+  <meta property="og:description" content="人気のトピックや流行りのテーマを比較動画に。初心者でも簡単に、流れるランキング紹介動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:url" content="https://graphrace-studio.com/ranking-video-maker/">
+  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ランキング動画作成ツール無料｜流れるランキング動画メーカー">
+  <meta name="twitter:description" content="人気のトピックや流行りのテーマを比較動画に。初心者でも簡単に、流れるランキング紹介動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- favicon（アプリと統一） -->
+  <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="stylesheet" href="../shared/tokens.css">
+
+  <!-- 構造化データ: ソフトウェア＋使い方 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "ランキング動画作成ツール",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "url": "https://graphrace-studio.com/ranking-video-maker/",
+        "description": "人気のアイテムや流行りのテーマを比較動画に。初心者でも簡単に, 順位・画像・名称・説明を入力するだけで、カードが流れるランキング紹介動画をブラウザだけで無料作成できるツール。",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "JPY"
+        }
+      },
+      {
+        "@type": "HowTo",
+        "name": "ランキング動画の作り方",
+        "description": "初心者でも簡単に、3ステップで流れるランキング動画を作成します。",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "ランキング項目を入力する",
+            "text": "タイトルと、各順位の名称・説明を入力し、必要に応じて画像をアップロードします。項目は自由に増やせます。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "キャンバスとデザインを選ぶ",
+            "text": "16:9・9:16・3:4からキャンバスサイズを選び、配色・フォント・背景をお好みで設定します。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "再生して録画する",
+            "text": "「再生」ボタンでカードが右から流れるアニメーションをプレビューし、OSの画面録画機能でキャプチャして動画として保存します。"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    /* ヘッダ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+      transition: background 0.3s ease;
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+    .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
+    .brand .dot { color: var(--accent); }
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+    .nav-link.is-active {
+      color: var(--accent-strong);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+    }
+
+    /* Hero */
+    .hero { padding: 64px 0 48px; text-align: center; }
+    .hero h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.25; margin: 0 0 18px; color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px; }
+    .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
+    .btn-primary { display: inline-block; padding: 15px 30px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: var(--shadow-pop); transition: background .15s ease, transform .15s ease; }
+    .btn-primary:hover { background: var(--accent-strong); transform: translateY(-1px); }
+    .hero .sub-note { display: block; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+
+    /* セクション共通 */
+    section { padding: 56px 0; }
+    .section-title { text-align: center; font-size: clamp(22px, 3vw, 30px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
+
+    /* 特長グリッド */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .feature-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft); }
+    .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
+    .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 使い方ステップ */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .step { position: relative; background: var(--app-bg); border: 1px solid var(--panel-border); border-radius: 14px; padding: 28px 24px 24px; }
+    .step .num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-weight: 800; font-size: 15px; margin-bottom: 14px; }
+    .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 末尾CTA */
+    .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
+    .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
+
+    /* ユースケース */
+    .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px; }
+    .use-case-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; text-align: left;
+    }
+    .use-case-card .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    }
+    .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 更新履歴セクション */
+    .update-history {
+      background: var(--app-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 56px 0;
+    }
+    .update-history .section-title {
+      margin-bottom: 32px;
+    }
+    .update-list-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .update-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .update-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--panel-border-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .update-item:first-child {
+      border-top: 1px solid var(--panel-border-soft);
+    }
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .update-date {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .update-content {
+      color: var(--text-main);
+      flex-grow: 1;
+    }
+    @media (max-width: 600px) {
+      .update-item {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 0;
+      }
+      .update-date {
+        width: auto;
+      }
+      .badge-new {
+        margin-top: 0;
+      }
+      .update-history {
+        padding: 40px 0;
+      }
+    }
+
+    /* フッタ */
+    footer.site-footer { padding: 32px 0; color: var(--text-muted); font-size: 13px; }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 44px 0 34px; }
+      section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand">
+        <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link" href="../bar-chart-race/">バーチャートレース</a>
+        <a class="nav-link" href="../regular-chart/">線グラフレース</a>
+        <a class="nav-link" href="../tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link is-active" href="./" aria-current="page">ランキング動画</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <h1>流れるランキング動画を<br>無料でカンタン作成</h1>
+        <p class="lead">人気のトピックや流行りのテーマを比較動画に。初心者でも簡単に、順位・画像・名称・説明を入力するだけで、カードが右から次々に流れてくるランキング紹介動画が完成。16:9・9:16・3:4のキャンバスに対応し、ブラウザだけで制作できます。</p>
+        <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+        <span class="sub-note">インストール不要・登録なしですぐ使えます</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">特長</h2>
+        <p class="section-sub">必要なものはブラウザだけ。項目を入れればすぐ流れ出します。</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏅</div>
+            <h3>順位・画像・説明つきカード</h3>
+            <p>各カードに順位・画像・名称・説明を表示。項目は自由に追加でき、並べ替えもワンクリックです。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
+            <h3>ベルトコンベア式アニメーション</h3>
+            <p>タイトルに続いてカードが右端からフェードインし、電光掲示板のように左へ流れ続けます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">📐</div>
+            <h3>SNS向けサイズに対応</h3>
+            <p>YouTube向けの16:9、ショート・リール向けの9:16、フィード向けの3:4から選べます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <h3>インストール不要</h3>
+            <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐに作成を始められます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">ランキング動画メーカーの活用シーン例</h2>
+        <p class="section-sub">人気のテーマや流行りのトピックをまとめた比較動画など、さまざまな場面で活躍します。</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">SNS・ショート動画</span>
+            <h3>「好きな◯◯TOP10」動画</h3>
+            <p>人気のラーメン店、流行りのゲーム、推し曲など、あなたのベストランキングを比較動画にして、ショート動画やリールの素材に。初心者でも簡単におしゃれな動画を作成できます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">お店・商品紹介</span>
+            <h3>人気メニューランキング</h3>
+            <p>飲食店の人気メニューやECショップの売れ筋商品を、写真つきのランキング動画で紹介。デジタルサイネージ風の演出で目を引きます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">イベント・発表</span>
+            <h3>結果発表・表彰の演出</h3>
+            <p>コンテストの結果発表や社内アワードなど、順位を発表する場面を盛り上げる演出として。最下位から1位へ向かう登場順で期待感を高められます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">使い方は3ステップ</h2>
+        <p class="section-sub">初心者でも簡単！たった数分で流れるランキング動画が完成します。</p>
+        <div class="steps">
+          <div class="step">
+            <span class="num">1</span>
+            <h3>ランキング項目を入力</h3>
+            <p>タイトルと、各順位の名称・説明を入力し、必要に応じて画像をアップロードします。</p>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <h3>キャンバスとデザインを選ぶ</h3>
+            <p>16:9・9:16・3:4からサイズを選び、配色・フォント・背景をお好みで設定します。</p>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <h3>再生して録画する</h3>
+            <p>「再生」でアニメーションをプレビュー。OSの画面録画機能でキャプチャすれば動画として保存できます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>さっそく作ってみましょう</h2>
+        <a class="btn-primary" href="app/">今すぐ無料で作る</a>
+      </div>
+    </section>
+
+    <section class="update-history">
+      <div class="wrap">
+        <h2 class="section-title">更新履歴</h2>
+        <div class="update-list-container">
+          <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.07.07</span>
+              <span class="update-content">ランキング動画：カードが右から流れてくるランキング紹介動画の作成ツール（ランキング動画メーカー）をリリースしました。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — ランキング動画作成ツール</span>
+      <nav>
+        <a href="../blog/">ブログ</a>
+        <a href="../about.html">このツールについて</a>
+        <a href="../terms.html">利用規約</a>
+        <a href="../privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
