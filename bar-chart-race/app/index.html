@@ -172,6 +172,8 @@
     #dataEditorTable td[data-column-role="label"] { background: #fff1f1; color: #1f2937; }
     #dataEditorTable th[data-column-role="image"],
     #dataEditorTable td[data-column-role="image"] { background: #eef6ff; color: #1f2937; }
+    #dataEditorTable th[data-column-role="category"],
+    #dataEditorTable td[data-column-role="category"] { background: #effaf1; color: #1f2937; }
     #dataEditorTable th[data-column-role="value"],
     #dataEditorTable td[data-column-role="value"] { background: #fff; color: #1f2937; }
     #dataEditorTable td:first-child { background: #f8fafc; color: #64748b; text-align: right; }
@@ -283,6 +285,18 @@
     #svgChart { overflow: hidden; }
     
     .chart-title { position: absolute; top: 4%; left: 2%; font-weight: bold; color: #222; z-index: 10; }
+    .category-legend { position: absolute; top: 4%; right: 2%; max-width: 55%; display: none; flex-wrap: wrap; gap: 4px 12px; justify-content: flex-end; align-items: center; z-index: 10; }
+    .category-legend.active { display: flex; }
+    .category-legend .legend-item { display: inline-flex; align-items: center; gap: 5px; }
+    .category-legend .legend-swatch { width: 0.85em; height: 0.85em; border-radius: 0.2em; flex: none; }
+    /* 列役割バッジ（データ形式ヒント・「使う列」チェック）: データ編集テーブルの列色と対応 */
+    .col-badge { display: inline-block; min-width: 20px; margin-right: 2px; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; text-align: center; color: #1f2937; }
+    .col-badge.role-label { background: #fff1f1; }
+    .col-badge.role-category { background: #effaf1; }
+    .col-badge.role-image { background: #eef6ff; }
+    .col-badge.role-value { background: #fff; box-shadow: inset 0 0 0 1px #d6dce5; }
+    .col-badge.role-off { background: #555; color: #bbb; }
+    body.light-mode .col-badge.role-off { background: #e2e8f0; color: #64748b; }
     .source-text { position: absolute; bottom: 3%; right: 2%; color: #666; z-index: 10; }
     .year-text { position: absolute; left: 95%; top: 95%; transform: translate(-100%, -100%); font-weight: bold; color: rgba(0,0,0,0.08); z-index: 5; line-height: 1; }
     
@@ -322,7 +336,7 @@
       justify-content: center;
     }
     #timelinePlayBtn:disabled { background: #b8b8b8; color: #f3f3f3; }
-    #timelineSvg { flex: 1; height: 74px; min-width: 0; overflow: visible; cursor: pointer; }
+    #timelineSvg { flex: 1; height: 74px; min-width: 0; overflow: visible; cursor: pointer; touch-action: none; }
     #timelineSvg.disabled { cursor: default; }
 
     .modal-backdrop {
@@ -824,6 +838,16 @@
       background: #fbfcfe;
     }
 
+    #dataEditorTable th[data-column-role="category"],
+    #dataEditorTable td[data-column-role="category"] {
+      background: #effaf1;
+      color: #1f2937;
+    }
+
+    #dataEditorTable tr:nth-child(even) td[data-column-role="category"] {
+      background: #e3f5e8;
+    }
+
     #dataEditorTable th.selected-header,
     #dataEditorTable td.selected-header {
       background: #dbeafe;
@@ -1194,9 +1218,10 @@
     </div>
 
     <div class="input-group">
-      <label>グラフの種類</label>
+      <label>グラフ</label>
       <div class="setting-row">
         <div class="setting-field">
+          <span>グラフの種類</span>
           <select id="chartToolSwitcher" title="別のグラフツールへ切り替え（編集中データは引き継がれます）"></select>
         </div>
         <div class="setting-field">
@@ -1218,6 +1243,7 @@
             <option value="pattern">パターン選択</option>
             <option value="single">単色</option>
             <option value="custom">指定</option>
+            <option value="category" id="barColorModeCategoryOption" disabled>カテゴリ</option>
           </select>
         </div>
       </div>
@@ -1247,6 +1273,20 @@
       </div>
       <div id="barColorCustomPanel" class="color-mode-panel">
         <div id="customColorList" class="individual-color-list"></div>
+      </div>
+      <div id="barColorCategoryPanel" class="color-mode-panel">
+        <p class="color-empty-note" style="margin:0 0 8px;">自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。</p>
+        <div id="categoryColorList" class="individual-color-list"></div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="showCategoryLegend">
+          <span>カテゴリの凡例を表示</span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>凡例の文字サイズ(%)</span>
+            <input type="number" id="categoryLegendSize" value="2.2" min="0.5" max="8" step="0.1">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1518,7 +1558,21 @@
     <div id="dataTab" class="tab-panel">
       <div class="input-group data-hint" style="background:#2a2a2a; padding:10px; border-radius:4px; border:1px dashed #555;">
         <label style="color:#4dabf7;">データ形式 (CSV / Excel)</label>
-        <p style="font-size:11px; margin:0; color:#ccc;">A列: 項目名<br>B列: 画像URL (空欄でもOK)<br>C列以降: 年ごとの数値</p>
+        <p id="dataFormatHint" style="font-size:11px; margin:0; color:#ccc;">A列: 項目名<br>B列: 画像URL (空欄でもOK)<br>C列以降: 年ごとの数値</p>
+      </div>
+
+      <div class="input-group" data-no-accordion="true">
+        <label>使う列</label>
+        <div class="checkbox-group">
+          <input type="checkbox" id="useCategoryColumn">
+          <span>カテゴリ列を使う</span>
+          <span class="col-badge role-off" id="categoryColBadge">－</span>
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="useImageColumn" checked>
+          <span>画像列を使う</span>
+          <span class="col-badge role-image" id="imageColBadge">B</span>
+        </div>
       </div>
 
       <div class="input-group" data-no-accordion="true">
@@ -1559,6 +1613,7 @@
     <div id="chartAreaWrapper">
       <div id="chartArea">
         <div id="chartTitle" class="chart-title"></div>
+        <div id="categoryLegend" class="category-legend"></div>
         <div id="yearDisplay" class="year-text"></div>
         <div id="sourceDisplay" class="source-text"></div>
         <svg id="svgChart"></svg>
@@ -1658,6 +1713,7 @@
     let contextMenuTarget = null;
     let backgroundImageDataUrl = '';
     let customBarColors = {};
+    let customCategoryColors = {};
     let previousBarColorMode = 'pattern';
     let defaultProjectSettings = null;
     let timelineMarkerScale = null;
@@ -1682,8 +1738,10 @@
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
-      'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax'
+      'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax',
+      'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize'
     ];
+    const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2' };
     const COLOR_PALETTES = {
       standard: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
       light: ['#8EC5FF', '#FFD166', '#B8E986', '#FFB3BA', '#CDB4DB', '#A0E7E5', '#FDD6A2', '#BDE0FE', '#D8F3DC', '#F1F5F9'],
@@ -1708,8 +1766,8 @@
       chart.style.height = h + 'px';
       
       // タイトル・出典の文字サイズ（キャンバス幅連動）と色を適用
-      applyTitleSourceStyle(w);
-      applyTimeCounterSettings(w);
+      applyTitleSourceStyle(Math.min(w, h));
+      applyTimeCounterSettings(Math.min(w, h));
       applyLayoutAppearance();
 
       const scale = Math.min((wrapper.clientWidth * 0.95) / w, (wrapper.clientHeight * 0.95) / h, 1);
@@ -1939,6 +1997,12 @@
       }, 0);
     }
 
+    function getRowCategory(row) {
+      const roles = getColumnRoles();
+      if (roles.categoryIdx < 0) return '';
+      return String(row[csvData.columns[roles.categoryIdx]] ?? '').trim();
+    }
+
     function getItemDefinitions() {
       if (!csvData.length || !csvData.columns?.length) return [];
       const nameCounts = new Map();
@@ -1949,8 +2013,28 @@
         const count = (nameCounts.get(baseName) || 0) + 1;
         nameCounts.set(baseName, count);
         const name = count === 1 ? baseName : `${baseName} ${count}`;
-        return { key: `${rowIndex}:${name}`, name };
+        return { key: `${rowIndex}:${name}`, name, category: getRowCategory(row) };
       });
+    }
+
+    // カテゴリの出現順ユニークリスト（凡例・色割当に使用）
+    function getUniqueCategories() {
+      const categories = [];
+      const seen = new Set();
+      getItemDefinitions().forEach(item => {
+        if (!item.category || seen.has(item.category)) return;
+        seen.add(item.category);
+        categories.push(item.category);
+      });
+      return categories;
+    }
+
+    function getCategoryColor(category) {
+      if (!category) return null;
+      if (customCategoryColors[category]) return customCategoryColors[category];
+      const colors = getSelectedPaletteColors();
+      const index = getUniqueCategories().indexOf(category);
+      return colors[(index >= 0 ? index : 0) % colors.length];
     }
 
     function getSelectedPaletteColors() {
@@ -1970,6 +2054,9 @@
       }
       if (mode === 'custom') {
         return customBarColors[item.key] || getPaletteColor(item.name);
+      }
+      if (mode === 'category') {
+        return getCategoryColor(item.category) || getPaletteColor(item.name);
       }
       return getPaletteColor(item.name);
     }
@@ -2012,13 +2099,42 @@
       }).join('');
     }
 
+    function renderCategoryColorList() {
+      const list = document.getElementById('categoryColorList');
+      if (!list) return;
+      const categories = getUniqueCategories();
+      if (!categories.length) {
+        list.innerHTML = '<div class="color-empty-note">カテゴリ列にデータを入れると、カテゴリごとに色を指定できます。</div>';
+        return;
+      }
+      list.innerHTML = categories.map(category => {
+        const color = getCategoryColor(category);
+        return `
+          <label class="individual-color-row">
+            <span title="${escapeHtml(category)}">${escapeHtml(category)}</span>
+            <input type="color" data-category-color-key="${escapeHtml(category)}" value="${escapeHtml(color)}">
+          </label>
+        `;
+      }).join('');
+    }
+
     function updateBarColorControls() {
-      const mode = document.getElementById('barColorMode')?.value || 'pattern';
-      document.getElementById('barColorPatternPanel')?.classList.toggle('active', mode === 'pattern');
+      const modeSelect = document.getElementById('barColorMode');
+      const categoryOption = document.getElementById('barColorModeCategoryOption');
+      const useCategory = document.getElementById('useCategoryColumn')?.checked ?? false;
+      if (categoryOption) categoryOption.disabled = !useCategory;
+      if (!useCategory && modeSelect?.value === 'category') {
+        modeSelect.value = 'pattern';
+        previousBarColorMode = 'pattern';
+      }
+      const mode = modeSelect?.value || 'pattern';
+      document.getElementById('barColorPatternPanel')?.classList.toggle('active', mode === 'pattern' || mode === 'category');
       document.getElementById('barColorSinglePanel')?.classList.toggle('active', mode === 'single');
       document.getElementById('barColorCustomPanel')?.classList.toggle('active', mode === 'custom');
+      document.getElementById('barColorCategoryPanel')?.classList.toggle('active', mode === 'category');
       renderPalettePreview();
       renderCustomColorList();
+      renderCategoryColorList();
     }
 
     function onBarColorSettingChange() {
@@ -2039,6 +2155,7 @@
       if (defaultProjectSettings) applyProjectSettings(defaultProjectSettings);
       backgroundImageDataUrl = '';
       customBarColors = {};
+      customCategoryColors = {};
       const backgroundFile = document.getElementById('backgroundImageFile');
       if (backgroundFile) backgroundFile.value = '';
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
@@ -2057,7 +2174,8 @@
         columnWidths: [...columnWidths],
         settings: getProjectSettingsSnapshot(),
         backgroundImageDataUrl,
-        customBarColors: { ...customBarColors }
+        customBarColors: { ...customBarColors },
+        customCategoryColors: { ...customCategoryColors }
       };
     }
 
@@ -2171,7 +2289,7 @@
     }
 
     function validateProjectPayload(project) {
-      if (!project?.data?.rows?.length || !project.data.columns?.length || project.data.columns.length < 3) {
+      if (!project?.data?.rows?.length || !project.data.columns?.length || project.data.columns.length < 2) {
         throw new Error('保存データの形式が正しくありません');
       }
       return project;
@@ -2182,14 +2300,23 @@
       stopPlayback();
       undoStack = [];
       redoStack = [];
+      // 旧形式の保存データには列役割の設定キーが無いため、適用前に既定値へ戻す
+      Object.entries(COLUMN_ROLE_DEFAULTS).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        if (element.type === 'checkbox') element.checked = Boolean(value);
+        else element.value = value;
+      });
       applyProjectSettings(project.settings || {});
+      updateDataFormatHint();
       backgroundImageDataUrl = project.backgroundImageDataUrl || '';
       customBarColors = { ...(project.customBarColors || {}) };
+      customCategoryColors = { ...(project.customCategoryColors || {}) };
       csvData = project.data.rows.map(row => ({ ...row }));
       csvData.columns = [...project.data.columns];
       columnWidths = Array.isArray(project.columnWidths) ? [...project.columnWidths] : csvData.columns.map(() => DEFAULT_COLUMN_WIDTH);
       years = getYearColumns();
-      if (!years.length) throw new Error('C列以降に年別の列がありません');
+      if (!years.length) throw new Error(`${getColumnLetter(getColumnRoles().valueStartIdx)}列以降に年別の列がありません`);
       playback.yearIndex = 0;
       document.getElementById('startBtn').disabled = false;
       updatePlaybackUI();
@@ -2287,7 +2414,7 @@
     }
 
     function detectDecimalPlaces(rows, columns) {
-      const yearColumns = columns.slice(2);
+      const yearColumns = columns.slice(getColumnRoles().valueStartIdx);
       return rows.reduce((maxPlaces, row) => {
         const rowMax = yearColumns.reduce((max, column) => {
           return Math.max(max, getDecimalPlacesFromValue(row[column]));
@@ -2439,7 +2566,7 @@
       };
     }
 
-    function applyTimeCounterSettings(canvasWidth = resolveCanvasWidth()) {
+    function applyTimeCounterSettings(canvasWidth = resolveCanvasShortSide()) {
       const yearDisplay = document.getElementById('yearDisplay');
       const settings = getTimeCounterSettings();
       const rgb = hexToRgb(settings.color);
@@ -2468,10 +2595,20 @@
       return csvData[0] || {};
     }
 
+    // 列の役割解決: カテゴリ/画像列のON/OFFに応じて各列のインデックスを返す
+    function getColumnRoles() {
+      const useCategory = document.getElementById('useCategoryColumn')?.checked ?? false;
+      const useImage = document.getElementById('useImageColumn')?.checked ?? true;
+      let idx = 1;
+      const categoryIdx = useCategory ? idx++ : -1;
+      const imageIdx = useImage ? idx++ : -1;
+      return { labelIdx: 0, categoryIdx, imageIdx, valueStartIdx: idx };
+    }
+
     function getYearColumns() {
       const headerRow = getHeaderRow();
       return (csvData.columns || [])
-        .slice(2)
+        .slice(getColumnRoles().valueStartIdx)
         .filter(column => String(headerRow[column] ?? '').trim() !== '');
     }
 
@@ -2504,8 +2641,9 @@
     function normalizeLoadedData(rows, columns) {
       const originalColumns = columns || [];
       const cleanColumns = (columns || []).map(col => String(col ?? '').trim());
-      if (cleanColumns.length < 3) {
-        throw new Error('A列:項目名、B列:画像URL、C列以降:年別数値 の形式にしてください');
+      const roles = getColumnRoles();
+      if (cleanColumns.length < roles.valueStartIdx + 1) {
+        throw new Error(`${getDataFormatDescription()} の形式にしてください`);
       }
 
       const table = [
@@ -2518,10 +2656,10 @@
       const generatedColumns = Array.from({ length: columnCount }, (_, index) => getColumnLetter(index));
       const headerRowValues = table[0] || [];
       const yearColumns = generatedColumns
-        .slice(2)
-        .filter((column, index) => String(headerRowValues[index + 2] ?? '').trim() !== '');
+        .slice(roles.valueStartIdx)
+        .filter((column, index) => String(headerRowValues[index + roles.valueStartIdx] ?? '').trim() !== '');
       if (!yearColumns.length) {
-        throw new Error('C列以降に年別の列がありません');
+        throw new Error(`${getColumnLetter(roles.valueStartIdx)}列以降に年別の列がありません`);
       }
 
       const normalizedRows = table.map(rowValues => {
@@ -2588,9 +2726,49 @@
     }
 
     function getDataColumnRole(colIndex) {
-      if (colIndex === 0) return { key: 'label', title: 'ラベル列' };
-      if (colIndex === 1) return { key: 'image', title: '画像列' };
+      const roles = getColumnRoles();
+      if (colIndex === roles.labelIdx) return { key: 'label', title: 'ラベル列' };
+      if (colIndex === roles.categoryIdx) return { key: 'category', title: 'カテゴリ列' };
+      if (colIndex === roles.imageIdx) return { key: 'image', title: '画像列' };
       return { key: 'value', title: '値列' };
+    }
+
+    // データ形式の説明文（チェック状態に連動）
+    function getDataFormatDescription() {
+      const roles = getColumnRoles();
+      const parts = ['A列: 項目名'];
+      if (roles.categoryIdx >= 0) parts.push(`${getColumnLetter(roles.categoryIdx)}列: カテゴリ`);
+      if (roles.imageIdx >= 0) parts.push(`${getColumnLetter(roles.imageIdx)}列: 画像URL (空欄でもOK)`);
+      parts.push(`${getColumnLetter(roles.valueStartIdx)}列以降: 年ごとの数値`);
+      return parts.join('、');
+    }
+
+    function updateDataFormatHint() {
+      const roles = getColumnRoles();
+      const badge = (role, text) => `<span class="col-badge role-${role}">${escapeHtml(text)}</span>`;
+      const hint = document.getElementById('dataFormatHint');
+      if (hint) {
+        const lines = [`${badge('label', 'A')} 項目名`];
+        if (roles.categoryIdx >= 0) lines.push(`${badge('category', getColumnLetter(roles.categoryIdx))} カテゴリ`);
+        if (roles.imageIdx >= 0) lines.push(`${badge('image', getColumnLetter(roles.imageIdx))} 画像URL (空欄でもOK)`);
+        lines.push(`${badge('value', `${getColumnLetter(roles.valueStartIdx)}〜`)} 年ごとの数値`);
+        if (roles.categoryIdx >= 0) {
+          lines.push(`<span style="color:#8a94a6;">カテゴリで色分けするには: 設定タブ「グラフの色」＞ 色の決め方「カテゴリ」</span>`);
+        }
+        hint.innerHTML = lines.join('<br>');
+      }
+      const categoryBadge = document.getElementById('categoryColBadge');
+      if (categoryBadge) {
+        const on = roles.categoryIdx >= 0;
+        categoryBadge.className = `col-badge ${on ? 'role-category' : 'role-off'}`;
+        categoryBadge.textContent = on ? getColumnLetter(roles.categoryIdx) : '－';
+      }
+      const imageBadge = document.getElementById('imageColBadge');
+      if (imageBadge) {
+        const on = roles.imageIdx >= 0;
+        imageBadge.className = `col-badge ${on ? 'role-image' : 'role-off'}`;
+        imageBadge.textContent = on ? getColumnLetter(roles.imageIdx) : '－';
+      }
     }
 
     function renderDataEditor() {
@@ -2887,9 +3065,10 @@
     }
 
     function removeColumns(indices) {
-      if (csvData.columns.length <= 3) return;
+      const minColumns = getColumnRoles().valueStartIdx + 1;
+      if (csvData.columns.length <= minColumns) return;
       const unique = [...new Set(indices)].filter(index => index >= 0 && index < csvData.columns.length);
-      if (!unique.length || csvData.columns.length - unique.length < 3) return;
+      if (!unique.length || csvData.columns.length - unique.length < minColumns) return;
       const before = cloneDataState();
       unique.sort((a, b) => b - a).forEach(index => {
         const column = csvData.columns[index];
@@ -3709,7 +3888,13 @@
       if (document.getElementById('autoHeight').checked) {
         const graphSettings = getGraphSettings();
         const labelSettings = getLabelSettings();
-        const height = clampCanvasSize(graphSettings.topN * (labelSettings.fontSize * 2.8) + 180, 1280);
+        // タイトル・軸目盛り・出典分の縦空間を実寸で概算して上乗せする。
+        // 高さ自体を求める途中なので、%文字サイズの基準には幅を使う（autoHeightは縦長前提）
+        const { titlePx, sourcePx } = resolveOverlayFontSizes(resolveCanvasWidth());
+        const overhead = titlePx * 1.35 + sourcePx * 1.35 + getAxisSettings().textSize + 8 * 3;
+        const barsHeight = graphSettings.topN * (labelSettings.fontSize * 2.8);
+        // titleTop(4%) + sourceBottom(3%) は最終高さの割合のため線形に解く
+        const height = clampCanvasSize(Math.round((barsHeight + overhead) / (1 - 0.07)), 1280);
         heightInput.value = height;
         return height;
       }
@@ -3723,6 +3908,21 @@
       const width = clampCanvasSize(widthInput.value, 720);
       widthInput.value = width;
       return width;
+    }
+
+    // %指定の文字サイズの基準。横長キャンバスで文字が相対的に巨大化しないよう短辺を使う
+    function resolveCanvasShortSide() {
+      return Math.min(resolveCanvasWidth(), resolveCanvasHeight());
+    }
+
+    // タイトル・出典の実ピクセルサイズ。表示(applyTitleSourceStyle)とマージン計算で共有する
+    function resolveOverlayFontSizes(base = resolveCanvasShortSide()) {
+      const titleSize = parseFloat(document.getElementById('titleSize').value);
+      const sourceSize = parseFloat(document.getElementById('sourceSize').value);
+      return {
+        titlePx: base * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100),
+        sourcePx: base * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100)
+      };
     }
 
     function getLayout() {
@@ -3771,6 +3971,9 @@
       const nameCounts = new Map();
       const sortEnabled = options.sortEnabled ?? getGraphSettings().sortEnabled;
       const sortMode = options.sortMode ?? getGraphSettings().sortMode;
+      const roles = getColumnRoles();
+      const categoryColumn = roles.categoryIdx >= 0 ? csvData.columns[roles.categoryIdx] : null;
+      const imageColumn = roles.imageIdx >= 0 ? csvData.columns[roles.imageIdx] : null;
       const yearData = csvData.slice(1).map((d, dataIndex) => {
         const rowIndex = dataIndex + 1;
         const rawName = String(d[csvData.columns[0]] ?? '').trim();
@@ -3782,7 +3985,8 @@
         return {
           key: `${rowIndex}:${name}`,
           name,
-          imageUrl: String(d[csvData.columns[1]] ?? '').trim(),
+          category: categoryColumn ? String(d[categoryColumn] ?? '').trim() : '',
+          imageUrl: imageColumn ? String(d[imageColumn] ?? '').trim() : '',
           value: parseNumber(d[year]) // 空白は null（値なし）
         };
       }).filter(item => item.value != null); // 値なしの年はその項目を除外（ランキング・本数から外す）
@@ -3880,10 +4084,18 @@
         : 0;
       const valueLabelSpace = Math.max(defaultValueSpace, rankingItemAfterBarSpace || 18);
 
+      // 上下マージンは高さ%ではなく、実際に配置される要素（タイトル・軸目盛り・出典）の
+      // 実寸から確保する。横長キャンバスでも重ならない
+      const { titlePx, sourcePx } = resolveOverlayFontSizes();
+      const titleTop = layout.height * 0.04;        // CSS .chart-title top:4% と一致
+      const sourceBottom = layout.height * 0.03;    // CSS .source-text bottom:3% と一致
+      const axisTextPx = getAxisSettings().textSize;
+      const overlayGap = Math.max(8, layout.height * 0.01);
+
       const margin = {
-        top: layout.height * 0.12,
+        top: titleTop + titlePx * 1.35 + overlayGap + axisTextPx + overlayGap,
         right: valueLabelSpace,
-        bottom: layout.height * 0.05,
+        bottom: sourceBottom + sourcePx * 1.35 + overlayGap,
         left: nameLabelSpace
       };
 
@@ -4021,17 +4233,19 @@
       if (!svg || !years.length) return 0;
       if (years.length === 1) return 0;
 
-      const width = Math.max(220, svg.clientWidth || 220);
+      const rect = svg.getBoundingClientRect();
+      const width = Math.max(220, rect.width || 220);
       const x = createTimelineScale(width);
-      const [pointerX] = d3.pointer(event, svg);
+      const pointerX = (event.clientX - rect.left) * (width / (rect.width || width));
       const rawIndex = x.invert(pointerX);
       return Math.max(0, Math.min(years.length - 1, Math.round(rawIndex)));
     }
 
-    function seekTimeline(yearIndex) {
+    function seekTimeline(yearIndex, { skipIfCurrent = false } = {}) {
       if (!years.length || document.getElementById('startBtn').disabled) return;
 
       const nextIndex = Math.max(0, Math.min(years.length - 1, yearIndex));
+      if (skipIfCurrent && playback.state === 'idle' && nextIndex === playback.yearIndex) return;
       stopPlayback();
       playback.yearIndex = nextIndex;
 
@@ -4050,14 +4264,48 @@
       document.getElementById('sourceDisplay').innerText = document.getElementById('sourceInput').value;
     }
 
-    function applyTitleSourceStyle(canvasWidth = resolveCanvasWidth()) {
-      const titleSize = parseFloat(document.getElementById('titleSize').value);
-      const sourceSize = parseFloat(document.getElementById('sourceSize').value);
+    let lastLegendHtml = null;
+    function renderCategoryLegend() {
+      const legend = document.getElementById('categoryLegend');
+      if (!legend) return;
+      const show = (document.getElementById('showCategoryLegend')?.checked ?? false)
+        && getColumnRoles().categoryIdx >= 0
+        && (document.getElementById('barColorMode')?.value === 'category');
+      const categories = show ? getUniqueCategories() : [];
+      legend.classList.toggle('active', categories.length > 0);
+      const sizePct = parseFloat(document.getElementById('categoryLegendSize')?.value);
+      legend.style.fontSize = Math.max(10, resolveCanvasShortSide() * ((Number.isFinite(sizePct) ? sizePct : 2.2) / 100)) + 'px';
+      const html = categories.map(category =>
+        `<span class="legend-item"><span class="legend-swatch" style="background:${escapeHtml(getCategoryColor(category))}"></span>${escapeHtml(category)}</span>`
+      ).join('');
+      if (html !== lastLegendHtml) {
+        legend.innerHTML = html;
+        lastLegendHtml = html;
+      }
+    }
+
+    // カテゴリ/画像列チェックの変更: 列役割・年列・エディタ・プレビューをまとめて更新
+    function onColumnRoleSettingChange() {
+      stopPlayback();
+      updateDataFormatHint();
+      updateBarColorControls();
+      years = getYearColumns();
+      playback.yearIndex = 0;
+      document.getElementById('startBtn').disabled = !hasEditableContent();
+      updatePlaybackUI();
+      renderDataEditor();
+      renderTimeline();
+      renderCategoryLegend();
+      if (years.length) refreshCurrentPreview({ reset: true });
+    }
+
+    function applyTitleSourceStyle(canvasWidth = resolveCanvasShortSide()) {
+      const { titlePx, sourcePx } = resolveOverlayFontSizes(canvasWidth);
       const title = document.getElementById('chartTitle');
       const source = document.getElementById('sourceDisplay');
-      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100) + 'px';
+      title.style.fontSize = titlePx + 'px';
       title.style.color = document.getElementById('titleColor').value || '#222222';
-      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100) + 'px';
+      source.style.fontSize = sourcePx + 'px';
       source.style.color = document.getElementById('sourceColor').value || '#666666';
     }
 
@@ -4155,6 +4403,8 @@
         .domain(yearData.map(d => d.key))
         .range([0, innerHeight])
         .padding(layout.barSpacing / 100);
+      // ラベルがバーからはみ出さないよう、実効フォントサイズはバーの高さで頭打ちにする
+      const effectiveLabelFontSize = Math.max(6, Math.min(layout.labelFontSize, yScale.bandwidth() * 0.85));
       const overflowStep = yScale.step ? yScale.step() : (innerHeight / Math.max(1, layout.topN));
       const overflowY = innerHeight + Math.max(2, overflowStep * 0.25);
       const getRowY = d => yScale(d.key) ?? overflowY;
@@ -4179,6 +4429,7 @@
         lastRenderedYearDisplayText = yearDisplayText;
       }
       updateTimelineMarker(timelinePosition);
+      renderCategoryLegend();
 
       if (reset) {
         svg.selectAll("*").interrupt();
@@ -4253,7 +4504,7 @@
 
       rowsUpdate.select(".name-label")
         .attr("y", yScale.bandwidth() / 2)
-        .style("font-size", layout.labelFontSize + "px")
+        .style("font-size", effectiveLabelFontSize + "px")
         .style("fill", labelSettings.nameColor)
         .style("display", shouldShowNameLabels ? "block" : "none")
         .text((d, index) => layout.chartStyle === 'ranking' ? `${d.rank ?? index + 1}位` : d.name);
@@ -4261,7 +4512,7 @@
 
       const rankingItemLabels = rowsUpdate.select(".ranking-item-label")
         .attr("y", yScale.bandwidth() / 2)
-        .style("font-size", layout.labelFontSize + "px")
+        .style("font-size", effectiveLabelFontSize + "px")
         .style("fill", labelSettings.nameColor)
         .style("display", shouldShowRankingItemAfterBar ? "block" : "none")
         .text(d => shouldShowRankingItemAfterBar ? d.name : '');
@@ -4271,7 +4522,7 @@
 
       const valueLabels = rowsUpdate.select(".value-label")
         .attr("y", yScale.bandwidth() / 2)
-        .style("font-size", layout.labelFontSize + "px")
+        .style("font-size", effectiveLabelFontSize + "px")
         .style("fill", labelSettings.valueColor)
         .style("display", shouldShowValueLabels ? "block" : "none");
 
@@ -4295,7 +4546,7 @@
 
       const rankingValueLabels = rowsUpdate.select(".ranking-value-label")
         .attr("y", yScale.bandwidth() / 2)
-        .style("font-size", layout.labelFontSize + "px")
+        .style("font-size", effectiveLabelFontSize + "px")
         .style("fill", labelSettings.valueColor)
         .style("display", shouldShowRankingValueInsideBar ? "block" : "none");
 
@@ -4470,8 +4721,15 @@
 
     document.getElementById('startBtn').addEventListener('click', togglePlayback);
     document.getElementById('timelinePlayBtn').addEventListener('click', togglePlayback);
-    document.getElementById('timelineSvg').addEventListener('click', e => {
+    const timelineSvg = document.getElementById('timelineSvg');
+    timelineSvg.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      try { timelineSvg.setPointerCapture(e.pointerId); } catch {}
       seekTimeline(getTimelineIndexFromEvent(e));
+    });
+    timelineSvg.addEventListener('pointermove', e => {
+      if (!timelineSvg.hasPointerCapture?.(e.pointerId)) return;
+      seekTimeline(getTimelineIndexFromEvent(e), { skipIfCurrent: true });
     });
     document.getElementById('confirmReloadYes').addEventListener('click', () => {
       const file = pendingDataFile;
@@ -4499,6 +4757,7 @@
     setupSettingsAccordions();
     syncBarSettingsControls();
     updateBarColorControls();
+    updateDataFormatHint();
     defaultProjectSettings = getProjectSettingsSnapshot();
     previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     renderStorageList();
@@ -4974,6 +5233,21 @@
       if (!input) return;
       customBarColors[input.dataset.customColorKey] = input.value;
       refreshCurrentPreview({ reset: true });
+    });
+    document.getElementById('categoryColorList').addEventListener('input', e => {
+      const input = e.target.closest('input[type="color"][data-category-color-key]');
+      if (!input) return;
+      customCategoryColors[input.dataset.categoryColorKey] = input.value;
+      renderCategoryLegend();
+      refreshCurrentPreview({ reset: true });
+    });
+    document.getElementById('showCategoryLegend').addEventListener('change', () => {
+      renderCategoryLegend();
+      refreshCurrentPreview({ reset: true });
+    });
+    document.getElementById('categoryLegendSize').addEventListener('input', renderCategoryLegend);
+    ['useCategoryColumn', 'useImageColumn'].forEach(id => {
+      document.getElementById(id).addEventListener('change', onColumnRoleSettingChange);
     });
     document.getElementById('aspectRatioPreset').addEventListener('change', applyAspectRatioPreset);
     document.getElementById('canvasWidth').addEventListener('input', () => {

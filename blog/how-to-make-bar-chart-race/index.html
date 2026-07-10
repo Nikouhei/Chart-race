@@ -15,12 +15,12 @@
   <meta property="og:title" content="バーチャートレース（動く棒グラフ）の作り方完全ガイド｜GraphRace Studio">
   <meta property="og:description" content="プログラミング不要で簡単に動くグラフ動画が作れる手順を解説。CSV/Excelの作り方から、見やすい動画に仕上げるためのテクニックまで紹介。">
   <meta property="og:url" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race">
-  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <meta property="og:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="バーチャートレース（動く棒グラフ）の作り方完全ガイド｜GraphRace Studio">
-  <meta name="twitter:description" content="プログラミング不要で動くグラフ動画を作成する手順。データの並べ方から動画化のコツまで。">
-  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <meta name="twitter:description" content="プログラミング不要で動くグラフ動画を作成する手順。データの並べ方から動画化 of コツまで。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg">
   <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
@@ -40,7 +40,7 @@
     },
     "headline": "バーチャートレース（動く棒グラフ）の作り方完全ガイド｜初心者向け無料作成手順とコツ",
     "description": "SNSやYouTubeで人気の動く棒グラフ「バーチャートレース」の作り方をデータアナリストが詳しく解説。プログラミング不要・ブラウザだけで作れる無料ツールやExcelデータの準備手順、バズる動画にするためのコツまで網羅。",
-    "image": "https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg",
+    "image": "https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg",
     "author": {
       "@type": "Person",
       "name": "GraphRace Studio 開発者",
@@ -177,9 +177,26 @@
     }
 
     .blog-header {
-      margin-bottom: 40px;
+      margin-bottom: 32px;
       border-bottom: 1px solid var(--panel-border-soft);
       padding-bottom: 24px;
+    }
+
+    .blog-eyecatch {
+      margin-bottom: 40px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--panel-border);
+    }
+
+    .blog-eyecatch video,
+    .blog-eyecatch img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 1910 / 1066;
     }
 
     .blog-title {
@@ -398,6 +415,13 @@
         </div>
       </header>
 
+      <div class="blog-eyecatch">
+        <video autoplay loop muted playsinline poster="バーチャートレースの作り方.jpg" width="1910" height="1066">
+          <source src="ブログ用バーチャートレース.webm" type="video/webm">
+          <img src="バーチャートレースの作り方.jpg" alt="バーチャートレース（動く棒グラフ）の作り方完全ガイドのアイキャッチ画像" width="1910" height="1066" decoding="async">
+        </video>
+      </div>
+
       <div class="blog-content">
         <p>YouTubeのデータ比較動画やSNSで、時間の経過とともに順位が入れ替わる棒グラフ動画を見たことはありませんか？</p>
         <p>
@@ -420,6 +444,7 @@
           <thead>
             <tr>
               <th>作成方法</th>
+              <th>ツール例</th>
               <th>メリット</th>
               <th>デメリット</th>
               <th>おすすめの層</th>
@@ -428,19 +453,22 @@
           <tbody>
             <tr>
               <td>プログラム（Python等）</td>
+              <td>bar-chart-race（Pythonライブラリ）<br>D3.js</td>
               <td>高度なカスタマイズが可能</td>
               <td>コード記述や環境構築が必要</td>
               <td>エンジニア・データ分析職</td>
             </tr>
             <tr>
               <td>海外のWebツール</td>
+              <td>Flourish<br>Datawrapper</td>
               <td>機能が豊富でバリエーションが多い</td>
               <td>英語表記<br>ユーザー登録が必須</td>
               <td>海外ツールの利用に慣れている方</td>
             </tr>
             <tr>
               <td>国内ブラウザ完結ツール（本サイト）</td>
-              <td>登録不要ですぐ使える<br>日本語で簡単</td>
+              <td>GraphRace Studio（本サイト）<br>動くグラフメーカー（他サイト）</td>
+              <td>登録不要ですぐ使える<br>日本語で簡単<br>日本語フォントや細かいレイアウト（縦横比など）にこだわることができる</td>
               <td>超複雑なグラフ形式は非対応</td>
               <td>初心者、素早く簡単に作りたい方</td>
             </tr>
@@ -456,15 +484,17 @@
           <thead>
             <tr>
               <th>名前（A列）</th>
-              <th>画像URL（B列）</th>
-              <th class="highlight">2020年（C列）</th>
-              <th class="highlight">2021年（D列）</th>
-              <th class="highlight">2022年（E列）</th>
+              <th>カテゴリ（B列、任意）</th>
+              <th>画像URL（C列、任意）</th>
+              <th class="highlight">2020年（D列）</th>
+              <th class="highlight">2021年（E列）</th>
+              <th class="highlight">2022年（F列）</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>日本</td>
+              <td>アジア</td>
               <td>https://example.com/flags/jp.webp</td>
               <td class="highlight">100</td>
               <td class="highlight">102</td>
@@ -472,6 +502,7 @@
             </tr>
             <tr>
               <td>アメリカ</td>
+              <td>北米</td>
               <td>https://example.com/flags/us.webp</td>
               <td class="highlight">200</td>
               <td class="highlight">205</td>
@@ -479,6 +510,7 @@
             </tr>
             <tr>
               <td>ドイツ</td>
+              <td>ヨーロッパ</td>
               <td>https://example.com/flags/de.webp</td>
               <td class="highlight">80</td>
               <td class="highlight">82</td>
@@ -490,8 +522,9 @@
         <p>データを作成する際の重要なルールは以下の通りです。</p>
         <ul>
           <li><strong>1列目（A列）：</strong> 比較したい対象の名前（国名、商品名、企業名など）を入力します。</li>
-          <li><strong>2列目（B列）：</strong> 任意で画像URLを入力します。これによって、バーに画像をつけることができます。</li>
-          <li><strong>3列目以降（C列以降）：</strong> 時系列のデータ（年、月、日付など）を左から右へ順番に入力します。値は必ず半角数値である必要があります。</li>
+          <li><strong>2列目（B列）：</strong> 任意でカテゴリ名を入力します。これによって、カテゴリごとの色分けが可能になります。不要な場合は空欄のままにしておくことができます。</li>
+          <li><strong>3列目（C列）：</strong> 任意で画像URLを入力します。これによって、バーにアイコン画像を表示させることができます。不要な場合は空欄のままにしておくことができます。</li>
+          <li><strong>4列目以降（D列以降）：</strong> 時系列のデータ（年、月、日付など）を左から右へ順番に入力します。値は必ず半角数値である必要があります。</li>
         </ul>
 
         <div class="info-box">
