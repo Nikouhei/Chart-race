@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTubeでよく見るランキング動画の作り方｜スマホでも無料！｜GraphRace Studio</title>
+  <meta name="description"
+    content="YouTubeやSNSのショート動画で人気のランキング動画の作り方を解説。スマホと無料ツールを使ってインストール不要で簡単に作成する手順や、再生数を伸ばすためのコツを紹介。">
+  <link rel="canonical" href="https://graphrace-studio.com/blog/how-to-make-ranking-video/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content="YouTubeでよく見るランキング動画の作り方｜スマホでも無料！｜GraphRace Studio">
+  <meta property="og:description" content="YouTubeやSNS of ショート動画で人気のランキング動画の作り方を解説。スマホと無料ツールを使ってインストール不要で簡単に作成する手順。">
+  <meta property="og:url" content="https://graphrace-studio.com/blog/how-to-make-ranking-video/">
+  <meta property="og:image" content="https://graphrace-studio.com/blog/how-to-make-ranking-video/好きなラーメンランキング動画.jpg">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="YouTubeでよく見るランキング動画の作り方｜スマホでも無料！｜GraphRace Studio">
+  <meta name="twitter:description" content="YouTubeやSNS of ショート動画で人気のランキング動画の作り方を解説。スマホと無料ツールを使ってインストール不要で簡単に作成する手順。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/blog/how-to-make-ranking-video/好きなラーメンランキング動画.jpg">
+  <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン -->
+  <link rel="stylesheet" href="../../shared/tokens.css">
+
+  <!-- 構造化データ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://graphrace-studio.com/blog/how-to-make-ranking-video/"
+    },
+    "headline": "YouTubeでよく見るランキング動画の作り方｜スマホでも無料！",
+    "description": "YouTubeやSNSのショート動画で人気のランキング動画の作り方を解説。スマホと無料ツールを使ってインストール不要で簡単に作成する手順や、再生数を伸ばすためのコツを紹介。",
+    "image": "https://graphrace-studio.com/blog/how-to-make-ranking-video/好きなラーメンランキング動画.jpg",
+    "author": {
+      "@type": "Person",
+      "name": "GraphRace Studio 開発者",
+      "url": "https://graphrace-studio.com/about.html"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "GraphRace Studio",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.png"
+      }
+    },
+    "datePublished": "2026-07-11",
+    "dateModified": "2026-07-11"
+  }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ヘッダ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+      transition: background 0.3s ease;
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+    .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
+    .brand .dot { color: var(--accent); }
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+    .nav-link.is-active {
+      color: var(--accent-strong);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+    }
+
+    /* メイン・ブログレイアウト */
+    .blog-container {
+      margin-top: 48px;
+      margin-bottom: 80px;
+    }
+
+    .blog-header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--panel-border-soft);
+      padding-bottom: 24px;
+    }
+
+    .blog-eyecatch {
+      margin-bottom: 40px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--panel-border);
+    }
+
+    .blog-eyecatch video,
+    .blog-eyecatch img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 16 / 9;
+    }
+
+    .blog-title {
+      font-size: 32px;
+      line-height: 1.4;
+      color: var(--text-strong);
+      margin: 0 0 16px;
+      font-weight: 800;
+    }
+
+    .blog-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 16px;
+    }
+
+    .blog-content h2 {
+      font-size: 22px;
+      color: var(--text-strong);
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+      margin-top: 48px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .blog-content h3 {
+      font-size: 18px;
+      color: var(--text-strong);
+      margin-top: 32px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .blog-content p {
+      margin: 0 0 20px;
+    }
+
+    .blog-content ul {
+      margin: 0 0 24px;
+      padding-left: 20px;
+    }
+
+    .blog-content li {
+      margin-bottom: 8px;
+    }
+
+    /* 比較表 */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 14px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      border: 1px solid var(--panel-border);
+      padding: 12px;
+      text-align: left;
+    }
+
+    .compare-table th {
+      background: var(--panel-surface);
+      color: var(--text-strong);
+      font-weight: 700;
+    }
+
+    /* アラート・メモ */
+    .info-box {
+      background: rgba(110, 98, 240, 0.05);
+      border: 1px solid rgba(110, 98, 240, 0.15);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 28px 0;
+    }
+
+    .info-box h4 {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .info-box p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    /* 内部リンクカード */
+    .cta-card {
+      background: var(--panel-surface);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 40px 0;
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .cta-card h4 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      color: var(--text-strong);
+    }
+
+    .cta-card p {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+
+    .btn-cta {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-cta:hover {
+      background: var(--accent-strong);
+      transform: translateY(-1px);
+    }
+
+    /* フッター */
+    footer.site-footer {
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-surface);
+      margin-top: 80px;
+    }
+
+    .site-footer .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1040px;
+    }
+
+    .site-footer nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 18px;
+    }
+
+    .site-footer nav a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 600px) {
+      .blog-title {
+        font-size: 26px;
+      }
+
+      .compare-table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../../" class="brand">
+        <img src="../../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link" href="../../bar-chart-race/">バーチャートレース</a>
+        <a class="nav-link" href="../../regular-chart/">線グラフレース</a>
+        <a class="nav-link" href="../../tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link" href="../../ranking-video-maker/">ランキング動画</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="blog-container">
+      <header class="blog-header">
+        <!-- パンくずリスト -->
+        <nav class="breadcrumb" aria-label="パンくずリスト" style="margin-bottom: 16px;">
+          <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
+              <a itemprop="item" href="../../../" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ホーム</span></a>
+              <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <a itemprop="item" href="../" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ブログ</span></a>
+              <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center; color: var(--text-muted);">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <span itemprop="name" style="color: var(--text-main);">ランキング動画の作り方</span>
+              <meta itemprop="position" content="3" />
+            </li>
+          </ol>
+        </nav>
+        <h1 class="blog-title">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</h1>
+        <div class="blog-meta">
+          <span>投稿日: 2026.07.11</span>
+          <span>カテゴリー: チュートリアル</span>
+        </div>
+      </header>
+
+      <div class="blog-eyecatch">
+        <video autoplay loop muted playsinline poster="好きなラーメンランキング動画.jpg" width="1920" height="1080">
+          <source src="好きなラーメンランキング動画.webm" type="video/webm">
+          <img src="好きなラーメンランキング動画.jpg" alt="好きなラーメンランキング動画のアイキャッチ画像" width="1920" height="1080" decoding="async">
+        </video>
+      </div>
+
+      <div class="blog-content">
+        <p>YouTubeやSNSのショート動画で、様々なテーマのランキングを紹介する動画を目にしたことはないでしょうか。順位が次々と入れ替わったり、カードがスライドして紹介されたりする動画は、視聴者の興味を引きやすく人気のコンテンツです。</p>
+        <p>こうした動画を作るには高額なパソコンや有料の動画編集ソフトが必要だと思われがちですが、実はスマホが一台あれば、無料のツールを使って誰でも簡単に作ることができます。この記事では、スマホを活用したランキング動画の作り方や、YouTubeで再生数を伸ばすためのコツを詳しく解説します。</p>
+
+        <h2>YouTubeでランキング動画が人気を集める理由</h2>
+        <p>ランキング動画は、YouTubeにおいて非常に高い人気を誇るジャンルです。その理由は、視覚的なわかりやすさと、視聴者の知的好奇心を刺激する構成にあります。</p>
+        <p>例えば、動画が始まるとすぐに何についてのランキングなのかが直感的に伝わり、順位が進むにつれて1位は何かという期待感が高まります。この心理的効果により、動画の視聴維持率が高くなりやすいのが特徴です。</p>
+        <p>特に最近は、スマホで手軽に見られる縦型動画（YouTubeショートやTikTok）でのランキング紹介が主流になっており、短い時間で情報をインプットしたい視聴者のニーズと非常に相性が良いと言えます。</p>
+
+        <h2>スマホと無料ツールでランキング動画を作るメリット</h2>
+        <p>多くの動画クリエイターがパソコンで編集を行っていますが、スマホと無料ツールを組み合わせることで、以下のようなメリットがあります。</p>
+        <p>まず、初期費用が一切かかりません。高額な動画編集ソフトを購入することなく、完全に無料のツールで作業を開始できます。</p>
+        <p>次に、パソコンを持っていなくても、通学や通勤などのスキマ時間にスマホだけで作業を完結させることができます。</p>
+        <p>さらに、最近の無料Webツールや動画アプリは非常に優秀で、スマホのストレージ容量やスペックを気にせず手軽に作成できる環境が整っています。</p>
+
+        <h2>スマホでランキング動画を作るためのツールと組み合わせ方</h2>
+        <p>スマホだけでクオリティの高いランキング動画を効率よく作るには、動画の「ベースを作るツール」と「演出を仕上げるアプリ」を組み合わせるのが最もおすすめです。</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>ツールの種類</th>
+              <th>役割</th>
+              <th>具体的なツール例</th>
+              <th>特徴</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>特化型Webツール</td>
+              <td>ベース動画の作成</td>
+              <td>GraphRace Studioなど</td>
+              <td>データを入力するだけで流れるカードなどのアニメーションを自動生成</td>
+            </tr>
+            <tr>
+              <td>動画編集アプリ</td>
+              <td>音声・エフェクトの追加</td>
+              <td>CapCut, VLLOなど</td>
+              <td>自動音声ナレーション、効果音、字幕、トランジションの追加</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>1. 特化型Webツールでアニメーション部分（ベース）を自動生成する</h3>
+        <p>まずは、ランキング動画の肝となる「カードが右から左へ流れるアニメーション」などの視覚的な動きを特化型Webツールで作成します。</p>
+        <p>これを動画編集アプリだけで一から作ろうとすると、順位ごとにスライドやテキストを一枚ずつ手作業で配置し、それぞれの動きを細かく設定しなければならず、膨大な時間がかかってしまいます。特化型ツールを使うことで、この面倒な配置作業をすべて自動化し、一瞬でベースとなる動画を準備できます。</p>
+
+        <h3>2. 動画編集アプリで音声や字幕を加えて一本の動画に仕上げる</h3>
+        <p>特化型ツールで作成して保存したベース動画を、CapCutやVLLOなどの汎用的な動画編集アプリに取り込みます。</p>
+        <p>動画編集アプリでは、テンポの良いBGMを設定したり、テキスト読み上げ機能（自動音声ナレーション）を使ってナレーションを合成したり、強調したい箇所の文字入れやトランジションエフェクトを追加します。これにより、視聴者を飽きさせないクオリティの高い動画が完成します。</p>
+
+        <div class="cta-card">
+          <h4>さっそくランキング動画を作ってみましょう</h4>
+          <p>GraphRace Studioなら、ブラウザだけで流れるランキングカード動画を今すぐ無料で作成できます。</p>
+          <a href="../../ranking-video-maker/" class="btn-cta">ランキング動画作成ツールへ</a>
+        </div>
+
+        <h2>スマホでできるランキング動画の作り方4ステップ</h2>
+        <p>ここでは、最も短時間でクオリティの高いランキング動画を作るため、特化型Webツール「GraphRace Studio」でベースの動画を作成し、定番の動画編集アプリ「CapCut」や「VLLO」で仕上げる実践的な手順を解説します。</p>
+
+        <h3>ステップ1：ランキングのテーマとデータを準備する</h3>
+        <p>まずは動画のテーマを決めます。視聴者が気になりやすい「買ってよかったものランキング」や「〇〇年Switch用ゲームソフト売り上げランキング」などがおすすめです。</p>
+        <p>テーマが決まったら、紹介する項目（名前、説明、画像）を用意します。画像はスマホで撮影した写真や、著作権フリーの画像素材サイトからダウンロードしておきましょう。ネット上の写真を無断で使うことは、著作権の観点から控えて下さい。</p>
+
+        <h3>ステップ2：特化型ツールでベース動画を作成し、録画する</h3>
+        <p>スマホのブラウザでGraphRace Studioのランキング動画メーカーを開きます。画面サイズ（YouTubeなら16:9、ショート動画なら9:16）を選択し、各順位の名称、テキスト、画像をアップロードします。</p>
+        <p>入力が完了したら再生してプレビューを確認します。問題がなければ、スマホの画面録画（スクリーンレコード）機能を使ってアニメーション部分を録画し、不要な前後部分をスマホのアルバムアプリなどでトリミングしてベース動画の素材を保存します。</p>
+
+        <h3>ステップ3：動画編集アプリにベース動画を取り込む</h3>
+        <p>スマホで「CapCut」や「VLLO」などの使い慣れた無料動画編集アプリを起動し、新しいプロジェクトを作成します。先ほど録画・保存したランキング動画のベース素材をアプリに読み込みます。</p>
+        <p>画面サイズの設定が動画素材と一致しているか確認し、余計な黒縁などがあればクロップ機能で微調整を行います。</p>
+
+        <h3>ステップ4：音声や字幕、エフェクトを追加して仕上げる</h3>
+        <p>動画編集アプリを使って、動画のクオリティをさらに高めていきます。</p>
+        <ul>
+          <li>音声の追加：動画の雰囲気に合わせたBGMを挿入したり、アプリのテキスト読み上げ機能（自動音声ナレーション）を使って解説の音声を合成したりします。</li>
+          <li>テロップやエフェクト：強調したいキーワードを大きなテキストで装飾したり、順位が切り替わるタイミングで効果音（SE）やトランジションエフェクトを追加します。</li>
+        </ul>
+        <p>すべての編集が完了したら、動画ファイルとしてエクスポート（書き出し）を行い、YouTubeに投稿できる状態にします。</p>
+
+        <h2>YouTubeで再生数を伸ばすためのランキング動画のコツ</h2>
+        <p>動画が完成したら、YouTubeに投稿して多くの人に届けてみましょう。再生数を伸ばすためには、以下の3つのポイントが重要になります。</p>
+
+        <h3>1. 視聴者を飽きさせないテンポとBGM</h3>
+        <p>ランキング動画はテンポが命です。1つの項目を紹介する時間が長すぎると、視聴者は途中で離脱してしまいます。1項目あたり5秒から10秒程度を目安に、リズムよくカードが流れるように調整しましょう。また、テンポの良い無料のBGMや効果音を設定することで、動画全体の雰囲気が一気にプロらしくなります。</p>
+
+        <h3>2. 1位の発表前に期待感を高める演出</h3>
+        <p>ランキング動画で最も注目されるのは1位です。1位を発表する前に、数秒の停止やスローを挟むことで、視聴者のドキドキ感を高め、最後まで動画を見てもらいやすくなります。</p>
+
+        <h3>3. サムネイルとタイトルの工夫</h3>
+        <p>YouTubeで動画をクリックしてもらうためには、魅力的なサムネイルとタイトルが不可欠です。</p>
+        <p>サムネイルには、誰もが気になる意外な結果を予感させる文字や、目を引く画像を大きく配置します。タイトルにはターゲットとなるキーワードを適切に入れつつ、「衝撃の結果」「おすすめ5選」といった興味をそそるフレーズを含めると効果的です。</p>
+
+        <h2>スマホでのランキング動画作りに関するよくある質問</h2>
+        <p>ここでは、スマホや無料ツールで動画を作る際によくある疑問にお答えします。</p>
+
+        <div class="info-box">
+          <h4>Q. 完全無料で商用利用は可能ですか？</h4>
+          <p>A. GraphRace Studioは基本機能が無料で利用可能です。作成した動画はYouTubeなどのSNSで公開し、広告収入などの商用利用を行うこともできます。ただし、使用する画像やBGMについては、商用利用が認められているフリー素材を使用するように注意してください。</p>
+        </div>
+
+        <div class="info-box">
+          <h4>Q. スマホだけで本当に綺麗な動画になりますか？</h4>
+          <p>A. はい、高解像度のスマホ画面でプレビューして録画するため、非常に鮮明で滑らかなアニメーション動画が出来上がります。動画編集アプリでさらに文字装飾や音声読み上げを追加することも簡単です。</p>
+        </div>
+
+        <div class="info-box">
+          <h4>Q. iPhoneとAndroidの両方に対応していますか？</h4>
+          <p>A. Webブラウザで動作するツールのため、iPhoneのSafariでもAndroidのChromeでも、どちらでも同様に作成できます。</p>
+        </div>
+
+        <h2>まとめ</h2>
+        <p>今回は、スマホと無料ツールを使用したランキング動画の作り方と、YouTubeで再生数を伸ばすためのコツをご紹介しました。</p>
+        <p>これまで難しそうだ、と諦めていた方も、ブラウザだけで動くツールやスマホアプリを使えば、今すぐスマホ1台でクリエイターとしての活動を始めることができます。まずは身近なテーマや自分の好きなことについてのランキングから、気軽に動画を作って投稿してみてはいかがでしょうか。</p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <nav>
+        <a href="../../about.html">このツールについて</a>
+        <a href="../../terms.html">利用規約</a>
+        <a href="../../privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+
+</html>

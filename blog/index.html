@@ -181,7 +181,7 @@
       width: 100%;
       overflow: hidden;
       border-bottom: 1px solid var(--panel-border-soft);
-      aspect-ratio: 1910 / 1066;
+      aspect-ratio: 16 / 9;
       background: var(--panel-border-soft);
     }
     .blog-card-eyecatch img {
@@ -263,9 +263,45 @@
   </header>
 
   <main class="wrap">
+    <!-- パンくずリスト -->
+    <nav class="breadcrumb" aria-label="パンくずリスト" style="margin-top: 24px; margin-bottom: -16px;">
+      <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-muted);">
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
+          <a itemprop="item" href="../" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ホーム</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center; color: var(--text-muted);">
+          <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+          <span itemprop="name" style="color: var(--text-main);">ブログ</span>
+          <meta itemprop="position" content="2" />
+        </li>
+      </ol>
+    </nav>
     <h1 class="page-title">データビジュアライゼーションブログ</h1>
     
     <div class="blog-grid">
+      <!-- 記事カード 2 (新規) -->
+      <article class="blog-card">
+        <a href="how-to-make-ranking-video/">
+          <div class="blog-card-eyecatch">
+            <img src="how-to-make-ranking-video/好きなラーメンランキング動画.jpg" alt="YouTubeでよく見るランキング動画の作り方のアイキャッチ画像" width="1920" height="1080" loading="lazy" decoding="async">
+          </div>
+        </a>
+        <a href="how-to-make-ranking-video/" class="blog-card-content">
+          <div class="blog-card-meta">
+            <span>2026.07.11</span>
+            <span style="margin: 0 8px;">|</span>
+            <span>チュートリアル</span>
+          </div>
+          <h2 class="blog-card-title">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</h2>
+          <p class="blog-card-excerpt">YouTubeやSNSのショート動画で人気のランキング動画。スマホと無料ツールを使い、ブラウザだけで簡単に作成する手順やコツを解説します。</p>
+          <div class="blog-card-link">
+            記事を読む
+            <span>→</span>
+          </div>
+        </a>
+      </article>
+
       <!-- 記事カード 1 -->
       <article class="blog-card">
         <a href="how-to-make-bar-chart-race/">

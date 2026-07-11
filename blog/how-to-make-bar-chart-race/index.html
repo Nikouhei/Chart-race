@@ -408,6 +408,25 @@
   <main class="wrap">
     <article class="blog-container">
       <header class="blog-header">
+        <!-- パンくずリスト -->
+        <nav class="breadcrumb" aria-label="パンくずリスト" style="margin-bottom: 16px;">
+          <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
+              <a itemprop="item" href="../../../" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ホーム</span></a>
+              <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <a itemprop="item" href="../" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ブログ</span></a>
+              <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center; color: var(--text-muted);">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <span itemprop="name" style="color: var(--text-main);">バーチャートレースの作り方完全ガイド</span>
+              <meta itemprop="position" content="3" />
+            </li>
+          </ol>
+        </nav>
         <h1 class="blog-title">バーチャートレース（動く棒グラフ）の作り方完全ガイド｜初心者向け無料作成手順とコツ</h1>
         <div class="blog-meta">
           <span>投稿日: 2026.07.02</span>
