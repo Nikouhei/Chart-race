@@ -832,7 +832,7 @@
         <h3>プレビューの操作ヒント</h3>
         <ul>
           <li><span class="tip-ic">🖱️</span><span>選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）</span></li>
-          <li><span class="tip-ic">▶️</span><span>再生ボタンで全ラウンドを自動進行。速度スライダーでエフェクト速度を調整</span></li>
+          <li><span class="tip-ic">▶️</span><span>再生ボタンで全ラウンドを自動進行（再生中は一時停止に切替）。スペースキーでも再生/一時停止できます。速度スライダーでエフェクト速度を調整</span></li>
           <li><span class="tip-ic">✎</span><span>カードにマウスを乗せて ✎ ボタンで名前をその場で編集</span></li>
           <li><span class="tip-ic">📷</span><span>カードの 📷 ボタンで画像をアップロード / URL指定</span></li>
           <li><span class="tip-ic">↔️</span><span>カードの右端・下端をドラッグでサイズ変更</span></li>
@@ -852,7 +852,7 @@
 <script>
 (function(){
   const SURNAMES = ['田中','佐藤','山本','鈴木','高橋','渡辺','加藤','中村','小林','吉田','山田','松本','井上','木村','林','斎藤','清水','森','池田','橋本','阿部','石川','山口','中島','前田','藤田','岡田','後藤','村上','近藤','石井','松田'];
-  let entryCount = 8, bracketSize = 8, layout = 'ts', currentRound = 0, bracket = [], playing = false, speed = 3;
+  let entryCount = 8, bracketSize = 8, layout = 'ts', currentRound = 0, bracket = [], playing = false, paused = false, speed = 3;
   const CARD_WIDTH_DEFAULT = 150;
   let cardWidth = CARD_WIDTH_DEFAULT;
   let slotMinH = null; // null = 自動（文字サイズ・余白依存）
@@ -1727,16 +1727,25 @@
     });
     currentRound++;
   }
+  function updatePlayBtn(){
+    $('tt-play').innerHTML = (playing && !paused)
+      ? '<i class="ti ti-player-pause" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 一時停止'
+      : '<i class="ti ti-player-play" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 再生';
+  }
   async function play(){
-    if (playing) return;
-    playing = true;
+    if (playing) { paused = !paused; updatePlayBtn(); return; }
+    playing = true; paused = false;
+    updatePlayBtn();
     initBracket();
     await new Promise(r => setTimeout(r, 500));
-    while (currentRound < bracket.length) {
+    while (playing && currentRound < bracket.length) {
+      while (paused && playing) await new Promise(r => setTimeout(r, 120));
+      if (!playing) break;
       stepRound();
       await new Promise(r => setTimeout(r, ROUND_BASE_MS / speed));
     }
-    playing = false;
+    playing = false; paused = false;
+    updatePlayBtn();
   }
   function segHandler(id, cb) {
     document.querySelectorAll('#' + id + ' button').forEach(b => {
@@ -1795,7 +1804,15 @@
 
   $('tt-play').addEventListener('click', play);
   $('tt-step').addEventListener('click', () => stepRound());
-  $('tt-reset').addEventListener('click', initBracket);
+  $('tt-reset').addEventListener('click', () => { playing = false; paused = false; updatePlayBtn(); initBracket(); });
+  // スペースキーで再生/一時停止（入力中・ボタンフォーカス中は除外）
+  document.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space' || e.repeat) return;
+    const t = e.target;
+    if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName)) return;
+    e.preventDefault();
+    play();
+  });
   $('tt-speed').addEventListener('input', e => { speed = +e.target.value; syncFxT(); });
   segHandler('tt-layout-seg', b => { layout = b.dataset.l; updateSlotAxisAvailability(); render(); });
   segHandler('tt-flip-seg', b => { flipDir = b.dataset.f === 'flip'; render(); });

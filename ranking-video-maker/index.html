@@ -186,6 +186,24 @@
     }
 
     /* Hero */
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .hero-badges .badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
     .hero { padding: 64px 0 48px; text-align: center; }
     .hero h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.25; margin: 0 0 18px; color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px; }
     .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
@@ -332,6 +350,12 @@
   <main>
     <section class="hero">
       <div class="wrap">
+        <div class="hero-badges">
+          <span class="badge">インストール不要</span>
+          <span class="badge">無料（クレジット表記要）</span>
+          <span class="badge">商用利用OK</span>
+          <span class="badge">外部送信なし</span>
+        </div>
         <h1>流れるランキング動画を<br>無料でカンタン作成</h1>
         <p class="lead">人気のトピックや流行りのテーマを比較動画に。初心者でも簡単に、順位・画像・名称・説明を入力するだけで、カードが右から次々に流れてくるランキング紹介動画が完成。16:9・9:16・3:4のキャンバスに対応し、ブラウザだけで制作できます。</p>
         <a class="btn-primary" href="app/">今すぐ無料で作る</a>
