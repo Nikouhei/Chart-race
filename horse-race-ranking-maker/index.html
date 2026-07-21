@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      gtag('config', 'G-NS736Y3MY9');
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>競馬風ランキング動画メーカー無料｜格付けダービー</title>
+  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。最大10頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画に対応し、インストール不要・ブラウザだけで完結します。">
+  <link rel="canonical" href="https://graphrace-studio.com/horse-race-ranking-maker/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content="競馬風ランキング動画メーカー無料｜格付けダービー">
+  <meta property="og:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:url" content="https://graphrace-studio.com/horse-race-ranking-maker/">
+  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="競馬風ランキング動画メーカー無料｜格付けダービー">
+  <meta name="twitter:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
+  <!-- favicon（アプリと統一） -->
+  <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="stylesheet" href="../shared/tokens.css">
+
+  <!-- 構造化データ: ソフトウェア＋使い方 -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "格付けダービー（競馬風ランキング動画メーカー）",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web",
+        "url": "https://graphrace-studio.com/horse-race-ranking-maker/",
+        "description": "順位を決めて走らせるだけで、競馬中継風のランキング発表動画をブラウザだけで無料作成できるツール。",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "JPY"
+        }
+      },
+      {
+        "@type": "HowTo",
+        "name": "競馬風ランキング動画の作り方",
+        "description": "3ステップで競馬風ランキング動画を作成します。",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "出走馬を入力する",
+            "text": "出走馬の名前を入力し（最大10頭）、上から最終順位になるようドラッグで並べ替えます。馬体色やアイコン画像も設定できます。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "レースを設定する",
+            "text": "レース時間（約15〜40秒）、展開の派手さ、画面に表示するレース名を選びます。"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "レース開始・録画する",
+            "text": "「レース開始」でプレビュー、「録画してWebM保存」ならゴール後に動画が自動保存されます。"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+    /* ヘッダ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+      transition: background 0.3s ease;
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+    .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
+    .brand .dot { color: var(--accent); }
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+    .nav-link.is-active {
+      color: var(--accent-strong);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+    }
+
+    /* Hero */
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .hero-badges .badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .hero { padding: 64px 0 48px; text-align: center; }
+    .hero h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1.25; margin: 0 0 18px; color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px; }
+    .hero p.lead { font-size: clamp(15px, 2vw, 18px); color: var(--text-muted); max-width: 640px; margin: 0 auto 30px; }
+    .btn-primary { display: inline-block; padding: 15px 30px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: var(--shadow-pop); transition: background .15s ease, transform .15s ease; }
+    .btn-primary:hover { background: var(--accent-strong); transform: translateY(-1px); }
+    .hero .sub-note { display: block; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+
+    /* セクション共通 */
+    section { padding: 56px 0; }
+    .section-title { text-align: center; font-size: clamp(22px, 3vw, 30px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
+    .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
+
+    /* 特長グリッド */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .feature-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft); }
+    .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
+    .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 使い方ステップ */
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .step { position: relative; background: var(--app-bg); border: 1px solid var(--panel-border); border-radius: 14px; padding: 28px 24px 24px; }
+    .step .num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-weight: 800; font-size: 15px; margin-bottom: 14px; }
+    .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 末尾CTA */
+    .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
+    .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
+
+    /* ユースケース */
+    .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 20px; }
+    .use-case-card {
+      background: var(--panel-surface); border: 1px solid var(--panel-border);
+      border-radius: 14px; padding: 24px; text-align: left;
+    }
+    .use-case-card .tag {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      background: var(--accent-soft); color: var(--accent-strong);
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+    }
+    .use-case-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
+    .use-case-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+    /* 更新履歴セクション */
+    .update-history {
+      background: var(--app-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 56px 0;
+    }
+    .update-history .section-title {
+      margin-bottom: 32px;
+    }
+    .update-list-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .update-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .update-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--panel-border-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .update-item:first-child {
+      border-top: 1px solid var(--panel-border-soft);
+    }
+    .update-item.is-hidden {
+      display: none;
+    }
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .update-date {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .update-content {
+      color: var(--text-main);
+      flex-grow: 1;
+    }
+    @media (max-width: 600px) {
+      .update-item {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 0;
+      }
+      .update-date {
+        width: auto;
+      }
+      .badge-new {
+        margin-top: 0;
+      }
+      .update-history {
+        padding: 40px 0;
+      }
+    }
+
+    /* フッタ */
+    footer.site-footer { padding: 32px 0; color: var(--text-muted); font-size: 13px; }
+    .site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+    .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+    .site-footer nav a:hover { color: var(--text-main); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 44px 0 34px; }
+      section { padding: 40px 0; }
+    }
+
+    /* FAQセクション */
+    .faq {
+      background: var(--panel-surface);
+      padding: 80px 0;
+      border-top: 1px solid var(--panel-border);
+    }
+    .faq .section-title {
+      margin-bottom: 48px;
+    }
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .faq-item {
+      background: var(--app-bg);
+      border: 1px solid var(--panel-border-soft);
+      border-radius: 12px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+    .faq-item[open] {
+      border-color: var(--accent-light, #c7c2fa);
+    }
+    .faq-q {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-strong);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      position: relative;
+    }
+    .faq-q::-webkit-details-marker {
+      display: none;
+    }
+    .faq-q::before {
+      content: "Q";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .faq-q::after {
+      content: "";
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+      width: 10px;
+      height: 6px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238A94A6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+      transition: transform 0.2s ease;
+    }
+    .faq-item[open] .faq-q::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .faq-a {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-main);
+      padding: 0 24px 24px 60px;
+      border-top: 1px solid var(--panel-border-soft);
+      padding-top: 16px;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .faq-a a {
+      color: var(--accent-strong);
+      text-decoration: underline;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+      .faq {
+        padding: 40px 0;
+      }
+      .faq .section-title {
+        margin-bottom: 32px;
+      }
+      .faq-item {
+        border-radius: 8px;
+      }
+      .faq-q {
+        font-size: 15px;
+        padding: 16px;
+        padding-right: 40px;
+      }
+      .faq-q::after {
+        right: 16px;
+      }
+      .faq-a {
+        padding: 0 16px 16px;
+        padding-top: 12px;
+      }
+    }
+
+    /* ================= 格付けダービー ツール本体 ================= */
+    /* 競馬中継の雰囲気を出すためツールセクションだけ専用のダーク配色を使う */
+    .umarace{
+      --turf:#2e7d46;
+      --turf-dark:#1f5c31;
+      --dirt:#8a6a45;
+      --night:#14241b;
+      --panel:#f6f3ec;
+      --ink:#22271f;
+      --gold:#c9a227;
+      --red:#b3402e;
+      --line:#d9d2c2;
+      font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+      background:var(--night);
+      color:var(--ink);
+      line-height:1.5;
+      padding:0;
+    }
+    .umarace-head{
+      background:linear-gradient(180deg,#0f1d14,#14241b);
+      color:#f2ecd9;
+      padding:18px 24px 14px;
+      border-bottom:3px solid var(--gold);
+      display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    }
+    .umarace-head h2{
+      font-size:22px;letter-spacing:.14em;font-weight:800;margin:0;
+    }
+    .umarace-head h2 span{color:var(--gold)}
+    .umarace-head p{font-size:12px;opacity:.75;letter-spacing:.05em;margin:0}
+    .umarace-grid{
+      max-width:1200px;margin:0 auto;padding:20px 24px 60px;
+      display:grid;grid-template-columns:340px 1fr 280px;gap:18px;
+    }
+    /* 子要素の固有幅でグリッド列が広がるのを防ぐ(スマホの横はみ出し対策) */
+    .umarace-grid>div{min-width:0}
+    @media(max-width:1100px){
+      .umarace-grid{grid-template-columns:340px 1fr}
+      /* 中間幅では動画設定をプレビュー直下に配置 */
+      .video-col{grid-column:2}
+    }
+    @media(max-width:860px){
+      .umarace-grid{grid-template-columns:1fr}
+      /* スマホでは結果(キャンバス)を先頭に表示 */
+      .umarace-grid>div:nth-child(2){order:-1}
+      .video-col{grid-column:auto}
+    }
+    @media(max-width:600px){
+      .umarace-grid{padding:14px 10px 40px;gap:14px}
+      .umarace .panel{padding:12px}
+      .umarace-head{padding:14px 14px 10px;gap:8px}
+      .umarace-head h2{font-size:18px}
+      .umarace .entry{gap:6px}
+    }
+    .umarace .panel{
+      background:var(--panel);
+      border-radius:10px;
+      padding:16px;
+      box-shadow:0 4px 18px rgba(0,0,0,.35);
+    }
+    .umarace .panel h3{
+      font-size:13px;letter-spacing:.18em;color:#5c5540;font-weight:700;
+      border-bottom:2px solid var(--line);padding-bottom:8px;margin:0 0 12px;
+    }
+    .umarace details.panel summary{
+      font-size:13px;letter-spacing:.18em;color:#5c5540;font-weight:700;
+      padding-bottom:8px;margin:0;cursor:pointer;list-style:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .umarace details.panel summary::-webkit-details-marker{display:none}
+    .umarace details.panel summary::after{
+      content:"▸";font-size:12px;color:#8a8060;transition:transform .2s;
+    }
+    .umarace details.panel[open] summary{
+      border-bottom:2px solid var(--line);margin-bottom:12px;
+    }
+    .umarace details.panel[open] summary::after{transform:rotate(90deg)}
+    .umarace #timeline{width:100%;accent-color:var(--gold);cursor:pointer}
+    .umarace #timeline:disabled{cursor:default;opacity:.5}
+    .umarace .timeline-time{font-size:11px;color:#8a8060;text-align:right;margin-top:2px}
+    .umarace .entry{
+      display:flex;align-items:center;gap:8px;
+      background:#fff;border:1px solid var(--line);border-radius:8px;
+      padding:8px;margin-bottom:8px;
+      transition:transform .15s ease;
+    }
+    .umarace .entry .rank{
+      width:30px;height:30px;border-radius:6px;flex:none;
+      background:var(--ink);color:#ffe9a8;font-weight:800;font-size:13px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .umarace .entry input[type=text]{
+      flex:1;min-width:0;border:none;border-bottom:1px solid var(--line);
+      font-size:16px;padding:4px 2px;background:transparent;
+    }
+    .umarace .entry input[type=text]:focus{outline:none;border-bottom-color:var(--gold)}
+    /* 名前入力中は他の操作要素を隠して入力欄を行幅いっぱいに広げる */
+    .umarace .entry.name-editing .avatar,
+    .umarace .entry.name-editing input[type=color],
+    .umarace .entry.name-editing select.gate,
+    .umarace .entry.name-editing button.del{display:none}
+    .umarace .entry input[type=color]{
+      width:34px;height:34px;border:none;background:none;cursor:pointer;flex:none;padding:0;
+    }
+    .umarace .entry .avatar{
+      width:38px;height:38px;border-radius:50%;flex:none;cursor:pointer;
+      background:#e8e2d2 center/cover no-repeat;
+      border:2px solid var(--line);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;color:#a09878;
+      overflow:hidden;
+    }
+    .umarace .entry .grip{
+      cursor:grab;color:#b8b09a;font-size:17px;flex:none;user-select:none;
+      padding:10px 6px;margin:-8px -4px -8px -6px;
+      touch-action:none;
+    }
+    .umarace .entry.dragging{
+      border-color:var(--gold);
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
+      transform:scale(1.02);
+      position:relative;z-index:5;
+      transition:none;
+      cursor:grabbing;
+    }
+    .umarace .entry.dragging .grip{cursor:grabbing}
+    body.umarace-grabbing,body.umarace-grabbing *{cursor:grabbing!important}
+    .umarace .entry select.gate{
+      flex:none;border:1px solid var(--line);border-radius:5px;
+      font-size:12px;padding:6px 2px;background:#faf8f2;color:#5c5540;
+    }
+    .umarace .entry button.del{
+      border:none;background:none;color:#b0a890;font-size:16px;cursor:pointer;flex:none;
+      padding:10px 6px;margin:-8px -4px;
+    }
+    .umarace .entry button.del:hover,.umarace .entry button.del:active{color:var(--red)}
+    .umarace .hint{font-size:11px;color:#8a836c;line-height:1.6;margin:6px 0 0}
+    /* 見出し横のiマーク: ホバー/フォーカスで説明を表示 */
+    .umarace .info-tip{
+      position:relative;display:inline-flex;align-items:center;justify-content:center;
+      width:15px;height:15px;margin-left:6px;vertical-align:middle;
+      border:1px solid #8a836c;border-radius:50%;
+      font-size:10px;font-weight:700;font-style:italic;font-family:Georgia,serif;
+      letter-spacing:0;color:#8a836c;cursor:help;
+    }
+    .umarace .info-tip:hover,.umarace .info-tip:focus{color:var(--gold);border-color:var(--gold);outline:none}
+    .umarace .info-tip .info-bubble{
+      display:none;position:absolute;top:calc(100% + 8px);left:-10px;z-index:20;
+      width:min(280px,72vw);padding:10px 12px;
+      background:#2e2a20;color:#f0ead2;border:1px solid var(--gold);border-radius:8px;
+      font-size:11px;font-weight:400;font-style:normal;letter-spacing:.02em;line-height:1.7;
+      font-family:inherit;text-align:left;
+      box-shadow:0 6px 18px rgba(0,0,0,.35);
+      cursor:auto;
+    }
+    .umarace .info-tip .info-bubble::before{
+      content:"";position:absolute;top:-5px;left:13px;
+      width:8px;height:8px;background:#2e2a20;
+      border-left:1px solid var(--gold);border-top:1px solid var(--gold);
+      transform:rotate(45deg);
+    }
+    .umarace .info-tip:hover .info-bubble,
+    .umarace .info-tip:focus .info-bubble{display:block}
+    .umarace .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      border:none;border-radius:8px;cursor:pointer;
+      font-weight:700;letter-spacing:.06em;
+      transition:transform .08s,opacity .15s;
+    }
+    .umarace .btn:active{transform:translateY(1px)}
+    .umarace .btn-add{
+      width:100%;padding:9px;font-size:13px;
+      background:#fff;border:2px dashed #c4bca4;color:#7a7258;
+    }
+    .umarace .btn-start{
+      width:100%;padding:13px;font-size:16px;margin-top:14px;
+      background:linear-gradient(180deg,#d8b842,var(--gold));color:#241d05;
+    }
+    .umarace .btn-secondary{
+      width:100%;padding:11px;font-size:14px;margin-top:8px;
+      background:var(--ink);color:#f2ecd9;
+    }
+    .umarace .btn:disabled{opacity:.45;cursor:not-allowed}
+    .umarace .field{margin-bottom:12px}
+    .umarace .field label{font-size:12px;color:#5c5540;display:block;margin-bottom:4px;letter-spacing:.05em}
+    .umarace .field select,.umarace .field input[type=text]{
+      width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;
+      font-size:16px;background:#fff;color:var(--ink);
+    }
+    .umarace .stage{
+      position:relative;border-radius:10px;overflow:hidden;
+      box-shadow:0 6px 24px rgba(0,0,0,.5);
+      background:#000;
+      aspect-ratio:16/9;
+      margin:0 auto;
+    }
+    .umarace .stage[data-aspect="3:4"]{aspect-ratio:3/4;max-width:480px}
+    .umarace .stage[data-aspect="9:16"]{aspect-ratio:9/16;max-width:380px}
+    .umarace canvas{display:block;width:100%;height:100%}
+    .umarace .stage .overlay-note{
+      position:absolute;inset:auto 10px 10px auto;
+      font-size:11px;color:rgba(255,255,255,.65);
+      background:rgba(0,0,0,.35);padding:4px 8px;border-radius:4px;
+      pointer-events:none;
+    }
+    .umarace .stage .play-overlay{
+      position:absolute;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.35);
+      opacity:0;visibility:hidden;
+      transition:opacity .2s ease,visibility .2s ease;
+      pointer-events:none;
+    }
+    .umarace .stage .play-overlay.visible{opacity:1;visibility:visible}
+    .umarace .stage .play-overlay svg{
+      width:72px;height:72px;
+      fill:rgba(255,255,255,.75);
+      filter:drop-shadow(0 2px 8px rgba(0,0,0,.5));
+    }
+    .umarace .status{
+      margin-top:10px;font-size:12px;color:#c9c2ad;letter-spacing:.05em;min-height:18px;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../" class="brand">
+        <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ">
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link" href="../bar-chart-race/">バーチャートレース</a>
+        <a class="nav-link" href="../regular-chart/">線グラフレース</a>
+        <a class="nav-link" href="../tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link" href="../ranking-video-maker/">ランキング動画</a>
+        <a class="nav-link is-active" href="./" aria-current="page">格付けダービー</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-badges">
+          <span class="badge">インストール不要</span>
+          <span class="badge">無料（クレジット表記要）</span>
+          <span class="badge">商用利用OK</span>
+          <span class="badge">外部送信なし</span>
+        </div>
+        <h1>競馬風ランキング動画を<br>無料でカンタン作成</h1>
+        <p class="lead">順位を決めて、走らせるだけ。展開は毎回ランダムなのに、ゴールは必ず設定どおり。競馬中継風のランキング発表動画がブラウザだけで完成し、WebM録画にも対応しています。</p>
+      </div>
+    </section>
+
+    <!-- ================= ツール本体 ================= -->
+    <section class="umarace" id="tool">
+      <div class="umarace-head">
+        <h2>格付け<span>ダービー</span></h2>
+        <p>順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー</p>
+      </div>
+      <div class="umarace-grid">
+        <div>
+          <div class="panel">
+            <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble">⠿をドラッグして最終順位(ゴール着順)を入れ替え。「◯枠」は出走レーン(画面上の走る位置)で、着順とは独立に指定できます。展開は毎回ランダムですが、必ずこの順位でゴールします。</span></span></h3>
+            <div id="entries"></div>
+            <button class="btn btn-add" id="addEntry">＋ 出走馬を追加(最大10頭)</button>
+            <p class="hint">設定は自動保存され、次回アクセス時に復元されます。<a href="#" id="resetState">初期状態に戻す</a></p>
+          </div>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>レース設定</summary>
+            <div class="field">
+              <label>レース名(画面上部に表示)</label>
+              <input type="text" id="raceName" value="第1回 ランキング杯" maxlength="24">
+            </div>
+            <div class="field">
+              <label>レース時間</label>
+              <select id="duration">
+                <option value="15">ショート(約15秒)</option>
+                <option value="25" selected>スタンダード(約25秒)</option>
+                <option value="40">ロング(約40秒)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>展開の派手さ</label>
+              <select id="drama">
+                <option value="0.6">おだやか(順当な流れ)</option>
+                <option value="1" selected>ふつう</option>
+                <option value="1.5">波乱(仕掛け合い多め)</option>
+                <option value="2.1">大波乱(大逃げ・大まくり・失速なんでもあり)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>スタート前カウントダウン</label>
+              <select id="countdown">
+                <option value="on" selected>あり(3秒)</option>
+                <option value="off">なし(すぐスタート)</option>
+              </select>
+            </div>
+          </details>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>結果発表設定</summary>
+            <div class="field">
+              <label>掲示板タイトル</label>
+              <input type="text" id="boardTitle" value="結果発表" maxlength="16">
+            </div>
+            <div class="field">
+              <label>馬体色の表示</label>
+              <select id="boardColor">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>アイコン画像の表示</label>
+              <select id="boardImage">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>着差(ハナ・クビなど)の表示</label>
+              <select id="boardMargin">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+          </details>
+
+        </div>
+
+        <div>
+          <div class="stage">
+            <canvas id="cv" width="1280" height="720"></canvas>
+            <div class="play-overlay" id="playOverlay" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div class="status" id="status">出走馬を設定して「レース開始」を押してください。録画ボタンはレース開始と同時に録画し、ゴール後に自動保存します。</div>
+        </div>
+
+        <div class="video-col">
+          <div class="panel">
+            <h3>動画設定</h3>
+            <div class="field">
+              <label>画面サイズ(アスペクト比)</label>
+              <select id="aspect">
+                <option value="16:9" selected>16:9(横長・YouTube向け)</option>
+                <option value="3:4">3:4(縦長・SNS投稿向け)</option>
+                <option value="9:16">9:16(縦長・ショート/TikTok向け)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>実況テロップ(字幕)</label>
+              <select id="captions">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>再生タイムライン</label>
+              <input type="range" id="timeline" min="0" max="1000" value="0" disabled>
+              <div class="timeline-time" id="timelineTime">0.0s / 0.0s</div>
+            </div>
+            <button class="btn btn-start" id="startBtn">▶ レース開始</button>
+            <button class="btn btn-secondary" id="recBtn">⏺ 録画してWebM保存</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">特長</h2>
+        <p class="section-sub">必要なものはブラウザだけ。名前と順位を決めればすぐ走り出します。</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
+            <h3>順位を決めて走らせるだけ</h3>
+            <p>最大10頭の出走馬をドラッグで並べ替えるだけで最終順位を指定。名前・馬体色・アイコン画像も自由に設定できます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎲</div>
+            <h3>展開は毎回ランダム</h3>
+            <p>大逃げ・まくり・差し切りなど展開は毎回変わるのに、ゴールは必ず設定した順位。何度でも走らせて好きな展開を選べます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
+            <h3>そのまま動画保存</h3>
+            <p>録画ボタンひとつでレース開始から結果掲示板までをWebM動画として自動保存。編集ソフトなしで投稿用素材が完成します。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <h3>インストール不要</h3>
+            <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐにレース動画を作り始められます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">格付けダービーの活用シーン例</h2>
+        <p class="section-sub">ランキング発表を「レース中継」に変えると、最後まで目が離せなくなります。</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">YouTube・TikTok</span>
+            <h3>ランキング紹介動画</h3>
+            <p>「好きな◯◯ランキング」「人気投票の結果発表」などを競馬中継風に演出。結果発表までのワクワク感で視聴維持率を高められます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">パーティー・レクリエーション</span>
+            <h3>催し物のミニゲーム</h3>
+            <p>問題に対し、クイズ形式で1位を発表する際の演出として最適。途中の順位変動も、盛り上がります。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">配信・イベント企画</span>
+            <h3>結果発表の演出</h3>
+            <p>ライブ配信の企画結果や社内イベント・オフ会の表彰などを、実況テロップ付きのレースで盛り上げながら発表できます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">エンタメ・SNS投稿</span>
+            <h3>推し対決・ネタ動画</h3>
+            <p>推しキャラ対決や身内ネタの「勝手にグランプリ」など、エンタメコンテンツの素材づくりに。短時間で何本でも作れます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">シミュレーション</span>
+            <h3>擬似競馬レースの作成</h3>
+            <p>架空の競走馬やIFのレースをシミュレート。自分好みの展開や対決を設定して、オリジナルの競馬レースを作成・再現できます。</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">趣味・コミュニティ</span>
+            <h3>競馬が好きというアピールに</h3>
+            <p>SNSや競馬ファンのコミュニティで、自作のレース動画を投稿。ユニークな馬名や実況テキストを使って、競馬愛を楽しく表現できます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">使い方は3ステップ</h2>
+        <p class="section-sub">はじめてでも数分で競馬風ランキング動画が完成します。</p>
+        <div class="steps">
+          <div class="step">
+            <span class="num">1</span>
+            <h3>出走馬を入力</h3>
+            <p>出走馬の名前を入力し（最大10頭）、上から最終順位になるようドラッグで並べ替えます。</p>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <h3>レースを設定</h3>
+            <p>レース時間（約15〜40秒）、展開の派手さ、画面に表示するレース名を選びます。</p>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <h3>レース開始・録画</h3>
+            <p>「レース開始」でプレビュー、「録画してWebM保存」ならゴール後に動画が自動保存されます。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>さっそく走らせてみましょう</h2>
+        <a class="btn-primary" href="#tool">今すぐ無料で作る</a>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap">
+        <h2 class="section-title">よくある質問</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary class="faq-q">利用は無料ですか？商用利用やYouTubeでの配信に使っても問題ありませんか？</summary>
+            <div class="faq-a">はい、すべて無料でご利用いただけます。商用利用をはじめ、YouTubeやTikTokへの動画投稿、SNSへのシェアなども自由に行っていただいて問題ありません。事前のご連絡は不要ですが、動画内や動画の概要欄などにクレジット表記（当ツール名やURLなど）をお願いしております。</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">作成したレース動画を保存するにはどうすればいいですか？</summary>
+            <div class="faq-a">画面にある「録画してWebM保存」ボタンをクリックしてからレースを開始すると、レース終了後に動画ファイルが自動でダウンロードされます。特別な録画ソフトは不要です。</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">スマートフォンでも利用できますか？</summary>
+            <div class="faq-a">はい、スマートフォンやタブレットのブラウザからでもご利用いただけます。アプリのインストールや会員登録は一切不要です。</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">うまく作成・プレビューできない場合は？</summary>
+            <div class="faq-a">ブラウザのキャッシュクリアや再起動をお試しください。それでも解決しない場合は、フッターにある「<a href="../about.html">このツールについて</a>」ページ内のお問い合わせフォームより、不具合の内容やご利用の環境（ブラウザ、OSなど）をご報告いただけますと幸いです。</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="update-history">
+      <div class="wrap">
+        <h2 class="section-title">更新履歴</h2>
+        <div class="update-list-container">
+          <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.07.18</span>
+              <span class="update-content">格付けダービー：競馬中継風のランキング発表動画を作成できる「競馬風ランキング動画メーカー」をリリースしました。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — 競馬風ランキング動画メーカー</span>
+      <nav>
+        <a href="../blog/">ブログ</a>
+        <a href="../about.html">このツールについて</a>
+        <a href="../terms.html">利用規約</a>
+        <a href="../privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+
+<script>
+"use strict";
+/* ================= 出走馬管理 ================= */
+const DEFAULT_COLORS=["#8a4b2e","#3d3d3d","#a5762c","#5b3b6e","#2e5f8a","#7a2e2e","#3f6b3a","#6b5a2e","#444c66","#8a2e5f"];
+const entriesEl=document.getElementById("entries");
+let entries=[];
+let dragIdx=null;
+function addEntry(name){
+  if(entries.length>=10)return;
+  const e={name:name||("ホース"+(entries.length+1)),color:DEFAULT_COLORS[entries.length],img:null,gate:entries.length+1};
+  entries.push(e);render();
+}
+function normalizeGates(){
+  // 欠番を詰めて1..nに正規化(削除後など)
+  const sorted=[...entries].sort((a,b)=>a.gate-b.gate);
+  sorted.forEach((e,i)=>e.gate=i+1);
+}
+function render(){
+  normalizeGates();
+  entriesEl.innerHTML="";
+  entries.forEach((e,i)=>{
+    const row=document.createElement("div");row.className="entry";
+    const gateOpts=entries.map((_,g)=>`<option value="${g+1}" ${e.gate===g+1?"selected":""}>${g+1}枠</option>`).join("");
+    row.innerHTML=`<div class="grip" title="ドラッグで最終順位を入れ替え">⠿</div>
+      <div class="rank">${i+1}</div>
+      <div class="avatar" title="アイコン画像を設定">${e.img?"":"🐴"}</div>
+      <input type="text" value="${e.name.replace(/"/g,"&quot;")}" maxlength="10">
+      <input type="color" value="${e.color}" title="馬体色">
+      <select class="gate" title="出走枠(画面上の走行レーン)">${gateOpts}</select>
+      <button class="del" title="削除">✕</button>`;
+    const av=row.querySelector(".avatar");
+    if(e.img)av.style.backgroundImage=`url(${e.img})`;
+    av.onclick=()=>{
+      const f=document.createElement("input");f.type="file";f.accept="image/*";
+      f.onchange=()=>{const r=new FileReader();r.onload=()=>{e.img=r.result;e.imgEl=null;render();};r.readAsDataURL(f.files[0]);};
+      f.click();
+    };
+    const nameInput=row.querySelector("input[type=text]");
+    nameInput.oninput=ev=>{e.name=ev.target.value;saveState();};
+    nameInput.onfocus=()=>row.classList.add("name-editing");
+    nameInput.onblur=()=>row.classList.remove("name-editing");
+    row.querySelector("input[type=color]").oninput=ev=>{e.color=ev.target.value;saveState();};
+    row.querySelector(".gate").onchange=ev=>{
+      // 選んだ枠を持っている馬と入れ替え
+      const g=+ev.target.value;
+      const other=entries.find(x=>x!==e&&x.gate===g);
+      if(other)other.gate=e.gate;
+      e.gate=g;render();
+    };
+    row.querySelector(".del").onclick=()=>{entries.splice(i,1);render();};
+    // ── グリップのドラッグで最終順位を入れ替え(Pointer Eventsでマウス/タッチ両対応) ──
+    row.querySelector(".grip").addEventListener("pointerdown",ev=>{
+      ev.preventDefault();
+      const pid=ev.pointerId;
+      dragIdx=[...entriesEl.children].indexOf(row);
+      row.classList.add("dragging");
+      document.body.classList.add("umarace-grabbing");
+      const startY=ev.clientY;
+      const startOffsetTop=row.offsetTop;
+      // insertBeforeで行を移動するとgripのpointer captureが失われることがあるため、
+      // captureに頼らずwindowでpointermoveを受け、rAFでフレーム毎にまとめて処理する
+      let lastY=startY,raf=null;
+      const update=()=>{
+        raf=null;
+        if(dragIdx===null)return;
+        // 掴んだ行の目標位置(静的レイアウト座標)。判定・追従ともtransformの影響を受けないoffsetTop基準にする
+        const desiredTop=startOffsetTop+(lastY-startY);
+        const center=desiredTop+row.offsetHeight/2;
+        const rows=[...entriesEl.children];
+        let to=0;
+        rows.forEach((r,j)=>{
+          if(r===row)return;
+          if(center>r.offsetTop+r.offsetHeight/2)to=j<dragIdx?j+1:j;
+        });
+        if(to!==dragIdx){
+          // FLIP: 押しのけられる行の現在の見た目位置を記録し、DOM移動後にスライドさせる
+          const prev=new Map(rows.map(r=>[r,r.getBoundingClientRect().top]));
+          const moved=entries.splice(dragIdx,1)[0];
+          entries.splice(to,0,moved);
+          entriesEl.insertBefore(row,entriesEl.children[to+(to>dragIdx?1:0)]||null);
+          dragIdx=to;
+          [...entriesEl.children].forEach((r,j)=>r.querySelector(".rank").textContent=j+1);
+          [...entriesEl.children].forEach(r=>{
+            if(r===row)return;
+            r.style.transition="none";r.style.transform="";
+            const dy=prev.get(r)-r.getBoundingClientRect().top;
+            if(dy){
+              r.style.transform=`translateY(${dy}px)`;
+              r.offsetHeight;
+              r.style.transition="";r.style.transform="";
+            }else{
+              r.style.transition="";
+            }
+          });
+        }
+        // 掴んだ行はスロットが変わっても指に貼り付いたまま
+        row.style.transform=`translateY(${desiredTop-row.offsetTop}px) scale(1.02)`;
+      };
+      const onMove=mv=>{
+        if(mv.pointerId!==pid)return;
+        lastY=mv.clientY;
+        if(raf===null)raf=requestAnimationFrame(update);
+      };
+      const onUp=mv=>{
+        if(mv.pointerId!==pid)return;
+        window.removeEventListener("pointermove",onMove);
+        window.removeEventListener("pointerup",onUp);
+        window.removeEventListener("pointercancel",onUp);
+        if(raf!==null){cancelAnimationFrame(raf);raf=null;}
+        document.body.classList.remove("umarace-grabbing");
+        row.style.transform="";
+        dragIdx=null;render();
+      };
+      window.addEventListener("pointermove",onMove);
+      window.addEventListener("pointerup",onUp);
+      window.addEventListener("pointercancel",onUp);
+    });
+    entriesEl.appendChild(row);
+  });
+  saveState();
+}
+document.getElementById("addEntry").onclick=()=>addEntry();
+
+/* ================= 設定の保存・復元 ================= */
+const STATE_KEY="umarace-state-v1";
+const SETTING_IDS=["raceName","duration","drama","countdown","aspect","captions","boardTitle","boardColor","boardImage","boardMargin"];
+let stateLoaded=false; // 復元完了前の保存を抑止
+function saveState(){
+  if(!stateLoaded)return;
+  const state={
+    entries:entries.map(e=>({name:e.name,color:e.color,img:e.img,gate:e.gate})),
+    settings:Object.fromEntries(SETTING_IDS.map(id=>[id,document.getElementById(id).value]))
+  };
+  try{
+    localStorage.setItem(STATE_KEY,JSON.stringify(state));
+  }catch(_){
+    // quota超過(画像dataURLが大きい)時は画像を除いて再保存
+    try{
+      state.entries.forEach(e=>e.img=null);
+      localStorage.setItem(STATE_KEY,JSON.stringify(state));
+    }catch(_2){}
+  }
+}
+function loadState(){
+  let state=null;
+  try{state=JSON.parse(localStorage.getItem(STATE_KEY));}catch(_){}
+  if(state&&Array.isArray(state.entries)&&state.entries.length){
+    entries=state.entries.slice(0,10).map((e,i)=>({
+      name:String(e.name||"ホース"+(i+1)).slice(0,10),
+      color:/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:DEFAULT_COLORS[i],
+      img:typeof e.img==="string"?e.img:null,
+      gate:e.gate,
+    }));
+    SETTING_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(state.settings&&state.settings[id]!=null){
+        el.value=state.settings[id];
+        if(el.tagName==="SELECT"&&el.selectedIndex===-1)el.selectedIndex=0; // 不正値はデフォルトへ
+      }
+    });
+    render();
+  }else{
+    ["サクラチヨノオー","タイムトラベラー","ミドリノダイチ","ヨルノテイオー","アカツキボンバー"].forEach(n=>addEntry(n));
+  }
+  stateLoaded=true;
+  saveState();
+}
+document.getElementById("resetState").onclick=ev=>{
+  ev.preventDefault();
+  if(!confirm("保存された設定を消して初期状態に戻します。よろしいですか？"))return;
+  localStorage.removeItem(STATE_KEY);
+  location.reload();
+};
+
+/* ================= 描画基盤 ================= */
+const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
+let W=cv.width,H=cv.height;
+const ASPECT_SIZES={"16:9":[1280,720],"3:4":[960,1280],"9:16":[720,1280]};
+const stageEl=document.querySelector(".umarace .stage");
+document.getElementById("aspect").onchange=ev=>{
+  const [w,h]=ASPECT_SIZES[ev.target.value];
+  cv.width=W=w;cv.height=H=h;
+  stageEl.dataset.aspect=ev.target.value;
+  race=null; // サイズが変わるのでレースはリセット
+  statusEl.textContent="画面サイズを変更しました。「レース開始」を押してください。";
+  saveState();
+};
+const statusEl=document.getElementById("status");
+
+// 前回の設定を復元し、以後は設定変更のたびに自動保存
+loadState();
+{
+  const [w,h]=ASPECT_SIZES[document.getElementById("aspect").value];
+  cv.width=W=w;cv.height=H=h;
+  stageEl.dataset.aspect=document.getElementById("aspect").value;
+}
+["raceName","boardTitle"].forEach(id=>document.getElementById(id).addEventListener("input",saveState));
+["duration","drama","countdown","captions","boardColor","boardImage","boardMargin"].forEach(id=>document.getElementById(id).addEventListener("change",saveState));
+
+/* ---- 馬のギャロップ描画(サラブレッド体型・3関節脚・砂埃付き) ---- */
+function drawHorse(g,x,y,scale,phase,color,name,img,imgCache){
+  g.save();g.translate(x,y);g.scale(scale,scale);
+  const t=phase*Math.PI*2;
+
+  // 地面の影(滞空時は小さく薄く)
+  const airborne=Math.sin(t)*0.5+0.5;
+  g.fillStyle=`rgba(0,0,0,${0.28-airborne*0.1})`;
+  g.beginPath();g.ellipse(2,36,44-airborne*8,7-airborne*2,0,0,7);g.fill();
+
+  // 砂埃(後脚の蹴り出しタイミングで発生)
+  const kick=Math.max(0,Math.sin(t+2.6));
+  if(kick>0.3){
+    g.fillStyle=`rgba(180,160,120,${kick*0.35})`;
+    for(let i=0;i<3;i++){
+      const dx=-46-i*12-kick*10,dy=30-i*4-kick*6;
+      g.beginPath();g.arc(dx,dy,5+i*3+kick*4,0,7);g.fill();
+    }
+  }
+
+  // ギャロップの上下動+体幹ピッチ(伸びで前下がり、収縮で起き上がる)
+  const bounce=Math.sin(t)*4;
+  const pitch=Math.sin(t+0.7)*0.07;
+  g.translate(0,bounce);g.rotate(pitch);
+
+  const dark=shade(color,-38),mid=shade(color,-18),lite=shade(color,26);
+  g.lineCap="round";g.lineJoin="round";
+
+  /* 3関節脚: 付け根→膝/飛節→球節→蹄。角度をキーフレーム的に合成 */
+  const leg=(px,py,ph,front,back9)=>{
+    const s=t+ph;
+    let a1,a2,a3;
+    if(front){
+      a1= 0.45+Math.sin(s)*0.95;                    // 肩からの振り
+      a2= a1+0.35+Math.max(0,Math.sin(s+1.1))*1.15; // 膝の折り
+      a3= a2-0.15+Math.sin(s+1.8)*0.45;             // 球節のしなり
+    }else{
+      a1=-0.5+Math.sin(s)*1.05;                     // 股関節:大きく後方へ
+      a2= a1-0.3-Math.max(0,Math.sin(s+1.0))*1.25;  // 飛節は逆向きに折れる
+      a3= a2+0.2+Math.sin(s+1.7)*0.4;
+    }
+    const L1=front?15:17,L2=front?14:15,L3=7;
+    const j1x=px+Math.sin(a1)*L1, j1y=py+Math.cos(a1)*L1;
+    const j2x=j1x+Math.sin(a2)*L2, j2y=j1y+Math.cos(a2)*L2;
+    const j3x=j2x+Math.sin(a3)*L3, j3y=j2y+Math.cos(a3)*L3;
+    const c=back9?shade(color,-48):dark;
+    g.strokeStyle=c;
+    g.lineWidth=front?7.5:9.5;                      // 太→細のテーパー
+    g.beginPath();g.moveTo(px,py);g.lineTo(j1x,j1y);g.stroke();
+    g.lineWidth=5;
+    g.beginPath();g.moveTo(j1x,j1y);g.lineTo(j2x,j2y);g.stroke();
+    g.strokeStyle=back9?shade(color,-30):mid;
+    g.lineWidth=4;
+    g.beginPath();g.moveTo(j2x,j2y);g.lineTo(j3x,j3y);g.stroke();
+    // 蹄(台形)
+    g.fillStyle="#241c14";
+    g.save();g.translate(j3x,j3y);g.rotate(a3*0.4);
+    g.beginPath();g.moveTo(-3.5,-2);g.lineTo(3.5,-2);g.lineTo(4.2,3);g.lineTo(-4.2,3);g.closePath();g.fill();
+    g.restore();
+  };
+
+  // ── 奥側の脚(暗く・先に描く) ──
+  leg(-26,4,Math.PI*0.92,false,true);
+  leg(22,6,Math.PI*0.42,true,true);
+
+  // ── 尻尾(流線・3本ストランド) ──
+  for(let i=0;i<3;i++){
+    g.strokeStyle=shade(color,-46+i*6);g.lineWidth=4-i*0.8;
+    g.beginPath();g.moveTo(-38,-14+i*2);
+    g.quadraticCurveTo(-52,-12+Math.sin(t*2+i)*3+i*3,-64,-4+Math.sin(t*2+1+i)*5+i*4);
+    g.stroke();
+  }
+
+  // ── 胴体シルエット(サラブレッドのライン) ──
+  const body=new Path2D();
+  body.moveTo(-36,-20);                              // 尻(croup)上端
+  body.bezierCurveTo(-26,-27,-8,-25, 6,-23);         // 背中→キ甲
+  body.bezierCurveTo(14,-24,20,-27,26,-30);          // キ甲→首の付け根
+  body.bezierCurveTo(34,-34,44,-38,52,-37);          // 首上ライン(前傾)
+  body.lineTo(56,-30);
+  body.bezierCurveTo(48,-24,40,-16,34,-8);           // 喉〜胸前
+  body.bezierCurveTo(30,-2,26,2,20,4);               // 胸下
+  body.bezierCurveTo(8,8,-6,8,-16,4);                // 腹の巻き上がり
+  body.bezierCurveTo(-26,1,-34,-6,-38,-12);          // 後躯下
+  body.closePath();
+  const bg=g.createLinearGradient(0,-38,0,10);
+  bg.addColorStop(0,lite);bg.addColorStop(0.45,color);bg.addColorStop(1,dark);
+  g.fillStyle=bg;g.fill(body);
+
+  // 筋肉の陰影
+  g.fillStyle="rgba(255,255,255,.10)";
+  g.beginPath();g.ellipse(-22,-12,13,10,-.3,0,7);g.fill(); // 後躯の丸み
+  g.beginPath();g.ellipse(22,-14,10,8,.4,0,7);g.fill();    // 肩
+  g.fillStyle="rgba(0,0,0,.12)";
+  g.beginPath();g.ellipse(0,-4,16,7,0,0,7);g.fill();       // 腹側の影
+
+  // ── 頭部 ──
+  g.save();
+  g.translate(56,-33);g.rotate(0.5+Math.sin(t+0.4)*0.03);  // 低い頭+微揺れ
+  const hg=g.createLinearGradient(0,-8,0,8);
+  hg.addColorStop(0,lite);hg.addColorStop(1,mid);
+  g.fillStyle=hg;
+  g.beginPath();
+  g.moveTo(-4,-6);
+  g.bezierCurveTo(6,-8,14,-6,20,-1);   // 鼻梁
+  g.lineTo(21,3);
+  g.bezierCurveTo(15,6,6,7,-2,6);      // 顎ライン
+  g.closePath();g.fill();
+  g.fillStyle="#241c14";g.beginPath();g.ellipse(18,1,1.6,2,0,0,7);g.fill(); // 鼻孔
+  g.strokeStyle="rgba(0,0,0,.4)";g.lineWidth=1;
+  g.beginPath();g.moveTo(20,4);g.lineTo(15,5);g.stroke();  // 口
+  g.fillStyle="#fff";g.beginPath();g.ellipse(3,-3,2.6,2.2,0,0,7);g.fill();
+  g.fillStyle="#181310";g.beginPath();g.arc(3.8,-3,1.5,0,7);g.fill();      // 目
+  g.fillStyle=mid;
+  g.beginPath();g.moveTo(-3,-6);g.quadraticCurveTo(-9,-13,-11,-15);g.lineTo(-6,-8);g.closePath();g.fill();
+  g.fillStyle=dark;
+  g.beginPath();g.moveTo(-6,-5);g.quadraticCurveTo(-12,-11,-14,-13);g.lineTo(-9,-6);g.closePath();g.fill(); // 耳2枚
+  g.fillStyle="rgba(255,255,255,.85)";
+  g.beginPath();g.moveTo(2,-6);g.lineTo(9,-4);g.lineTo(10,-2);g.lineTo(3,-4);g.closePath();g.fill(); // 流星
+  g.restore();
+
+  // ── たてがみ(なびく4ストランド) ──
+  for(let i=0;i<4;i++){
+    g.strokeStyle=shade(color,-50+i*5);g.lineWidth=3.4-i*0.5;
+    const wob=Math.sin(t*2+i*0.9)*2.5;
+    g.beginPath();g.moveTo(52-i*2,-35+i*1.5);
+    g.quadraticCurveTo(40-i*3,-34+wob,28-i*4,-26+wob*1.4+i*2);
+    g.stroke();
+  }
+
+  // ── 手前側の脚 ──
+  leg(-24,6,Math.PI*0.5,false,false);
+  leg(25,8,0,true,false);
+
+  // ゼッケン(騎手位置に画像 or 番号丸)
+  if(img&&imgCache.ok){
+    // ゼッケン画像(鞍の位置に騎手アイコン風)
+    g.save();
+    g.beginPath();g.arc(4,-34,20,0,7);g.closePath();g.clip();
+    g.drawImage(imgCache.el,-16,-54,40,40);
+    g.restore();
+    g.strokeStyle="#fff";g.lineWidth=3;
+    g.beginPath();g.arc(4,-34,20,0,7);g.stroke();
+  }
+  // 名前ラベル
+  g.font="bold 15px 'Hiragino Kaku Gothic ProN',sans-serif";
+  const w=g.measureText(name).width;
+  g.fillStyle="rgba(0,0,0,.55)";
+  roundRect(g,-w/2-7,-72,w+14,20,5);g.fill();
+  g.fillStyle="#fff";g.textAlign="center";g.fillText(name,0,-57);
+  g.restore();
+}
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16);
+  let r=(n>>16)+amt,gg=((n>>8)&255)+amt,b=(n&255)+amt;
+  r=Math.max(0,Math.min(255,r));gg=Math.max(0,Math.min(255,gg));b=Math.max(0,Math.min(255,b));
+  return `rgb(${r},${gg},${b})`;
+}
+function roundRect(g,x,y,w,h,r){
+  g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();
+}
+
+/* ================= レースエンジン ================= */
+// 速度・テンポ統一: スクロール速度は常に15秒レース基準(約733px/s)。
+// レース時間が長い場合はコース自体が長くなる(=同じ速さで長く走る)
+const BASE_SPEED=11000/15;
+let COURSE=11000; // buildRace()でレース時間×BASE_SPEEDに再計算される
+let race=null,rafId=null,recorder=null,recChunks=[],paused=false;
+let timelineDragging=false,resumeAfterSeek=false;
+
+function buildRace(){
+  const dur=+document.getElementById("duration").value;
+  const drama=+document.getElementById("drama").value;
+  COURSE=Math.round(BASE_SPEED*dur); // どの長さでも走行速度は同一
+  const n=entries.length;
+  // 各馬のゴール時刻: 着差は秒数固定(写真判定級)→ レース長に関わらず同じ密度でゴール
+  const horses=entries.map((e,i)=>{
+    const finish=dur+i*0.055+(i>3?(i-3)*0.06:0);
+    const imgCache={ok:false,el:null};
+    if(e.img){const im=new Image();im.onload=()=>imgCache.ok=true;im.src=e.img;imgCache.el=im;}
+    // ランダム仕掛けイベント: 15秒あたり2〜3回のテンポを全レース長で維持
+    const events=[];
+    const evCount=Math.max(2,Math.round((dur/15)*(2+Math.random()*1.5)));
+    for(let k=0;k<evCount;k++){
+      events.push({
+        at:0.08+Math.random()*0.62,
+        len:0.08+Math.random()*0.10,
+        power:(Math.random()<0.5?1:-1)*(0.7+Math.random()*0.9)
+      });
+    }
+    // 潜伏度: 上位馬ほど「ゴール直前まで後方に隠れて最後に差す」傾向を強くランダム付与
+    // → 90%地点の見た目の先頭と最終結果が一致しにくくなり、意外性が生まれる
+    const rankFactor=1-(i/Math.max(1,entries.length-1)); // 1位=1 → 最下位=0
+    const lag=(0.35+Math.random()*0.65)*rankFactor + Math.random()*0.15;
+    return{
+      ...e,rank:i+1,finishT:finish,
+      pos:0,v:0,phase:Math.random(),
+      seedA:Math.random()*10,seedB:Math.random()*10,
+      style:Math.random(),
+      events,lag,imgCache
+    };
+  });
+  const t0=document.getElementById("countdown").value==="on"?-3:0;
+  return{horses,dur,drama,
+    t:t0,t0,endT:Math.max(...horses.map(h=>h.finishT)),
+    done:false,goalOrder:[],slowmo:1,
+    captions:document.getElementById("captions").value==="on",
+    name:document.getElementById("raceName").value||"ランキング杯",
+    board:{
+      title:document.getElementById("boardTitle").value||"結果発表",
+      color:document.getElementById("boardColor").value==="on",
+      image:document.getElementById("boardImage").value==="on",
+      margin:document.getElementById("boardMargin").value==="on"}};
+}
+
+function stepRace(dt){
+  const R=race;
+  R.t+=dt*R.slowmo;
+  if(R.t<0)return; // カウントダウン中
+  const t=R.t;
+  for(const h of R.horses){
+    if(h.pos>=COURSE){continue;}
+    const prog=t/h.finishT; // この馬の理想進捗
+    const base=COURSE/h.finishT;
+    // ノイズ:序盤〜中盤は大きく自由に、終盤急速にゼロへ
+    const freedom=Math.max(0,1-Math.pow(prog,3.2));
+    const noise=(Math.sin(t*1.1+h.seedA)+Math.sin(t*2.1+h.seedB)*0.7+Math.sin(t*0.45+h.seedA*2)*0.9);
+    // 脚質:逃げは序盤+、追込は序盤-終盤+(強め)
+    const styleBias=(0.5-h.style)*Math.cos(Math.min(prog,1)*Math.PI)*2.2;
+    // 仕掛けイベント:区間中はサインカーブで滑らかに増減
+    let evBoost=0;
+    for(const ev of h.events){
+      const local=(prog-ev.at)/ev.len;
+      if(local>0&&local<1)evBoost+=ev.power*Math.sin(local*Math.PI);
+    }
+    let v=base*(1
+      +freedom*R.drama*0.075*noise      // 揺らぎ ±7%前後
+      +freedom*R.drama*0.06*styleBias   // 脚質差を強化
+      +freedom*R.drama*0.11*evBoost);   // 仕掛けの伸び/失速をはっきり
+    // 収束補正:理想位置に「潜伏オフセット」を加える。
+    // 潜伏解除は実時間基準(残り約1.8秒)→ どのレース長でもラストの
+    // 差し切り演出は15秒レースと同じ秒数・同じテンポになる
+    const remainT=Math.max(0,h.finishT-t);
+    const hide=Math.min(1,remainT/1.8);
+    const hideS=hide*hide*(3-2*hide);                            // smoothstep
+    const ideal=COURSE*Math.min(prog,1)-h.lag*BASE_SPEED*15*0.020*hideS;
+    const gap=ideal-h.pos;
+    const urgency=0.15+7.0*Math.pow(Math.min(prog,1),6);
+    v+=gap*urgency*0.45;
+    // 速度クランプ:ベース±18%。等速感は保ちつつ差の付き方は速く
+    h.v=Math.max(base*0.82,Math.min(base*1.18,v));
+    h.pos+=h.v*dt*R.slowmo;
+    if(h.pos>=COURSE){
+      h.pos=COURSE;
+      h.goalTime=R.t;
+      R.goalOrder.push(h);
+    }
+  }
+  // ゴール直前スローモーション(先頭が残り約0.75秒分の距離から徐々に・最後は0.3倍速)
+  const lead=Math.max(...R.horses.map(h=>h.pos));
+  const slowZone=BASE_SPEED*0.75;
+  if(!R.done&&R.goalOrder.length===0&&lead>COURSE-slowZone){
+    const k=(lead-(COURSE-slowZone))/slowZone;
+    R.slowmo=1-(0.7*k);
+  }
+  if(R.goalOrder.length>0)R.slowmo=Math.min(1,R.slowmo+dt*0.6);
+  if(R.goalOrder.length===R.horses.length&&!R.done){
+    R.done=true;R.doneAt=performance.now();
+    if(!R.seeking){
+      finishRecording();
+      updateStartBtn();
+      statusEl.textContent="ゴール!結果掲示板を表示中。もう一度走らせると展開が変わります。";
+    }
+  }
+}
+
+/* ================= 実況テロップ ================= */
+function commentary(R){
+  if(R.t<0)return "まもなくスタート!";
+  const sorted=[...R.horses].sort((a,b)=>b.pos-a.pos);
+  const lead=sorted[0];
+  const p=lead.pos/COURSE;
+  if(p<0.05)return "各馬一斉にスタート!";
+  if(p<0.3)return `先頭は${lead.name}!${sorted[1].name}が続く!`;
+  if(p<0.55)return `${lead.name}がレースを引っ張る展開!`;
+  if(p<0.8)return `第4コーナーを回った!先頭${lead.name}!`;
+  if(p<0.97)return `最後の直線!${lead.name}か!?${sorted[1].name}が迫る!`;
+  return "ゴール前!接戦だーッ!!";
+}
+
+/* ================= 描画ループ ================= */
+let lastTs=null;
+let wmX=null; // 透かしのスクロール位置(nullなら右端から開始)
+function loop(ts){
+  rafId=requestAnimationFrame(loop);
+  if(lastTs==null)lastTs=ts;
+  const dt=Math.min(0.05,Math.max(0,(ts-lastTs)/1000)||0);lastTs=ts;
+  if(race&&!race.done&&!paused)stepRace(dt);
+  draw(paused?0:dt); // 一時停止中はカメラ・脚・透かしも完全に静止させる
+  if(race&&!timelineDragging)syncTimeline();
+}
+// シーク時も再生時と同じ式でカメラを積分する(draw内から切り出し)
+function updateCam(R,dt){
+  if(R.cam==null){R.cam=0;R.camV=COURSE/R.dur;}
+  if(R.t>=0&&!R.done){
+    R.cam+=R.camV*dt*R.slowmo;                       // 等速前進
+    const packMid=(Math.max(...R.horses.map(h=>h.pos))+Math.min(...R.horses.map(h=>h.pos)))/2;
+    const target=packMid-W*0.48;
+    R.cam+=(target-R.cam)*Math.min(1,dt*0.8);        // 弱い追従補正のみ
+  }
+}
+function draw(dt){
+  const R=race;
+  // カメラ:一定速で流れるパン(TV中継のトラッキングカメラ)。
+  // 基本は平均ベース速度で等速前進し、集団中心とのズレだけを
+  // ごくゆるやかに補正 → スクロール速度はほぼ一定に見える
+  let camX=0;
+  if(R){
+    updateCam(R,dt);
+    camX=Math.max(0,Math.min(R.cam,COURSE-W*0.75));
+  }
+  // 空
+  const sky=ctx.createLinearGradient(0,0,0,H*0.4);
+  sky.addColorStop(0,"#a8d4e8");sky.addColorStop(1,"#dceef4");
+  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*0.4);
+  // 観客席(パララックス)
+  drawStands(camX*0.4);
+  // 芝
+  const turf=ctx.createLinearGradient(0,H*0.42,0,H);
+  turf.addColorStop(0,"#3f9457");turf.addColorStop(1,"#2a6e3d");
+  ctx.fillStyle=turf;ctx.fillRect(0,H*0.42,W,H);
+  // 芝の刈り模様
+  ctx.fillStyle="rgba(255,255,255,.05)";
+  for(let i=-1;i<10;i++){
+    const x=((i*300-(camX%600))+600)%(W+600)-300;
+    ctx.fillRect(x,H*0.42,150,H);
+  }
+  // ラチ(内柵)
+  ctx.fillStyle="#f5f5f0";
+  ctx.fillRect(0,H*0.435,W,6);
+  for(let i=0;i<20;i++){
+    const x=((i*140-(camX%140))+140)%(W+140)-70;
+    ctx.fillRect(x,H*0.40,5,H*0.045);
+  }
+  // ハロン棒的な距離マーク&ゴール板
+  if(R){
+    const goalX=COURSE-camX;
+    if(goalX>-100&&goalX<W+100){
+      ctx.fillStyle="#d8d8d8";ctx.fillRect(goalX,H*0.30,8,H*0.62);
+      ctx.font="bold 30px sans-serif";ctx.textAlign="center";
+      ctx.save();ctx.translate(goalX+4,H*0.29);
+      ctx.fillStyle="#fff";roundRect(ctx,-52,-40,104,38,5);ctx.fill();
+      ctx.fillStyle="#b3402e";ctx.fillText("GOAL",0,-12);ctx.restore();
+      // ゴール線
+      ctx.fillStyle="rgba(255,255,255,.85)";
+      for(let y=H*0.46;y<H*0.95;y+=24)ctx.fillRect(goalX,y,8,12);
+    }
+  }
+  // 馬(レーンは枠順=gateで決まる。リスト順は最終着順)
+  if(R){
+    const lanes=R.horses.length;
+    const drawOrder=[...R.horses].sort((a,b)=>(a.gate||0)-(b.gate||0)); // 奥→手前
+    drawOrder.forEach(h=>{
+      const lane=(h.gate??1)-1;
+      const laneY=H*0.52+((lane+0.5)/lanes)*H*0.40;
+      const scale=0.96+((lane+0.5)/lanes)*0.08;
+      const x=h.pos-camX;
+      const running=h.pos<COURSE&&R.t>=0;
+      // ケイデンスほぼ一定:全馬同じピッチで脚を回し、速度差はストライド(位置)の差として現れる。
+      // 速度連動は1割だけ残して微妙な脚色の違いを表現
+      if(running){
+        const base=COURSE/h.finishT;
+        const cadence=3.4*(0.88+0.12*(h.v/base));
+        h.phase=(h.phase+dt*R.slowmo*cadence)%1;
+      }
+      drawHorse(ctx,x,laneY,scale,h.phase,h.color,h.name,h.img,h.imgCache);
+    });
+  }
+  // 上部バー(レース名)
+  ctx.fillStyle="rgba(10,25,15,.82)";
+  ctx.fillRect(0,0,W,52);
+  ctx.fillStyle="#c9a227";ctx.fillRect(0,52,W,3);
+  ctx.font="bold 24px 'Hiragino Kaku Gothic ProN',sans-serif";
+  ctx.fillStyle="#f2ecd9";ctx.textAlign="left";
+  ctx.fillText(R?R.name:"格付けダービー",20,35);
+  // 透かし(右下から左へ流れ続ける。録画にも焼き込まれる)
+  ctx.save();
+  ctx.font="bold 18px 'Hiragino Kaku Gothic ProN',sans-serif";
+  const wmText="GraphRace Studio 格付けダービー";
+  const wmW=ctx.measureText(wmText).width;
+  if(wmX==null)wmX=W;
+  wmX-=dt*60;
+  if(wmX<-wmW)wmX=W;
+  ctx.fillStyle="rgba(255,255,255,.2)";
+  ctx.textAlign="left";
+  ctx.fillText(wmText,wmX,H-12);
+  ctx.restore();
+  // 実況テロップ(設定で非表示にできる)
+  if(R&&!R.done&&R.captions){
+    const msg=commentary(R);
+    ctx.font="bold 26px 'Hiragino Kaku Gothic ProN',sans-serif";
+    const w=ctx.measureText(msg).width;
+    ctx.fillStyle="rgba(0,0,0,.6)";
+    roundRect(ctx,W/2-w/2-18,H-64,w+36,44,8);ctx.fill();
+    ctx.fillStyle="#fff";ctx.textAlign="center";ctx.fillText(msg,W/2,H-33);
+  }
+  // カウントダウン
+  if(R&&R.t<0){
+    ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(0,0,W,H);
+    ctx.font="bold 130px sans-serif";ctx.textAlign="center";
+    ctx.fillStyle="#fff";
+    const c=Math.ceil(-R.t);
+    ctx.fillText(c>0?c:"GO!",W/2,H/2+40);
+  }
+  // 結果掲示板
+  if(R&&R.done)drawResults(R);
+}
+function drawStands(off){
+  ctx.fillStyle="#c9c2b4";
+  ctx.fillRect(0,H*0.30,W,H*0.12);
+  ctx.fillStyle="#9a938a";
+  for(let i=0;i<40;i++){
+    const x=((i*80-(off%80))+80)%(W+80)-40;
+    ctx.fillRect(x,H*0.31,50,H*0.10);
+  }
+  // 観客ドット
+  for(let r=0;r<3;r++){
+    for(let i=0;i<60;i++){
+      const x=((i*40+r*13-(off%40))+40)%(W+40)-20;
+      ctx.fillStyle=["#d9534f","#5bc0de","#f0ad4e","#eee","#333"][(i+r)%5];
+      ctx.beginPath();ctx.arc(x,H*(0.325+r*0.028),3.2,0,7);ctx.fill();
+    }
+  }
+}
+function drawResults(R){
+  const el=Math.min(1,(performance.now()-R.doneAt)/600);
+  ctx.save();ctx.globalAlpha=el;
+  ctx.fillStyle="rgba(8,20,12,.88)";
+  const bw=560,bh=90+R.horses.length*52;
+  const bx=W/2-bw/2,by=H/2-bh/2;
+  roundRect(ctx,bx,by,bw,bh,14);ctx.fill();
+  ctx.strokeStyle="#c9a227";ctx.lineWidth=3;
+  roundRect(ctx,bx,by,bw,bh,14);ctx.stroke();
+  const B=R.board||{title:"結果発表",color:true,image:true,margin:true};
+  ctx.fillStyle="#c9a227";ctx.font="bold 28px 'Hiragino Kaku Gothic ProN',sans-serif";
+  ctx.textAlign="center";ctx.fillText(`― ${B.title} ―`,W/2,by+48);
+  // 1〜3着は文字色と大きさで区別(金・銀・銅)。4着以下は従来どおり白24px
+  const TOP3=[{c:"#ffd75e",s:30},{c:"#d7dee8",s:27},{c:"#e6a171",s:25}];
+  R.horses.forEach((h,i)=>{
+    const y=by+90+i*52;
+    const top=i<3?TOP3[i]:null;
+    const fc=top?top.c:"#fff",fs=top?top.s:24;
+    ctx.textAlign="left";
+    ctx.fillStyle=fc;
+    ctx.font=`bold ${fs}px 'Hiragino Kaku Gothic ProN',sans-serif`;
+    ctx.fillText(`${i+1}着`,bx+40,y);
+    let x=bx+118;
+    if(B.color){
+      ctx.fillStyle=h.color;
+      ctx.beginPath();ctx.arc(x+12,y-9,12,0,7);ctx.fill();
+      x+=34;
+    }
+    if(B.image&&h.imgCache&&h.imgCache.ok){
+      const s=36;
+      ctx.save();
+      ctx.beginPath();ctx.arc(x+s/2,y-9,s/2,0,7);ctx.clip();
+      ctx.drawImage(h.imgCache.el,x,y-9-s/2,s,s);
+      ctx.restore();
+      x+=s+10;
+    }
+    ctx.fillStyle=fc;
+    ctx.font=`bold ${fs}px 'Hiragino Kaku Gothic ProN',sans-serif`;
+    ctx.fillText(h.name,x,y);
+    // 着差(前の馬とのタイム差から競馬式表記)
+    if(B.margin&&i>0&&h.goalTime!=null){
+      const d=h.goalTime-R.horses[i-1].goalTime;
+      let m;
+      if(d<0.05)m="ハナ";else if(d<0.1)m="アタマ";else if(d<0.18)m="クビ";
+      else if(d<0.35)m="1/2馬身";else if(d<0.7)m="1馬身";else if(d<1.2)m="2馬身";
+      else m=Math.round(d)+"馬身";
+      ctx.font="14px 'Hiragino Kaku Gothic ProN',sans-serif";
+      ctx.fillStyle="rgba(255,255,255,.6)";
+      ctx.textAlign="right";
+      ctx.fillText(m,bx+bw-36,y);
+    }
+  });
+  ctx.restore();
+}
+
+/* ================= 開始・録画 ================= */
+function startRace(){
+  if(entries.length<2){statusEl.textContent="出走馬は2頭以上必要です。";return null;}
+  race=buildRace();
+  paused=false;
+  timeline.disabled=false;
+  updateStartBtn();
+  statusEl.textContent="レース中…展開はランダムですが、設定した順位でゴールします。";
+  return race;
+}
+const startBtn=document.getElementById("startBtn");
+const playOverlay=document.getElementById("playOverlay");
+function updateStartBtn(){
+  const running=race&&!race.done;
+  startBtn.textContent = !running ? "▶ レース開始" : (paused ? "▶ 再開" : "⏸ 一時停止");
+  // 未スタート時と一時停止中はYouTube風にプレビューを暗くして再生マークを表示
+  // (ゴール後は結果掲示板を見せるため表示しない)
+  playOverlay.classList.toggle("visible", !race || (running&&paused&&!timelineDragging));
+}
+updateStartBtn();
+// レース開始ボタンとプレビューのクリック/タップで再生・一時停止を兼用
+function togglePlay(){
+  if(race&&!race.done){
+    paused=!paused;
+    if(recorder){
+      if(paused&&recorder.state==="recording")recorder.pause();
+      else if(!paused&&recorder.state==="paused")recorder.resume();
+    }
+    statusEl.textContent=paused?"一時停止中。プレビューのクリックかボタンで再開します。":"レース中…展開はランダムですが、設定した順位でゴールします。";
+    updateStartBtn();
+  }else{
+    startRace();
+  }
+}
+startBtn.onclick=togglePlay;
+cv.addEventListener("click",togglePlay);
+cv.style.cursor="pointer";
+// スペースキーでも再生/一時停止（入力欄・ボタン操作中は除外）
+document.addEventListener("keydown",e=>{
+  if(e.code!=="Space"||e.repeat)return;
+  const t=e.target;
+  if(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName))return;
+  e.preventDefault();
+  togglePlay();
+});
+document.getElementById("recBtn").onclick=()=>{
+  const r=startRace();if(!r)return;
+  recChunks=[];
+  const stream=cv.captureStream(30);
+  recorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});
+  recorder.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data)};
+  recorder.onstop=()=>{
+    const blob=new Blob(recChunks,{type:"video/webm"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="kakuzuke-derby.webm";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    if(race)timeline.disabled=false;
+  };
+  recorder.start();
+  // 録画中のシークはキャンバスストリームの時間軸が乱れるため禁止
+  timeline.disabled=true;
+  statusEl.textContent="録画中…ゴール後に自動でWebMを保存します。";
+};
+function finishRecording(){
+  if(recorder&&recorder.state==="recording"){
+    setTimeout(()=>recorder.stop(),2500); // 結果掲示板を2.5秒映してから停止
+  }
+}
+
+/* ================= 再生タイムライン(シーク) ================= */
+// 乱数はbuildRace()時にシード済みなので、固定dtで頭から再ステップすれば
+// 同じ展開が決定的に再現される。シークはこの再シミュレーション方式。
+const timeline=document.getElementById("timeline");
+const timelineTime=document.getElementById("timelineTime");
+function seekTo(targetT){
+  const R=race;
+  if(!R)return;
+  if(recorder&&recorder.state!=="inactive")return;
+  R.seeking=true;
+  R.t=R.t0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+  for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
+  const dt=1/60;
+  // 終端シーク時はゴール判定を確実に越えるまで少し余分に進める(掲示板表示のため)
+  if(targetT>=R.endT-1e-9)targetT=R.endT+0.6;
+  const target=Math.max(R.t0,Math.min(targetT,R.endT+0.6));
+  while(R.t<target){stepRace(dt);updateCam(R,dt);}
+  R.seeking=false;
+  if(R.done)R.doneAt=performance.now(); // 掲示板フェードを今からやり直す
+  updateStartBtn();
+}
+function syncTimeline(){
+  const R=race;
+  const ratio=(R.t-R.t0)/(R.endT-R.t0);
+  timeline.value=Math.round(Math.max(0,Math.min(1,ratio))*1000);
+  timelineTime.textContent=`${Math.max(0,R.t).toFixed(1)}s / ${R.endT.toFixed(1)}s`;
+}
+timeline.addEventListener("input",()=>{
+  if(!race)return;
+  if(!timelineDragging){
+    timelineDragging=true;
+    resumeAfterSeek=!paused&&!race.done;
+    paused=true;
+  }
+  seekTo(race.t0+(timeline.value/1000)*(race.endT-race.t0));
+  timelineTime.textContent=`${Math.max(0,race.t).toFixed(1)}s / ${race.endT.toFixed(1)}s`;
+});
+timeline.addEventListener("change",()=>{
+  timelineDragging=false;
+  if(race&&resumeAfterSeek&&!race.done)paused=false;
+  resumeAfterSeek=false;
+  updateStartBtn();
+});
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

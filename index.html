@@ -15,22 +15,22 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GraphRace Studio｜無料・ブラウザで動くグラフ動画を作成</title>
+  <title>GraphRace Studio｜無料・ブラウザで動く動画＆グラフ作成ツール群</title>
   <link rel="canonical" href="https://graphrace-studio.com/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
-  <meta property="og:title" content="GraphRace Studio｜無料・ブラウザで動くグラフ動画を作成">
-  <meta property="og:description" content="CSVやExcelデータをアップロードするだけで、動くバーチャートレース（棒グラフレース）や線グラフレースを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta property="og:title" content="GraphRace Studio｜無料・ブラウザで動く動画＆グラフ作成ツール群">
+  <meta property="og:description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <meta property="og:url" content="https://graphrace-studio.com/">
   <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="GraphRace Studio｜無料・ブラウザで動くグラフ動画を作成">
-  <meta name="twitter:description" content="CSVやExcelデータをアップロードするだけで、動くバーチャートレースや線グラフレースを無料で作成。">
+  <meta name="twitter:title" content="GraphRace Studio｜無料・ブラウザで動く動画＆グラフ作成ツール群">
+  <meta name="twitter:description" content="動くバーチャートレース、線グラフ、トーナメント表、競馬風レース、ランキング動画を無料でブラウザ作成。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
-  <meta name="description" content="CSVやExcelデータをアップロードするだけで、動くバーチャートレース（棒グラフレース）や線グラフレースを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta name="description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <link rel="icon" href="Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
@@ -137,21 +137,21 @@
     }
 
     /* Hero */
-    .hero { padding: 80px 0 48px; }
+    .hero { padding: 72px 0 48px; }
     .hero-flex {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 48px;
+      gap: 40px;
     }
     .hero-text {
-      flex: 1.2;
+      flex: 1.1;
     }
     .hero h1 {
-      font-size: clamp(30px, 4vw, 42px); line-height: 1.25; margin: 0 0 18px;
+      font-size: clamp(28px, 4vw, 40px); line-height: 1.28; margin: 0 0 18px;
       color: var(--text-strong); font-weight: 800; letter-spacing: -0.5px;
     }
-    .hero p.lead { font-size: clamp(15px, 2vw, 17px); color: var(--text-muted); margin: 0 0 30px; }
+    .hero p.lead { font-size: clamp(15px, 2vw, 17px); color: var(--text-muted); margin: 0 0 28px; }
     
     .hero-badges {
       display: flex;
@@ -171,55 +171,100 @@
       gap: 4px;
     }
 
-    /* デモパネル */
+    /* ヒーローデモパネル（マルチタブ） */
     .hero-visual {
-      flex: 0.8;
+      flex: 0.9;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       background: var(--panel-surface);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 24px;
+      padding: 20px;
       box-shadow: var(--shadow-pop);
       position: relative;
       overflow: hidden;
     }
+
+    /* タブ切り替えボタン */
+    .demo-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--panel-surface-2);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .demo-tabs::-webkit-scrollbar { display: none; }
+    .demo-tab-btn {
+      flex: 1;
+      min-width: 68px;
+      padding: 6px 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 7px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .demo-tab-btn.is-active {
+      background: var(--panel-surface);
+      color: var(--accent-strong);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    /* タブコンテンツ表示領域 */
+    .demo-tab-content {
+      display: none;
+      height: 220px;
+      position: relative;
+    }
+    .demo-tab-content.is-active {
+      display: block;
+    }
+
+    /* バーチャートデモ用 */
     .demo-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       border-bottom: 1px solid var(--panel-border);
-      padding-bottom: 8px;
+      padding-bottom: 6px;
     }
     .demo-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--text-strong);
     }
     .demo-year {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: var(--accent);
       font-variant-numeric: tabular-nums;
     }
     .demo-container {
-      height: 200px;
+      height: 170px;
       position: relative;
     }
     .demo-bar-item {
       position: absolute;
       left: 0;
       right: 0;
-      height: 38px;
+      height: 34px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .demo-label {
-      width: 80px;
-      font-size: 12px;
+      width: 76px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-strong);
       white-space: nowrap;
@@ -228,7 +273,7 @@
     }
     .demo-track {
       flex-grow: 1;
-      height: 14px;
+      height: 12px;
       background: var(--panel-surface-2);
       border-radius: 8px;
       overflow: hidden;
@@ -241,11 +286,131 @@
       transition: width 0.6s ease;
     }
     .demo-value {
-      width: 35px;
-      font-size: 12px;
+      width: 30px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-strong);
       text-align: right;
+    }
+
+    /* トーナメントデモ用 */
+    .bracket-demo {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-around;
+      padding: 4px 0;
+    }
+    .bracket-round {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .bracket-match {
+      background: var(--panel-surface-2);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    .bracket-match.winner {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    /* 格付けダービーデモ用 */
+    .derby-demo {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+    .derby-lane {
+      position: relative;
+      height: 36px;
+      background: var(--panel-surface-2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      overflow: hidden;
+    }
+    .derby-horse {
+      position: absolute;
+      left: 0%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #fff;
+      transition: left 0.8s ease-in-out;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .derby-goal {
+      position: absolute;
+      right: 12px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: repeating-linear-gradient(0deg, #ff7675, #ff7675 4px, transparent 4px, transparent 8px);
+    }
+
+    /* ランキングカードデモ用 */
+    .ranking-card-demo {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+      height: 100%;
+      padding: 4px 0;
+    }
+    .rank-card-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel-surface-2);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .rank-card-item.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .rank-num {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent);
+      width: 24px;
+    }
+    .rank-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .rank-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-strong);
+    }
+    .rank-desc {
+      font-size: 10px;
+      color: var(--text-muted);
     }
 
     /* セクション共通 */
@@ -253,18 +418,39 @@
     .section-title { text-align: center; font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); font-weight: 800; margin: 0 0 8px; }
     .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; font-size: 15px; }
 
+    /* カテゴリタイトル */
+    .category-group {
+      margin-bottom: 48px;
+    }
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--panel-border);
+    }
+    .category-header h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-strong);
+    }
+    .category-header .cat-icon {
+      font-size: 22px;
+    }
+
     /* ツールグリッド（カード型） */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
-      margin-bottom: 20px;
     }
     .tool-card {
       background: var(--panel-surface);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 32px;
+      padding: 28px;
       box-shadow: var(--shadow-soft);
       display: flex;
       flex-direction: column;
@@ -275,23 +461,43 @@
       transform: translateY(-2px);
       box-shadow: var(--shadow-pop);
     }
-    .tool-card .icon {
-      font-size: 36px;
-      margin-bottom: 16px;
+    .tool-card .card-top {
+      margin-bottom: 20px;
     }
-    .tool-card h3 {
-      margin: 0 0 12px;
-      font-size: 20px;
+    .tool-card .icon {
+      font-size: 34px;
+      margin-bottom: 12px;
+    }
+    .tool-card h4 {
+      margin: 0 0 10px;
+      font-size: 19px;
       color: var(--text-strong);
       font-weight: 800;
     }
     .tool-card p {
-      margin: 0 0 24px;
+      margin: 0 0 16px;
       font-size: 14px;
       color: var(--text-muted);
       line-height: 1.6;
-      flex-grow: 1;
     }
+
+    /* ツールタグ */
+    .tool-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .tool-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--panel-surface-2);
+      color: var(--text-muted);
+      border: 1px solid var(--panel-border);
+    }
+
     .btn-tool {
       display: inline-block;
       text-align: center;
@@ -312,14 +518,14 @@
     /* どう活用できるか（ユースケース） */
     .use-cases-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
     }
     .use-case-card {
       background: var(--panel-bg);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 32px;
+      padding: 28px;
       box-shadow: var(--shadow-soft);
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
@@ -329,26 +535,26 @@
       border-color: var(--accent);
     }
     .use-case-card .icon-wrapper {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       background: var(--accent-soft);
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 22px;
+      margin-bottom: 16px;
     }
     .use-case-card h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
+      margin: 0 0 10px;
+      font-size: 17px;
       color: var(--text-strong);
       font-weight: 800;
     }
     .use-case-card p {
       margin: 0;
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-muted);
       line-height: 1.6;
     }
@@ -365,7 +571,7 @@
 
     /* FAQ */
     .faq-list {
-      max-width: 720px;
+      max-width: 740px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -455,6 +661,11 @@
       }
       section { padding: 40px 0; }
       .tools-grid { grid-template-columns: 1fr; }
+      .use-cases-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 540px) {
+      .use-cases-grid { grid-template-columns: 1fr; }
     }
 
     /* 更新履歴セクション */
@@ -467,7 +678,7 @@
       margin-bottom: 32px;
     }
     .update-list-container {
-      max-width: 700px;
+      max-width: 720px;
       margin: 0 auto;
     }
     .update-list {
@@ -564,7 +775,7 @@
         "url": "https://graphrace-studio.com/",
         "name": "GraphRace Studio",
         "alternateName": ["グラフレーススタジオ"],
-        "description": "CSVやExcelデータをアップロードするだけで、動くバーチャートレース（棒グラフレース）や線グラフレースを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
+        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
         "publisher": {
           "@id": "https://graphrace-studio.com/#organization"
         }
@@ -595,106 +806,258 @@
         <a class="nav-link" href="regular-chart/">線グラフレース</a>
         <a class="nav-link" href="tournament-bracket-animator/">トーナメント表</a>
         <a class="nav-link" href="ranking-video-maker/">ランキング動画</a>
+        <a class="nav-link" href="horse-race-ranking-maker/">格付けダービー</a>
       </nav>
     </div>
   </header>
 
   <main>
+    <!-- ヒーローセクション -->
     <section class="hero">
       <div class="wrap">
         <div class="hero-flex">
           <div class="hero-text">
             <div class="hero-badges">
+              <span class="badge">完全無料（要クレジット表記）</span>
               <span class="badge">インストール不要</span>
-              <span class="badge">無料（クレジット表記要）</span>
               <span class="badge">商用利用OK</span>
               <span class="badge">外部送信なし</span>
             </div>
-            <h1>データに命を吹き込み、<br>ストーリーを伝える</h1>
-            <p class="lead">CSVやExcelデータをアップロードするだけで、動きのあるチャート動画や時系列比較グラフをブラウザ内で無料作成できます。</p>
+            <h1>データ・ランキング・対戦を、<br>ダイナミックな動画演出に</h1>
+            <p class="lead">CSVや手動入力から、動きのあるグラフ動画、勝ち上がりトーナメント表、格付けダービー、カード型ランキング動画をブラウザ内で無料作成できます。</p>
           </div>
+          
           <div class="hero-visual">
-            <div class="demo-header">
-              <span class="demo-title">📊 人気の果物ランキング（デモ）</span>
-              <span id="demo-year" class="demo-year">2020年</span>
+            <div class="demo-tabs">
+              <button class="demo-tab-btn is-active" data-tab="tab-barchart">📊 バーチャート</button>
+              <button class="demo-tab-btn" data-tab="tab-bracket">🏆 トーナメント</button>
+              <button class="demo-tab-btn" data-tab="tab-derby">🏇 格付けダービー</button>
+              <button class="demo-tab-btn" data-tab="tab-ranking">🏅 ランキング</button>
             </div>
-            <div id="demo-container" class="demo-container">
-              <!-- JSで動的に追加されます -->
+
+            <!-- Tab 1: バーチャートレース -->
+            <div id="tab-barchart" class="demo-tab-content is-active">
+              <div class="demo-header">
+                <span class="demo-title">📊 フルーツ人気推移（デモ）</span>
+                <span id="demo-year" class="demo-year">2020年</span>
+              </div>
+              <div id="demo-container" class="demo-container"></div>
+            </div>
+
+            <!-- Tab 2: トーナメント表 -->
+            <div id="tab-bracket" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏆 トーナメント勝ち上がり（デモ）</span>
+                <span style="font-size: 11px; color: var(--accent); font-weight:700;">FINAL</span>
+              </div>
+              <div class="bracket-demo">
+                <div class="bracket-round">
+                  <div class="bracket-match winner"><span>Aチーム</span><span>2</span></div>
+                  <div style="font-size:10px; color:var(--text-muted);">準決勝</div>
+                  <div class="bracket-match"><span>Bチーム</span><span>1</span></div>
+                </div>
+                <div class="bracket-round" style="justify-content: center;">
+                  <div class="bracket-match winner" style="max-width: 75%; background: var(--accent); color: #fff;">
+                    <span>👑 優勝: Aチーム</span>
+                  </div>
+                </div>
+                <div class="bracket-round">
+                  <div class="bracket-match winner"><span>Cチーム</span><span>3</span></div>
+                  <div style="font-size:10px; color:var(--text-muted);">準決勝</div>
+                  <div class="bracket-match"><span>Dチーム</span><span>0</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: 格付けダービー -->
+            <div id="tab-derby" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏇 競馬風格付けダービー（デモ）</span>
+                <span id="derby-status" style="font-size: 11px; color: var(--accent); font-weight:700;">レース中...</span>
+              </div>
+              <div class="derby-demo">
+                <div class="derby-lane">
+                  <div id="horse-1" class="derby-horse" style="background:#e74c3c;">1枠 レッド</div>
+                  <div class="derby-goal"></div>
+                </div>
+                <div class="derby-lane">
+                  <div id="horse-2" class="derby-horse" style="background:#3498db;">2枠 ブルー</div>
+                  <div class="derby-goal"></div>
+                </div>
+                <div class="derby-lane">
+                  <div id="horse-3" class="derby-horse" style="background:#2ecc71;">3枠 グリーン</div>
+                  <div class="derby-goal"></div>
+                </div>
+                <div class="derby-lane">
+                  <div id="horse-4" class="derby-horse" style="background:#f1c40f;">4枠 イエロー</div>
+                  <div class="derby-goal"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 4: ランキング動画 -->
+            <div id="tab-ranking" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏅 ランキングカード流し（デモ）</span>
+                <span style="font-size: 11px; color: var(--accent); font-weight:700;">TOP 3</span>
+              </div>
+              <div class="ranking-card-demo">
+                <div id="rank-card-1" class="rank-card-item">
+                  <span class="rank-num">1位</span>
+                  <div class="rank-info">
+                    <span class="rank-title">濃厚醤油ラーメン</span>
+                    <span class="rank-desc">看板メニュー・リピート率No.1</span>
+                  </div>
+                </div>
+                <div id="rank-card-2" class="rank-card-item">
+                  <span class="rank-num" style="color:#7f8c8d;">2位</span>
+                  <div class="rank-info">
+                    <span class="rank-title">特製つけ麺</span>
+                    <span class="rank-desc">自家製太麺と濃厚魚介豚骨</span>
+                  </div>
+                </div>
+                <div id="rank-card-3" class="rank-card-item">
+                  <span class="rank-num" style="color:#e67e22;">3位</span>
+                  <div class="rank-info">
+                    <span class="rank-title">辛味噌ラーメン</span>
+                    <span class="rank-desc">クセになる旨辛スープ</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ツール選択セクション -->
     <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
-        <h2 class="section-title">ツールを選択する</h2>
-        <p class="section-sub">用途に合わせて4つのビジュアライズツールをご利用いただけます。</p>
+        <h2 class="section-title">全5種類の演出ツール</h2>
+        <p class="section-sub">用途やコンテンツに合わせて、お好みのツールをブラウザで選択・ご利用いただけます。</p>
         
-        <div class="tools-grid">
-          <div class="tool-card">
-            <div>
-              <div class="icon">📊</div>
-              <h3>バーチャートレース作成ツール</h3>
-              <p>時系列データのランキング変動を、走るアニメーション棒グラフとして視覚化します。SNSでの発信やYouTubeの動画コンテンツに最適です。</p>
-            </div>
-            <a class="btn-tool" href="bar-chart-race/">ツールを使う</a>
+        <!-- カテゴリ1: データビジュアライゼーション -->
+        <div class="category-group">
+          <div class="category-header">
+            <span class="cat-icon">📊</span>
+            <h3>データビジュアライゼーション</h3>
           </div>
-
-          <div class="tool-card">
-            <div>
-              <div class="icon">📈</div>
-              <h3>線グラフレース作成ツール</h3>
-              <p>複数項目の時系列データをすっきりと比較する動的グラフを作成します。プレゼン資料やブログ、ニュースメディアでの図解に適しています。</p>
+          <div class="tools-grid">
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="icon">📊</div>
+                <h4>バーチャートレース作成ツール</h4>
+                <p>時系列データのランキング変動を、軽快に走るアニメーション棒グラフとして視覚化します。SNS発信やYouTubeの動画コンテンツに最適です。</p>
+                <div class="tool-tags">
+                  <span class="tool-tag">CSV / Excel対応</span>
+                  <span class="tool-tag">縦横比率自由</span>
+                  <span class="tool-tag">国旗・アイコン対応</span>
+                </div>
+              </div>
+              <a class="btn-tool" href="bar-chart-race/">ツールを使う</a>
             </div>
-            <a class="btn-tool" href="regular-chart/">ツールを使う</a>
-          </div>
 
-          <div class="tool-card">
-            <div>
-              <div class="icon">🏆</div>
-              <h3>トーナメント表アニメーター</h3>
-              <p>参加人数や組み合わせを選ぶだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表を作成します。大会の演出やゲームの配信に最適です。</p>
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="icon">📈</div>
+                <h4>線グラフレース作成ツール</h4>
+                <p>複数項目の時系列データをすっきりと比較する動的折れ線グラフを作成します。プレゼン資料やブログ、ニュース解説図解に適しています。</p>
+                <div class="tool-tags">
+                  <span class="tool-tag">CSV / Excel対応</span>
+                  <span class="tool-tag">デザインカスタマイズ</span>
+                  <span class="tool-tag">データ自動保存</span>
+                </div>
+              </div>
+              <a class="btn-tool" href="regular-chart/">ツールを使う</a>
             </div>
-            <a class="btn-tool" href="tournament-bracket-animator/">ツールを使う</a>
-          </div>
-
-          <div class="tool-card">
-            <div>
-              <div class="icon">🏅</div>
-              <h3>ランキング動画メーカー</h3>
-              <p>順位・画像・名称・説明を入力するだけで、カードが右から流れてくるランキング紹介動画を作成します。SNSのショート動画や商品紹介に最適です。</p>
-            </div>
-            <a class="btn-tool" href="ranking-video-maker/">ツールを使う</a>
           </div>
         </div>
+
+        <!-- カテゴリ2: エンタメ・対戦・ランキング演出 -->
+        <div class="category-group" style="margin-bottom: 0;">
+          <div class="category-header">
+            <span class="cat-icon">🎬</span>
+            <h3>エンタメ・対戦・ランキング演出</h3>
+          </div>
+          <div class="tools-grid">
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="icon">🏆</div>
+                <h4>トーナメント表アニメーター</h4>
+                <p>参加人数や組み合わせを選ぶだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表を作成します。大会の演出や配信画面に最適です。</p>
+                <div class="tool-tags">
+                  <span class="tool-tag">シード対応</span>
+                  <span class="tool-tag">自動勝ち上がりアニメ</span>
+                  <span class="tool-tag">ゲーム・スポーツ大会</span>
+                </div>
+              </div>
+              <a class="btn-tool" href="tournament-bracket-animator/">ツールを使う</a>
+            </div>
+
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="icon">🏅</div>
+                <h4>ランキング動画メーカー</h4>
+                <p>順位・画像・名称・説明を入力するだけで、カードが右から流れてランクインする動画を作成します。YouTube ShortsやTikTokに最適です。</p>
+                <div class="tool-tags">
+                  <span class="tool-tag">画像アップロード</span>
+                  <span class="tool-tag">縦型Shorts推奨</span>
+                  <span class="tool-tag">カードアニメーション</span>
+                </div>
+              </div>
+              <a class="btn-tool" href="ranking-video-maker/">ツールを使う</a>
+            </div>
+
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="icon">🏇</div>
+                <h4>格付けダービー（競馬風ランキング動画）</h4>
+                <p>順位を決めて走らせるだけで、本格的な競馬中継風のレース動画を作成します。道中の展開は毎回ランダムで盛り上がり抜群です。</p>
+                <div class="tool-tags">
+                  <span class="tool-tag">確定順位指定</span>
+                  <span class="tool-tag">ランダムレース展開</span>
+                  <span class="tool-tag">競馬実況演出</span>
+                </div>
+              </div>
+              <a class="btn-tool" href="horse-race-ranking-maker/">ツールを使う</a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
+    <!-- ユースケース -->
     <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
-        <h2 class="section-title">あらゆるシーンでデータを魅力的に</h2>
-        <p class="section-sub">GraphRace Studioは、数字の羅列から動きのあるストーリーを創り出すためのツールです。</p>
+        <h2 class="section-title">あらゆるシーンで視線を引きつける</h2>
+        <p class="section-sub">GraphRace Studioは、数字やランキングを魅力的な動的動画へ変えるフリーツール群です。</p>
         <div class="use-cases-grid">
           <div class="use-case-card">
             <div class="icon-wrapper">📱</div>
-            <h3>SNSや動画投稿で視聴者を惹きつける</h3>
-            <p>時系列のランキング推移やトレンドの変遷をダイナミックな動画にして、YouTube、TikTok、Xなどで発信。視覚的なインパクトでエンゲージメントを高めます。</p>
+            <h3>SNSショート動画でエンゲージメント向上</h3>
+            <p>YouTube Shorts、TikTok、Instagramリール向けに、目を引くランキング比較やダービー演出動画を発信できます。</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">🎮</div>
+            <h3>大会・イベント・ゲーム配信での対戦演出</h3>
+            <p>トーナメント表アニメーションで対戦カードの組み合わせや勝ち上がりをダイナミックに実況・演出できます。</p>
           </div>
           <div class="use-case-card">
             <div class="icon-wrapper">💼</div>
-            <h3>ビジネスプレゼンやレポートの説得力を高める</h3>
-            <p>単なる静止画のグラフではなく、売上や市場シェアが変化するプロセスを見せることで、意思決定者やクライアントへの説得力を最大化します。</p>
+            <h3>ビジネスプレゼン・ビジネスレポート</h3>
+            <p>売上推移や市場シェアの動きをバーチャートレースや折れ線グラフレースで見せ、説得力を最大化します。</p>
           </div>
           <div class="use-case-card">
             <div class="icon-wrapper">🎓</div>
-            <h3>複雑な統計データを誰もが理解できる形にする</h3>
-            <p>人口推移や経済指標など、時間とともに変化する複雑なデータを直感的なアニメーションにし、教育現場、ニュースメディア、個人ブログでの解説に活用。</p>
+            <h3>統計データ・解説コンテンツ</h3>
+            <p>人口推移や歴史データなど複雑な数値をアニメーション化し、教育現場やブログでの解説に活用できます。</p>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- 安全と安心の設計 -->
     <section style="background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border);">
       <div class="wrap">
         <h2 class="section-title">安全と安心の設計</h2>
@@ -708,38 +1071,64 @@
           <div class="feature-card">
             <div class="ico">💾</div>
             <h3>ブラウザ内保存</h3>
-            <p>データはブラウザの保存領域にのみ安全に保持されます。第三者が勝手にアクセスすることはできません。</p>
+            <p>編集データはブラウザのローカル保存領域にのみ安全に保持されます。第三者がアクセスすることはできません。</p>
           </div>
           <div class="feature-card">
             <div class="ico">🛡️</div>
             <h3>安全な標準ライブラリ</h3>
-            <p>D3.jsやSheetJSなど、世界的によく使われている信頼のおけるオープンソースライブラリのみを使用しています。</p>
+            <p>D3.jsやCanvas APIなど、世界的によく使われている信頼性の高いオープンソース技術のみを使用しています。</p>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- よくあるご質問 (FAQ) -->
     <section style="border-bottom: 1px solid var(--panel-border);">
       <div class="wrap">
         <h2 class="section-title">よくあるご質問</h2>
         <p class="section-sub">ツールの利用方法や仕様に関するよくある疑問にお答えします。</p>
         <div class="faq-list">
           <details class="faq-item">
-            <summary><h3>完全に無料で使えますか？</h3></summary>
+            <summary><h3>完全に無料で使えますか？商用利用は可能ですか？</h3></summary>
             <div class="faq-content">
-              現在はサイト開設キャンペーンの試用期間中につき、すべての機能を無料でご利用いただけます。商用利用（YouTube動画の作成、ビジネスプレゼンテーションなど）も可能ですが、作成したグラフ画像や動画を一般に公開する際は、当サイトへのクレジット表記（例: 「Created by GraphRace Studio」の記載やリンクの設置）を必須条件とさせていただいております。
+              はい、全ツールを完全無料でご利用いただけます。YouTube等の動画投稿、SNSでの発信、ビジネスプレゼンテーションなどの商用利用も可能です。作成したコンテンツを一般に公開・配信する際は、当サイトへのクレジット表記（例: 「Created by GraphRace Studio」の記載やリンク設置）を必須とさせていただいております。
             </div>
           </details>
           <details class="faq-item">
-            <summary><h3>アップロードしたデータが外部に漏れる心配はありませんか？</h3></summary>
+            <summary><h3>どのような形式（MP4/WebM等）で動画を保存できますか？</h3></summary>
             <div class="faq-content">
-              心配ありません。データ処理は100%お使いのブラウザ（端末内）で完結しており、読み込んだデータやCSV/Excelファイルが外部のサーバーに送信されることは一切ありません。なお、グラフ描画ライブラリ（D3.js等）の初期読み込みを行うため、ツールの起動にはインターネット接続が必要となります。
+              各ツールには画面録画機能（MediaRecorder API）が標準搭載されており、作成したアニメーションを直接WebMやMP4形式の動画ファイルとしてダウンロード保存できます。面倒な外部録画ソフトのインストールは一切必要ありません。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>アップロードしたデータや画像が外部に漏れる心配はありませんか？</h3></summary>
+            <div class="faq-content">
+              ご安心ください。すべてのデータ処理および画像読み込み・描画はお使いのブラウザ内（端末上）で完結します。入力された数値やファイルが外部のサーバーに転送・保存されることは一切ありません。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>トーナメント表や格付けダービーの入力は難しいですか？</h3></summary>
+            <div class="faq-content">
+              非常にシンプルです。トーナメント表アニメーターは参加者名やチーム名を入力するだけで自動生成され、勝ち上がりボタンを押すだけで動きます。格付けダービーも順位（ゴール順）と馬名・カラーを選択するだけで簡単に本格的な競馬風動画を作成できます。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>スマートフォンやタブレットでも操作できますか？</h3></summary>
+            <div class="faq-content">
+              はい、GraphRace Studioのすべてのツールはスマートフォンおよびタブレットの画面レイアウトに最適化されています。スマホのみでデータの入力・編集から動画の録画・保存まで完結可能です。
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary><h3>作成した動画をYouTube ShortsやTikTokに投稿しても良いですか？</h3></summary>
+            <div class="faq-content">
+              もちろんです。縦型動画（9:16）アスペクト比調整機能に対応しているツールも多く、YouTube ShortsやTikTok、Instagramリール等のショート動画フォーマットに最適な演出を作成いただけます。
             </div>
           </details>
         </div>
       </div>
     </section>
 
+    <!-- 更新履歴 -->
     <section class="update-history">
       <div class="wrap">
         <h2 class="section-title">更新履歴</h2>
@@ -747,55 +1136,38 @@
           <ul class="update-list">
             <li class="update-item">
               <span class="badge-new">New</span>
+              <span class="update-date">2026.07.22</span>
+              <span class="update-content">トップページ：格付けダービーやトーナメント表を含む全ツールのインタラクティブデモおよびコンテンツを大幅に拡充・統合しました。</span>
+            </li>
+            <li class="update-item">
+              <span class="badge-new">New</span>
               <span class="update-date">2026.07.07</span>
-              <span class="update-content">ランキング動画：カードが右から流れてくるランキング紹介動画の作成ツール（ランキング動画メーカー）をリリースしました。</span>
+              <span class="update-content">ランキング動画：カードが流れてランクインするランキング動画メーカーをリリースしました。</span>
             </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.07.04</span>
-              <span class="update-content">トーナメント表：勝ち上がりがアニメーションで動くトーナメント表作成ツール（トーナメント表アニメーター）をリリースしました。</span>
+              <span class="update-content">トーナメント表：勝ち上がりが動くトーナメント表アニメーターをリリースしました。</span>
             </li>
             <li class="update-item">
               <span class="update-date">2026.07.01</span>
-              <span class="update-content">線グラフレース／バーチャートレース：作成データをそのまま引き継げる相互切り替え機能を追加しました。</span>
+              <span class="update-content">線グラフレース／バーチャートレース：データ相互引き継ぎ機能を追加しました。</span>
             </li>
-            <li class="update-item">
-              <span class="badge-new">New</span>
+            <li class="update-item is-hidden">
               <span class="update-date">2026.06.29</span>
-              <span class="update-content">バーチャートレース／線グラフレース：CSV/Excelファイルの互換性を向上させ、特殊な文字コードの読み込みに対応しました。</span>
+              <span class="update-content">バーチャートレース／線グラフレース：CSV/Excelの特殊文字コード読み込みに対応しました。</span>
             </li>
-            <li class="update-item">
-              <span class="badge-new">New</span>
+            <li class="update-item is-hidden">
               <span class="update-date">2026.06.27</span>
-              <span class="update-content">線グラフレース：アニメーション再生時のデザインカスタマイズオプション（背景色やグリッド線など）を追加しました。</span>
+              <span class="update-content">線グラフレース：デザインカスタマイズ（背景色・グリッド線等）を追加しました。</span>
             </li>
             <li class="update-item is-hidden">
               <span class="update-date">2026.06.25</span>
-              <span class="update-content">バーチャートレース／線グラフレース：作成データをブラウザ内に自動保存するバックアップ機能（保存・復元）をリリースしました。</span>
-            </li>
-            <li class="update-item is-hidden">
-              <span class="update-date">2026.06.24</span>
-              <span class="update-content">バーチャートレース／線グラフレース：モバイル表示に最適化し、スマートフォンでの表示速度と操作性を改善しました。</span>
-            </li>
-            <li class="update-item is-hidden">
-              <span class="update-date">2026.06.23</span>
-              <span class="update-content">バーチャートレース／線グラフレース：フォントやサイズを自由に変更できるテキストカスタマイズ機能を追加しました。</span>
-            </li>
-            <li class="update-item is-hidden">
-              <span class="update-date">2026.06.22</span>
-              <span class="update-content">線グラフレース：各ラインの末端にシリーズごとのアイコンと最新数値を表示する機能をリリースしました。</span>
-            </li>
-            <li class="update-item is-hidden">
-              <span class="update-date">2026.06.21</span>
-              <span class="update-content">バーチャートレース：SNS（YouTube ShortsやTikTokなど）向けの縦型画面レイアウト調整機能を追加しました。</span>
+              <span class="update-content">全ツール：ブラウザ内自動バックアップ保存機能を導入しました。</span>
             </li>
             <li class="update-item is-hidden">
               <span class="update-date">2026.06.20</span>
-              <span class="update-content">バーチャートレース／線グラフレース：再生・一時停止・巻き戻し機能のUIを刷新し、操作性を向上させました。</span>
-            </li>
-            <li class="update-item is-hidden">
-              <span class="update-date">2026.06.20</span>
-              <span class="update-content">GraphRace Studioをリリースし、無料でのバーチャートレースおよび線グラフレース作成機能の提供を開始しました。</span>
+              <span class="update-content">GraphRace Studioを公開し、動くグラフレース作成ツールの提供を開始しました。</span>
             </li>
           </ul>
           <div class="update-more-container">
@@ -818,7 +1190,7 @@
       </nav>
     </div>
     <div class="wrap">
-      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <span>© GraphRace Studio — データビジュアライゼーション＆動画演出ツール群</span>
       <nav>
         <a href="blog/">ブログ</a>
         <a href="about.html">このツールについて</a>
@@ -829,80 +1201,148 @@
   </footer>
 
   <script>
-    // インタラクティブデモの制御
-    (function() {
-      const items = [
-        { id: 'apple', label: '🍎 りんご', color: '#ff7675', value: 80, target: 80 },
-        { id: 'banana', label: '🍌 バナナ', color: '#ffeaa7', value: 65, target: 65 },
-        { id: 'grape', label: '🍇 ぶどう', color: '#a29bfe', value: 50, target: 50 },
-        { id: 'melon', label: '🍈 メロン', color: '#55efc4', value: 35, target: 35 }
-      ];
+    // タブ切り替え
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabBtns = document.querySelectorAll('.demo-tab-btn');
+      const tabContents = document.querySelectorAll('.demo-tab-content');
 
-      const demoContainer = document.getElementById('demo-container');
-      const demoYear = document.getElementById('demo-year');
-      if (!demoContainer || !demoYear) return;
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-tab');
+          tabBtns.forEach(b => b.classList.remove('is-active'));
+          tabContents.forEach(c => c.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const targetContent = document.getElementById(targetId);
+          if (targetContent) targetContent.classList.add('is-active');
 
-      // 初期要素生成
-      items.forEach((item, idx) => {
-        const el = document.createElement('div');
-        el.className = 'demo-bar-item';
-        el.id = `demo-item-${item.id}`;
-        el.style.transform = `translateY(${idx * 50}px)`;
-        el.innerHTML = `
-          <span class="demo-label">${item.label}</span>
-          <div class="demo-track">
-            <div class="demo-bar-fill" style="width: 0%; background: ${item.color};"></div>
-          </div>
-          <span class="demo-value">0</span>
-        `;
-        demoContainer.appendChild(el);
+          if (targetId === 'tab-derby') triggerDerbyDemo();
+          if (targetId === 'tab-ranking') triggerRankingDemo();
+        });
       });
 
-      let year = 2020;
-      
-      function updateDemo() {
-        year += 1;
-        if (year > 2030) {
-          year = 2020;
-          items[0].target = 80;
-          items[1].target = 65;
-          items[2].target = 50;
-          items[3].target = 35;
-        } else {
+      // 1. バーチャートレースデモ
+      (function() {
+        const items = [
+          { id: 'apple', label: '🍎 りんご', color: '#ff7675', value: 80, target: 80 },
+          { id: 'banana', label: '🍌 バナナ', color: '#ffeaa7', value: 65, target: 65 },
+          { id: 'grape', label: '🍇 ぶどう', color: '#a29bfe', value: 50, target: 50 },
+          { id: 'melon', label: '🍈 メロン', color: '#55efc4', value: 35, target: 35 }
+        ];
+
+        const demoContainer = document.getElementById('demo-container');
+        const demoYear = document.getElementById('demo-year');
+        if (!demoContainer || !demoYear) return;
+
+        items.forEach((item, idx) => {
+          const el = document.createElement('div');
+          el.className = 'demo-bar-item';
+          el.id = `demo-item-${item.id}`;
+          el.style.transform = `translateY(${idx * 42}px)`;
+          el.innerHTML = `
+            <span class="demo-label">${item.label}</span>
+            <div class="demo-track">
+              <div class="demo-bar-fill" style="width: 0%; background: ${item.color};"></div>
+            </div>
+            <span class="demo-value">0</span>
+          `;
+          demoContainer.appendChild(el);
+        });
+
+        let year = 2020;
+        
+        function updateDemo() {
+          year += 1;
+          if (year > 2030) {
+            year = 2020;
+            items[0].target = 80;
+            items[1].target = 65;
+            items[2].target = 50;
+            items[3].target = 35;
+          } else {
+            items.forEach(item => {
+              const diff = Math.floor(Math.random() * 40) - 15;
+              item.target = Math.max(10, Math.min(100, item.target + diff));
+            });
+          }
+
+          demoYear.textContent = year + '年';
+          items.forEach(item => { item.value = item.target; });
+
+          const sorted = [...items].sort((a, b) => b.value - a.value);
+
           items.forEach(item => {
-            const diff = Math.floor(Math.random() * 40) - 15;
-            item.target = Math.max(10, Math.min(100, item.target + diff));
+            const el = document.getElementById(`demo-item-${item.id}`);
+            if (el) {
+              const index = sorted.findIndex(s => s.id === item.id);
+              el.style.transform = `translateY(${index * 42}px)`;
+              const fill = el.querySelector('.demo-bar-fill');
+              if (fill) fill.style.width = `${item.value}%`;
+              const valEl = el.querySelector('.demo-value');
+              if (valEl) valEl.textContent = Math.round(item.value);
+            }
           });
         }
 
-        demoYear.textContent = year + '年';
+        setTimeout(updateDemo, 100);
+        setInterval(updateDemo, 1800);
+      })();
 
-        items.forEach(item => {
-          item.value = item.target;
+      // 2. 格付けダービーデモ
+      let derbyInterval = null;
+      function triggerDerbyDemo() {
+        if (derbyInterval) clearInterval(derbyInterval);
+        const horses = [
+          { id: 'horse-1', pos: 0 },
+          { id: 'horse-2', pos: 0 },
+          { id: 'horse-3', pos: 0 },
+          { id: 'horse-4', pos: 0 }
+        ];
+        const statusEl = document.getElementById('derby-status');
+        if (statusEl) statusEl.textContent = 'レース中...';
+
+        horses.forEach(h => {
+          const el = document.getElementById(h.id);
+          if (el) el.style.left = '0%';
         });
 
-        const sorted = [...items].sort((a, b) => b.value - a.value);
+        derbyInterval = setInterval(() => {
+          let finishedCount = 0;
+          horses.forEach(h => {
+            if (h.pos < 75) {
+              h.pos += Math.floor(Math.random() * 15) + 5;
+              if (h.pos > 75) h.pos = 75;
+            } else {
+              finishedCount++;
+            }
+            const el = document.getElementById(h.id);
+            if (el) el.style.left = `${h.pos}%`;
+          });
 
-        items.forEach(item => {
-          const el = document.getElementById(`demo-item-${item.id}`);
-          if (el) {
-            const index = sorted.findIndex(s => s.id === item.id);
-            el.style.transform = `translateY(${index * 50}px)`;
-            const fill = el.querySelector('.demo-bar-fill');
-            if (fill) fill.style.width = `${item.value}%`;
-            const valEl = el.querySelector('.demo-value');
-            if (valEl) valEl.textContent = Math.round(item.value);
+          if (finishedCount === horses.length) {
+            clearInterval(derbyInterval);
+            if (statusEl) statusEl.textContent = '👑 決着！';
+            setTimeout(triggerDerbyDemo, 2500);
           }
+        }, 600);
+      }
+
+      // 3. ランキングカードデモ
+      function triggerRankingDemo() {
+        const cards = [
+          document.getElementById('rank-card-1'),
+          document.getElementById('rank-card-2'),
+          document.getElementById('rank-card-3')
+        ];
+        cards.forEach(c => { if(c) c.classList.remove('show'); });
+        
+        cards.forEach((c, idx) => {
+          setTimeout(() => {
+            if (c) c.classList.add('show');
+          }, (idx + 1) * 400);
         });
       }
 
-      // 初回遅延実行（ページ読み込み時のトランジションをスムーズに見せるため）
-      setTimeout(updateDemo, 100);
-      setInterval(updateDemo, 1800);
-    })();
-
-    // 更新履歴のさらに表示機能
-    document.addEventListener('DOMContentLoaded', () => {
+      // 更新履歴の「さらに表示」
       const btnMore = document.getElementById('btn-show-more');
       if (btnMore) {
         btnMore.addEventListener('click', () => {
