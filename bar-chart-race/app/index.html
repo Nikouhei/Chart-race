@@ -28,13 +28,16 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7525273601757171"
      crossorigin="anonymous"></script>
   <!-- 共有デザイントークン（単一の真実）。<style> より前に読み込み :root を定義 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
   <script src="../../shared/i18n.js"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/registry.js"></script>
   <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
+    body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
     
     .control-panel { width: 380px; min-width: 320px; max-width: calc(100vw - 480px); background: #333; padding: 20px; overflow-y: auto; scrollbar-gutter: stable; box-shadow: 4px 0 15px rgba(0,0,0,0.5); z-index: 100; box-sizing: border-box; flex: 0 0 380px; }
     .panel-resizer { width: 8px; flex: 0 0 8px; background: #242424; cursor: col-resize; position: relative; z-index: 200; }

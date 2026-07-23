@@ -5,6 +5,7 @@
  * 値はツール固有CSSで上書きせず、必要な追加トークンはこのファイルに足すこと。
  */
 :root {
+  --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
   --app-bg: #FFFFFF;
   --panel-bg: #FFFFFF;
   --panel-surface: #F7F8FA;

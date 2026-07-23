@@ -38,6 +38,9 @@
   <meta name="google-adsense-account" content="ca-pub-7525273601757171">
 
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/tokens.css">
 
   <!-- 構造化データ: ソフトウェア＋使い方 -->
@@ -92,7 +95,7 @@
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      font-family: var(--font-sans);
       color: var(--text-main);
       background: var(--app-bg);
       line-height: 1.7;

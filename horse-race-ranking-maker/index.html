@@ -16,7 +16,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>競馬風ランキング動画メーカー無料｜格付けダービー</title>
-  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。最大10頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画に対応し、インストール不要・ブラウザだけで完結します。">
+  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。最大16頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画に対応し、インストール不要・ブラウザだけで完結します。">
   <link rel="canonical" href="https://graphrace-studio.com/horse-race-ranking-maker/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
@@ -38,6 +38,9 @@
   <meta name="google-adsense-account" content="ca-pub-7525273601757171">
 
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/tokens.css">
 
   <!-- 構造化データ: ソフトウェア＋使い方 -->
@@ -67,7 +70,7 @@
             "@type": "HowToStep",
             "position": 1,
             "name": "出走馬を入力する",
-            "text": "出走馬の名前を入力し（最大10頭）、上から最終順位になるようドラッグで並べ替えます。馬体色やアイコン画像も設定できます。"
+            "text": "出走馬の名前を入力し（最大16頭）、上から最終順位になるようドラッグで並べ替えます。馬体色やアイコン画像も設定できます。"
           },
           {
             "@type": "HowToStep",
@@ -92,7 +95,7 @@
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      font-family: var(--font-sans);
       color: var(--text-main);
       background: var(--app-bg);
       line-height: 1.7;
@@ -711,7 +714,7 @@
           <div class="panel">
             <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble">⠿をドラッグして最終順位(ゴール着順)を入れ替え。「◯枠」は出走レーン(画面上の走る位置)で、着順とは独立に指定できます。展開は毎回ランダムですが、必ずこの順位でゴールします。</span></span></h3>
             <div id="entries"></div>
-            <button class="btn btn-add" id="addEntry">＋ 出走馬を追加(最大10頭)</button>
+            <button class="btn btn-add" id="addEntry">＋ 出走馬を追加(最大16頭)</button>
             <p class="hint">設定は自動保存され、次回アクセス時に復元されます。<a href="#" id="resetState">初期状態に戻す</a></p>
           </div>
 
@@ -826,7 +829,7 @@
           <div class="feature-card">
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
             <h3>順位を決めて走らせるだけ</h3>
-            <p>最大10頭の出走馬をドラッグで並べ替えるだけで最終順位を指定。名前・馬体色・アイコン画像も自由に設定できます。</p>
+            <p>最大16頭の出走馬をドラッグで並べ替えるだけで最終順位を指定。名前・馬体色・アイコン画像も自由に設定できます。</p>
           </div>
           <div class="feature-card">
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎲</div>
@@ -894,7 +897,7 @@
           <div class="step">
             <span class="num">1</span>
             <h3>出走馬を入力</h3>
-            <p>出走馬の名前を入力し（最大10頭）、上から最終順位になるようドラッグで並べ替えます。</p>
+            <p>出走馬の名前を入力し（最大16頭）、上から最終順位になるようドラッグで並べ替えます。</p>
           </div>
           <div class="step">
             <span class="num">2</span>
@@ -972,12 +975,12 @@
 <script>
 "use strict";
 /* ================= 出走馬管理 ================= */
-const DEFAULT_COLORS=["#8a4b2e","#3d3d3d","#a5762c","#5b3b6e","#2e5f8a","#7a2e2e","#3f6b3a","#6b5a2e","#444c66","#8a2e5f"];
+const DEFAULT_COLORS=["#8a4b2e","#3d3d3d","#a5762c","#5b3b6e","#2e5f8a","#7a2e2e","#3f6b3a","#6b5a2e","#444c66","#8a2e5f","#2e7a5f","#8a5c2e","#4a2e6e","#6e7a2e","#2e6e7a","#7a3e2e"];
 const entriesEl=document.getElementById("entries");
 let entries=[];
 let dragIdx=null;
 function addEntry(name){
-  if(entries.length>=10)return;
+  if(entries.length>=16)return;
   const e={name:name||("ホース"+(entries.length+1)),color:DEFAULT_COLORS[entries.length],img:null,gate:entries.length+1};
   entries.push(e);render();
 }
@@ -1116,7 +1119,7 @@ function loadState(){
   let state=null;
   try{state=JSON.parse(localStorage.getItem(STATE_KEY));}catch(_){}
   if(state&&Array.isArray(state.entries)&&state.entries.length){
-    entries=state.entries.slice(0,10).map((e,i)=>({
+    entries=state.entries.slice(0,16).map((e,i)=>({
       name:String(e.name||"ホース"+(i+1)).slice(0,10),
       color:/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:DEFAULT_COLORS[i],
       img:typeof e.img==="string"?e.img:null,
@@ -1131,7 +1134,7 @@ function loadState(){
     });
     render();
   }else{
-    ["サクラチヨノオー","タイムトラベラー","ミドリノダイチ","ヨルノテイオー","アカツキボンバー"].forEach(n=>addEntry(n));
+    ["サクラチヨノオー","タイムトラベラー","ミドリノダイチ","ヨルノテイオー","アカツキボンバー","コガネノカゼ","シロガネヒカル","ハルウララッシュ","クロヒョウナミ","ベニノハヤテ"].forEach(n=>addEntry(n));
   }
   stateLoaded=true;
   saveState();
@@ -1607,7 +1610,11 @@ function drawResults(R){
   const el=Math.min(1,(performance.now()-R.doneAt)/600);
   ctx.save();ctx.globalAlpha=el;
   ctx.fillStyle="rgba(8,20,12,.88)";
-  const bw=560,bh=90+R.horses.length*52;
+  const bw=560,n=R.horses.length;
+  // 頭数が多い(最大16頭)場合、横型(16:9)など縦寸の狭いアスペクトでボードが画面をはみ出さないよう行間とアイコンを縮小
+  const k=Math.min(1,(H*0.88-90)/(n*52));
+  const rowH=52*k;
+  const bh=90+n*rowH;
   const bx=W/2-bw/2,by=H/2-bh/2;
   roundRect(ctx,bx,by,bw,bh,14);ctx.fill();
   ctx.strokeStyle="#c9a227";ctx.lineWidth=3;
@@ -1618,9 +1625,9 @@ function drawResults(R){
   // 1〜3着は文字色と大きさで区別(金・銀・銅)。4着以下は従来どおり白24px
   const TOP3=[{c:"#ffd75e",s:30},{c:"#d7dee8",s:27},{c:"#e6a171",s:25}];
   R.horses.forEach((h,i)=>{
-    const y=by+90+i*52;
+    const y=by+90+i*rowH;
     const top=i<3?TOP3[i]:null;
-    const fc=top?top.c:"#fff",fs=top?top.s:24;
+    const fc=top?top.c:"#fff",fs=(top?top.s:24)*k;
     ctx.textAlign="left";
     ctx.fillStyle=fc;
     ctx.font=`bold ${fs}px 'Hiragino Kaku Gothic ProN',sans-serif`;
@@ -1628,11 +1635,11 @@ function drawResults(R){
     let x=bx+118;
     if(B.color){
       ctx.fillStyle=h.color;
-      ctx.beginPath();ctx.arc(x+12,y-9,12,0,7);ctx.fill();
-      x+=34;
+      ctx.beginPath();ctx.arc(x+12*k,y-9,12*k,0,7);ctx.fill();
+      x+=34*k;
     }
     if(B.image&&h.imgCache&&h.imgCache.ok){
-      const s=36;
+      const s=36*k;
       ctx.save();
       ctx.beginPath();ctx.arc(x+s/2,y-9,s/2,0,7);ctx.clip();
       ctx.drawImage(h.imgCache.el,x,y-9-s/2,s,s);
