@@ -1,0 +1,35 @@
+# Cloudflare Pages / Netlify ヘッダー設定ファイル
+
+# HTMLファイル（即時更新確認のためブラウザに検証させる）
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 動画ファイル（サンプル動画等の長期キャッシュ設定）
+*.webm
+  Cache-Control: public, max-age=31536000, immutable
+/*.webm
+  Cache-Control: public, max-age=31536000, immutable
+/bar-chart-race/*.webm
+  Cache-Control: public, max-age=31536000, immutable
+
+# 静的メディア（画像・CSS・JS・フォント等）
+*.webp
+  Cache-Control: public, max-age=31536000, immutable
+*.png
+  Cache-Control: public, max-age=31536000, immutable
+*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+*.svg
+  Cache-Control: public, max-age=31536000, immutable
+*.css
+  Cache-Control: public, max-age=31536000, immutable
+*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# ディレクトリ配下の静的リソース
+/shared/*
+  Cache-Control: public, max-age=31536000, immutable
+/Logo/*
+  Cache-Control: public, max-age=31536000, immutable

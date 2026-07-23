@@ -1,0 +1,22 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)\\.(webm|webp|png|jpg|jpeg|svg|css|js|woff2|woff)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
