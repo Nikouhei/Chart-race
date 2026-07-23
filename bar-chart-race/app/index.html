@@ -30,7 +30,10 @@
   <!-- 共有デザイントークン（単一の真実）。<style> より前に読み込み :root を定義 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap">
+  </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
   <script src="../../shared/i18n.js"></script>
