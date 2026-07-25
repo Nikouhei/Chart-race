@@ -40,9 +40,9 @@
   <!-- 共有デザイントークン -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" media="print" onload="this.media='all'">
   <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
   </noscript>
   <link rel="stylesheet" href="../shared/tokens.css">
 
@@ -1353,9 +1353,12 @@ function buildRace(){
   const drama=+document.getElementById("drama").value;
   COURSE=Math.round(BASE_SPEED*dur); // どの長さでも走行速度は同一
   const n=entries.length;
-  // 各馬のゴール時刻: 着差は秒数固定(写真判定級)→ レース長に関わらず同じ密度でゴール
+  // 各馬のゴール時刻: 1位→最下位で約2.5秒に広げる。指数>1で上位は接戦・下位ほど差が開く。
+  // これにより1位ゴール後も後続はまだ潜伏解除前(remainT>1.8s)で、順位争いが続いて見える。
+  const FINISH_SPREAD=2.5;
   const horses=entries.map((e,i)=>{
-    const finish=dur+i*0.055+(i>3?(i-3)*0.06:0);
+    const frac=n>1?i/(n-1):0;
+    const finish=dur+FINISH_SPREAD*Math.pow(frac,1.6);
     const imgCache={ok:false,el:null};
     if(e.img){const im=new Image();im.onload=()=>imgCache.ok=true;im.src=e.img;imgCache.el=im;}
     // ランダム仕掛けイベント: 15秒あたり2〜3回のテンポを全レース長で維持
