@@ -227,51 +227,85 @@
     /* タブコンテンツ表示領域 */
     .demo-tab-content {
       display: none;
-      height: 220px;
+      height: 270px;
       position: relative;
     }
     .demo-tab-content.is-active {
       display: block;
     }
 
-    /* バーチャートデモ用 */
+    /* デモヘッダー */
     .demo-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       border-bottom: 1px solid var(--panel-border);
       padding-bottom: 6px;
     }
     .demo-title {
       font-size: 12px;
-      font-weight: 700;
-      color: var(--text-strong);
-    }
-    .demo-year {
-      font-size: 14px;
       font-weight: 800;
-      color: var(--accent);
-      font-variant-numeric: tabular-nums;
+      color: var(--text-strong);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .demo-container {
-      height: 170px;
+
+    /* 1. バーチャートデモ用 */
+    .demo-barchart-stage {
+      height: 225px;
       position: relative;
+      background: var(--panel-surface-2);
+      border-radius: 12px;
+      padding: 10px 12px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .demo-year-badge {
+      position: absolute;
+      right: 12px;
+      bottom: 6px;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--accent);
+      opacity: 0.25;
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -1px;
+    }
+    .demo-bar-list {
+      position: relative;
+      height: 100%;
     }
     .demo-bar-item {
       position: absolute;
       left: 0;
       right: 0;
-      height: 34px;
+      height: 38px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .demo-rank-num {
+      width: 16px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .demo-bar-item[data-rank="1"] .demo-rank-num { color: #f1c40f; }
+    .demo-bar-item[data-rank="2"] .demo-rank-num { color: #bdc3c7; }
+    .demo-bar-item[data-rank="3"] .demo-rank-num { color: #e67e22; }
+    .demo-bar-icon {
+      font-size: 14px;
+      line-height: 1;
+    }
     .demo-label {
-      width: 76px;
+      width: 68px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-strong);
       white-space: nowrap;
       overflow: hidden;
@@ -279,144 +313,279 @@
     }
     .demo-track {
       flex-grow: 1;
-      height: 12px;
-      background: var(--panel-surface-2);
-      border-radius: 8px;
+      height: 14px;
+      background: rgba(0,0,0,0.06);
+      border-radius: 20px;
       overflow: hidden;
       position: relative;
     }
     .demo-bar-fill {
       height: 100%;
-      border-radius: 8px;
+      border-radius: 20px;
       width: 0%;
       transition: width 0.6s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .demo-value {
-      width: 30px;
+      width: 34px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text-strong);
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* トーナメントデモ用 */
-    .bracket-demo {
+    /* 2. トーナメントデモ用 */
+    .bracket-stage {
+      height: 225px;
+      background: var(--panel-surface-2);
+      border-radius: 12px;
+      padding: 10px;
+      box-sizing: border-box;
+      position: relative;
       display: flex;
       flex-direction: column;
-      height: 100%;
-      justify-content: space-around;
-      padding: 4px 0;
-    }
-    .bracket-round {
-      display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 8px;
     }
-    .bracket-match {
-      background: var(--panel-surface-2);
+    .bracket-grid {
+      display: grid;
+      grid-template-columns: 1fr 0.7fr 1fr;
+      gap: 8px;
+      height: 100%;
+      align-items: center;
+    }
+    .bracket-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: 100%;
+    }
+    .bracket-slot {
+      background: var(--panel-surface);
       border: 1px solid var(--panel-border);
       border-radius: 8px;
-      padding: 6px 10px;
+      padding: 5px 8px;
       font-size: 11px;
-      font-weight: 600;
-      flex: 1;
+      font-weight: 700;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.3s ease;
+      transition: all 0.4s ease;
     }
-    .bracket-match.winner {
+    .bracket-slot.is-winner {
       border-color: var(--accent);
       background: var(--accent-soft);
       color: var(--accent-strong);
-      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
     }
-
-    /* 格付けダービーデモ用 */
-    .derby-demo {
+    .bracket-slot.is-champion {
+      background: linear-gradient(135deg, #f1c40f, #f39c12);
+      color: #fff;
+      border-color: #f39c12;
+      box-shadow: 0 4px 12px rgba(241, 196, 15, 0.4);
+      transform: scale(1.05);
+    }
+    .bracket-score {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.06);
+    }
+    .bracket-slot.is-winner .bracket-score {
+      background: var(--accent);
+      color: #fff;
+    }
+    .bracket-center-final {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      justify-content: space-around;
-      padding: 8px 0;
-    }
-    .derby-lane {
-      position: relative;
-      height: 36px;
-      background: var(--panel-surface-2);
-      border-radius: 8px;
-      display: flex;
       align-items: center;
-      padding: 0 8px;
+      justify-content: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    /* 3. 格付けダービーデモ用（実ツール準拠） */
+    .derby-stage {
+      height: 225px;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 0;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      position: relative;
       overflow: hidden;
     }
-    .derby-horse {
-      position: absolute;
-      left: 0%;
+    .derby-track-header {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.06);
+      font-size: 10px;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      color: #fff;
-      transition: left 0.8s ease-in-out;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
     }
-    .derby-goal {
-      position: absolute;
-      right: 12px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: repeating-linear-gradient(0deg, #ff7675, #ff7675 4px, transparent 4px, transparent 8px);
-    }
-
-    /* ランキングカードデモ用 */
-    .ranking-card-demo {
+    .derby-track-body {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      justify-content: center;
-      height: 100%;
-      padding: 4px 0;
+      position: relative;
     }
-    .rank-card-item {
+    .derby-track-lane {
+      position: relative;
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: var(--panel-surface-2);
-      border: 1px solid var(--panel-border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      transform: translateX(100%);
-      opacity: 0;
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
     }
-    .rank-card-item.show {
-      transform: translateX(0);
-      opacity: 1;
+    .derby-track-lane:nth-child(even) {
+      background: rgba(255,255,255,0.06);
     }
-    .rank-num {
+    .derby-track-lane:last-child { border-bottom: none; }
+    .derby-waku {
+      width: 22px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    .derby-horse {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      z-index: 3;
+      transition: left 0.15s linear;
+    }
+    .derby-horse-emoji {
       font-size: 16px;
-      font-weight: 800;
-      color: var(--accent);
-      width: 24px;
+      line-height: 1;
     }
-    .rank-info {
+    .derby-horse-name {
+      background: rgba(0,0,0,0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    .derby-horse .finish-rank {
+      font-size: 9px;
+      background: #f1c40f;
+      color: #000;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 900;
+      display: none;
+      margin-left: 2px;
+    }
+    .derby-horse.finished .finish-rank { display: inline-block; }
+    .derby-finish-line {
+      position: absolute;
+      right: 10px;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      background: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%) 50% / 5px 5px;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    /* 4. ランキングカードデモ用（実ツール準拠：ベルトコンベア方式） */
+    .ranking-stage {
+      height: 225px;
+      background: #101216;
+      border-radius: 12px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+    .ranking-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      transition: none;
+    }
+    .rv-card {
+      width: 120px;
+      height: calc(100% - 16px);
+      border-radius: 10px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    .rank-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-strong);
+    .rv-card.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
-    .rank-desc {
+    .rv-rank {
+      flex: 0 0 13%;
+      background: #6E62F0;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .rv-img {
+      flex: 1 1 auto;
+      background: #DBDBDB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #aaa;
+      overflow: hidden;
+    }
+    .rv-name {
+      flex: 0 0 14%;
+      background: #fff;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 10px;
-      color: var(--text-muted);
+      font-weight: 800;
+      padding: 0 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .rv-desc {
+      flex: 0 0 30%;
+      background: #1f242e;
+      color: #e8ebf1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      text-align: center;
+      font-size: 8px;
+      line-height: 1.4;
+      padding: 4px 6px;
+      overflow: hidden;
     }
 
     /* セクション共通 */
@@ -804,7 +973,10 @@
   <header class="site-header">
     <div class="site-header-inner">
       <a href="./" class="brand">
-        <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
+        <picture>
+          <source srcset="Logo/GraphRace_Studio_Logo.webp" type="image/webp">
+          <img src="Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
+        </picture>
         GraphRace Studio
       </a>
       <nav class="site-nav">
@@ -844,33 +1016,48 @@
             <!-- Tab 1: バーチャートレース -->
             <div id="tab-barchart" class="demo-tab-content is-active">
               <div class="demo-header">
-                <span class="demo-title">📊 フルーツ人気推移（デモ）</span>
-                <span id="demo-year" class="demo-year">2020年</span>
+                <span class="demo-title">📊 世界スマホシェア推移 (デモ)</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight:700;">PREVIEW</span>
               </div>
-              <div id="demo-container" class="demo-container"></div>
+              <div class="demo-barchart-stage">
+                <div id="demo-container" class="demo-bar-list"></div>
+                <div id="demo-year" class="demo-year-badge">2020年</div>
+              </div>
             </div>
 
             <!-- Tab 2: トーナメント表 -->
             <div id="tab-bracket" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏆 トーナメント勝ち上がり（デモ）</span>
-                <span style="font-size: 11px; color: var(--accent); font-weight:700;">FINAL</span>
+                <span class="demo-title">🏆 GraphRace CUP 2026</span>
+                <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">1回戦進行中</span>
               </div>
-              <div class="bracket-demo">
-                <div class="bracket-round">
-                  <div class="bracket-match winner"><span>Aチーム</span><span>2</span></div>
-                  <div style="font-size:10px; color:var(--text-muted);">準決勝</div>
-                  <div class="bracket-match"><span>Bチーム</span><span>1</span></div>
-                </div>
-                <div class="bracket-round" style="justify-content: center;">
-                  <div class="bracket-match winner" style="max-width: 75%; background: var(--accent); color: #fff;">
-                    <span>👑 優勝: Aチーム</span>
+              <div class="bracket-stage">
+                <div class="bracket-grid">
+                  <!-- 1回戦 左 -->
+                  <div class="bracket-col">
+                    <div id="bslot-1" class="bracket-slot">
+                      <span>⚡ Thunder</span><span class="bracket-score" id="bscore-1">2</span>
+                    </div>
+                    <div id="bslot-2" class="bracket-slot">
+                      <span>🔥 Flame</span><span class="bracket-score" id="bscore-2">1</span>
+                    </div>
                   </div>
-                </div>
-                <div class="bracket-round">
-                  <div class="bracket-match winner"><span>Cチーム</span><span>3</span></div>
-                  <div style="font-size:10px; color:var(--text-muted);">準決勝</div>
-                  <div class="bracket-match"><span>Dチーム</span><span>0</span></div>
+                  <!-- 決勝戦 中央 -->
+                  <div class="bracket-center-final">
+                    <div style="font-size:10px; color:var(--text-muted); font-weight:700;">FINAL</div>
+                    <div id="bslot-final" class="bracket-slot" style="width: 100%;">
+                      <span id="bfinal-title">決着待ち</span>
+                    </div>
+                  </div>
+                  <!-- 1回戦 右 -->
+                  <div class="bracket-col">
+                    <div id="bslot-3" class="bracket-slot">
+                      <span>❄️ Blizzard</span><span class="bracket-score" id="bscore-3">3</span>
+                    </div>
+                    <div id="bslot-4" class="bracket-slot">
+                      <span>🌪 Storm</span><span class="bracket-score" id="bscore-4">0</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -878,25 +1065,47 @@
             <!-- Tab 3: 格付けダービー -->
             <div id="tab-derby" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏇 競馬風格付けダービー（デモ）</span>
-                <span id="derby-status" style="font-size: 11px; color: var(--accent); font-weight:700;">レース中...</span>
+                <span class="demo-title">🏇 格付けダービー G1</span>
+                <span id="derby-status" style="font-size: 11px; color: #f1c40f; font-weight:800;">READY</span>
               </div>
-              <div class="derby-demo">
-                <div class="derby-lane">
-                  <div id="horse-1" class="derby-horse" style="background:#e74c3c;">1枠 レッド</div>
-                  <div class="derby-goal"></div>
+              <div class="derby-stage">
+                <div class="derby-track-header">
+                  <span>🏁</span><span>RACE DEMO — ゲート準備中</span>
                 </div>
-                <div class="derby-lane">
-                  <div id="horse-2" class="derby-horse" style="background:#3498db;">2枠 ブルー</div>
-                  <div class="derby-goal"></div>
-                </div>
-                <div class="derby-lane">
-                  <div id="horse-3" class="derby-horse" style="background:#2ecc71;">3枠 グリーン</div>
-                  <div class="derby-goal"></div>
-                </div>
-                <div class="derby-lane">
-                  <div id="horse-4" class="derby-horse" style="background:#f1c40f;">4枠 イエロー</div>
-                  <div class="derby-goal"></div>
+                <div class="derby-track-body">
+                  <div class="derby-finish-line"></div>
+                  <div class="derby-track-lane">
+                    <div class="derby-waku" style="background:#fff; color:#000;">1</div>
+                    <div id="horse-1" class="derby-horse">
+                      <span class="derby-horse-emoji">🏇</span>
+                      <span class="derby-horse-name">サンダー</span>
+                      <span class="finish-rank" id="hrank-1"></span>
+                    </div>
+                  </div>
+                  <div class="derby-track-lane">
+                    <div class="derby-waku" style="background:#000;">2</div>
+                    <div id="horse-2" class="derby-horse">
+                      <span class="derby-horse-emoji">🏇</span>
+                      <span class="derby-horse-name">ファントム</span>
+                      <span class="finish-rank" id="hrank-2"></span>
+                    </div>
+                  </div>
+                  <div class="derby-track-lane">
+                    <div class="derby-waku" style="background:#e74c3c;">3</div>
+                    <div id="horse-3" class="derby-horse">
+                      <span class="derby-horse-emoji">🏇</span>
+                      <span class="derby-horse-name">ブレイズ</span>
+                      <span class="finish-rank" id="hrank-3"></span>
+                    </div>
+                  </div>
+                  <div class="derby-track-lane">
+                    <div class="derby-waku" style="background:#2980b9;">4</div>
+                    <div id="horse-4" class="derby-horse">
+                      <span class="derby-horse-emoji">🏇</span>
+                      <span class="derby-horse-name">コメット</span>
+                      <span class="finish-rank" id="hrank-4"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -904,31 +1113,11 @@
             <!-- Tab 4: ランキング動画 -->
             <div id="tab-ranking" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏅 ランキングカード流し（デモ）</span>
-                <span style="font-size: 11px; color: var(--accent); font-weight:700;">TOP 3</span>
+                <span class="demo-title">🏅 人気ラーメンランキング TOP 5</span>
+                <span id="ranking-counter" style="font-size: 11px; color: var(--accent); font-weight:700;">▶ PLAYING</span>
               </div>
-              <div class="ranking-card-demo">
-                <div id="rank-card-1" class="rank-card-item">
-                  <span class="rank-num">1位</span>
-                  <div class="rank-info">
-                    <span class="rank-title">濃厚醤油ラーメン</span>
-                    <span class="rank-desc">看板メニュー・リピート率No.1</span>
-                  </div>
-                </div>
-                <div id="rank-card-2" class="rank-card-item">
-                  <span class="rank-num" style="color:#7f8c8d;">2位</span>
-                  <div class="rank-info">
-                    <span class="rank-title">特製つけ麺</span>
-                    <span class="rank-desc">自家製太麺と濃厚魚介豚骨</span>
-                  </div>
-                </div>
-                <div id="rank-card-3" class="rank-card-item">
-                  <span class="rank-num" style="color:#e67e22;">3位</span>
-                  <div class="rank-info">
-                    <span class="rank-title">辛味噌ラーメン</span>
-                    <span class="rank-desc">クセになる旨辛スープ</span>
-                  </div>
-                </div>
+              <div class="ranking-stage">
+                <div id="ranking-track" class="ranking-track"></div>
               </div>
             </div>
           </div>
@@ -1207,7 +1396,7 @@
   </footer>
 
   <script>
-    // タブ切り替え
+    // タブ切り替えと各デモのコントロール
     document.addEventListener('DOMContentLoaded', () => {
       const tabBtns = document.querySelectorAll('.demo-tab-btn');
       const tabContents = document.querySelectorAll('.demo-tab-content');
@@ -1221,6 +1410,7 @@
           const targetContent = document.getElementById(targetId);
           if (targetContent) targetContent.classList.add('is-active');
 
+          if (targetId === 'tab-bracket') triggerBracketDemo();
           if (targetId === 'tab-derby') triggerDerbyDemo();
           if (targetId === 'tab-ranking') triggerRankingDemo();
         });
@@ -1229,10 +1419,10 @@
       // 1. バーチャートレースデモ
       (function() {
         const items = [
-          { id: 'apple', label: '🍎 りんご', color: '#ff7675', value: 80, target: 80 },
-          { id: 'banana', label: '🍌 バナナ', color: '#ffeaa7', value: 65, target: 65 },
-          { id: 'grape', label: '🍇 ぶどう', color: '#a29bfe', value: 50, target: 50 },
-          { id: 'melon', label: '🍈 メロン', color: '#55efc4', value: 35, target: 35 }
+          { id: 'apple', label: 'Apple', icon: '🍎', color: 'linear-gradient(90deg, #ff7675, #d63031)', value: 85, target: 85 },
+          { id: 'samsung', label: 'Samsung', icon: '📱', color: 'linear-gradient(90deg, #74b9ff, #0984e3)', value: 68, target: 68 },
+          { id: 'xiaomi', label: 'Xiaomi', icon: '🔴', color: 'linear-gradient(90deg, #fab1a0, #e17055)', value: 48, target: 48 },
+          { id: 'oppo', label: 'OPPO', icon: '🟢', color: 'linear-gradient(90deg, #55efc4, #00b894)', value: 32, target: 32 }
         ];
 
         const demoContainer = document.getElementById('demo-container');
@@ -1243,13 +1433,16 @@
           const el = document.createElement('div');
           el.className = 'demo-bar-item';
           el.id = `demo-item-${item.id}`;
-          el.style.transform = `translateY(${idx * 42}px)`;
+          el.setAttribute('data-rank', idx + 1);
+          el.style.transform = `translateY(${idx * 44}px)`;
           el.innerHTML = `
+            <span class="demo-rank-num">${idx + 1}</span>
+            <span class="demo-bar-icon">${item.icon}</span>
             <span class="demo-label">${item.label}</span>
             <div class="demo-track">
               <div class="demo-bar-fill" style="width: 0%; background: ${item.color};"></div>
             </div>
-            <span class="demo-value">0</span>
+            <span class="demo-value">0%</span>
           `;
           demoContainer.appendChild(el);
         });
@@ -1258,16 +1451,16 @@
         
         function updateDemo() {
           year += 1;
-          if (year > 2030) {
+          if (year > 2025) {
             year = 2020;
-            items[0].target = 80;
-            items[1].target = 65;
-            items[2].target = 50;
-            items[3].target = 35;
+            items[0].target = 85;
+            items[1].target = 68;
+            items[2].target = 48;
+            items[3].target = 32;
           } else {
             items.forEach(item => {
-              const diff = Math.floor(Math.random() * 40) - 15;
-              item.target = Math.max(10, Math.min(100, item.target + diff));
+              const diff = Math.floor(Math.random() * 30) - 12;
+              item.target = Math.max(15, Math.min(95, item.target + diff));
             });
           }
 
@@ -1280,11 +1473,17 @@
             const el = document.getElementById(`demo-item-${item.id}`);
             if (el) {
               const index = sorted.findIndex(s => s.id === item.id);
-              el.style.transform = `translateY(${index * 42}px)`;
+              el.setAttribute('data-rank', index + 1);
+              el.style.transform = `translateY(${index * 44}px)`;
+              
+              const rankNum = el.querySelector('.demo-rank-num');
+              if (rankNum) rankNum.textContent = index + 1;
+
               const fill = el.querySelector('.demo-bar-fill');
               if (fill) fill.style.width = `${item.value}%`;
+              
               const valEl = el.querySelector('.demo-value');
-              if (valEl) valEl.textContent = Math.round(item.value);
+              if (valEl) valEl.textContent = `${Math.round(item.value)}%`;
             }
           });
         }
@@ -1293,60 +1492,204 @@
         setInterval(updateDemo, 1800);
       })();
 
-      // 2. 格付けダービーデモ
-      let derbyInterval = null;
-      function triggerDerbyDemo() {
-        if (derbyInterval) clearInterval(derbyInterval);
-        const horses = [
-          { id: 'horse-1', pos: 0 },
-          { id: 'horse-2', pos: 0 },
-          { id: 'horse-3', pos: 0 },
-          { id: 'horse-4', pos: 0 }
-        ];
-        const statusEl = document.getElementById('derby-status');
-        if (statusEl) statusEl.textContent = 'レース中...';
+      // 2. トーナメント表デモ
+      let bracketTimeout = null;
+      function triggerBracketDemo() {
+        if (bracketTimeout) clearTimeout(bracketTimeout);
 
+        const statusEl = document.getElementById('bracket-status');
+        const bfinalTitle = document.getElementById('bfinal-title');
+        const bslotFinal = document.getElementById('bslot-final');
+
+        const slots = [
+          document.getElementById('bslot-1'),
+          document.getElementById('bslot-2'),
+          document.getElementById('bslot-3'),
+          document.getElementById('bslot-4')
+        ];
+
+        // 初期状態にリセット
+        slots.forEach(s => { if (s) s.classList.remove('is-winner'); });
+        if (bslotFinal) bslotFinal.classList.remove('is-winner', 'is-champion');
+        if (statusEl) statusEl.textContent = '1回戦進行中';
+        if (bfinalTitle) bfinalTitle.textContent = '決着待ち';
+
+        // 1.2秒後に1回戦結果
+        bracketTimeout = setTimeout(() => {
+          if (slots[0]) slots[0].classList.add('is-winner');
+          if (slots[2]) slots[2].classList.add('is-winner');
+          if (statusEl) statusEl.textContent = '決勝戦進出確定';
+          if (bfinalTitle) bfinalTitle.textContent = '⚡ Thunder vs ❄️ Blizzard';
+
+          // 2.8秒後に決勝戦
+          bracketTimeout = setTimeout(() => {
+            if (statusEl) statusEl.textContent = '👑 優勝決定！';
+            if (bfinalTitle) bfinalTitle.textContent = '👑 優勝: ⚡ Thunder';
+            if (bslotFinal) bslotFinal.classList.add('is-champion');
+
+            // 6秒後に自動再再生
+            bracketTimeout = setTimeout(triggerBracketDemo, 3500);
+          }, 1800);
+        }, 1200);
+      }
+
+      // 3. 格付けダービーデモ（馬が左→右に走る）
+      let derbyRAF = null;
+      let derbyTimeout = null;
+      function triggerDerbyDemo() {
+        if (derbyRAF) cancelAnimationFrame(derbyRAF);
+        if (derbyTimeout) clearTimeout(derbyTimeout);
+
+        const headerEl = document.querySelector('.derby-track-header span:last-child');
+        const statusEl = document.getElementById('derby-status');
+        const horses = [
+          { id: 'horse-1', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-1') },
+          { id: 'horse-2', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-2') },
+          { id: 'horse-3', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-3') },
+          { id: 'horse-4', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-4') }
+        ];
+
+        // リセット
         horses.forEach(h => {
           const el = document.getElementById(h.id);
-          if (el) el.style.left = '0%';
+          if (el) { el.classList.remove('finished'); el.style.left = '22px'; }
         });
+        if (statusEl) { statusEl.textContent = 'READY'; statusEl.style.color = '#f1c40f'; }
+        if (headerEl) headerEl.textContent = 'RACE DEMO — ゲート準備中';
 
-        derbyInterval = setInterval(() => {
-          let finishedCount = 0;
-          horses.forEach(h => {
-            if (h.pos < 75) {
-              h.pos += Math.floor(Math.random() * 15) + 5;
-              if (h.pos > 75) h.pos = 75;
-            } else {
-              finishedCount++;
+        // 0.8秒後スタート
+        derbyTimeout = setTimeout(() => {
+          if (statusEl) { statusEl.textContent = 'START!'; statusEl.style.color = '#2ecc71'; }
+          if (headerEl) headerEl.textContent = 'RACE DEMO — 発走！';
+
+          let rankCounter = 1;
+          const finishPos = 82; // %
+          let lastTime = performance.now();
+          let winner = null;
+
+          function step(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+            let allDone = true;
+
+            horses.forEach(h => {
+              if (h.finished) return;
+              allDone = false;
+              // 速度にランダム揺らぎ + 時間経過でスパート
+              h.speed = 18 + Math.random() * 22 + h.pos * 0.15;
+              h.pos += h.speed * dt;
+
+              if (h.pos >= finishPos) {
+                h.pos = finishPos;
+                h.finished = true;
+                const el = document.getElementById(h.id);
+                if (el) {
+                  el.classList.add('finished');
+                  if (h.rankEl) h.rankEl.textContent = `${rankCounter}着`;
+                }
+                if (rankCounter === 1) winner = h.id;
+                rankCounter++;
+              }
+
+              const el = document.getElementById(h.id);
+              if (el) el.style.left = `calc(${h.pos}% + 22px)`;
+            });
+
+            if (allDone) {
+              const names = { 'horse-1': 'サンダー', 'horse-2': 'ファントム', 'horse-3': 'ブレイズ', 'horse-4': 'コメット' };
+              if (statusEl) { statusEl.textContent = `👑 ${names[winner] || ''}！`; statusEl.style.color = '#f1c40f'; }
+              if (headerEl) headerEl.textContent = 'RACE DEMO — レース確定';
+              derbyTimeout = setTimeout(triggerDerbyDemo, 3500);
+              return;
             }
-            const el = document.getElementById(h.id);
-            if (el) el.style.left = `${h.pos}%`;
-          });
 
-          if (finishedCount === horses.length) {
-            clearInterval(derbyInterval);
-            if (statusEl) statusEl.textContent = '👑 決着！';
-            setTimeout(triggerDerbyDemo, 2500);
+            derbyRAF = requestAnimationFrame(step);
           }
-        }, 600);
+          derbyRAF = requestAnimationFrame(step);
+        }, 800);
       }
 
-      // 3. ランキングカードデモ
+      // 4. ランキング動画デモ（カードが右→左にベルトコンベア式で流れる）
+      let rankingRAF = null;
       function triggerRankingDemo() {
-        const cards = [
-          document.getElementById('rank-card-1'),
-          document.getElementById('rank-card-2'),
-          document.getElementById('rank-card-3')
+        if (rankingRAF) cancelAnimationFrame(rankingRAF);
+
+        const trackEl = document.getElementById('ranking-track');
+        if (!trackEl) return;
+
+        const items = [
+          { rank: '第5位', emoji: '🍛', name: '特製カレーうどん', desc: '和風ダシと本格スパイスの融合' },
+          { rank: '第4位', emoji: '🥟', name: '手包み餃子セット', desc: '皮から手作り・肉汁たっぷり' },
+          { rank: '第3位', emoji: '🌶️', name: '旨辛味噌ラーメン', desc: 'クセになる特製スパイスとコク旨スープ' },
+          { rank: '第2位', emoji: '🥢', name: '特製魚介つけ麺', desc: '濃厚豚骨スープと柚子の薫りが絶品' },
+          { rank: '第1位', emoji: '🍜', name: '濃厚醤油ラーメン', desc: '秘伝の極深ダレと自家製太麺・圧倒的1位！' }
         ];
-        cards.forEach(c => { if(c) c.classList.remove('show'); });
+
+        // カードをJS生成
+        trackEl.innerHTML = '';
+        trackEl.style.transform = 'translateX(0px)';
         
-        cards.forEach((c, idx) => {
-          setTimeout(() => {
-            if (c) c.classList.add('show');
-          }, (idx + 1) * 400);
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'rv-card';
+          card.innerHTML = `
+            <div class="rv-rank">${item.rank}</div>
+            <div class="rv-img">${item.emoji}</div>
+            <div class="rv-name">${item.name}</div>
+            <div class="rv-desc">${item.desc}</div>
+          `;
+          trackEl.appendChild(card);
+        });
+
+        const stageEl = trackEl.parentElement;
+        const stageWidth = stageEl ? stageEl.clientWidth : 400;
+        // 開始位置をステージ右端に
+        let offset = -stageWidth;
+        trackEl.style.transform = `translateX(${-offset}px)`;
+
+        const maxOffset = trackEl.scrollWidth + stageWidth;
+        const speed = stageWidth * 0.12; // px per second
+        let lastTime = performance.now();
+        const fadeZone = stageWidth * 0.25;
+
+        function applyVisibility() {
+          const cards = trackEl.querySelectorAll('.rv-card');
+          cards.forEach(card => {
+            const cardLeft = card.offsetLeft + offset;
+            if (cardLeft >= stageWidth) {
+              card.classList.remove('visible');
+            } else if (cardLeft > stageWidth - fadeZone) {
+              card.classList.add('visible');
+            } else {
+              card.classList.add('visible');
+            }
+          });
+        }
+
+        function step(now) {
+          const dt = Math.min((now - lastTime) / 1000, 0.1);
+          lastTime = now;
+          offset += speed * dt;
+
+          trackEl.style.transform = `translateX(${-offset}px)`;
+          applyVisibility();
+
+          if (offset >= maxOffset) {
+            // ループ再生
+            setTimeout(triggerRankingDemo, 1500);
+            return;
+          }
+          rankingRAF = requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame((now) => {
+          lastTime = now;
+          rankingRAF = requestAnimationFrame(step);
         });
       }
+
+      // 初回自動実行
+      triggerBracketDemo();
 
       // 更新履歴の「さらに表示」
       const btnMore = document.getElementById('btn-show-more');
