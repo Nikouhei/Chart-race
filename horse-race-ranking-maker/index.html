@@ -680,8 +680,8 @@
     <div class="site-header-inner">
       <a href="../" class="brand">
         <picture>
-          <source srcset="../Logo/GraphRace_Studio_Logo.webp" type="image/webp">
-          <img src="../Logo/GraphRace_Studio_Logo.png" alt="GraphRace Studio ロゴ" width="24" height="24">
+          <source srcset="../Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
+          <img src="../Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
         </picture>
         GraphRace Studio
       </a>
@@ -1353,9 +1353,9 @@ function buildRace(){
   const drama=+document.getElementById("drama").value;
   COURSE=Math.round(BASE_SPEED*dur); // どの長さでも走行速度は同一
   const n=entries.length;
-  // 各馬のゴール時刻: 1位→最下位で約2.5秒に広げる。指数>1で上位は接戦・下位ほど差が開く。
-  // これにより1位ゴール後も後続はまだ潜伏解除前(remainT>1.8s)で、順位争いが続いて見える。
-  const FINISH_SPREAD=2.5;
+  // 各馬のゴール時刻: 1位→最下位で約0.6秒に広げる。指数>1で上位は接戦・下位ほど差が開く。
+  // 隊列の開き(先頭〜最後尾の距離)を9:16など狭幅でも等倍で全馬が収まる範囲に抑える。
+  const FINISH_SPREAD=0.6;
   const horses=entries.map((e,i)=>{
     const frac=n>1?i/(n-1):0;
     const finish=dur+FINISH_SPREAD*Math.pow(frac,1.6);
@@ -1401,8 +1401,9 @@ function stepRace(dt){
   R.t+=dt*R.slowmo;
   if(R.t<0)return; // カウントダウン中
   const t=R.t;
+  let prevPos=Infinity; // 一つ上位(rank-1)の馬の現在位置。終盤の順序ロックに使用
   for(const h of R.horses){
-    if(h.pos>=COURSE){continue;}
+    if(h.pos>=COURSE){prevPos=h.pos;continue;}
     const prog=t/h.finishT; // この馬の理想進捗
     const base=COURSE/h.finishT;
     // ノイズ:序盤〜中盤は大きく自由に、終盤急速にゼロへ
@@ -1426,18 +1427,40 @@ function stepRace(dt){
     const remainT=Math.max(0,h.finishT-t);
     const hide=Math.min(1,remainT/1.8);
     const hideS=hide*hide*(3-2*hide);                            // smoothstep
-    const ideal=COURSE*Math.min(prog,1)-h.lag*BASE_SPEED*15*0.020*hideS;
+    const ideal=COURSE*Math.min(prog,1)-h.lag*BASE_SPEED*15*0.010*hideS;
     const gap=ideal-h.pos;
     const urgency=0.15+7.0*Math.pow(Math.min(prog,1),6);
     v+=gap*urgency*0.45;
     // 速度クランプ:ベース±18%。等速感は保ちつつ差の付き方は速く
     h.v=Math.max(base*0.82,Math.min(base*1.18,v));
+    // 隊列の最大幅を制限(狭幅の9:16などでも全馬を等倍のまま画面に収める)。
+    // 前フレームの集団中心から離れすぎた馬は、前に出過ぎなら減速・遅れなら加速する。
+    // 速度は常に正(=前進)のままなので画面上で急に後退しない。
+    // 終盤(prog高)は着順収束を最優先するため効果をフェードアウトし、着順(=設定順)を守る。
+    const bandGate=Math.max(0,Math.min(1,(0.78-prog)/0.12)); // prog<0.66で最大, 0.78で0
+    if(R.packMid!=null&&bandGate>0){
+      const dev=h.pos-R.packMid;
+      const half=BASE_SPEED*0.34;                    // 中心から±約250px → 全幅約500px目安
+      if(dev>half)h.v=Math.min(h.v,base*(1-(0.18+0.30*Math.min(1,(dev-half)/half))*bandGate));      // 出過ぎは減速
+      else if(dev<-half)h.v=Math.max(h.v,base*(1+(0.18+0.60*Math.min(1,(-dev-half)/half))*bandGate));// 遅れは加速
+    }
     h.pos+=h.v*dt*R.slowmo;
-    if(h.pos>=COURSE){
+    // 着順ゲート: 一つ上位(rank-1)の馬が先にゴールするまで、この馬はゴール線の手前で待つ。
+    // 位置は動かさず通過順だけを制御するため見た目のスナップが無く、
+    // 隊列制限や展開の揺らぎに関わらず着順=設定順を必ず保証する(写真判定風の詰め)。
+    if(h.pos>=COURSE&&prevPos>=COURSE){
       h.pos=COURSE;
       h.goalTime=R.t;
       R.goalOrder.push(h);
+    }else if(h.pos>=COURSE){
+      h.pos=COURSE-1.5;                              // 上位馬が未ゴールの間は僅かに手前で待機
     }
+    prevPos=h.pos;
+  }
+  // 次フレームの隊列幅制限用に、走行中の馬の集団中心を記録。
+  {
+    const running=R.horses.filter(h=>h.pos<COURSE);
+    R.packMid=running.length?(Math.max(...running.map(h=>h.pos))+Math.min(...running.map(h=>h.pos)))/2:null;
   }
   // ゴール直前スローモーション(先頭が残り約0.75秒分の距離から徐々に・最後は0.3倍速)
   const lead=Math.max(...R.horses.map(h=>h.pos));
@@ -1488,8 +1511,8 @@ function updateCam(R,dt){
   if(R.t>=0&&!R.done){
     R.cam+=R.camV*dt*R.slowmo;                       // 等速前進
     const packMid=(Math.max(...R.horses.map(h=>h.pos))+Math.min(...R.horses.map(h=>h.pos)))/2;
-    const target=packMid-W*0.48;
-    R.cam+=(target-R.cam)*Math.min(1,dt*0.8);        // 弱い追従補正のみ
+    const target=packMid-W*0.42;                     // 集団中心を画面42%に(後方に余白を確保)
+    R.cam+=(target-R.cam)*Math.min(1,dt*1.1);        // 追従を少し強めてカメラのドリフトを抑制
   }
 }
 function draw(dt){
