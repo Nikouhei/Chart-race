@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      gtag('config', 'G-NS736Y3MY9');
+    }
+  </script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
