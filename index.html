@@ -131,10 +131,27 @@
         justify-content: flex-start;
         padding-bottom: 4px;
         scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x proximity;
+        scroll-padding-inline: 16px;
+        /* 端をフェードさせて「まだ続きがある」ことを示す */
+        -webkit-mask-image: var(--nav-fade, none);
+        mask-image: var(--nav-fade, none);
+      }
+      .site-nav[data-scroll="start"] {
+        --nav-fade: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
+      }
+      .site-nav[data-scroll="middle"] {
+        --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+      }
+      .site-nav[data-scroll="end"] {
+        --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 100%);
       }
       .site-nav::-webkit-scrollbar {
         display: none;
       }
+      .nav-link { scroll-snap-align: start; }
       .nav-link {
         padding: 6px 12px;
         font-size: 12px;
@@ -349,29 +366,66 @@
     }
     .bracket-grid {
       display: grid;
-      grid-template-columns: 1fr 0.7fr 1fr;
-      gap: 8px;
+      grid-template-columns: 1.15fr 1fr 1fr;
+      gap: 6px;
       height: 100%;
-      align-items: center;
+      align-items: stretch;
     }
     .bracket-col {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
       height: 100%;
+      min-width: 0;
+    }
+    .bracket-round-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      flex: 0 0 auto;
+    }
+    .bracket-col-body {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    /* 1試合＝2スロット。flex:1 で各ラウンドの対戦位置が縦に揃う */
+    .bracket-match {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      min-height: 0;
     }
     .bracket-slot {
       background: var(--panel-surface);
       border: 1px solid var(--panel-border);
-      border-radius: 8px;
-      padding: 5px 8px;
-      font-size: 11px;
+      border-radius: 7px;
+      padding: 3px 6px;
+      font-size: 10px;
       font-weight: 700;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
       transition: all 0.4s ease;
     }
+    .bracket-slot .bracket-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bracket-slot.is-empty {
+      color: var(--text-muted);
+      background: transparent;
+      border-style: dashed;
+    }
+    .bracket-slot.is-empty .bracket-score { visibility: hidden; }
     .bracket-slot.is-winner {
       border-color: var(--accent);
       background: var(--accent-soft);
@@ -395,114 +449,222 @@
       background: var(--accent);
       color: #fff;
     }
-    .bracket-center-final {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 100%;
+    .bracket-champion {
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      transform: translate(0, 8px);
+      background: linear-gradient(135deg, #f1c40f, #f39c12);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 20px;
+      box-shadow: 0 6px 16px rgba(241, 196, 15, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .bracket-champion.is-visible {
+      opacity: 1;
+      transform: translate(0, 0);
     }
 
     /* 3. 格付けダービーデモ用（実ツール準拠） */
+    /* 実ツール「競馬風」モード（canvas描画）の画づくりをCSSで再現 */
     .derby-stage {
       height: 225px;
-      background: #0f172a;
       border-radius: 12px;
-      padding: 0;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
       position: relative;
       overflow: hidden;
+      background: linear-gradient(to bottom, #a8d4e8 0%, #dceef4 40%, #3f9457 42%, #2a6e3d 100%);
     }
-    .derby-track-header {
+    /* 観客席 */
+    .derby-stands {
+      position: absolute;
+      left: 0; right: 0;
+      top: 22%;
+      height: 20%;
+      background:
+        repeating-linear-gradient(to right,
+          rgba(255,255,255,.55) 0 3px, rgba(255,255,255,0) 3px 7px),
+        linear-gradient(to bottom, #8d9aa8, #6f7c8a);
+      opacity: 0.85;
+    }
+    /* ラチ（内柵） */
+    .derby-rail {
+      position: absolute;
+      left: 0; right: 0;
+      top: 43.5%;
+      height: 4px;
+      background: #f5f5f0;
+    }
+    /* 芝の刈り模様 */
+    .derby-turf-stripes {
+      position: absolute;
+      left: 0; right: 0;
+      top: 44%;
+      bottom: 0;
+      background: repeating-linear-gradient(to right,
+        rgba(255,255,255,.05) 0 46px, rgba(255,255,255,0) 46px 92px);
+    }
+    /* 上部バー（レース名） */
+    .derby-topbar {
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 26px;
+      background: rgba(10,25,15,.82);
+      border-bottom: 2px solid #c9a227;
+      color: #f2ecd9;
+      font-size: 11px;
+      font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      background: rgba(255,255,255,0.06);
-      font-size: 10px;
+      justify-content: space-between;
+      padding: 0 10px;
+      z-index: 5;
+    }
+    .derby-topbar .derby-topbar-sub {
+      font-size: 9px;
       font-weight: 700;
-      color: rgba(255,255,255,0.5);
-      letter-spacing: 0.5px;
+      color: #c9a227;
     }
-    .derby-track-body {
-      flex: 1;
+    /* ゴール板と決勝線 */
+    .derby-goal {
+      position: absolute;
+      top: 30%;
+      bottom: 4%;
+      width: 6px;
+      background: #d8d8d8;
+      z-index: 2;
+    }
+    .derby-goal::before {
+      content: 'ゴール';
+      position: absolute;
+      left: 50%;
+      top: -20px;
+      transform: translateX(-50%);
+      background: #fff;
+      color: #b3402e;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .derby-goal::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 30%;
+      bottom: 0;
+      width: 6px;
+      background: repeating-linear-gradient(to bottom,
+        rgba(255,255,255,.85) 0 8px, transparent 8px 16px);
+    }
+    /* 馬（奥のレーンほど小さく描く＝実ツールと同じ遠近） */
+    .derby-runner {
+      position: absolute;
       display: flex;
       flex-direction: column;
-      position: relative;
+      align-items: center;
+      gap: 1px;
+      z-index: 3;
+      will-change: left;
     }
-    .derby-track-lane {
-      position: relative;
-      flex: 1;
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+    .derby-runner-name {
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .derby-runner-body {
       display: flex;
       align-items: center;
-      overflow: hidden;
+      gap: 2px;
     }
-    .derby-track-lane:nth-child(even) {
-      background: rgba(255,255,255,0.06);
+    .derby-runner-emoji {
+      font-size: 18px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,.35));
     }
-    .derby-track-lane:last-child { border-bottom: none; }
-    .derby-waku {
-      width: 22px;
-      height: 100%;
+    .derby-runner-num {
+      font-size: 9px;
+      font-weight: 900;
+      color: #fff;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1.5px solid #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 900;
-      color: #fff;
-      flex-shrink: 0;
-      z-index: 2;
+      box-sizing: border-box;
     }
-    .derby-horse {
+    /* 実況テロップ */
+    .derby-caption {
       position: absolute;
-      left: 22px;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.6);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      z-index: 6;
+    }
+    /* 結果掲示板 */
+    .derby-board {
+      position: absolute;
+      inset: 26px 12px 8px;
+      background: rgba(8,20,12,.9);
+      border: 1px solid #c9a227;
+      border-radius: 8px;
+      padding: 6px 12px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .45s ease;
+      z-index: 7;
+    }
+    .derby-board.is-visible { opacity: 1; }
+    .derby-board-title {
+      color: #c9a227;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+    .derby-board-row {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
+      color: #f2ecd9;
       font-size: 11px;
       font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      z-index: 3;
-      transition: left 0.15s linear;
     }
-    .derby-horse-emoji {
-      font-size: 16px;
-      line-height: 1;
-    }
-    .derby-horse-name {
-      background: rgba(0,0,0,0.4);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-    }
-    .derby-horse .finish-rank {
-      font-size: 9px;
-      background: #f1c40f;
-      color: #000;
-      padding: 1px 5px;
-      border-radius: 3px;
+    .derby-board-rank {
+      color: #c9a227;
       font-weight: 900;
-      display: none;
-      margin-left: 2px;
+      width: 26px;
+      flex-shrink: 0;
     }
-    .derby-horse.finished .finish-rank { display: inline-block; }
-    .derby-finish-line {
-      position: absolute;
-      right: 10px;
-      top: 0;
-      bottom: 0;
-      width: 10px;
-      background: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%) 50% / 5px 5px;
-      z-index: 1;
-      opacity: 0.8;
+    .derby-board-row .derby-board-time {
+      margin-left: auto;
+      font-size: 9px;
+      color: rgba(255,255,255,.6);
+      font-weight: 700;
     }
 
     /* 4. ランキングカードデモ用（実ツール準拠：ベルトコンベア方式） */
@@ -979,7 +1141,7 @@
         </picture>
         GraphRace Studio
       </a>
-      <nav class="site-nav">
+      <nav class="site-nav" data-scroll="start" aria-label="サービスメニュー">
         <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
         <a class="nav-link" href="regular-chart/">線グラフレース</a>
         <a class="nav-link" href="tournament-bracket-animator/">トーナメント表</a>
@@ -987,6 +1149,21 @@
         <a class="nav-link" href="horse-race-ranking-maker/">格付けダービー</a>
       </nav>
     </div>
+    <script>
+      (function () {
+        var nav = document.querySelector('.site-nav');
+        if (!nav) return;
+        function update() {
+          var max = nav.scrollWidth - nav.clientWidth;
+          if (max <= 4) { nav.removeAttribute('data-scroll'); return; }
+          var x = nav.scrollLeft;
+          nav.setAttribute('data-scroll', x <= 4 ? 'start' : (x >= max - 4 ? 'end' : 'middle'));
+        }
+        nav.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        update();
+      })();
+    </script>
   </header>
 
   <main>
@@ -1028,37 +1205,28 @@
             <!-- Tab 2: トーナメント表 -->
             <div id="tab-bracket" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏆 GraphRace CUP 2026</span>
-                <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">1回戦進行中</span>
+                <span class="demo-title">🏆 第3回 グラフレース杯</span>
+                <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">2回戦 進行中</span>
               </div>
               <div class="bracket-stage">
                 <div class="bracket-grid">
-                  <!-- 1回戦 左 -->
+                  <!-- 2回戦（8チーム） -->
                   <div class="bracket-col">
-                    <div id="bslot-1" class="bracket-slot">
-                      <span>⚡ Thunder</span><span class="bracket-score" id="bscore-1">2</span>
-                    </div>
-                    <div id="bslot-2" class="bracket-slot">
-                      <span>🔥 Flame</span><span class="bracket-score" id="bscore-2">1</span>
-                    </div>
+                    <div class="bracket-round-label">2回戦</div>
+                    <div class="bracket-col-body" id="bround-1"></div>
                   </div>
-                  <!-- 決勝戦 中央 -->
-                  <div class="bracket-center-final">
-                    <div style="font-size:10px; color:var(--text-muted); font-weight:700;">FINAL</div>
-                    <div id="bslot-final" class="bracket-slot" style="width: 100%;">
-                      <span id="bfinal-title">決着待ち</span>
-                    </div>
-                  </div>
-                  <!-- 1回戦 右 -->
+                  <!-- 準決勝（4チーム） -->
                   <div class="bracket-col">
-                    <div id="bslot-3" class="bracket-slot">
-                      <span>❄️ Blizzard</span><span class="bracket-score" id="bscore-3">3</span>
-                    </div>
-                    <div id="bslot-4" class="bracket-slot">
-                      <span>🌪 Storm</span><span class="bracket-score" id="bscore-4">0</span>
-                    </div>
+                    <div class="bracket-round-label">準決勝</div>
+                    <div class="bracket-col-body" id="bround-2"></div>
+                  </div>
+                  <!-- 決勝（2チーム） -->
+                  <div class="bracket-col">
+                    <div class="bracket-round-label">決勝</div>
+                    <div class="bracket-col-body" id="bround-3"></div>
                   </div>
                 </div>
+                <div class="bracket-champion" id="bracket-champion">👑 優勝　雷電</div>
               </div>
             </div>
 
@@ -1066,47 +1234,20 @@
             <div id="tab-derby" class="demo-tab-content">
               <div class="demo-header">
                 <span class="demo-title">🏇 格付けダービー G1</span>
-                <span id="derby-status" style="font-size: 11px; color: #f1c40f; font-weight:800;">READY</span>
+                <span id="derby-status" style="font-size: 11px; color: #c9a227; font-weight:800;">発走前</span>
               </div>
               <div class="derby-stage">
-                <div class="derby-track-header">
-                  <span>🏁</span><span>RACE DEMO — ゲート準備中</span>
+                <div class="derby-stands"></div>
+                <div class="derby-rail"></div>
+                <div class="derby-turf-stripes"></div>
+                <div class="derby-goal" id="derby-goal"></div>
+                <div id="derby-runners"></div>
+                <div class="derby-topbar">
+                  <span>第3回 グラフレース記念</span>
+                  <span class="derby-topbar-sub" id="derby-topbar-sub">芝1600m・8頭立て</span>
                 </div>
-                <div class="derby-track-body">
-                  <div class="derby-finish-line"></div>
-                  <div class="derby-track-lane">
-                    <div class="derby-waku" style="background:#fff; color:#000;">1</div>
-                    <div id="horse-1" class="derby-horse">
-                      <span class="derby-horse-emoji">🏇</span>
-                      <span class="derby-horse-name">サンダー</span>
-                      <span class="finish-rank" id="hrank-1"></span>
-                    </div>
-                  </div>
-                  <div class="derby-track-lane">
-                    <div class="derby-waku" style="background:#000;">2</div>
-                    <div id="horse-2" class="derby-horse">
-                      <span class="derby-horse-emoji">🏇</span>
-                      <span class="derby-horse-name">ファントム</span>
-                      <span class="finish-rank" id="hrank-2"></span>
-                    </div>
-                  </div>
-                  <div class="derby-track-lane">
-                    <div class="derby-waku" style="background:#e74c3c;">3</div>
-                    <div id="horse-3" class="derby-horse">
-                      <span class="derby-horse-emoji">🏇</span>
-                      <span class="derby-horse-name">ブレイズ</span>
-                      <span class="finish-rank" id="hrank-3"></span>
-                    </div>
-                  </div>
-                  <div class="derby-track-lane">
-                    <div class="derby-waku" style="background:#2980b9;">4</div>
-                    <div id="horse-4" class="derby-horse">
-                      <span class="derby-horse-emoji">🏇</span>
-                      <span class="derby-horse-name">コメット</span>
-                      <span class="finish-rank" id="hrank-4"></span>
-                    </div>
-                  </div>
-                </div>
+                <div class="derby-caption" id="derby-caption">まもなくスタート！</div>
+                <div class="derby-board" id="derby-board"></div>
               </div>
             </div>
 
@@ -1494,111 +1635,233 @@
 
       // 2. トーナメント表デモ
       let bracketTimeout = null;
+      // 2回戦（8チーム）→ 準決勝 → 決勝。各試合は [上, 下] で winner は 0 or 1
+      const BRACKET_ROUNDS = [
+        [
+          { teams: ['⚡ 雷電', '🔥 紅蓮'], scores: [2, 1], winner: 0 },
+          { teams: ['❄️ 蒼氷', '🌪 疾風'], scores: [3, 0], winner: 0 },
+          { teams: ['🌟 黄金', '🖤 漆黒'], scores: [1, 2], winner: 1 },
+          { teams: ['🍀 翠嵐', '🌌 銀河'], scores: [0, 1], winner: 1 }
+        ],
+        [
+          { teams: ['⚡ 雷電', '❄️ 蒼氷'], scores: [2, 1], winner: 0 },
+          { teams: ['🖤 漆黒', '🌌 銀河'], scores: [0, 1], winner: 1 }
+        ],
+        [
+          { teams: ['⚡ 雷電', '🌌 銀河'], scores: [3, 2], winner: 0 }
+        ]
+      ];
+      const BRACKET_ROUND_NAMES = ['2回戦', '準決勝', '決勝'];
+
+      function buildBracketRound(containerId, matchCount) {
+        const el = document.getElementById(containerId);
+        if (!el) return [];
+        el.innerHTML = '';
+        const slots = [];
+        for (let m = 0; m < matchCount; m++) {
+          const match = document.createElement('div');
+          match.className = 'bracket-match';
+          for (let i = 0; i < 2; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'bracket-slot is-empty';
+            slot.innerHTML = '<span class="bracket-name">未定</span><span class="bracket-score"></span>';
+            match.appendChild(slot);
+            slots.push(slot);
+          }
+          el.appendChild(match);
+        }
+        return slots;
+      }
+
+      function fillBracketSlot(slot, name, score) {
+        if (!slot) return;
+        slot.classList.remove('is-empty', 'is-winner', 'is-champion');
+        slot.querySelector('.bracket-name').textContent = name;
+        slot.querySelector('.bracket-score').textContent = score === null ? '-' : score;
+      }
+
       function triggerBracketDemo() {
         if (bracketTimeout) clearTimeout(bracketTimeout);
 
         const statusEl = document.getElementById('bracket-status');
-        const bfinalTitle = document.getElementById('bfinal-title');
-        const bslotFinal = document.getElementById('bslot-final');
-
-        const slots = [
-          document.getElementById('bslot-1'),
-          document.getElementById('bslot-2'),
-          document.getElementById('bslot-3'),
-          document.getElementById('bslot-4')
+        const championEl = document.getElementById('bracket-champion');
+        const rounds = [
+          buildBracketRound('bround-1', 4),
+          buildBracketRound('bround-2', 2),
+          buildBracketRound('bround-3', 1)
         ];
 
-        // 初期状態にリセット
-        slots.forEach(s => { if (s) s.classList.remove('is-winner'); });
-        if (bslotFinal) bslotFinal.classList.remove('is-winner', 'is-champion');
-        if (statusEl) statusEl.textContent = '1回戦進行中';
-        if (bfinalTitle) bfinalTitle.textContent = '決着待ち';
+        if (championEl) championEl.classList.remove('is-visible');
+        if (statusEl) statusEl.textContent = '2回戦 進行中';
 
-        // 1.2秒後に1回戦結果
-        bracketTimeout = setTimeout(() => {
-          if (slots[0]) slots[0].classList.add('is-winner');
-          if (slots[2]) slots[2].classList.add('is-winner');
-          if (statusEl) statusEl.textContent = '決勝戦進出確定';
-          if (bfinalTitle) bfinalTitle.textContent = '⚡ Thunder vs ❄️ Blizzard';
+        // 2回戦は最初から出そろっている（スコアは未確定）
+        BRACKET_ROUNDS[0].forEach((match, m) => {
+          fillBracketSlot(rounds[0][m * 2], match.teams[0], null);
+          fillBracketSlot(rounds[0][m * 2 + 1], match.teams[1], null);
+        });
 
-          // 2.8秒後に決勝戦
-          bracketTimeout = setTimeout(() => {
+        // ラウンドを1つずつ決着させる
+        function playRound(r) {
+          const matches = BRACKET_ROUNDS[r];
+          matches.forEach((match, m) => {
+            const a = rounds[r][m * 2];
+            const b = rounds[r][m * 2 + 1];
+            fillBracketSlot(a, match.teams[0], match.scores[0]);
+            fillBracketSlot(b, match.teams[1], match.scores[1]);
+            (match.winner === 0 ? a : b).classList.add('is-winner');
+          });
+
+          const next = BRACKET_ROUNDS[r + 1];
+          if (next) {
+            if (statusEl) statusEl.textContent = BRACKET_ROUND_NAMES[r] + ' 終了 → ' + BRACKET_ROUND_NAMES[r + 1] + 'へ';
+            next.forEach((match, m) => {
+              fillBracketSlot(rounds[r + 1][m * 2], match.teams[0], null);
+              fillBracketSlot(rounds[r + 1][m * 2 + 1], match.teams[1], null);
+            });
+            bracketTimeout = setTimeout(() => {
+              if (statusEl) statusEl.textContent = BRACKET_ROUND_NAMES[r + 1] + ' 進行中';
+              bracketTimeout = setTimeout(() => playRound(r + 1), 1000);
+            }, 900);
+          } else {
+            const finalMatch = matches[0];
+            const championSlot = rounds[r][finalMatch.winner];
+            championSlot.classList.add('is-champion');
+            const championName = finalMatch.teams[finalMatch.winner];
             if (statusEl) statusEl.textContent = '👑 優勝決定！';
-            if (bfinalTitle) bfinalTitle.textContent = '👑 優勝: ⚡ Thunder';
-            if (bslotFinal) bslotFinal.classList.add('is-champion');
-
-            // 6秒後に自動再再生
+            if (championEl) {
+              championEl.textContent = '👑 優勝　' + championName;
+              championEl.classList.add('is-visible');
+            }
             bracketTimeout = setTimeout(triggerBracketDemo, 3500);
-          }, 1800);
-        }, 1200);
+          }
+        }
+
+        bracketTimeout = setTimeout(() => playRound(0), 1200);
       }
 
       // 3. 格付けダービーデモ（馬が左→右に走る）
       let derbyRAF = null;
       let derbyTimeout = null;
+      // 枠番・馬名・脚質は実ツールの入力項目に合わせた並び
+      const DERBY_HORSES = [
+        { gate: 1, name: 'サンダー', color: '#ffffff', numColor: '#000', style: 'nige' },
+        { gate: 2, name: 'ファントム', color: '#1c1c1c', numColor: '#fff', style: 'senko' },
+        { gate: 3, name: 'ブレイズ', color: '#e74c3c', numColor: '#fff', style: 'sashi' },
+        { gate: 4, name: 'コメット', color: '#2980b9', numColor: '#fff', style: 'oikomi' },
+        { gate: 5, name: 'ホライズン', color: '#f1c40f', numColor: '#000', style: 'senko' }
+      ];
+      // 実況テロップ（実ツールの commentary() と同じ文面パターン）
+      function derbyCommentary(p, lead, second) {
+        if (p < 0.05) return '各馬一斉にスタート！';
+        if (p < 0.3) return `先頭は${lead}！${second}が続く！`;
+        if (p < 0.55) return `${lead}がレースを引っ張る展開！`;
+        if (p < 0.8) return `第4コーナーを回った！先頭${lead}！`;
+        if (p < 0.97) return `最後の直線！${lead}か！？${second}が迫る！`;
+        return 'ゴール前！接戦だーッ！！';
+      }
+
       function triggerDerbyDemo() {
         if (derbyRAF) cancelAnimationFrame(derbyRAF);
         if (derbyTimeout) clearTimeout(derbyTimeout);
 
-        const headerEl = document.querySelector('.derby-track-header span:last-child');
+        const stage = document.querySelector('.derby-stage');
+        const runnersEl = document.getElementById('derby-runners');
         const statusEl = document.getElementById('derby-status');
-        const horses = [
-          { id: 'horse-1', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-1') },
-          { id: 'horse-2', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-2') },
-          { id: 'horse-3', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-3') },
-          { id: 'horse-4', pos: 0, speed: 0, finished: false, rankEl: document.getElementById('hrank-4') }
-        ];
+        const captionEl = document.getElementById('derby-caption');
+        const boardEl = document.getElementById('derby-board');
+        const goalEl = document.getElementById('derby-goal');
+        if (!stage || !runnersEl) return;
 
-        // リセット
-        horses.forEach(h => {
-          const el = document.getElementById(h.id);
-          if (el) { el.classList.remove('finished'); el.style.left = '22px'; }
+        const n = DERBY_HORSES.length;
+        const startPct = 4;    // 発走地点（stage幅に対する%）
+        const goalPct = 86;    // ゴール板の位置
+        if (goalEl) goalEl.style.left = goalPct + '%';
+
+        // 馬を配置（奥のレーンほど小さく＝実ツールの遠近と同じ）
+        runnersEl.innerHTML = '';
+        const horses = DERBY_HORSES.map((h, i) => {
+          const el = document.createElement('div');
+          el.className = 'derby-runner';
+          const depth = (i + 0.5) / n;
+          el.style.top = (46 + depth * 32) + '%';
+          el.style.left = startPct + '%';
+          el.style.transform = 'scale(' + (0.88 + depth * 0.16).toFixed(3) + ')';
+          el.innerHTML =
+            '<span class="derby-runner-name"></span>' +
+            '<span class="derby-runner-body">' +
+              '<span class="derby-runner-num"></span>' +
+              '<span class="derby-runner-emoji">🏇</span>' +
+            '</span>';
+          el.querySelector('.derby-runner-name').textContent = h.name;
+          const num = el.querySelector('.derby-runner-num');
+          num.textContent = h.gate;
+          num.style.background = h.color;
+          num.style.color = h.numColor;
+          runnersEl.appendChild(el);
+          return { def: h, el: el, pos: 0, finished: false, time: 0 };
         });
-        if (statusEl) { statusEl.textContent = 'READY'; statusEl.style.color = '#f1c40f'; }
-        if (headerEl) headerEl.textContent = 'RACE DEMO — ゲート準備中';
 
-        // 0.8秒後スタート
+        if (boardEl) { boardEl.classList.remove('is-visible'); boardEl.innerHTML = ''; }
+        if (statusEl) { statusEl.textContent = '発走前'; statusEl.style.color = '#c9a227'; }
+        if (captionEl) { captionEl.style.display = ''; captionEl.textContent = 'まもなくスタート！'; }
+
         derbyTimeout = setTimeout(() => {
-          if (statusEl) { statusEl.textContent = 'START!'; statusEl.style.color = '#2ecc71'; }
-          if (headerEl) headerEl.textContent = 'RACE DEMO — 発走！';
+          if (statusEl) { statusEl.textContent = '発走！'; statusEl.style.color = '#8ef0a8'; }
 
-          let rankCounter = 1;
-          const finishPos = 82; // %
+          const results = [];
           let lastTime = performance.now();
-          let winner = null;
+          let elapsed = 0;
 
           function step(now) {
             const dt = Math.min((now - lastTime) / 1000, 0.1);
             lastTime = now;
+            elapsed += dt;
             let allDone = true;
 
             horses.forEach(h => {
               if (h.finished) return;
               allDone = false;
-              // 速度にランダム揺らぎ + 時間経過でスパート
-              h.speed = 18 + Math.random() * 22 + h.pos * 0.15;
-              h.pos += h.speed * dt;
+              // 脚質で速度の出方を変える（逃げは前半、追込は後半に伸びる）
+              const p = h.pos;
+              let v = 20 + Math.random() * 8;
+              if (h.def.style === 'nige') v += 14 * (1 - p);
+              else if (h.def.style === 'senko') v += 9;
+              else if (h.def.style === 'sashi') v += 16 * p;
+              else v += 22 * p * p;
+              h.pos = Math.min(1, h.pos + (v / 100) * dt);
+              h.el.style.left = (startPct + h.pos * (goalPct - startPct)) + '%';
 
-              if (h.pos >= finishPos) {
-                h.pos = finishPos;
+              if (h.pos >= 1) {
                 h.finished = true;
-                const el = document.getElementById(h.id);
-                if (el) {
-                  el.classList.add('finished');
-                  if (h.rankEl) h.rankEl.textContent = `${rankCounter}着`;
-                }
-                if (rankCounter === 1) winner = h.id;
-                rankCounter++;
+                h.time = elapsed;
+                results.push(h);
               }
-
-              const el = document.getElementById(h.id);
-              if (el) el.style.left = `calc(${h.pos}% + 22px)`;
             });
 
+            // 先頭・2番手から実況テロップを更新
+            const sorted = [...horses].sort((a, b) => b.pos - a.pos);
+            if (captionEl) {
+              captionEl.textContent = derbyCommentary(sorted[0].pos, sorted[0].def.name, sorted[1].def.name);
+            }
+
             if (allDone) {
-              const names = { 'horse-1': 'サンダー', 'horse-2': 'ファントム', 'horse-3': 'ブレイズ', 'horse-4': 'コメット' };
-              if (statusEl) { statusEl.textContent = `👑 ${names[winner] || ''}！`; statusEl.style.color = '#f1c40f'; }
-              if (headerEl) headerEl.textContent = 'RACE DEMO — レース確定';
+              if (statusEl) { statusEl.textContent = '👑 ' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
+              if (captionEl) captionEl.style.display = 'none';
+              // 結果掲示板（実ツールの「― 結果発表 ―」と同じ体裁）
+              if (boardEl) {
+                const base = 94.2;
+                boardEl.innerHTML = '<div class="derby-board-title">― 結果発表 ―</div>' +
+                  results.map((h, i) => {
+                    const t = base + i * 0.3 + h.def.gate * 0.05;
+                    const time = '1:' + t.toFixed(1);
+                    return '<div class="derby-board-row">' +
+                      '<span class="derby-board-rank">' + (i + 1) + '着</span>' +
+                      '<span>' + h.def.name + '</span>' +
+                      '<span class="derby-board-time">' + time + '</span>' +
+                      '</div>';
+                  }).join('');
+                boardEl.classList.add('is-visible');
+              }
               derbyTimeout = setTimeout(triggerDerbyDemo, 3500);
               return;
             }
