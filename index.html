@@ -22,7 +22,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
   <meta property="og:title" content="GraphRace Studio｜無料・動くグラフ＆ランキング動画作成ツール">
-  <meta property="og:description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta property="og:description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <meta property="og:url" content="https://graphrace-studio.com/">
   <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
@@ -30,7 +30,7 @@
   <meta name="twitter:title" content="GraphRace Studio｜無料・動くグラフ＆ランキング動画作成ツール">
   <meta name="twitter:description" content="動くバーチャートレース、線グラフ、トーナメント表、競馬風レース、ランキング動画を無料でブラウザ作成。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
-  <meta name="description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta name="description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <link rel="icon" href="Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
@@ -682,25 +682,21 @@
       left: 0;
       height: 100%;
       display: flex;
-      gap: 8px;
-      padding: 8px;
-      transition: none;
+      align-items: stretch;
+      gap: var(--slot-gap, 8px);
+      padding: var(--slot-gap, 8px) 0;
+      box-sizing: border-box;
+      will-change: transform;
     }
     .rv-card {
-      width: 120px;
-      height: calc(100% - 16px);
+      flex: 0 0 var(--slot-w, 120px);
+      width: var(--slot-w, 120px);
+      height: 100%;
       border-radius: 10px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      flex-shrink: 0;
       opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-    .rv-card.visible {
-      opacity: 1;
-      transform: translateY(0);
     }
     .rv-rank {
       flex: 0 0 13%;
@@ -1112,7 +1108,7 @@
         "url": "https://graphrace-studio.com/",
         "name": "GraphRace Studio",
         "alternateName": ["グラフレーススタジオ"],
-        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
+        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
         "publisher": {
           "@id": "https://graphrace-studio.com/#organization"
         }
@@ -1348,11 +1344,12 @@
               <div class="card-top">
                 <div class="icon">🏇</div>
                 <h4>格付けダービー（競馬風ランキング動画）</h4>
-                <p>順位を決めて走らせるだけで、本格的な競馬中継風のレース動画を作成します。道中の展開は毎回ランダムで盛り上がり抜群です。</p>
+                <p>順位を決めて走らせるだけで、本格的な競馬中継風のレース動画を作成します。道中の展開は毎回ランダムで盛り上がり抜群。軽快な2Dと、3DCGの馬が走る「リアル競馬風」を切り替えて使えます。</p>
                 <div class="tool-tags">
                   <span class="tool-tag">確定順位指定</span>
                   <span class="tool-tag">ランダムレース展開</span>
                   <span class="tool-tag">競馬実況演出</span>
+                  <span class="tool-tag">3Dリアル対応</span>
                 </div>
               </div>
               <a class="btn-tool" href="horse-race-ranking-maker/">ツールを使う</a>
@@ -1470,6 +1467,11 @@
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.08.02</span>
+              <span class="update-content">格付けダービー：3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」を追加しました。従来の「競馬風」とはボタンひとつで切り替えでき、出走馬やレース設定はそのまま引き継がれます。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.07.22</span>
@@ -1888,10 +1890,21 @@
           { rank: '第1位', emoji: '🍜', name: '濃厚醤油ラーメン', desc: '秘伝の極深ダレと自家製太麺・圧倒的1位！' }
         ];
 
+        const stageEl = trackEl.parentElement;
+        const stageWidth = stageEl ? stageEl.clientWidth : 400;
+        // 実ツール準拠：幅に応じた表示枠数からカード幅を算出（16:9相当＝4枠）
+        const slots = 4;
+        const gap = Math.max(4, Math.round(stageWidth * 0.008));
+        const slotW = Math.round((stageWidth - gap * (slots + 1)) / slots);
+        trackEl.style.setProperty('--slot-w', slotW + 'px');
+        trackEl.style.setProperty('--slot-gap', gap + 'px');
+        trackEl.style.paddingLeft = gap + 'px';
+        trackEl.style.paddingRight = gap + 'px';
+
         // カードをJS生成
         trackEl.innerHTML = '';
         trackEl.style.transform = 'translateX(0px)';
-        
+
         items.forEach(item => {
           const card = document.createElement('div');
           card.className = 'rv-card';
@@ -1904,44 +1917,44 @@
           trackEl.appendChild(card);
         });
 
-        const stageEl = trackEl.parentElement;
-        const stageWidth = stageEl ? stageEl.clientWidth : 400;
-        // 開始位置をステージ右端に
+        // 第5位のカードが右端から流れ込んで開始 → 最後のカードが右端に揃う位置で停止
         let offset = -stageWidth;
-        trackEl.style.transform = `translateX(${-offset}px)`;
-
-        const maxOffset = trackEl.scrollWidth + stageWidth;
-        const speed = stageWidth * 0.12; // px per second
+        const maxOffset = Math.max(0, trackEl.scrollWidth - stageWidth);
+        const speed = stageWidth * 0.10; // px per second
         let lastTime = performance.now();
-        const fadeZone = stageWidth * 0.25;
+        const fadeZone = stageWidth * 0.22;
+        const cards = Array.from(trackEl.querySelectorAll('.rv-card'));
 
-        function applyVisibility() {
-          const cards = trackEl.querySelectorAll('.rv-card');
+        function applyFrame() {
+          trackEl.style.transform = `translateX(${-offset}px)`;
           cards.forEach(card => {
-            const cardLeft = card.offsetLeft + offset;
-            if (cardLeft >= stageWidth) {
-              card.classList.remove('visible');
-            } else if (cardLeft > stageWidth - fadeZone) {
-              card.classList.add('visible');
-            } else {
-              card.classList.add('visible');
+            const left = card.offsetLeft - offset;
+            if (left >= stageWidth) {
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(10px)';
+              return;
             }
+            const p = Math.min(1, Math.max(0, (stageWidth - left) / fadeZone));
+            card.style.opacity = String(p);
+            card.style.transform = p < 1 ? `translateY(${Math.round((1 - p) * 10)}px)` : '';
           });
         }
+
+        applyFrame();
 
         function step(now) {
           const dt = Math.min((now - lastTime) / 1000, 0.1);
           lastTime = now;
           offset += speed * dt;
 
-          trackEl.style.transform = `translateX(${-offset}px)`;
-          applyVisibility();
-
           if (offset >= maxOffset) {
-            // ループ再生
-            setTimeout(triggerRankingDemo, 1500);
+            offset = maxOffset;
+            applyFrame();
+            // 終端で静止 → ループ再生
+            setTimeout(triggerRankingDemo, 1800);
             return;
           }
+          applyFrame();
           rankingRAF = requestAnimationFrame(step);
         }
 
