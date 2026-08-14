@@ -15,21 +15,21 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>競馬風ランキング動画メーカー無料｜格付けダービー</title>
-  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。最大16頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画に対応し、インストール不要・ブラウザだけで完結します。">
+  <title>競馬風ランキング動画メーカー無料｜格付けダービー（3Dリアル対応）</title>
+  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。軽快な2Dと、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」をワンタッチで切り替え。最大16頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画対応、インストール不要。">
   <link rel="canonical" href="https://graphrace-studio.com/horse-race-ranking-maker/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
-  <meta property="og:title" content="競馬風ランキング動画メーカー無料｜格付けダービー">
-  <meta property="og:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta property="og:title" content="競馬風ランキング動画メーカー無料｜格付けダービー（3Dリアル対応）">
+  <meta property="og:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。軽快な2Dと3DCGのリアル競馬風を切り替え可能。インストール不要、ブラウザだけで完結。">
   <meta property="og:url" content="https://graphrace-studio.com/horse-race-ranking-maker/">
   <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="競馬風ランキング動画メーカー無料｜格付けダービー">
-  <meta name="twitter:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。インストール不要、ブラウザだけで完結。">
+  <meta name="twitter:title" content="競馬風ランキング動画メーカー無料｜格付けダービー（3Dリアル対応）">
+  <meta name="twitter:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。軽快な2Dと3DCGのリアル競馬風を切り替え可能。インストール不要、ブラウザだけで完結。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- favicon（アプリと統一） -->
   <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
@@ -57,7 +57,14 @@
         "applicationCategory": "MultimediaApplication",
         "operatingSystem": "Web",
         "url": "https://graphrace-studio.com/horse-race-ranking-maker/",
-        "description": "順位を決めて走らせるだけで、競馬中継風のランキング発表動画をブラウザだけで無料作成できるツール。",
+        "description": "順位を決めて走らせるだけで、競馬中継風のランキング発表動画をブラウザだけで無料作成できるツール。軽快な2Dの「競馬風」と、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」を切り替えて使えます。",
+        "featureList": [
+          "最大16頭・ドラッグで最終順位を指定",
+          "2Dの競馬風と3DCGのリアル競馬風をワンタッチで切り替え",
+          "出走馬とレース設定は2つのモードで共通",
+          "WebM形式での動画書き出し",
+          "16:9 / 9:16 / 3:4 / 1:1 のアスペクト比に対応"
+        ],
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -79,7 +86,7 @@
             "@type": "HowToStep",
             "position": 2,
             "name": "レースを設定する",
-            "text": "レース時間（約15〜40秒）、展開の派手さ、画面に表示するレース名を選びます。"
+            "text": "「競馬風」と「リアル競馬風（3D）」から表現を選び、レース時間またはコース、展開、画面に表示するレース名を選びます。出走馬などの設定は切り替えても引き継がれます。"
           },
           {
             "@type": "HowToStep",
@@ -481,29 +488,75 @@
     }
     .umarace-head h2 span{color:var(--gold)}
     .umarace-head p{font-size:12px;opacity:.75;letter-spacing:.05em;margin:0}
-    .umarace-grid{
-      max-width:1200px;margin:0 auto;padding:20px 24px 60px;
-      display:grid;grid-template-columns:340px 1fr 280px;gap:18px;
+    /* ツール切替。2つのエンジンは見た目も重さも別物なので、
+       見出しの中の一番目に付く場所に置いて今どちらなのかを常に示す */
+    .tool-switch{
+      margin-left:auto;display:flex;gap:4px;padding:4px;
+      background:rgba(0,0,0,.35);border:1px solid #2c4033;border-radius:999px;
     }
+    .tool-switch button{
+      display:flex;align-items:center;gap:6px;
+      border:none;background:none;cursor:pointer;
+      color:#9db3a6;font:inherit;font-size:12.5px;font-weight:700;
+      letter-spacing:.06em;padding:7px 15px;border-radius:999px;
+      transition:background .18s ease,color .18s ease;
+    }
+    .tool-switch button:hover{color:#f2ecd9}
+    .tool-switch button[aria-selected="true"]{background:var(--gold);color:#1a1408}
+    .tool-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    .tool-switch .tag3d{
+      font-size:9.5px;letter-spacing:.1em;padding:1px 5px;border-radius:4px;
+      background:rgba(255,255,255,.16);color:inherit;
+    }
+    .tool-switch button[aria-selected="true"] .tag3d{background:rgba(0,0,0,.22)}
+    @media(max-width:600px){
+      .tool-switch{margin-left:0;width:100%}
+      .tool-switch button{flex:1;justify-content:center;padding:9px 8px}
+    }
+    /* モード別の出し分け。DOMは常に両方あり、表示だけ切り替える */
+    .umarace[data-tool-mode="classic"] .mode-real{display:none}
+    .umarace[data-tool-mode="real"] .mode-classic{display:none}
+    /* ツールの高さを固定し、設定列だけをスクロールさせる。
+       ページ全体が出走馬の頭数ぶん伸びてしまうのを防ぎ、
+       プレビューを常に同じ位置・同じ大きさで見せるための構成 */
+    .umarace{--tool-h:clamp(540px, calc(100vh - 150px), 760px)}
+    .umarace-grid{
+      max-width:1200px;margin:0 auto;padding:20px 24px 40px;
+      display:grid;grid-template-columns:360px 1fr;gap:12px 18px;
+      /* 1行目=設定パネルとプレビュー(同じ高さ) / 2行目=ステータス */
+      grid-template-rows:var(--tool-h) auto;
+    }
+    .umarace-grid .status{grid-column:1/-1}
     /* 子要素の固有幅でグリッド列が広がるのを防ぐ(スマホの横はみ出し対策) */
     .umarace-grid>div{min-width:0}
-    @media(max-width:1100px){
-      .umarace-grid{grid-template-columns:340px 1fr}
-      /* 中間幅では動画設定をプレビュー直下に配置 */
-      .video-col{grid-column:2}
+    /* 設定列。入り切らない分はここだけがスクロールする */
+    .umarace-side{
+      overflow-y:auto;overscroll-behavior:contain;min-height:0;
+      padding-right:6px;
+      scrollbar-width:thin;scrollbar-color:#6b6450 transparent;
     }
-    @media(max-width:860px){
-      .umarace-grid{grid-template-columns:1fr}
-      /* スマホでは結果(キャンバス)を先頭に表示 */
-      .umarace-grid>div:nth-child(2){order:-1}
-      .video-col{grid-column:auto}
+    .umarace-side::-webkit-scrollbar{width:8px}
+    .umarace-side::-webkit-scrollbar-thumb{background:#6b6450;border-radius:4px}
+    .umarace-side::-webkit-scrollbar-track{background:transparent}
+    /* プレビュー列。枠は列の高さいっぱい = 設定パネルと同じ高さ */
+    .umarace-preview{min-width:0;min-height:0;height:100%}
+    .umarace .stage-wrap{height:100%;min-height:0}
+    @media(max-width:900px){
+      /* 縦積み。高さの固定もスクロールもやめて、ページ本来の流れに戻す */
+      .umarace{--tool-h:auto}
+      .umarace-grid{grid-template-columns:1fr;grid-template-rows:none;padding-bottom:40px}
+      .umarace-side{overflow:visible;padding-right:0}
+      /* スマホではプレビュー→ステータス→設定の順に見せる */
+      .umarace-preview{order:-2;height:auto}
+      .umarace-grid .status{order:-1}
+      .umarace .stage-wrap{height:auto}
     }
     @media(max-width:600px){
       .umarace-grid{padding:14px 10px 40px;gap:14px}
       .umarace .panel{padding:12px}
       .umarace-head{padding:14px 14px 10px;gap:8px}
       .umarace-head h2{font-size:18px}
-      .umarace .entry{gap:6px}
+      .umarace .entry{gap:4px}
     }
     .umarace .panel{
       background:var(--panel);
@@ -531,20 +584,23 @@
     .umarace #timeline{width:100%;accent-color:var(--gold);cursor:pointer}
     .umarace #timeline:disabled{cursor:default;opacity:.5}
     .umarace .timeline-time{font-size:11px;color:#8a8060;text-align:right;margin-top:2px}
+    /* 16頭ぶんが縦に伸びすぎないよう、1行1頭で高さを詰めている。
+       名前欄は狭くなるが、入力中は name-editing で他の操作要素を隠して広がる */
     .umarace .entry{
-      display:flex;align-items:center;gap:8px;
-      background:#fff;border:1px solid var(--line);border-radius:8px;
-      padding:8px;margin-bottom:8px;
+      display:flex;align-items:center;gap:5px;
+      background:#fff;border:1px solid var(--line);border-radius:7px;
+      padding:4px 6px;margin-bottom:5px;
       transition:transform .15s ease;
     }
     .umarace .entry .rank{
-      width:30px;height:30px;border-radius:6px;flex:none;
-      background:var(--ink);color:#ffe9a8;font-weight:800;font-size:13px;
+      width:24px;height:24px;border-radius:5px;flex:none;
+      background:var(--ink);color:#ffe9a8;font-weight:800;font-size:12px;
       display:flex;align-items:center;justify-content:center;
     }
     .umarace .entry input[type=text]{
       flex:1;min-width:0;border:none;border-bottom:1px solid var(--line);
-      font-size:16px;padding:4px 2px;background:transparent;
+      /* 16px未満にするとiOSでフォーカス時にズームするので下げない */
+      font-size:16px;padding:2px 2px;background:transparent;
     }
     .umarace .entry input[type=text]:focus{outline:none;border-bottom-color:var(--gold)}
     /* 名前入力中は他の操作要素を隠して入力欄を行幅いっぱいに広げる */
@@ -553,19 +609,19 @@
     .umarace .entry.name-editing select.gate,
     .umarace .entry.name-editing button.del{display:none}
     .umarace .entry input[type=color]{
-      width:34px;height:34px;border:none;background:none;cursor:pointer;flex:none;padding:0;
+      width:26px;height:26px;border:none;background:none;cursor:pointer;flex:none;padding:0;
     }
     .umarace .entry .avatar{
-      width:38px;height:38px;border-radius:50%;flex:none;cursor:pointer;
+      width:28px;height:28px;border-radius:50%;flex:none;cursor:pointer;
       background:#e8e2d2 center/cover no-repeat;
-      border:2px solid var(--line);
+      border:1px solid var(--line);
       display:flex;align-items:center;justify-content:center;
-      font-size:14px;color:#a09878;
+      font-size:12px;color:#a09878;
       overflow:hidden;
     }
     .umarace .entry .grip{
-      cursor:grab;color:#b8b09a;font-size:17px;flex:none;user-select:none;
-      padding:10px 6px;margin:-8px -4px -8px -6px;
+      cursor:grab;color:#b8b09a;font-size:15px;flex:none;user-select:none;
+      padding:9px 3px;margin:-7px -2px -7px -4px;
       touch-action:none;
     }
     .umarace .entry.dragging{
@@ -579,14 +635,58 @@
     .umarace .entry.dragging .grip{cursor:grabbing}
     body.umarace-grabbing,body.umarace-grabbing *{cursor:grabbing!important}
     .umarace .entry select.gate{
-      flex:none;border:1px solid var(--line);border-radius:5px;
-      font-size:12px;padding:6px 2px;background:#faf8f2;color:#5c5540;
+      flex:none;width:42px;border:1px solid var(--line);border-radius:5px;
+      font-size:11px;padding:5px 1px;background:#faf8f2;color:#5c5540;
+      text-align:center;
     }
     .umarace .entry button.del{
-      border:none;background:none;color:#b0a890;font-size:16px;cursor:pointer;flex:none;
-      padding:10px 6px;margin:-8px -4px;
+      border:none;background:none;color:#b0a890;font-size:14px;cursor:pointer;flex:none;
+      padding:9px 3px;margin:-7px -2px;
     }
     .umarace .entry button.del:hover,.umarace .entry button.del:active{color:var(--red)}
+    .umarace .entry button.del:disabled{color:#dcd6c6;cursor:default}
+    /* 出走馬リストは2つのツールで共通。片方でしか使わない項目もDOMは常に作っておき、
+       表示だけ data-tool-mode で切り替える。こうすると値がモードをまたいでも残る */
+    .umarace .entry select.style{display:none}
+    /* リアル競馬風だけ行に脚質が増える。2段にすると16頭でリストが倍の高さに
+       なってしまうので、1行のまま各要素を詰めて収める */
+    .umarace[data-tool-mode="real"] .entry select.style{
+      /* 「大逃げ」の3文字と▼が窮屈にならない幅 */
+      display:block;flex:none;width:60px;border:1px solid var(--line);border-radius:5px;
+      font-size:11px;padding:5px 1px;background:#faf8f2;color:#5c5540;
+    }
+    .umarace[data-tool-mode="real"] .entry.name-editing select.style{display:none}
+    /* アイコン画像は3Dの馬には貼れないので、リアルでは隠す(値は消さない) */
+    .umarace[data-tool-mode="real"] .entry .avatar{display:none}
+    /* 毛色4択。リアル競馬風で毛色パターンが「リアル」のときだけ、
+       自由な色ピッカーの代わりに出す。実在の毛色テクスチャは4種しかなく、
+       自由色を出すと「選べない色」を選ばせることになるため。
+       文字は透明にしてネイティブのメニュー側で読ませ、枠自体を色見本に使う */
+    .umarace .entry select.coat{display:none}
+    .umarace[data-tool-mode="real"][data-coat-mode="real"] .entry select.coat{
+      display:block;width:26px;height:26px;flex:none;padding:0;
+      border:1px solid var(--line);border-radius:6px;cursor:pointer;
+      color:transparent;text-shadow:none;
+      -webkit-appearance:none;appearance:none;
+      /* 押せば選べることを示す▼。灰色は芦毛(白)にも青毛(黒)にも乗る */
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6'%3E%3Cpath d='M0 0h8L4 6z' fill='%23909090'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 3px bottom 3px;
+    }
+    .umarace[data-tool-mode="real"][data-coat-mode="real"] .entry input[type=color]{display:none}
+    .umarace[data-tool-mode="real"][data-coat-mode="real"] .entry.name-editing select.coat{display:none}
+    /* タッチ端末だけ行を少し戻す。マウスより狙いが粗いので、
+       掴む(⠿)・消す(✕)が押せる高さを確保する。デスクトップは詰めたまま */
+    @media (pointer: coarse){
+      .umarace .entry{padding:7px 6px;gap:6px}
+      .umarace .entry .grip{font-size:18px;padding:11px 5px;margin:-9px -3px -9px -5px}
+      .umarace .entry .rank{width:28px;height:28px;font-size:13px}
+      .umarace .entry .avatar{width:32px;height:32px;font-size:13px}
+      .umarace .entry input[type=color],
+      .umarace[data-tool-mode="real"][data-coat-mode="real"] .entry select.coat{width:30px;height:30px}
+      .umarace .entry select.gate,
+      .umarace[data-tool-mode="real"] .entry select.style{padding:8px 1px}
+      .umarace .entry button.del{font-size:16px;padding:11px 5px;margin:-9px -3px}
+    }
     .umarace .hint{font-size:11px;color:#8a836c;line-height:1.6;margin:6px 0 0}
     /* 見出し横のiマーク: ホバー/フォーカスで説明を表示 */
     .umarace .info-tip{
@@ -597,23 +697,40 @@
       letter-spacing:0;color:#8a836c;cursor:help;
     }
     .umarace .info-tip:hover,.umarace .info-tip:focus{color:var(--gold);border-color:var(--gold);outline:none}
+    /* 設定列は overflow-y:auto なので横方向も切り取られる(overflow-x が visible のままに
+       できないため)。吹き出しは position:fixed にして枠の外へ出し、
+       位置は placeInfoBubble() が「i」に合わせて毎回計算する */
     .umarace .info-tip .info-bubble{
-      display:none;position:absolute;top:calc(100% + 8px);left:-10px;z-index:20;
-      width:min(280px,72vw);padding:10px 12px;
+      display:none;position:fixed;top:0;left:0;z-index:60;
+      width:min(280px,calc(100vw - 24px));padding:10px 12px;
       background:#2e2a20;color:#f0ead2;border:1px solid var(--gold);border-radius:8px;
       font-size:11px;font-weight:400;font-style:normal;letter-spacing:.02em;line-height:1.7;
       font-family:inherit;text-align:left;
+      /* 親のラベルが white-space:nowrap のことがあるので必ず打ち消す。
+         継承したままだと文章が一行のまま吹き出しからはみ出す */
+      white-space:normal;overflow-wrap:anywhere;
       box-shadow:0 6px 18px rgba(0,0,0,.35);
       cursor:auto;
     }
+    /* 三角は「i」の真下に来るよう、JSが --arrow-x を入れる */
     .umarace .info-tip .info-bubble::before{
-      content:"";position:absolute;top:-5px;left:13px;
+      content:"";position:absolute;top:-5px;left:var(--arrow-x,13px);margin-left:-4px;
       width:8px;height:8px;background:#2e2a20;
       border-left:1px solid var(--gold);border-top:1px solid var(--gold);
       transform:rotate(45deg);
     }
+    /* 上に出す場合は三角も下向きにする */
+    .umarace .info-tip .info-bubble.above::before{
+      top:auto;bottom:-5px;
+      border:none;border-right:1px solid var(--gold);border-bottom:1px solid var(--gold);
+    }
     .umarace .info-tip:hover .info-bubble,
     .umarace .info-tip:focus .info-bubble{display:block}
+    /* 説明はパッと見で拾えるよう「見出し語+説明」の段組みにする。
+       bを行頭のラベルとして立てると、選択肢ごとの違いが一目で追える */
+    .umarace .info-bubble b{display:block;margin-top:8px;color:var(--gold);font-weight:700}
+    .umarace .info-bubble>b:first-child{margin-top:0}
+    .umarace .info-bubble p{margin:8px 0 0}
     .umarace .btn{
       display:inline-flex;align-items:center;justify-content:center;gap:6px;
       border:none;border-radius:8px;cursor:pointer;
@@ -635,21 +752,67 @@
     }
     .umarace .btn:disabled{opacity:.45;cursor:not-allowed}
     .umarace .field{margin-bottom:12px}
+    /* 出走馬リストの直前に置く設定。縦を食わないようラベルと入力を1行に並べる */
+    .umarace .field-inline{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+    .umarace .field-inline label{margin-bottom:0;flex:none;white-space:nowrap}
+    .umarace .field-inline select{flex:1;min-width:0;padding:6px 8px;font-size:14px}
     .umarace .field label{font-size:12px;color:#5c5540;display:block;margin-bottom:4px;letter-spacing:.05em}
     .umarace .field select,.umarace .field input[type=text]{
       width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;
       font-size:16px;background:#fff;color:var(--ink);
     }
+    /* 既定(縦積み時)は幅基準。枠そのものが比率を持つ。
+       --cap は縦長を横に伸ばしすぎないための幅の上限 */
     .umarace .stage{
       position:relative;border-radius:10px;overflow:hidden;
       box-shadow:0 6px 24px rgba(0,0,0,.5);
       background:#000;
+      --cap:9999px;
       aspect-ratio:16/9;
+      width:100%;max-width:var(--cap);
       margin:0 auto;
     }
-    .umarace .stage[data-aspect="3:4"]{aspect-ratio:3/4;max-width:480px}
-    .umarace .stage[data-aspect="9:16"]{aspect-ratio:9/16;max-width:380px}
+    .umarace .stage[data-aspect="3:4"]{aspect-ratio:3/4; --cap:420px}
+    .umarace .stage[data-aspect="9:16"]{aspect-ratio:9/16;--cap:330px}
+    .umarace .stage[data-aspect="1:1"]{aspect-ratio:1/1;  --cap:520px}
     .umarace canvas{display:block;width:100%;height:100%}
+    /* 2カラム(高さ固定)では、プレビュー枠を設定パネルと同じ高さの箱に固定し、
+       比率の違いは中の映像を収めて余りを黒で埋めることで吸収する。
+       枠自体に比率を持たせると、比率ごとに枠の高さが変わってしまうため */
+    @media(min-width:901px){
+      .umarace .stage{
+        width:100%;height:100%;
+        aspect-ratio:auto;max-width:none;
+        display:flex;align-items:center;justify-content:center;
+      }
+      /* キャンバスは内部解像度どおりの比率を保ったまま、枠に収まるまで縮む */
+      .umarace canvas{width:auto;height:auto;max-width:100%;max-height:100%}
+    }
+    /* リアル競馬風の描画先。ステージ側で既に比率が決まっているので、
+       real3d.js のレターボックスは実質そのまま填まる。
+       id セレクタは .mode-real の一括非表示より強いので、
+       表示・非表示はこの2行で明示的に決める(競馬風のときは2Dキャンバスを覆わせない) */
+    .umarace #stage3d{position:absolute;inset:0;display:none;
+      align-items:center;justify-content:center;background:#000}
+    .umarace[data-tool-mode="real"] #stage3d{display:flex}
+    .umarace #stage3d .r3d-stage{position:relative}
+    .umarace #stage3d .r3d-stage canvas{display:block;width:100%;height:100%}
+    /* 3D読み込み中の表示。4MBのモデルを落とすので必ず進捗を出す */
+    .umarace .stage .loading3d{
+      position:absolute;inset:0;display:none;
+      flex-direction:column;align-items:center;justify-content:center;gap:12px;
+      background:rgba(6,12,9,.88);color:#dfe9e2;font-size:13px;letter-spacing:.06em;
+      text-align:center;padding:20px;
+    }
+    .umarace .stage .loading3d.visible{display:flex}
+    .umarace .stage .loading3d .spinner{
+      width:34px;height:34px;border-radius:50%;
+      border:3px solid rgba(227,179,76,.25);border-top-color:var(--gold);
+      animation:spin3d .9s linear infinite;
+    }
+    @keyframes spin3d{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){.umarace .stage .loading3d .spinner{animation-duration:2.4s}}
+    .umarace .stage .loading3d small{font-size:11px;opacity:.7;line-height:1.7}
     .umarace .stage .overlay-note{
       position:absolute;inset:auto 10px 10px auto;
       font-size:11px;color:rgba(255,255,255,.65);
@@ -703,113 +866,43 @@
           <span class="badge">無料（クレジット表記要）</span>
           <span class="badge">商用利用OK</span>
           <span class="badge">外部送信なし</span>
+          <span class="badge">3Dリアル対応</span>
         </div>
         <h1>競馬風ランキング動画を<br>無料でカンタン作成</h1>
-        <p class="lead">順位を決めて、走らせるだけ。展開は毎回ランダムなのに、ゴールは必ず設定どおり。競馬中継風のランキング発表動画がブラウザだけで完成し、WebM録画にも対応しています。</p>
+        <p class="lead">順位を決めて、走らせるだけ。展開は毎回ランダムなのに、ゴールは必ず設定どおり。競馬中継風のランキング発表動画がブラウザだけで完成し、WebM録画にも対応しています。<strong>軽快な「競馬風」</strong>と、3DCGの馬が実際の競馬場のようなコースを駆ける<strong>「リアル競馬風」</strong>を、ボタンひとつで切り替えられます。</p>
       </div>
     </section>
 
     <!-- ================= ツール本体 ================= -->
-    <section class="umarace" id="tool">
+    <!-- data-tool-mode: classic=競馬風(2D) / real=リアル競馬風(3D)。
+         出走馬リストなど共通UIの出し分けはすべてこの属性で行う -->
+    <section class="umarace" id="tool" data-tool-mode="classic">
       <div class="umarace-head">
         <h2>格付け<span>ダービー</span></h2>
-        <p>順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー</p>
+        <p id="toolTagline">順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー</p>
+        <div class="tool-switch" role="tablist" aria-label="ツールの切り替え">
+          <button type="button" role="tab" id="tabClassic" data-mode="classic" aria-selected="true">競馬風</button>
+          <button type="button" role="tab" id="tabReal" data-mode="real" aria-selected="false">リアル競馬風<span class="tag3d">3D</span></button>
+        </div>
       </div>
       <div class="umarace-grid">
-        <div>
-          <div class="panel">
-            <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble">⠿をドラッグして最終順位(ゴール着順)を入れ替え。「◯枠」は出走レーン(画面上の走る位置)で、着順とは独立に指定できます。展開は毎回ランダムですが、必ずこの順位でゴールします。</span></span></h3>
-            <div id="entries"></div>
-            <button class="btn btn-add" id="addEntry">＋ 出走馬を追加(最大16頭)</button>
-            <p class="hint">設定は自動保存され、次回アクセス時に復元されます。<a href="#" id="resetState">初期状態に戻す</a></p>
-          </div>
-
-          <details class="panel" style="margin-top:14px" open>
-            <summary>レース設定</summary>
-            <div class="field">
-              <label>レース名(画面上部に表示)</label>
-              <input type="text" id="raceName" value="第1回 ランキング杯" maxlength="24">
-            </div>
-            <div class="field">
-              <label>レース時間</label>
-              <select id="duration">
-                <option value="15">ショート(約15秒)</option>
-                <option value="25" selected>スタンダード(約25秒)</option>
-                <option value="40">ロング(約40秒)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>展開の派手さ</label>
-              <select id="drama">
-                <option value="0.6">おだやか(順当な流れ)</option>
-                <option value="1" selected>ふつう</option>
-                <option value="1.5">波乱(仕掛け合い多め)</option>
-                <option value="2.1">大波乱(大逃げ・大まくり・失速なんでもあり)</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>スタート前カウントダウン</label>
-              <select id="countdown">
-                <option value="on" selected>あり(3秒)</option>
-                <option value="off">なし(すぐスタート)</option>
-              </select>
-            </div>
-          </details>
-
-          <details class="panel" style="margin-top:14px" open>
-            <summary>結果発表設定</summary>
-            <div class="field">
-              <label>掲示板タイトル</label>
-              <input type="text" id="boardTitle" value="結果発表" maxlength="16">
-            </div>
-            <div class="field">
-              <label>馬体色の表示</label>
-              <select id="boardColor">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>アイコン画像の表示</label>
-              <select id="boardImage">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>着差(ハナ・クビなど)の表示</label>
-              <select id="boardMargin">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-          </details>
-
-        </div>
-
-        <div>
-          <div class="stage">
-            <canvas id="cv" width="1280" height="720"></canvas>
-            <div class="play-overlay" id="playOverlay" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="status" id="status">出走馬を設定して「レース開始」を押してください。録画ボタンはレース開始と同時に録画し、ゴール後に自動保存します。</div>
-        </div>
-
-        <div class="video-col">
+        <!-- 設定はすべてこの列に集約し、入り切らない分はこの列だけをスクロールさせる。
+             「レース開始」はいつでも押せるよう先頭に置いている -->
+        <div class="umarace-side">
           <div class="panel">
             <h3>動画設定</h3>
             <div class="field">
-              <label>画面サイズ(アスペクト比)</label>
+              <label>画面サイズ<span class="info-tip" tabindex="0" role="button" aria-label="画面サイズについて">i<span class="info-bubble"><b>16:9</b>YouTubeなど横長の動画向け<b>3:4・1:1</b>SNSのタイムライン投稿向け<b>9:16</b>ショート・リールなど縦長向け</span></span></label>
+              <!-- 選択肢はモードで入れ替わる(3:4は競馬風だけ / 1:1はリアルだけ)。
+                   中身は setAspectOptions() が組み直す -->
               <select id="aspect">
-                <option value="16:9" selected>16:9(横長・YouTube向け)</option>
-                <option value="3:4">3:4(縦長・SNS投稿向け)</option>
-                <option value="9:16">9:16(縦長・ショート/TikTok向け)</option>
+                <option value="16:9" selected>16:9 横長</option>
+                <option value="3:4">3:4 縦長</option>
+                <option value="9:16">9:16 縦長</option>
               </select>
             </div>
-            <div class="field">
-              <label>実況テロップ(字幕)</label>
+            <div class="field mode-classic">
+              <label>実況テロップ</label>
               <select id="captions">
                 <option value="on" selected>表示する</option>
                 <option value="off">表示しない</option>
@@ -821,9 +914,169 @@
               <div class="timeline-time" id="timelineTime">0.0s / 0.0s</div>
             </div>
             <button class="btn btn-start" id="startBtn">▶ レース開始</button>
-            <button class="btn btn-secondary" id="recBtn">⏺ 録画してWebM保存</button>
+            <button class="btn btn-secondary" id="recBtn" title="レース開始と同時に録画し、ゴール後にWebMを自動保存します">⏺ 録画してWebM保存</button>
+          </div>
+
+          <div class="panel" style="margin-top:14px">
+            <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble"><b>⠿ ドラッグ</b>最終順位を入れ替えます<b>数字</b>出走枠。画面のどこを走るかで、着順とは別に決められます<span class="mode-real"><b>脚質</b>大逃げ・逃げ・先行・差し・追込から選ぶ道中の位置取り。大逃げは2番手以下を大きく引き離します。自動なら抽選で決まり、大逃げは出ても1頭だけです</span><b>頭数</b>2〜16頭<p>展開は毎回ランダムですが、必ずこの順位でゴールします。</p></span></span></h3>
+            <!-- 毛色パターンはリスト内の色の見え方を決める設定なので、リストの直前に置く -->
+            <div class="field field-inline mode-real">
+              <label>毛色<span class="info-tip" tabindex="0" role="button" aria-label="毛色について">i<span class="info-bubble"><b>リアル</b>鹿毛・芦毛・青鹿毛・青毛の4種から選びます<b>カラー</b>白い毛並みに馬体色を乗せるので、16頭すべて見分けられます。競馬風で決めた色がそのまま使われます<p>どちらを選んでも、もう一方の設定は消えません。</p></span></span></label>
+              <select id="palette">
+                <option value="real" selected>リアル</option>
+                <option value="color">カラー</option>
+              </select>
+            </div>
+            <div id="entries"></div>
+            <button class="btn btn-add" id="addEntry">＋ 出走馬を追加</button>
+            <p class="hint">設定は自動保存されます。<a href="#" id="resetState">初期状態に戻す</a></p>
+          </div>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>レース設定</summary>
+            <div class="field">
+              <label>レース名</label>
+              <input type="text" id="raceName" value="第1回 ランキング杯" maxlength="24">
+            </div>
+            <!-- 尺の決め方が2つのツールで根本的に違うので、あえて別々に持つ。
+                 競馬風=秒を指定 / リアル競馬風=コース距離から逆算。
+                 切り替えても互いを書き換えないので、両方の設定が生き残る -->
+            <div class="field mode-classic">
+              <label>レース時間</label>
+              <select id="duration">
+                <option value="15">ショート 約15秒</option>
+                <option value="25" selected>スタンダード 約25秒</option>
+                <option value="40">ロング 約40秒</option>
+              </select>
+            </div>
+            <div class="field mode-real">
+              <label>コース<span class="info-tip" tabindex="0" role="button" aria-label="コースについて">i<span class="info-bubble">コースの距離で動画の長さが決まります。<p>下に出る1周の長さや直線の距離は、選んだコースの実測値です。</p></span></span></label>
+              <select id="coursePreset">
+                <option value="short" selected>ショート 469m・約30秒</option>
+                <option value="local">小回り 1000m・約61秒</option>
+                <option value="tokyo">広い 2400m・約2分27秒</option>
+              </select>
+            </div>
+            <div class="field mode-real">
+              <label>回り</label>
+              <select id="handed">
+                <option value="right" selected>右回り</option>
+                <option value="left">左回り</option>
+              </select>
+            </div>
+            <!-- 展開の作り方は2つのツールで仕組みがまったく違うので、設定も別々に持つ。
+                 競馬風=揺らぎの強さを4段階 / リアル競馬風=2つの展開アルゴリズムから選択 -->
+            <div class="field mode-classic">
+              <label>展開の派手さ<span class="info-tip" tabindex="0" role="button" aria-label="展開の派手さについて">i<span class="info-bubble"><b>おだやか</b>順位どおりの順当な流れ<b>ふつう</b>ほどよく順位が入れ替わります<b>波乱</b>仕掛け合いが増え、道中の変動が大きくなります<b>大波乱</b>大逃げ・大まくり・失速、なんでもあり<p>どれを選んでも、ゴールの着順は設定どおりです。</p></span></span></label>
+              <select id="drama">
+                <option value="0.6">おだやか</option>
+                <option value="1" selected>ふつう</option>
+                <option value="1.5">波乱</option>
+                <option value="2.1">大波乱</option>
+              </select>
+            </div>
+            <div class="field mode-real">
+              <label>展開<span class="info-tip" tabindex="0" role="button" aria-label="展開について">i<span class="info-bubble"><b>波乱</b>見せ場を作る仕掛けや叩き合いを入れて、直線でドラマが起きるようにします<b>リアル</b>人工的な山を作らず、各馬が脚質どおりの役割を最後まで貫きます</span></span></label>
+              <select id="algo">
+                <option value="drama" selected>波乱</option>
+                <option value="real">リアル</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>カウントダウン<span class="info-tip" tabindex="0" role="button" aria-label="カウントダウンについて">i<span class="info-bubble">スタート前に3秒のカウントダウンを入れます。<p>なしにすると、いきなり走り出します。</p></span></span></label>
+              <select id="countdown">
+                <option value="on" selected>あり</option>
+                <option value="off">なし</option>
+              </select>
+            </div>
+            <div class="field mode-real">
+              <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
+              <input type="number" id="seed" value="1" min="0" max="99999" step="1">
+            </div>
+            <p class="hint mode-real" id="courseInfo"></p>
+          </details>
+
+          <details class="panel mode-real" style="margin-top:14px" open>
+            <summary>画面表示</summary>
+            <div class="field">
+              <label>コースマップ</label>
+              <select id="showMap">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>隊列パネル</label>
+              <select id="showField">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>透かし（ロゴ）<span class="info-tip" tabindex="0" role="button" aria-label="透かしについて">i<span class="info-bubble">画面を流れる「GraphRace Studio」のロゴです。<p>いまは無料で消せますが、今後は有料プラン限定になる予定です。</p></span></span></label>
+              <select id="showMark">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <p class="hint">表示した内容はそのまま動画にも記録されます。カメラワークは自動です。</p>
+          </details>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>結果発表設定</summary>
+            <div class="field">
+              <label>掲示板タイトル</label>
+              <input type="text" id="boardTitle" value="結果発表" maxlength="16">
+            </div>
+            <div class="field">
+              <label>馬体色</label>
+              <select id="boardColor">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <!-- アイコン画像は3Dの馬に貼れないので、この項目だけ競馬風専用 -->
+            <div class="field mode-classic">
+              <label>アイコン画像</label>
+              <select id="boardImage">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>着差<span class="info-tip" tabindex="0" role="button" aria-label="着差について">i<span class="info-bubble">1つ上の馬との差を、ハナ・クビ・1馬身のような競馬の表記で掲示板に出します。</span></span></label>
+              <select id="boardMargin">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <p class="hint mode-real">リアル競馬風ではアイコン画像は使われません。設定は競馬風に戻すと残っています。</p>
+          </details>
+
+        </div>
+
+        <div class="umarace-preview">
+          <div class="stage-wrap">
+          <div class="stage">
+            <canvas id="cv" width="1280" height="720"></canvas>
+            <!-- リアル競馬風の描画先。real3d.js が読み込まれるまでは空のまま。
+                 表示の切り替えは #stage3d 自身のCSSで行う -->
+            <div id="stage3d"></div>
+            <div class="play-overlay" id="playOverlay" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <div class="loading3d" id="loading3d" aria-live="polite">
+              <div class="spinner" aria-hidden="true"></div>
+              <div id="loading3dText">3Dの馬を読み込んでいます…</div>
+              <small>初回のみ約4MBを読み込みます。<br>2回目以降はキャッシュから開きます。</small>
+            </div>
+          </div>
           </div>
         </div>
+
+        <!-- ステータスは列の高さに影響させたくないので、グリッドの2行目に置く。
+             こうすると設定パネルとプレビュー枠の高さがぴったり揃う -->
+        <div class="status" id="status">出走馬を設定して「レース開始」を押してください。</div>
       </div>
     </section>
 
@@ -836,6 +1089,11 @@
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
             <h3>順位を決めて走らせるだけ</h3>
             <p>最大16頭の出走馬をドラッグで並べ替えるだけで最終順位を指定。名前・馬体色・アイコン画像も自由に設定できます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎥</div>
+            <h3>2Dと3Dを切り替えて使える</h3>
+            <p>すぐ開けて軽い「競馬風」と、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」の2種類。出走馬もレース設定も共通なので、同じ顔ぶれのまま表現だけを比べられます。</p>
           </div>
           <div class="feature-card">
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎲</div>
@@ -907,8 +1165,8 @@
           </div>
           <div class="step">
             <span class="num">2</span>
-            <h3>レースを設定</h3>
-            <p>レース時間（約15〜40秒）、展開の派手さ、画面に表示するレース名を選びます。</p>
+            <h3>表現とレースを設定</h3>
+            <p>「競馬風」か「リアル競馬風（3D）」を選び、レース時間またはコース、展開、レース名を設定します。出走馬などの設定は切り替えても引き継がれます。</p>
           </div>
           <div class="step">
             <span class="num">3</span>
@@ -939,6 +1197,14 @@
             <div class="faq-a">画面にある「録画してWebM保存」ボタンをクリックしてからレースを開始すると、レース終了後に動画ファイルが自動でダウンロードされます。特別な録画ソフトは不要です。</div>
           </details>
           <details class="faq-item">
+            <summary class="faq-q">「競馬風」と「リアル競馬風」は何が違いますか？設定はやり直しになりますか？</summary>
+            <div class="faq-a">「競馬風」は2Dのイラスト表現で、ページを開いてすぐに使える軽量なモードです。「リアル競馬風」は3DCGの馬が実際の競馬場のようなコースを走り、カメラワークも自動で切り替わります。<strong>出走馬（名前・順位・枠番・馬体色・脚質）と、レース名・カウントダウン・結果発表設定は2つのモードで共通</strong>なので、切り替えてもやり直しは不要です。レース時間とコース、展開の設定、画面サイズの3:4と1:1のように仕組みが異なる設定は、それぞれのモードで別々に記憶され、戻ってくると元の状態に復元されます。馬体色については、リアル競馬風の毛色を「カラー」にすると競馬風とまったく同じ色が使われます。「リアル」のときは実在の毛色テクスチャが鹿毛・芦毛・青鹿毛・青毛の4種しかないため、その4種から選ぶ形になりますが、この選択は競馬風の馬体色とは別に記憶されるので、どちらの色設定も失われません。なお出走馬のアイコン画像は3Dの馬には貼れないため、リアル競馬風では使われません（設定自体は消えず、競馬風に戻すとそのまま反映されます）。</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">「リアル競馬風」に切り替えると読み込みに時間がかかります。</summary>
+            <div class="faq-a">3Dモードでは馬のCGモデルなど約4MBのデータを読み込むため、初回の切り替え時だけ数秒かかります。2回目以降はブラウザのキャッシュから開くのですぐに表示されます。なお、このデータは「リアル競馬風」を選んだときにはじめて読み込まれる設計なので、通常の「競馬風」だけを使う場合はページの表示速度に影響しません。</div>
+          </details>
+          <details class="faq-item">
             <summary class="faq-q">スマートフォンでも利用できますか？</summary>
             <div class="faq-a">はい、スマートフォンやタブレットのブラウザからでもご利用いただけます。アプリのインストールや会員登録は一切不要です。</div>
           </details>
@@ -957,6 +1223,10 @@
           <ul class="update-list">
             <li class="update-item">
               <span class="badge-new">New</span>
+              <span class="update-date">2026.08.02</span>
+              <span class="update-content">格付けダービー：3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」を追加しました。従来の「競馬風」とはツール上部のボタンで切り替えられ、出走馬やレース設定はそのまま引き継がれます。</span>
+            </li>
+            <li class="update-item">
               <span class="update-date">2026.07.18</span>
               <span class="update-content">格付けダービー：競馬中継風のランキング発表動画を作成できる「競馬風ランキング動画メーカー」をリリースしました。</span>
             </li>
@@ -981,13 +1251,68 @@
 <script>
 "use strict";
 /* ================= 出走馬管理 ================= */
-const DEFAULT_COLORS=["#8a4b2e","#3d3d3d","#a5762c","#5b3b6e","#2e5f8a","#7a2e2e","#3f6b3a","#6b5a2e","#444c66","#8a2e5f","#2e7a5f","#8a5c2e","#4a2e6e","#6e7a2e","#2e6e7a","#7a3e2e"];
+/* 出走馬の既定の馬体色。リアル競馬風の毛色パターン「カラー」でも同じ値を使う。
+   この配列が唯一の持ち主で、「カラー」パターンは e.color をそのまま馬体に乗せる。
+
+   16頭を見分けさせるための配色なので、次の条件で選んでいる:
+   ・芝(黄緑)と競合する緑系は入れない
+   ・リアル競馬風は白い毛並みに色を乗算するぶん暗く沈むので、彩度を高く取る
+   ・同系色は明度で離す(赤↔えんじ / 紫↔濃紫 / 青↔空色)
+   ・馬本来の毛色と紛らわしい茶系は避け、代わりに白・銀・黒で明度差を作る */
+const DEFAULT_COLORS=["#ff2020","#1464ff","#ffffff","#ffd200","#b93cff",
+  "#ff8000","#00e0e8","#ff5ab4","#1e1e1e","#7a5cff","#a00d0d","#8fa0b0",
+  "#00a6ff","#e2009c","#5426b4","#00909e"];
+/* 出走馬の既定名。16頭ぶん用意し、追加した馬にも架空の競走馬らしい名前が付くようにする
+   (以前は11頭目以降が「ホース11」のような仮名になっていた)。
+   入力欄の maxlength に合わせて、いずれも10文字以内 */
+const DEFAULT_NAMES=[
+  "サクラチヨノオー","タイムトラベラー","ミドリノダイチ","ヨルノテイオー",
+  "アカツキボンバー","コガネノカゼ","シロガネヒカル","ハルウララッシュ",
+  "クロヒョウナミ","ベニノハヤテ","アオバノキセキ","ホシゾラギンガ",
+  "カミナリオトシ","ユキノジョオウ","ダイヤモンドダスト","カゼノオクリモノ",
+];
+const nameFor=i=>DEFAULT_NAMES[i]||("ホース"+(i+1));
+/* 過去の既定色。「既定のままの馬」だけを新しい配色へ移すのに使う。
+   ユーザーが自分で選んだ色は一致しないので巻き込まれない */
+const LEGACY_DEFAULT_COLORS=[
+  ["#8a4b2e","#3d3d3d","#a5762c","#5b3b6e","#2e5f8a","#7a2e2e","#3f6b3a","#6b5a2e",
+   "#444c66","#8a2e5f","#2e7a5f","#8a5c2e","#4a2e6e","#6e7a2e","#2e6e7a","#7a3e2e"],
+  ["#e6194b","#2f6fd8","#f2efe6","#ffc21e","#9932cc","#ff6a00","#00c2d4","#f05fb0",
+   "#232323","#6b4ae0","#8f2020","#a9b2ba","#0090d8","#b5651d","#ff3d7f","#4a2f7a"],
+];
+/* 配色を変えたらここを上げる。上げた回だけ移行が走る */
+const COLOR_PALETTE_VERSION=3;
+/* 頭数の下限は2。1頭ではレースにならず、リアル競馬風(3D)側も2頭からしか組めない */
+const MIN_ENTRIES=2,MAX_ENTRIES=16;
+const addEntryBtn=document.getElementById("addEntry");
+/* 脚質。道中の並びを決める設定で、使うのはリアル競馬風(3D)だけ。
+   競馬風(2D)は展開を毎回ランダムに作るので参照しないが、値は共通で保持する */
+const STYLES=[["auto","自動"],["oonige","大逃げ"],["nige","逃げ"],
+  ["senko","先行"],["sashi","差し"],["oikomi","追込"]];
+const STYLE_VALUES=STYLES.map(s=>s[0]);
+/* 毛色(リアル競馬風の「リアル」パターン専用)。
+   馬体色 e.color は競馬風とリアルの「カラー」パターンが共有する自由色で、
+   4毛色はそれとは別軸なので e.coat に分けて持つ。こうしておくと
+   毛色を選んでも競馬風で決めた色が壊れない。
+   選択肢の実体(色と名前)は real3d.js の COATS が持っているので、
+   読み込み後に refreshCoatUI() で流し込む(テーブルを二重管理しないため) */
+const COAT_FALLBACK="#702918";   // 鹿毛。real3d.js 未読み込み時の暫定値
 const entriesEl=document.getElementById("entries");
 let entries=[];
 let dragIdx=null;
+/* 追加する馬の既定の名前と色は「まだ使われていないもの」から選ぶ。
+   位置だけで決めると、途中の馬を消してから追加したときに同じ名前・同じ色が
+   2頭並んでしまう(16頭を見分けるのが目的なので、色の重複は特に困る) */
+function unusedDefault(list,used,fallback){
+  const taken=new Set(used);
+  return list.find(v=>!taken.has(v)) || fallback;
+}
 function addEntry(name){
-  if(entries.length>=16)return;
-  const e={name:name||("ホース"+(entries.length+1)),color:DEFAULT_COLORS[entries.length],img:null,gate:entries.length+1};
+  if(entries.length>=MAX_ENTRIES)return;
+  const e={
+    name:name||unusedDefault(DEFAULT_NAMES,entries.map(x=>x.name),nameFor(entries.length)),
+    color:unusedDefault(DEFAULT_COLORS,entries.map(x=>x.color),DEFAULT_COLORS[entries.length%DEFAULT_COLORS.length]),
+    img:null,gate:entries.length+1,style:"auto",coat:null};
   entries.push(e);render();
 }
 function normalizeGates(){
@@ -1000,14 +1325,19 @@ function render(){
   entriesEl.innerHTML="";
   entries.forEach((e,i)=>{
     const row=document.createElement("div");row.className="entry";
-    const gateOpts=entries.map((_,g)=>`<option value="${g+1}" ${e.gate===g+1?"selected":""}>${g+1}枠</option>`).join("");
+    // 枠番は数字だけ。「◯枠」だと16頭ぶんの行が横に入りきらない(意味は見出しのiで補足)
+    const gateOpts=entries.map((_,g)=>`<option value="${g+1}" ${e.gate===g+1?"selected":""}>${g+1}</option>`).join("");
+    const styleOpts=STYLES.map(([v,label])=>`<option value="${v}" ${e.style===v?"selected":""}>${label}</option>`).join("");
     row.innerHTML=`<div class="grip" title="ドラッグで最終順位を入れ替え">⠿</div>
       <div class="rank">${i+1}</div>
       <div class="avatar" title="アイコン画像を設定">${e.img?"":"🐴"}</div>
       <input type="text" value="${e.name.replace(/"/g,"&quot;")}" maxlength="10">
       <input type="color" value="${e.color}" title="馬体色">
-      <select class="gate" title="出走枠(画面上の走行レーン)">${gateOpts}</select>
+      <select class="coat" title="毛色"></select>
+      <select class="gate" title="出走枠">${gateOpts}</select>
+      <select class="style" title="脚質">${styleOpts}</select>
       <button class="del" title="削除">✕</button>`;
+    fillCoatSelect(row.querySelector(".coat"),e,i);
     const av=row.querySelector(".avatar");
     if(e.img)av.style.backgroundImage=`url(${e.img})`;
     av.onclick=()=>{
@@ -1020,6 +1350,12 @@ function render(){
     nameInput.onfocus=()=>row.classList.add("name-editing");
     nameInput.onblur=()=>row.classList.remove("name-editing");
     row.querySelector("input[type=color]").oninput=ev=>{e.color=ev.target.value;saveState();};
+    row.querySelector(".coat").onchange=ev=>{
+      e.coat=ev.target.value;
+      paintCoatSwatch(ev.target);
+      saveState();
+      pushCoatsToReal();   // 見た目だけの変更なのでレースは作り直さない
+    };
     row.querySelector(".gate").onchange=ev=>{
       // 選んだ枠を持っている馬と入れ替え
       const g=+ev.target.value;
@@ -1027,7 +1363,14 @@ function render(){
       if(other)other.gate=e.gate;
       e.gate=g;render();
     };
-    row.querySelector(".del").onclick=()=>{entries.splice(i,1);render();};
+    row.querySelector(".style").onchange=ev=>{e.style=ev.target.value;saveState();};
+    const del=row.querySelector(".del");
+    del.disabled=entries.length<=MIN_ENTRIES;
+    if(del.disabled)del.title=`出走馬は${MIN_ENTRIES}頭以上必要です`;
+    del.onclick=()=>{
+      if(entries.length<=MIN_ENTRIES)return;
+      entries.splice(i,1);render();
+    };
     // ── グリップのドラッグで最終順位を入れ替え(Pointer Eventsでマウス/タッチ両対応) ──
     row.querySelector(".grip").addEventListener("pointerdown",ev=>{
       ev.preventDefault();
@@ -1037,14 +1380,39 @@ function render(){
       document.body.classList.add("umarace-grabbing");
       const startY=ev.clientY;
       const startOffsetTop=row.offsetTop;
+      /* 設定列は高さが固定でスクロールする。掴んだまま端に寄せたら
+         列を自動でスクロールさせないと、画面外の順位(16位→1位など)へ運べない。
+         スクロールした分だけ座標がずれるので、開始時の位置を控えて差し引く */
+      const scroller=row.closest(".umarace-side");
+      const startScroll=scroller?scroller.scrollTop:0;
+      const EDGE=48;      // 端からこの距離に入ったらスクロールを始める[px]
+      const SPEED=14;     // 1フレームあたりの最大スクロール量[px]
       // insertBeforeで行を移動するとgripのpointer captureが失われることがあるため、
       // captureに頼らずwindowでpointermoveを受け、rAFでフレーム毎にまとめて処理する
-      let lastY=startY,raf=null;
+      let lastY=startY,raf=null,autoScrolling=false;
+      const autoScroll=()=>{
+        if(!scroller)return 0;
+        const b=scroller.getBoundingClientRect();
+        let d=0;
+        if(lastY<b.top+EDGE)         d=-SPEED*Math.min(1,(b.top+EDGE-lastY)/EDGE);
+        else if(lastY>b.bottom-EDGE) d= SPEED*Math.min(1,(lastY-(b.bottom-EDGE))/EDGE);
+        if(!d)return 0;
+        const before=scroller.scrollTop;
+        scroller.scrollTop=before+d;
+        return scroller.scrollTop-before;   // 端で止まったら0
+      };
       const update=()=>{
         raf=null;
         if(dragIdx===null)return;
-        // 掴んだ行の目標位置(静的レイアウト座標)。判定・追従ともtransformの影響を受けないoffsetTop基準にする
-        const desiredTop=startOffsetTop+(lastY-startY);
+        const moved=autoScroll();
+        // 端に留まっている間はスクロールし続けたいので、動いたら次フレームも回す
+        autoScrolling=moved!==0;
+        /* 掴んだ行の目標位置(静的レイアウト座標)。判定・追従ともtransformの影響を受けないoffsetTop基準にする。
+           リストの外へ出さないよう必ず挟み込む。transform はスクロール領域を押し広げるので、
+           制限しないと「行が下へ伸びる→さらにスクロールできる」の繰り返しで自動スクロールが止まらなくなる */
+        const scrolled=(scroller?scroller.scrollTop:0)-startScroll;
+        const maxTop=Math.max(0,entriesEl.offsetHeight-row.offsetHeight);
+        const desiredTop=Math.max(0,Math.min(maxTop,startOffsetTop+(lastY-startY)+scrolled));
         const center=desiredTop+row.offsetHeight/2;
         const rows=[...entriesEl.children];
         let to=0;
@@ -1075,6 +1443,8 @@ function render(){
         }
         // 掴んだ行はスロットが変わっても指に貼り付いたまま
         row.style.transform=`translateY(${desiredTop-row.offsetTop}px) scale(1.02)`;
+        // 指を止めたままでも端に寄せている間はスクロールを続ける
+        if(autoScrolling&&raf===null)raf=requestAnimationFrame(update);
       };
       const onMove=mv=>{
         if(mv.pointerId!==pid)return;
@@ -1097,19 +1467,122 @@ function render(){
     });
     entriesEl.appendChild(row);
   });
+  // 上限はボタンの文言で説明せず、押せなくなることで伝える(頭数の範囲は見出しのiに記載)
+  addEntryBtn.disabled=entries.length>=MAX_ENTRIES;
+  addEntryBtn.title=addEntryBtn.disabled?`出走馬は${MAX_ENTRIES}頭までです`:"";
   saveState();
 }
-document.getElementById("addEntry").onclick=()=>addEntry();
+addEntryBtn.onclick=()=>addEntry();
 
-/* ================= 設定の保存・復元 ================= */
-const STATE_KEY="umarace-state-v1";
-const SETTING_IDS=["raceName","duration","drama","countdown","aspect","captions","boardTitle","boardColor","boardImage","boardMargin"];
-let stateLoaded=false; // 復元完了前の保存を抑止
+/* ================= 毛色(リアル競馬風の「リアル」パターン専用) =================
+   選択肢の実体(色と名前)を持っているのは real3d.js の COATS だけ。
+   ここで同じ表を持つと片方だけ直したときに食い違うので、読み込み後に流し込む。
+   3Dが未読み込みのうちは中身が空だが、そもそもリアル競馬風に入るまで表示されない */
+function coatList(){ return (window.Real3D&&Real3D.COATS)||null; }
+/* 毛色が未設定・不正なときの初期値。
+   プロトタイプの既定と同じく、4毛色を上から順に均等に振り分ける
+   (鹿毛→芦毛→青鹿毛→青毛→鹿毛…)。同じ毛色が偏らず見分けがつく */
+function defaultCoatOf(i){
+  const list=coatList();
+  return list ? list[i%list.length].hex : COAT_FALLBACK;
+}
+function paintCoatSwatch(sel){
+  sel.style.backgroundColor=sel.value;
+  const opt=sel.selectedOptions[0];
+  sel.title="毛色: "+(opt?opt.textContent:"");
+}
+/* その馬に使う毛色。ユーザーが選んでいなければ既定の均等割りを返す。
+   【重要】ここで e.coat に書き戻さないこと。書き戻すと自動で決まっただけの値が
+   「ユーザーの指定」として保存され、頭数や並びを変えても、既定の決め方を
+   変えても、二度と割り当て直されなくなる */
+function coatOf(e,i){
+  const list=coatList();
+  return (list&&list.some(c=>c.hex===e.coat)) ? e.coat : defaultCoatOf(i);
+}
+function fillCoatSelect(sel,e,i){
+  const list=coatList();
+  if(!list)return;
+  sel.innerHTML=list.map(c=>`<option value="${c.hex}">${c.label}</option>`).join("");
+  sel.value=coatOf(e,i);
+  paintCoatSwatch(sel);
+}
+/* real3d.js を読み込んだ直後に呼ぶ。全行に選択肢と表示値を入れる */
+function refreshCoatUI(){
+  [...entriesEl.children].forEach((row,i)=>{
+    const sel=row.querySelector(".coat");
+    if(sel&&entries[i])fillCoatSelect(sel,entries[i],i);
+  });
+}
+/* エンジンへ渡す色。パターンが「リアル」なら4毛色、「カラー」なら共通の馬体色。
+   カラー側で競馬風と同じ値を使うので、そのまま色の互換になる */
+function coatColors(){
+  const useCoat=document.getElementById("palette").value==="real";
+  return entries.map((e,i)=>useCoat?coatOf(e,i):e.color);
+}
+/* 毛色は展開にも尺にも影響しないので、レースを作り直さず即座に反映する */
+function pushCoatsToReal(){
+  if(toolMode!=="real"||!real3dReady)return;
+  Real3D.setCoats({colors:coatColors(),coatMode:document.getElementById("palette").value});
+}
+/* 毛色パターンに応じて、行に出すのを色ピッカーにするか4択にするか切り替える */
+function syncCoatMode(){
+  document.getElementById("tool").dataset.coatMode=document.getElementById("palette").value;
+}
+
+/* ================= 設定の保存・復元(2ツール共通) =================
+   格付けダービーは「競馬風」(2D Canvas) と「リアル競馬風」(3D) の2エンジンを持つ。
+   描画は完全に別物だが、出走馬と設定の大半は同じ意味を持つので、
+   保存データを1つにまとめてツールを切り替えても設定が消えないようにする。
+
+     common  … 両方が同じ意味で使う値
+     classic … 競馬風にしか無い値
+     real    … リアル競馬風にしか無い値
+
+   どちらのパネルも常にDOMにあり、表示だけを切り替えている。
+   したがって片方にしか無い値も相手のツールを使っている間そのまま残り、
+   戻ってくれば元どおりになる。
+   レース時間(競馬風=秒で指定)とコース(リアル=距離で決まり尺は逆算)は
+   尺の決め方が根本から違うので、あえて共通化せず両方を持ち続ける。 */
+const STATE_KEY="umarace-state-v2";
+const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
+const SETTING_GROUPS={
+  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin"],
+  classic:["duration","drama","captions"],
+  real   :["coursePreset","handed","algo","seed","palette","showMap","showField","showMark"],
+};
+let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
+let stateLoaded=false;    // 復元完了前の保存を抑止
+/* DOMの入力欄に紐づかない覚え書き。
+   いまは「そのモードでしか選べないアスペクト比」を記憶するのに使っている */
+let extras={aspectMemo:{}};
+
+/* DOMに無いidは飛ばす。パネルが未読み込みでも保存が壊れないようにするため */
+function readGroup(ids){
+  const o={};
+  for(const id of ids){const el=document.getElementById(id);if(el)o[id]=el.value;}
+  return o;
+}
+function applyGroup(ids,values){
+  if(!values)return;
+  for(const id of ids){
+    const el=document.getElementById(id);
+    if(!el||values[id]==null)continue;
+    el.value=values[id];
+    if(el.tagName==="SELECT"&&el.selectedIndex===-1)el.selectedIndex=0; // 不正値はデフォルトへ
+  }
+}
 function saveState(){
   if(!stateLoaded)return;
+  // 設定が動いた = リアル競馬風は次の開始でレースを組み直す
+  realDirty=true;
   const state={
-    entries:entries.map(e=>({name:e.name,color:e.color,img:e.img,gate:e.gate})),
-    settings:Object.fromEntries(SETTING_IDS.map(id=>[id,document.getElementById(id).value]))
+    version:2,
+    mode:toolMode,
+    entries:entries.map(e=>({name:e.name,color:e.color,img:e.img,gate:e.gate,style:e.style,coat:e.coat})),
+    common :readGroup(SETTING_GROUPS.common),
+    classic:readGroup(SETTING_GROUPS.classic),
+    real   :readGroup(SETTING_GROUPS.real),
+    extras,
   };
   try{
     localStorage.setItem(STATE_KEY,JSON.stringify(state));
@@ -1121,34 +1594,88 @@ function saveState(){
     }catch(_2){}
   }
 }
+/* 競馬風だけだった頃の保存データ。設定が settings に平置きされていたので振り分ける */
+function migrateLegacyState(){
+  let old=null;
+  try{old=JSON.parse(localStorage.getItem(LEGACY_KEY));}catch(_){}
+  if(!old||!Array.isArray(old.entries)||!old.entries.length)return null;
+  const s=old.settings||{};
+  const pick=ids=>Object.fromEntries(ids.filter(id=>s[id]!=null).map(id=>[id,s[id]]));
+  return{version:2,mode:"classic",entries:old.entries,
+    common:pick(SETTING_GROUPS.common),classic:pick(SETTING_GROUPS.classic),real:{}};
+}
 function loadState(){
   let state=null;
   try{state=JSON.parse(localStorage.getItem(STATE_KEY));}catch(_){}
+  let migrated=false;
+  if(!state||typeof state!=="object"){
+    state=migrateLegacyState();
+    migrated=!!state;
+  }
   if(state&&Array.isArray(state.entries)&&state.entries.length){
-    entries=state.entries.slice(0,16).map((e,i)=>({
-      name:String(e.name||"ホース"+(i+1)).slice(0,10),
+    entries=state.entries.slice(0,MAX_ENTRIES).map((e,i)=>({
+      name:String(e.name||nameFor(i)).slice(0,10),
       color:/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:DEFAULT_COLORS[i],
       img:typeof e.img==="string"?e.img:null,
       gate:e.gate,
+      style:STYLE_VALUES.includes(e.style)?e.style:"auto",
+      // 毛色は「ユーザーが明示的に選んだとき」だけ入る。妥当性は毛色表が読めてから coatOf() が見る
+      coat:/^#[0-9a-fA-F]{6}$/.test(e.coat)?e.coat:null,
     }));
-    SETTING_IDS.forEach(id=>{
-      const el=document.getElementById(id);
-      if(state.settings&&state.settings[id]!=null){
-        el.value=state.settings[id];
-        if(el.tagName==="SELECT"&&el.selectedIndex===-1)el.selectedIndex=0; // 不正値はデフォルトへ
-      }
-    });
+    // 保存データが1頭以下でも、必ず下限まで補ってレースが組める状態にする
+    while(entries.length<MIN_ENTRIES)
+      entries.push({
+        name:unusedDefault(DEFAULT_NAMES,entries.map(x=>x.name),nameFor(entries.length)),
+        color:unusedDefault(DEFAULT_COLORS,entries.map(x=>x.color),DEFAULT_COLORS[entries.length]),
+        img:null,gate:entries.length+1,style:"auto",coat:null});
+    if(state.extras&&typeof state.extras==="object")
+      extras=Object.assign({aspectMemo:{}},state.extras);
+    /* 自動で決めただけの毛色まで保存していた時期のデータを一度だけ捨てる。
+       それらはユーザーが選んだ値ではないので、残っていると4毛色の均等割りに戻らない */
+    if(!extras.coatCleared){
+      entries.forEach(e=>e.coat=null);
+      extras.coatCleared=true;
+    }
+    /* 既定の馬体色を入れ替えたときの移行。
+       「その位置の過去の既定色そのまま」の馬だけ新しい既定色に差し替える。
+       自分で色を選んでいた馬はどの既定とも一致しないので、そのまま残る */
+    if(extras.colorPalette!==COLOR_PALETTE_VERSION){
+      entries.forEach((e,i)=>{
+        if(LEGACY_DEFAULT_COLORS.some(pal=>pal[i]===e.color))e.color=DEFAULT_COLORS[i];
+      });
+      extras.colorPalette=COLOR_PALETTE_VERSION;
+    }
+    /* 11頭目以降が「ホース11」のような仮名だった頃の移行。
+       その位置の仮名とぴったり同じものだけ、新しい既定名に差し替える。
+       自分で名前を付けていた馬は一致しないので、そのまま残る */
+    if(!extras.namedDefaults){
+      entries.forEach((e,i)=>{ if(e.name==="ホース"+(i+1))e.name=nameFor(i); });
+      extras.namedDefaults=true;
+    }
+    if(state.mode==="real"||state.mode==="classic")toolMode=state.mode;
+    // 保存された比率を入れる前に選択肢をそのモードのものに揃える。
+    // 順番を逆にすると、そのモード専用の比率(3:4 / 1:1)が弾かれて失われる
+    setAspectOptions(toolMode);
+    /* どのグループに属するかは後から変わりうる(展開の派手さを共通からclassicへ移した等)。
+       読み戻すときは3つのバケツを畳んでから配るので、古い保存データでも値が落ちない */
+    const saved=Object.assign({},state.common,state.classic,state.real);
+    applyGroup(SETTING_GROUPS.common,saved);
+    applyGroup(SETTING_GROUPS.classic,saved);
+    applyGroup(SETTING_GROUPS.real,saved);
     render();
   }else{
-    ["サクラチヨノオー","タイムトラベラー","ミドリノダイチ","ヨルノテイオー","アカツキボンバー","コガネノカゼ","シロガネヒカル","ハルウララッシュ","クロヒョウナミ","ベニノハヤテ"].forEach(n=>addEntry(n));
+    for(let i=0;i<10;i++)addEntry();   // 初期の出走馬は10頭
   }
   stateLoaded=true;
   saveState();
+  // v2で保存し直せたら旧データは用済み。画像dataURLを二重に抱えないよう消す
+  if(migrated){try{localStorage.removeItem(LEGACY_KEY);}catch(_){}}
 }
 document.getElementById("resetState").onclick=ev=>{
   ev.preventDefault();
   if(!confirm("保存された設定を消して初期状態に戻します。よろしいですか？"))return;
-  localStorage.removeItem(STATE_KEY);
+  // 旧キーが残っていると次回の起動で移行されて復活してしまうので、両方消す
+  try{localStorage.removeItem(STATE_KEY);localStorage.removeItem(LEGACY_KEY);}catch(_){}
   location.reload();
 };
 
@@ -1157,25 +1684,86 @@ const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
 let W=cv.width,H=cv.height;
 const ASPECT_SIZES={"16:9":[1280,720],"3:4":[960,1280],"9:16":[720,1280]};
 const stageEl=document.querySelector(".umarace .stage");
-document.getElementById("aspect").onchange=ev=>{
-  const [w,h]=ASPECT_SIZES[ev.target.value];
-  cv.width=W=w;cv.height=H=h;
-  stageEl.dataset.aspect=ev.target.value;
-  race=null; // サイズが変わるのでレースはリセット
-  statusEl.textContent="画面サイズを変更しました。「レース開始」を押してください。";
+const aspectEl=document.getElementById("aspect");
+const statusEl=document.getElementById("status");
+let real3dReady=false;   // real3d.js を読み込んで init() まで終わったか
+/* 設定が変わったので次の「レース開始」で組み直す必要がある、という印。
+   3Dのレース生成はコースも馬も作り直すので、入力のたびに走らせると重い */
+let realDirty=false;
+const isOn=id=>document.getElementById(id).value==="on";
+
+/* アスペクト比は2つのツールで選択肢が食い違う。
+   3:4 は競馬風だけ、1:1 はリアル競馬風だけが出せる。
+   相手側に無い比率を選んでいた場合は 16:9 へ逃がすが、
+   選んでいた値は extras.aspectMemo に覚えておいて、戻ってきたら復元する。
+   → どちらのツールでも「前に選んだ画面サイズ」がそのまま残る */
+const ASPECT_LABELS={
+  "16:9":"16:9 横長",
+  "3:4" :"3:4 縦長",
+  "1:1" :"1:1 正方形",
+  "9:16":"9:16 縦長",
+};
+const ASPECT_OPTIONS={classic:["16:9","3:4","9:16"], real:["16:9","1:1","9:16"]};
+function setAspectOptions(mode,prevMode){
+  const allowed=ASPECT_OPTIONS[mode];
+  const cur=aspectEl.value;
+  if(prevMode&&!allowed.includes(cur))extras.aspectMemo[prevMode]=cur;
+  aspectEl.innerHTML=allowed
+    .map(v=>`<option value="${v}">${ASPECT_LABELS[v]}</option>`).join("");
+  const memo=extras.aspectMemo[mode];
+  aspectEl.value=allowed.includes(cur) ? cur
+    : (memo&&allowed.includes(memo) ? memo : "16:9");
+}
+/* 選ばれた比率をステージと描画側の両方に反映する。
+   レースの破棄はここでは行わない(初期化時にも呼ぶため) */
+function applyAspect(){
+  const v=aspectEl.value;
+  stageEl.dataset.aspect=v;
+  if(toolMode==="real"){
+    // リアル側は再生位置を保ったまま比率だけ変えられる
+    if(real3dReady)Real3D.setView({aspect:v});
+  }else{
+    const [w,h]=ASPECT_SIZES[v]||ASPECT_SIZES["16:9"];
+    cv.width=W=w;cv.height=H=h;
+  }
+}
+aspectEl.onchange=()=>{
+  applyAspect();
+  if(toolMode==="classic"){
+    race=null; // キャンバスの寸法が変わるのでレースは作り直し
+    statusEl.textContent="画面サイズを変更しました。「レース開始」を押してください。";
+  }
   saveState();
 };
-const statusEl=document.getElementById("status");
 
 // 前回の設定を復元し、以後は設定変更のたびに自動保存
+// (アスペクト比の選択肢は loadState の中でモードに合わせて組み直される)
 loadState();
+// 自動保存。テキストは打つたび、それ以外は変更時。aspect だけはステージの
+// 作り直しが要るので上の onchange で個別に扱っている
 {
-  const [w,h]=ASPECT_SIZES[document.getElementById("aspect").value];
-  cv.width=W=w;cv.height=H=h;
-  stageEl.dataset.aspect=document.getElementById("aspect").value;
+  const watched=[...SETTING_GROUPS.common,...SETTING_GROUPS.classic,...SETTING_GROUPS.real];
+  watched.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el||id==="aspect")return;
+    const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
+    el.addEventListener(isText?"input":"change",saveState);
+  });
+  // 見た目だけの設定はレースを組み直さず即座に反映する
+  ["showMap","showField","showMark"].forEach(id=>{
+    document.getElementById(id).addEventListener("change",()=>{
+      if(toolMode==="real"&&real3dReady)
+        Real3D.setView(realViewConfig());
+    });
+  });
+  /* 毛色パターンも見た目だけの切り替え。
+     行のUI(自由な色ピッカー ⇔ 毛色4択)と馬の毛色を同時に入れ替える */
+  document.getElementById("palette").addEventListener("change",()=>{
+    syncCoatMode();
+    pushCoatsToReal();
+  });
+  syncCoatMode();
 }
-["raceName","boardTitle"].forEach(id=>document.getElementById(id).addEventListener("input",saveState));
-["duration","drama","countdown","captions","boardColor","boardImage","boardMargin"].forEach(id=>document.getElementById(id).addEventListener("change",saveState));
 
 /* ---- 馬のギャロップ描画(サラブレッド体型・3関節脚・砂埃付き) ---- */
 function drawHorse(g,x,y,scale,phase,color,name,img,imgCache){
@@ -1348,14 +1936,46 @@ let COURSE=11000; // buildRace()でレース時間×BASE_SPEEDに再計算され
 let race=null,rafId=null,recorder=null,recChunks=[],paused=false;
 let timelineDragging=false,resumeAfterSeek=false;
 
+/* レース設定をDOMから1か所で読み取る。
+   2つのツールで共有する唯一の入口にしておくと、リアル競馬風(3D)側も
+   同じ値を見るだけで済み、設定の解釈が食い違わない。
+   entries とこの戻り値が、そのままエンジンへの入力になる */
+function raceConfig(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value:null;};
+  return{
+    duration:+v("duration"),
+    drama:+v("drama"),
+    countdown:v("countdown")==="on",
+    aspect:v("aspect"),
+    captions:v("captions")==="on",
+    name:v("raceName")||"ランキング杯",
+    board:{
+      title:v("boardTitle")||"結果発表",
+      color:v("boardColor")==="on",
+      image:v("boardImage")==="on",
+      margin:v("boardMargin")==="on",
+    },
+  };
+}
+
 function buildRace(){
-  const dur=+document.getElementById("duration").value;
-  const drama=+document.getElementById("drama").value;
+  const cfg=raceConfig();
+  const dur=cfg.duration;
+  const drama=cfg.drama;
   COURSE=Math.round(BASE_SPEED*dur); // どの長さでも走行速度は同一
   const n=entries.length;
-  // 各馬のゴール時刻: 1位→最下位で約0.6秒に広げる。指数>1で上位は接戦・下位ほど差が開く。
-  // 隊列の開き(先頭〜最後尾の距離)を9:16など狭幅でも等倍で全馬が収まる範囲に抑える。
-  const FINISH_SPREAD=0.6;
+  /* 各馬のゴール時刻: 1位→最下位をこの秒数に広げる。指数>1で上位は接戦・下位ほど差が開く。
+     秒 × BASE_SPEED(733px/s) がそのままゴール時の隊列の開き[px]になり、
+     着差の表記もこの間隔から決まる。
+
+     0.6秒(440px)では16頭ぶんの間隔が1頭あたり0.25馬身しかなく、
+     掲示板がハナとアタマだけで埋まっていた。
+     上限は「1着がゴールした瞬間に最後方の馬と名前ラベルまで画面に入っていること」。
+     ゴール板は画面の75%の位置に止まり、名前ラベルは馬の中心から左へ最大82px出るので、
+     使えるのは 0.75W-85 [px]。実測でこれを使い切るのが 16:9 で 0.78秒(572px)。
+     9:16 は横幅が720pxしかなく同じ幅を置けないため、W で頭打ちにする
+     (比率を変えるとレース自体が作り直されるので、着差も変わってよい) */
+  const FINISH_SPREAD=0.78*Math.min(1,W/900);
   const horses=entries.map((e,i)=>{
     const frac=n>1?i/(n-1):0;
     const finish=dur+FINISH_SPREAD*Math.pow(frac,1.6);
@@ -1379,21 +1999,20 @@ function buildRace(){
       ...e,rank:i+1,finishT:finish,
       pos:0,v:0,phase:Math.random(),
       seedA:Math.random()*10,seedB:Math.random()*10,
-      style:Math.random(),
+      // 脚質の強さ(0=追込寄り〜1=逃げ寄り)。競馬風では毎回ランダムに振る。
+      // 出走馬が持つ e.style(リアル競馬風で使う"逃げ"などの文字列)とは別物なので、
+      // spread で上書きされないよう名前を分けている
+      styleRnd:Math.random(),
       events,lag,imgCache
     };
   });
-  const t0=document.getElementById("countdown").value==="on"?-3:0;
+  const t0=cfg.countdown?-3:0;
   return{horses,dur,drama,
     t:t0,t0,endT:Math.max(...horses.map(h=>h.finishT)),
     done:false,goalOrder:[],slowmo:1,
-    captions:document.getElementById("captions").value==="on",
-    name:document.getElementById("raceName").value||"ランキング杯",
-    board:{
-      title:document.getElementById("boardTitle").value||"結果発表",
-      color:document.getElementById("boardColor").value==="on",
-      image:document.getElementById("boardImage").value==="on",
-      margin:document.getElementById("boardMargin").value==="on"}};
+    captions:cfg.captions,
+    name:cfg.name,
+    board:cfg.board};
 }
 
 function stepRace(dt){
@@ -1403,14 +2022,34 @@ function stepRace(dt){
   const t=R.t;
   let prevPos=Infinity; // 一つ上位(rank-1)の馬の現在位置。終盤の順序ロックに使用
   for(const h of R.horses){
-    if(h.pos>=COURSE){prevPos=h.pos;continue;}
+    /* ゴール済みの馬は理想位置への補正をやめ、そのままの脚色で走り抜ける。
+       線の上で止めると、2着以下の争いが続いている間ずっと置物のように
+       立っていることになる。カメラはゴール板の手前で止まるので、
+       走り抜けた馬はそのまま画面右へ消える */
+    if(h.goalTime!=null){h.pos+=h.v*dt*R.slowmo;prevPos=h.pos;continue;}
     const prog=t/h.finishT; // この馬の理想進捗
     const base=COURSE/h.finishT;
-    // ノイズ:序盤〜中盤は大きく自由に、終盤急速にゼロへ
-    const freedom=Math.max(0,1-Math.pow(prog,3.2));
+    /* --- 終盤の見え方について ---
+       以前は「ゴールの数秒前には全馬が着順どおりに整列し、その隊列のまま
+       流れていく」画になっていた。原因は3つあり、下で順に手当てしている。
+         1. 揺らぎ(freedom)が prog^3.2 で終盤に消える → 残り数秒が無風になる
+         2. 着差ぶんの間隔(梯子)を道中からフルに張っている → 画面に収める
+            ための隊列制限とほぼ同じ幅を占め、揺らぎを足す余地が無い(spreadW)
+         3. 揺らぎが速度側にしか無い → 終盤の強い引き寄せに打ち消される(jostle)
+       いずれも畳み終わる時刻を各馬の finishT 基準にしてあるので、
+       1着が線を越えた時点でも2着以下はまだ畳み終わっておらず、
+       後方の争いは最後まで動く。
+       着順そのものは下の着順ゲートが保証する。ここは見た目だけの調整 */
+    const remainT=Math.max(0,h.finishT-t);
+    const SETTLE_T=0.55;  // 自分のゴール手前この秒数で揺らぎを消し切る
+    const HOLD_T=1.05;    // ここまでは揺らぎを残す
+    const ss=x=>{const u=Math.min(1,Math.max(0,x));return u*u*(3-2*u);};
+    const hold=ss((remainT-SETTLE_T)/(HOLD_T-SETTLE_T));
+    // ノイズ:序盤〜中盤は大きく自由に。終盤も自分のゴール直前まで6割残す
+    const freedom=Math.max(1-Math.pow(prog,3.2), 0.60*hold);
     const noise=(Math.sin(t*1.1+h.seedA)+Math.sin(t*2.1+h.seedB)*0.7+Math.sin(t*0.45+h.seedA*2)*0.9);
     // 脚質:逃げは序盤+、追込は序盤-終盤+(強め)
-    const styleBias=(0.5-h.style)*Math.cos(Math.min(prog,1)*Math.PI)*2.2;
+    const styleBias=(0.5-h.styleRnd)*Math.cos(Math.min(prog,1)*Math.PI)*2.2;
     // 仕掛けイベント:区間中はサインカーブで滑らかに増減
     let evBoost=0;
     for(const ev of h.events){
@@ -1424,11 +2063,54 @@ function stepRace(dt){
     // 収束補正:理想位置に「潜伏オフセット」を加える。
     // 潜伏解除は実時間基準(残り約1.8秒)→ どのレース長でもラストの
     // 差し切り演出は15秒レースと同じ秒数・同じテンポになる
-    const remainT=Math.max(0,h.finishT-t);
-    const hide=Math.min(1,remainT/1.8);
+    const HIDE_T=1.8;
+    const hide=Math.min(1,remainT/HIDE_T);
     const hideS=hide*hide*(3-2*hide);                            // smoothstep
-    const ideal=COURSE*Math.min(prog,1)-h.lag*BASE_SPEED*15*0.010*hideS;
+    const lagPx=h.lag*BASE_SPEED*15*0.010;
+    /* 終盤のもみ合い。理想位置そのものを馬ごとに前後させる。
+       速度に揺らぎを足す形（freedom側）は終盤の強い引き寄せに打ち消され、
+       打ち消されない強さにするとゴールに間に合わなくなる。理想位置を
+       揺らせば引き寄せが「揺れごと」追いかけるので、両立できる。
+       着差は上位ほど僅差になる設計(finishT が frac^1.6)なので、
+       隣との間隔も先頭付近は約10px・最後方は約50pxと開きがある。
+       振れ幅もそれに合わせて後ろほど大きくしないと、後方だけ
+       梯子どおりに整列したままになる。
+
+       振れ幅は「自分のゴールまでに戻し切れる量」(残り秒数×100px/s)で頭打ちに
+       する。こうすると振れは線に着く瞬間まで残りつつ、必ず0に収束するので、
+       着順もゴールのタイミングもズレない。窓を一律に閉じる作りだと、
+       1着がゴールする頃には2着以下も畳み終わっていて、
+       「1着通過後に2着争いが動く」画にならなかった */
+    const rankFrac=(h.rank-1)/Math.max(1,R.horses.length-1);
+    const jostleAmp=Math.min(60*(0.6+0.9*rankFrac)*(0.55+0.45*R.drama),remainT*100)
+                   *ss((4.0-remainT)/1.5);
+    const jostle=jostleAmp*(Math.sin(t*1.0+h.seedA*3.1)*0.75
+                           +Math.sin(t*2.0+h.seedB*2.3)*0.25);
+    /* 隊列の伸び。実際のレースと同じで、道中は固まって走り直線で縦に伸びる。
+       着差ぶんの間隔(=着順どおりの梯子)は最終的に約440px あり、
+       画面に収めるための隊列制限(±250px)とほぼ同じ幅なので、
+       道中からこの梯子を張っていると揺らぎを足す余地がまったく無く、
+       整列した状態のまま走ることになっていた。
+       道中は梯子を半分に詰め、自分のゴールまでの残り SPREAD_T 秒で等倍へ戻す。
+       残り0で必ず等倍になるうえ smoothstep の傾きも0なので、
+       ゴールの着差・着順は設定どおりのまま */
+    const SPREAD_T=3.0, SPREAD_MID=0.5;
+    const spreadW=1-(1-SPREAD_MID)*ss(remainT/SPREAD_T);
+    const tt=Math.min(t,h.finishT);
+    const sched=COURSE*tt/R.dur;                        // 全馬共通の基準
+    const ladder=COURSE*tt*(1/h.finishT-1/R.dur);       // 着順ぶんの後退(≦0)
+    const ideal=sched+ladder*spreadW-lagPx*hideS+jostle;
     const gap=ideal-h.pos;
+    /* 潜伏を解くぶんの速度をあらかじめ足しておく(フィードフォワード)。
+       理想位置は解除中だけ base より速く進むので、引き寄せ(gap*urgency)
+       だけに任せると差が開いたまま追従し、ゴールが遅れて着順ゲートで
+       足止めされる。ここは d(ideal)/dt の増分ぶん */
+    v+=lagPx*6*hide*(1-hide)/HIDE_T;
+    /* 引き寄せの強さは従来どおり。ここを弱めると理想位置に追従できず、
+       全馬がゴールに遅れて着順ゲートで足止めされる。
+       「並びが早く決まる」問題は引き寄せの強さではなく、
+       引き寄せ先(理想位置)が早くから着順どおりだったことが原因なので、
+       直すのは上の spreadW と jostle の側 */
     const urgency=0.15+7.0*Math.pow(Math.min(prog,1),6);
     v+=gap*urgency*0.45;
     // 速度クランプ:ベース±18%。等速感は保ちつつ差の付き方は速く
@@ -1436,8 +2118,10 @@ function stepRace(dt){
     // 隊列の最大幅を制限(狭幅の9:16などでも全馬を等倍のまま画面に収める)。
     // 前フレームの集団中心から離れすぎた馬は、前に出過ぎなら減速・遅れなら加速する。
     // 速度は常に正(=前進)のままなので画面上で急に後退しない。
-    // 終盤(prog高)は着順収束を最優先するため効果をフェードアウトし、着順(=設定順)を守る。
-    const bandGate=Math.max(0,Math.min(1,(0.78-prog)/0.12)); // prog<0.66で最大, 0.78で0
+    // 自分のゴールが近づいたら着順収束を最優先するため効果をフェードアウトし、着順(=設定順)を守る。
+    // ここも残り秒数基準。prog基準だと終盤の1/4で制限が外れ、
+    // 揺らぎを残したぶん隊列が広がって画面からはみ出しやすかった。
+    const bandGate=ss((remainT-HOLD_T)/0.9);
     if(R.packMid!=null&&bandGate>0){
       const dev=h.pos-R.packMid;
       const half=BASE_SPEED*0.34;                    // 中心から±約250px → 全幅約500px目安
@@ -1475,7 +2159,7 @@ function stepRace(dt){
     if(!R.seeking){
       finishRecording();
       updateStartBtn();
-      statusEl.textContent="ゴール!結果掲示板を表示中。もう一度走らせると展開が変わります。";
+      statusEl.textContent="ゴール！もう一度走らせると展開が変わります。";
     }
   }
 }
@@ -1571,7 +2255,7 @@ function draw(dt){
       const laneY=H*0.52+((lane+0.5)/lanes)*H*0.40;
       const scale=0.96+((lane+0.5)/lanes)*0.08;
       const x=h.pos-camX;
-      const running=h.pos<COURSE&&R.t>=0;
+      const running=h.goalTime==null&&R.t>=0;   // 走り抜けている馬も脚を回し続ける
       // ケイデンスほぼ一定:全馬同じピッチで脚を回し、速度差はストライド(位置)の差として現れる。
       // 速度連動は1割だけ残して微妙な脚色の違いを表現
       if(running){
@@ -1681,13 +2365,22 @@ function drawResults(R){
     ctx.fillStyle=fc;
     ctx.font=`bold ${fs}px 'Hiragino Kaku Gothic ProN',sans-serif`;
     ctx.fillText(h.name,x,y);
-    // 着差(前の馬とのタイム差から競馬式表記)
+    /* 着差(前の馬とのタイム差から競馬式表記)。
+       閾値は「秒」ではなく「馬身」で持つ。以前は秒で直接切っていて、
+       0.05秒=37px を「ハナ」と呼んでいた。画面の馬は体長120pxなので
+       実際には1/3馬身あり、見た目より何段も小さく表記されていた
+       (掲示板がハナとアタマだけで埋まっていた原因)。
+       いまは画面上の間隔を馬体長で割った実数で判定する */
     if(B.margin&&i>0&&h.goalTime!=null){
-      const d=h.goalTime-R.horses[i-1].goalTime;
+      const HORSE_LEN=120;   // drawHorse の尻(-38)〜鼻先(77)。scale込みで約120px
+      const d=(h.goalTime-R.horses[i-1].goalTime)*BASE_SPEED/HORSE_LEN;  // 馬身
       let m;
-      if(d<0.05)m="ハナ";else if(d<0.1)m="アタマ";else if(d<0.18)m="クビ";
-      else if(d<0.35)m="1/2馬身";else if(d<0.7)m="1馬身";else if(d<1.2)m="2馬身";
-      else m=Math.round(d)+"馬身";
+      if(d<0.08)m="ハナ";else if(d<0.18)m="アタマ";else if(d<0.35)m="クビ";
+      else if(d<0.63)m="1/2馬身";else if(d<0.88)m="3/4馬身";
+      else if(d<1.25)m="1馬身";else if(d<1.75)m="1.1/2馬身";
+      else if(d<2.25)m="2馬身";else if(d<2.75)m="2.1/2馬身";
+      else if(d<10)m=Math.round(d)+"馬身";
+      else m="大差";
       ctx.font="14px 'Hiragino Kaku Gothic ProN',sans-serif";
       ctx.fillStyle="rgba(255,255,255,.6)";
       ctx.textAlign="right";
@@ -1704,12 +2397,13 @@ function startRace(){
   paused=false;
   timeline.disabled=false;
   updateStartBtn();
-  statusEl.textContent="レース中…展開はランダムですが、設定した順位でゴールします。";
+  statusEl.textContent="レース中…設定した順位でゴールします。";
   return race;
 }
 const startBtn=document.getElementById("startBtn");
 const playOverlay=document.getElementById("playOverlay");
 function updateStartBtn(){
+  if(toolMode==="real"){updateStartBtnReal();return;}
   const running=race&&!race.done;
   startBtn.textContent = !running ? "▶ レース開始" : (paused ? "▶ 再開" : "⏸ 一時停止");
   // 未スタート時と一時停止中はYouTube風にプレビューを暗くして再生マークを表示
@@ -1719,13 +2413,14 @@ function updateStartBtn(){
 updateStartBtn();
 // レース開始ボタンとプレビューのクリック/タップで再生・一時停止を兼用
 function togglePlay(){
+  if(toolMode==="real"){togglePlayReal();return;}
   if(race&&!race.done){
     paused=!paused;
     if(recorder){
       if(paused&&recorder.state==="recording")recorder.pause();
       else if(!paused&&recorder.state==="paused")recorder.resume();
     }
-    statusEl.textContent=paused?"一時停止中。プレビューのクリックかボタンで再開します。":"レース中…展開はランダムですが、設定した順位でゴールします。";
+    statusEl.textContent=paused?"一時停止中。クリックで再開します。":"レース中…設定した順位でゴールします。";
     updateStartBtn();
   }else{
     startRace();
@@ -1734,6 +2429,9 @@ function togglePlay(){
 startBtn.onclick=togglePlay;
 cv.addEventListener("click",togglePlay);
 cv.style.cursor="pointer";
+// 3D側もプレビューのクリックで再生/一時停止できるようにする
+document.getElementById("stage3d").addEventListener("click",togglePlay);
+document.getElementById("stage3d").style.cursor="pointer";
 // スペースキーでも再生/一時停止（入力欄・ボタン操作中は除外）
 document.addEventListener("keydown",e=>{
   if(e.code!=="Space"||e.repeat)return;
@@ -1742,10 +2440,11 @@ document.addEventListener("keydown",e=>{
   e.preventDefault();
   togglePlay();
 });
-document.getElementById("recBtn").onclick=()=>{
-  const r=startRace();if(!r)return;
+/* 録画は2つのツールで共通。録る対象のキャンバスが違うだけなので、
+   captureStream するキャンバスを引数で受け取る形にしてある */
+function beginRecording(canvas){
   recChunks=[];
-  const stream=cv.captureStream(30);
+  const stream=canvas.captureStream(30);
   recorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});
   recorder.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data)};
   recorder.onstop=()=>{
@@ -1754,12 +2453,21 @@ document.getElementById("recBtn").onclick=()=>{
     a.href=URL.createObjectURL(blob);
     a.download="kakuzuke-derby.webm";a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-    if(race)timeline.disabled=false;
+    recorder=null;
+    // 上げていた書き出し解像度を画面表示用に戻す
+    if(real3dReady)Real3D.setExportMode(false);
+    timeline.disabled=false;
+    statusEl.textContent="WebMを保存しました。";
   };
   recorder.start();
   // 録画中のシークはキャンバスストリームの時間軸が乱れるため禁止
   timeline.disabled=true;
-  statusEl.textContent="録画中…ゴール後に自動でWebMを保存します。";
+  statusEl.textContent="録画中…ゴール後に自動保存します。";
+}
+document.getElementById("recBtn").onclick=()=>{
+  if(toolMode==="real"){recordReal();return;}
+  const r=startRace();if(!r)return;
+  beginRecording(cv);
 };
 function finishRecording(){
   if(recorder&&recorder.state==="recording"){
@@ -1795,6 +2503,7 @@ function syncTimeline(){
   timelineTime.textContent=`${Math.max(0,R.t).toFixed(1)}s / ${R.endT.toFixed(1)}s`;
 }
 timeline.addEventListener("input",()=>{
+  if(toolMode==="real"){seekRealFromTimeline();return;}
   if(!race)return;
   if(!timelineDragging){
     timelineDragging=true;
@@ -1805,12 +2514,268 @@ timeline.addEventListener("input",()=>{
   timelineTime.textContent=`${Math.max(0,race.t).toFixed(1)}s / ${race.endT.toFixed(1)}s`;
 });
 timeline.addEventListener("change",()=>{
+  if(toolMode==="real")return;
   timelineDragging=false;
   if(race&&resumeAfterSeek&&!race.done)paused=false;
   resumeAfterSeek=false;
   updateStartBtn();
 });
 requestAnimationFrame(loop);
+
+/* ================= 「i」の説明吹き出し =================
+   設定列は overflow-y:auto でスクロールするため、横方向も切り取られてしまう
+   (CSSでは overflow-y だけを auto にして overflow-x を visible には保てない)。
+   そこで吹き出しは position:fixed で枠の外に出し、位置をここで計算する。
+   画面の端に寄ったときは内側へ、下に入らないときは上へ回す */
+{
+  const MARGIN=8, GAP=8;
+  let activeTip=null;
+  const place=tip=>{
+    const bubble=tip.querySelector(".info-bubble");
+    if(!bubble)return;
+    const r=tip.getBoundingClientRect();
+    const w=bubble.offsetWidth,h=bubble.offsetHeight;
+    const cx=r.left+r.width/2;
+    const x=Math.max(MARGIN,Math.min(cx-w/2,innerWidth-w-MARGIN));
+    const below=r.bottom+GAP;
+    const above=below+h>innerHeight-MARGIN && r.top-h-GAP>=MARGIN;
+    bubble.classList.toggle("above",above);
+    bubble.style.left=x+"px";
+    bubble.style.top=(above?r.top-h-GAP:below)+"px";
+    // 三角は「i」の中心へ。ただし角丸に乗らないよう吹き出しの中に収める
+    bubble.style.setProperty("--arrow-x",
+      Math.max(12,Math.min(cx-x,w-12))+"px");
+  };
+  document.querySelectorAll(".umarace .info-tip").forEach(tip=>{
+    const show=()=>{activeTip=tip;place(tip);};
+    const hide=()=>{if(activeTip===tip)activeTip=null;};
+    tip.addEventListener("pointerenter",show);
+    tip.addEventListener("focus",show);
+    tip.addEventListener("pointerleave",hide);
+    tip.addEventListener("blur",hide);
+  });
+  // 列のスクロールや画面サイズの変化に追従させる(captureで内側の要素も拾う)
+  addEventListener("scroll",()=>{if(activeTip)place(activeTip);},true);
+  addEventListener("resize",()=>{if(activeTip)place(activeTip);});
+}
+
+/* =====================================================================
+   ツールの切り替え(競馬風 ⇔ リアル競馬風)
+   ---------------------------------------------------------------------
+   3Dは three.js(600KB) + エンジン(200KB) + 馬モデル(3.8MB)を使う。
+   初期表示の速さを守るため、これらは「リアル競馬風」を選んだ瞬間に
+   はじめて読み込む。既定は常に軽いほうの競馬風。
+   ===================================================================== */
+const REAL3D_SCRIPTS=[
+  // 依存順に読む。GLTFLoader と SkeletonUtils は THREE を先に必要とする
+  "vendor/three.r128.min.js",
+  "vendor/GLTFLoader.js",
+  "vendor/SkeletonUtils.js",
+  "real3d.js",
+];
+const loading3d=document.getElementById("loading3d");
+const loading3dText=document.getElementById("loading3dText");
+const tabs={classic:document.getElementById("tabClassic"),real:document.getElementById("tabReal")};
+const taglineEl=document.getElementById("toolTagline");
+const TAGLINES={
+  classic:"順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー",
+  real:"実際の競馬場のような3Dコースを、CGの馬が走るランキング動画メーカー",
+};
+let real3dLoading=null;   // 読み込み中のPromise(二重ロード防止)
+
+function loadScriptOnce(src){
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src=src;
+    s.onload=()=>res();
+    s.onerror=()=>rej(new Error("読み込みに失敗しました: "+src));
+    document.head.appendChild(s);
+  });
+}
+function ensureReal3D(){
+  if(real3dLoading)return real3dLoading;
+  real3dLoading=(async()=>{
+    for(let i=0;i<REAL3D_SCRIPTS.length;i++){
+      loading3dText.textContent=`3Dエンジンを読み込んでいます… (${i+1}/${REAL3D_SCRIPTS.length+1})`;
+      await loadScriptOnce(REAL3D_SCRIPTS[i]);
+    }
+    loading3dText.textContent="3Dの馬を読み込んでいます…";
+    const r=await Real3D.init({viewport:document.getElementById("stage3d"),
+                               assetsBase:"assets"});
+    real3dReady=true;
+    bindReal3DEvents();
+    refreshCoatUI();   // 毛色4択の中身はここではじめて入る(表は real3d.js が持つ)
+    if(r.fallback){
+      console.warn("[格付けダービー] 3Dモデルを読めなかったため簡易表示で続行:",r.reason);
+      statusEl.textContent="3Dモデルを読み込めませんでした。簡易表示で続けます。";
+    }
+    return r;
+  })().catch(err=>{
+    real3dLoading=null;     // 失敗したら次回やり直せるようにする
+    throw err;
+  });
+  return real3dLoading;
+}
+
+/* 共通ストアの内容を、リアル競馬風エンジンが受け取る形に詰め替える。
+   出走馬の並び=着順・枠番・脚質の意味は2つのツールで同じなので、
+   ここでの変換は「どのキーを渡すか」だけで、値の作り替えはしていない */
+function buildRealInput(){
+  const colors=coatColors();   // パターンに応じて毛色4択 or 共通の馬体色
+  return {
+    horses:entries.map((e,i)=>({name:e.name,color:colors[i],gate:e.gate,style:e.style})),
+    coursePreset:document.getElementById("coursePreset").value,
+    handed:document.getElementById("handed").value,
+    // 展開はリアル競馬風だけの設定。競馬風の「展開の派手さ」とは仕組みが
+    // 別物なので変換はせず、専用のセレクトの値をそのまま渡す
+    algo:document.getElementById("algo").value,
+    seed:+document.getElementById("seed").value|0,
+    coatMode:document.getElementById("palette").value,
+    countdown:document.getElementById("countdown").value==="on",
+    /* 結果発表の見せ方は競馬風と共通。raceConfig() と同じ値を渡すので、
+       どちらのツールでも同じ掲示板の設定が効く。
+       アイコン画像(boardImage)だけは3Dの馬に貼れないため渡さない */
+    board:{
+      title:raceConfig().board.title,
+      color:isOn("boardColor"),
+      margin:isOn("boardMargin"),
+    },
+  };
+}
+/* 見せ方だけの設定。透かしは将来「有料ユーザーのみ・都度課金」にする予定なので、
+   ここ一箇所で決まるようにしてある。権利が無い人には常に true を返せばよい */
+function realViewConfig(){
+  return {
+    showMap  : isOn("showMap"),
+    showField: isOn("showField"),
+    showMark : isOn("showMark"),
+  };
+}
+function applyRealRace(){
+  Real3D.setView({aspect:aspectEl.value,...realViewConfig()});
+  Real3D.applyConfig(buildRealInput());
+  document.getElementById("courseInfo").textContent=Real3D.courseInfo();
+  realDirty=false;
+}
+function bindReal3DEvents(){
+  Real3D.on("frame",f=>{
+    if(toolMode!=="real")return;
+    if(!timelineDragging){
+      timeline.value=Math.round((f.frame/Math.max(1,f.totalFrames))*1000);
+    }
+    timelineTime.textContent=`${f.sec.toFixed(1)}s / ${f.duration.toFixed(1)}s`;
+  });
+  Real3D.on("playing",()=>{ if(toolMode==="real")updateStartBtnReal(); });
+  Real3D.on("ended",()=>{
+    if(toolMode!=="real")return;
+    finishRecording();
+    updateStartBtnReal();
+    statusEl.textContent="ゴール！シードを変えると展開が変わります。";
+  });
+}
+function updateStartBtnReal(){
+  const s=real3dReady?Real3D.state():{playing:false,frame:0,totalFrames:0,ready:false};
+  const atEnd=s.ready&&s.frame>=s.totalFrames;
+  // 頭出しの状態(まだ走っていない)なら「レース開始」、途中で止めていれば「再開」
+  const atStart=!s.ready||s.frame===0||atEnd;
+  startBtn.textContent=s.playing?"⏸ 一時停止":(atStart?"▶ レース開始":"▶ 再開");
+  // 未スタート時と一時停止中はプレビューを暗くして再生マークを出す
+  // (ゴール後は結果発表を見せるため表示しない)
+  playOverlay.classList.toggle("visible", !s.playing && !atEnd);
+}
+function togglePlayReal(){
+  if(!real3dReady)return;
+  const s=Real3D.state();
+  if(s.playing){
+    Real3D.pause();
+    statusEl.textContent="一時停止中。クリックで再開します。";
+    return;
+  }
+  /* 頭から流すときは、いま画面にある設定でレースを組み直してから再生する
+     (競馬風で「レース開始」を押すたびに buildRace() し直すのと同じ考え方)。
+     途中で止めていた場合はそのまま続きから流す */
+  if(!s.ready||realDirty||s.frame>=s.totalFrames)applyRealRace();
+  timeline.disabled=false;
+  Real3D.play();
+  statusEl.textContent="レース中…設定した順位でゴールします。";
+}
+function recordReal(){
+  if(!real3dReady){statusEl.textContent="3Dの読み込みが終わってから録画してください。";return;}
+  applyRealRace();
+  // 画面が小さくても書き出しは固定解像度で。戻すのは録画停止時(onstop)
+  const canvas=Real3D.setExportMode(true);
+  Real3D.play();
+  beginRecording(canvas);
+}
+function seekRealFromTimeline(){
+  if(!real3dReady)return;
+  if(recorder&&recorder.state!=="inactive")return;
+  const s=Real3D.state();
+  if(!s.ready)return;
+  Real3D.seekFrame((timeline.value/1000)*s.totalFrames);
+  updateStartBtnReal();
+}
+
+async function switchMode(next){
+  if(next===toolMode)return;
+  const prev=toolMode;
+  // 切り替え前に、今動いているほうを止める
+  if(prev==="classic"){paused=true;}
+  else if(real3dReady){Real3D.pause();}
+  if(recorder&&recorder.state!=="inactive"){recorder.stop();}
+
+  toolMode=next;
+  document.getElementById("tool").dataset.toolMode=next;
+  for(const m in tabs)tabs[m].setAttribute("aria-selected",String(m===next));
+  taglineEl.textContent=TAGLINES[next];
+  setAspectOptions(next,prev);
+  applyAspect();
+  saveState();
+
+  if(next==="real"){
+    loading3d.classList.add("visible");
+    try{
+      await ensureReal3D();
+      applyRealRace();
+      timeline.disabled=false;
+      statusEl.textContent="「レース開始」を押すと走り出します。";
+    }catch(err){
+      console.error("[格付けダービー] 3Dの読み込みに失敗:",err);
+      statusEl.textContent="3Dツールを読み込めませんでした。通信環境をご確認ください。";
+      loading3d.classList.remove("visible");
+      switchMode("classic");   // 読めないままでは何も作れないので戻す
+      return;
+    }
+    loading3d.classList.remove("visible");
+  }else{
+    race=null;
+    timeline.disabled=true;
+    timeline.value=0;
+    timelineTime.textContent="0.0s / 0.0s";
+    statusEl.textContent="出走馬を設定して「レース開始」を押してください。";
+  }
+  updateStartBtn();
+}
+for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
+
+/* 起動時のモード決定。
+   ?mode=real で直接リアル競馬風を開ける(共有リンク用)。
+   指定が無ければ前回使っていたほうを開く。既定は軽いほうの競馬風。
+
+   HTMLは競馬風の状態で書かれているので、いったんその状態に揃えてから
+   switchMode() で移る。こうすると 3D の読み込みや画面の入れ替えが
+   ユーザーがタブを押したときとまったく同じ経路を通る */
+{
+  const wanted=new URLSearchParams(location.search).get("mode");
+  const saved=toolMode;
+  const target=(wanted==="real"||wanted==="classic")?wanted:saved;
+  toolMode="classic";
+  // 保存されていたのがリアル用の比率なら、退避させてから既定に戻す
+  setAspectOptions("classic", saved==="real"?"real":null);
+  applyAspect();
+  updateStartBtn();
+  if(target==="real")switchMode("real");
+}
 </script>
 </body>
 </html>
