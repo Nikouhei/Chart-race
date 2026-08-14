@@ -235,6 +235,9 @@
 
     .panel-tabs { display: none; }
 
+    .panel-footer { padding: 12px 16px 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .panel-footer .link-btn { border: none; background: none; padding: 0; color: var(--text-muted-tt, #6b7280); font-size: 12px; text-decoration: underline; cursor: pointer; font-family: inherit; }
+    .panel-footer .link-btn:hover { color: var(--text-primary); }
     .accordion-section { border-bottom: 1px solid var(--panel-border); }
     .accordion-toggle {
       width: 100%; min-height: 44px; padding: 12px 2px;
@@ -491,7 +494,7 @@
     .tt-imgmenu button:hover { background:var(--panel-surface-2); }
     .tt-imgmenu button .ti { color:var(--text-muted); font-size:15px; }
     /* 高さドラッグ（--slot-minh）に画像サイズも追従。未指定時は従来の em サイズ */
-    .slot .avatar { width:auto; height:max(1.5em, calc(var(--slot-minh, 0px) * 0.68)); aspect-ratio:1/1; border-radius:4px; object-fit:cover; flex-shrink:0; display:block; }
+    .slot .avatar { width:auto; max-width:100%; height:max(1.5em, calc(var(--slot-minh, 0px) * 0.68)); aspect-ratio:1/1; border-radius:4px; object-fit:cover; flex-shrink:0; display:block; }
     /* カードの表示内容: text=名前のみ / img=画像のみ（画像なしエントリーは名前で代替表示） */
     .tt-wrap[data-slotcontent="text"] .slot .avatar,
     .tt-wrap[data-slotcontent="text"] .champ .cw-name .avatar,
@@ -517,6 +520,17 @@
     .slot input.sc-input::-webkit-outer-spin-button, .slot input.sc-input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
     .slot input.sc-input:hover { border-color:var(--text-muted-tt); }
     .slot input.sc-input:focus { border-color:var(--border-accent); background:var(--bg-accent); color:var(--text-accent); font-weight:600; }
+
+    /* 勝者を手動指定するボタン（勝者=手動指定モードのみ／再生中は完全に非表示） */
+    .slot .pick-btn { flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; width:1.5em; height:1.5em; border:0.5px solid var(--border-strong); border-radius:50%; background:var(--surface-1); color:var(--text-muted-tt); cursor:pointer; padding:0; font-size:calc(11px * var(--fsx-slot)); line-height:1; }
+    .slot .pick-btn:hover { border-color:var(--border-accent); color:var(--text-accent); }
+    .slot.picked .pick-btn { background:var(--fill-accent); border-color:var(--fill-accent); color:var(--on-accent); }
+    .slot.picked .name { font-weight:600; }
+    .tt-wrap:not([data-winnermode="manual"]) .slot .pick-btn,
+    .tt-wrap[data-playing="on"] .slot .pick-btn { display:none; }
+    /* 手動指定で仮に埋まった次ラウンドの枠（結末を先出ししないよう控えめに） */
+    .slot.provisional .name { color:var(--text-muted-tt); }
+    .slot.provisional .avatar { opacity:0.55; }
 
     .slot.win { color:var(--text-primary); font-weight:500; box-shadow: inset 3px 0 0 var(--fill-accent); }
     .slot.win .sc { color:var(--text-accent); font-weight:600; }
@@ -571,7 +585,7 @@
 </head>
 <body class="light-mode">
 
-<div class="tt-wrap" id="tt-wrap" data-accent="purple" data-font="sans" data-slotstyle="compact" data-fxlevel="normal" data-canvasbg="light" data-cardr="std" data-winstyle="bar" data-scoremode="none" data-roundlabel="left" data-slotaxis="stack" data-vtext="off">
+<div class="tt-wrap" id="tt-wrap" data-accent="purple" data-font="sans" data-slotstyle="compact" data-fxlevel="normal" data-canvasbg="light" data-cardr="std" data-winstyle="bar" data-scoremode="none" data-winnermode="random" data-roundlabel="left" data-slotaxis="stack" data-vtext="off">
   <h1 class="sr-only">トーナメント表アニメーター</h1>
 
   <div class="control-panel">
@@ -668,7 +682,15 @@
             </div>
           </div>
           <div class="field">
-            <span class="field-label">勝敗の決め方</span>
+            <span class="field-label">勝者の決め方</span>
+            <div class="tt-seg" id="tt-winner-seg">
+              <button class="on" data-w="random">ランダム</button>
+              <button data-w="manual">手動で指定</button>
+            </div>
+            <p class="hint" id="tt-winner-hint">再生するたびに勝者を抽選します</p>
+          </div>
+          <div class="field">
+            <span class="field-label">スコア表示</span>
             <div class="tt-seg" id="tt-score-seg">
               <button class="on" data-mode="none">勝敗のみ</button>
               <button data-mode="manual">スコア入力</button>
@@ -802,10 +824,16 @@
           </div>
           <div class="field">
             <span class="field-label">文字サイズ</span>
-            <div class="fs-item"><label>タイトル<span id="fsTitleVal">100%</span></label><input type="range" id="fsTitle" min="60" max="220" step="10" value="100"></div>
-            <div class="fs-item"><label>ラウンド名<span id="fsRoundVal">100%</span></label><input type="range" id="fsRound" min="60" max="220" step="10" value="100"></div>
-            <div class="fs-item"><label>対戦カード<span id="fsSlotVal">100%</span></label><input type="range" id="fsSlot" min="60" max="200" step="10" value="100"></div>
-            <div class="fs-item"><label>優勝表示<span id="fsChampVal">100%</span></label><input type="range" id="fsChamp" min="60" max="220" step="10" value="100"></div>
+            <div class="fs-item"><label>タイトル<span id="fsTitleVal">100%</span></label><input type="range" id="fsTitle" min="60" max="400" step="10" value="100"></div>
+            <div class="fs-item"><label>ラウンド名<span id="fsRoundVal">100%</span></label><input type="range" id="fsRound" min="60" max="400" step="10" value="100"></div>
+            <div class="fs-item"><label>対戦カード<span id="fsSlotVal">100%</span></label><input type="range" id="fsSlot" min="60" max="400" step="10" value="100"></div>
+            <div class="fs-item"><label>優勝表示<span id="fsChampVal">100%</span></label><input type="range" id="fsChamp" min="60" max="400" step="10" value="100"></div>
+          </div>
+          <div class="field">
+            <span class="field-label">カードの大きさ</span>
+            <div class="fs-item"><label>幅<span id="cardWVal">150px</span></label><input type="range" id="cardW" min="80" max="900" step="5" value="150"></div>
+            <div class="fs-item"><label>高さ<span id="cardHVal">自動</span></label><input type="range" id="cardH" min="0" max="400" step="5" value="0"></div>
+            <p class="hint">高さを上げるとカード内の画像も大きくなります（0＝自動）。プレビュー上でカードの右端・下端をドラッグしても変更できます</p>
           </div>
           <div class="field">
             <span class="field-label">順位番号</span>
@@ -824,6 +852,11 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="panel-footer">
+        <span class="hint" id="tt-save-note">設定・参加者はこのブラウザに自動保存されます</span>
+        <button type="button" id="tt-reset-state" class="link-btn">保存内容を消して初期状態に戻す</button>
       </div>
     </div>
 
@@ -850,6 +883,7 @@
         <h3>プレビューの操作ヒント</h3>
         <ul>
           <li><span class="tip-ic">🖱️</span><span>選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）</span></li>
+          <li><span class="tip-ic">🏆</span><span>「勝者の決め方」を<b>手動で指定</b>にすると各対戦者に🏆ボタンが出ます。勝ち上がりを先に決めておけば、再生時はその通りに進行します（ボタンは再生中は非表示なので録画に映りません）。未指定の対戦はランダムです</span></li>
           <li><span class="tip-ic">▶️</span><span>再生ボタンで全ラウンドを自動進行（再生中は一時停止に切替）。スペースキーでも再生/一時停止できます。速度スライダーでエフェクト速度を調整</span></li>
           <li><span class="tip-ic">✎</span><span>カードにマウスを乗せて ✎ ボタンで名前をその場で編集</span></li>
           <li><span class="tip-ic">📷</span><span>カードの 📷 ボタンで画像をアップロード / URL指定</span></li>
@@ -871,10 +905,11 @@
 (function(){
   const SURNAMES = ['田中','佐藤','山本','鈴木','高橋','渡辺','加藤','中村','小林','吉田','山田','松本','井上','木村','林','斎藤','清水','森','池田','橋本','阿部','石川','山口','中島','前田','藤田','岡田','後藤','村上','近藤','石井','松田'];
   let entryCount = 8, bracketSize = 8, layout = 'ts', currentRound = 0, bracket = [], playing = false, paused = false, speed = 3;
-  const CARD_WIDTH_DEFAULT = 150;
+  const CARD_WIDTH_DEFAULT = 150, CARD_WIDTH_MAX = 900, SLOT_MINH_MAX = 400;
   let cardWidth = CARD_WIDTH_DEFAULT;
   let slotMinH = null; // null = 自動（文字サイズ・余白依存）
   let seedMode = 'standard', showSeed = false, scoreMode = 'none', connectorStyle = 'branched', seedView = 'hide';
+  let winnerMode = 'random';
   let flipDir = false;
   const $ = (id) => document.getElementById(id);
   const wrap = $('tt-wrap'), input = $('tt-input'), bracketEl = $('tt-bracket'), canvasEl = $('tt-canvas'), linesSvg = $('tt-lines'), countLabel = $('tt-count-label'), hintEl = $('tt-hint');
@@ -970,6 +1005,55 @@
     return withSeed;
   }
   const nextPow2 = (x) => Math.pow(2, Math.ceil(Math.log2(Math.max(2, x))));
+  // 不戦勝を自動処理（連鎖対応）:
+  //  [実参加者 vs 不戦勝] は自動進出、[不戦勝 vs 不戦勝] は不戦勝が次ラウンドへ
+  function applyByes(){
+    for (let r = 0; r < bracket.length - 1; r++) {
+      bracket[r].forEach((match, mi) => {
+        const b0 = !!match[0].bye, b1 = !!match[1].bye;
+        if (!b0 && !b1) return;
+        const tm = Math.floor(mi / 2), ts = mi % 2;
+        if (b0 && b1) { bracket[r + 1][tm][ts] = { name: '—', img: '', bye: true }; return; }
+        const wi = b0 ? 1 : 0;
+        if (!entryOk(match[wi])) return;
+        match[wi].win = true;
+        bracket[r + 1][tm][ts] = { name: match[wi].name, img: match[wi].img, seed: match[wi].seed };
+      });
+    }
+  }
+  // 再生の巻き戻し: 組み合わせ・手動指定・入力済みスコアは保ったまま、勝敗の確定だけ消す。
+  // （initBracket は組み合わせから作り直すため、再生開始時にはこちらを使う）
+  function softReset(){
+    const picks = bracket.map(round => round.map(m => m.pickName));
+    const scores = bracket.map(round => round.map(m => [m[0].score, m[1].score]));
+    const first = bracket[0].map(match => match.map(s => {
+      const c = {...s};
+      delete c.win; delete c.justDecided; delete c.isNew; delete c.arriving; delete c.provisional;
+      return c;
+    }));
+    bracket = [first];
+    let count = bracketSize / 2;
+    while (count >= 2) {
+      const round = [];
+      for (let i = 0; i < count / 2; i++) round.push([{name: null}, {name: null}]);
+      bracket.push(round);
+      count /= 2;
+    }
+    applyByes();
+    bracket.forEach((round, ri) => round.forEach((m, mi) => {
+      if (picks[ri]?.[mi] != null) m.pickName = picks[ri][mi];
+    }));
+    recomputeProvisional();
+    bracket.forEach((round, ri) => round.forEach((m, mi) => {
+      const sc = scores[ri]?.[mi];
+      if (!sc) return;
+      if (entryOk(m[0]) && sc[0] != null) m[0].score = sc[0];
+      if (entryOk(m[1]) && sc[1] != null) m[1].score = sc[1];
+    }));
+    currentRound = 0;
+    canvasEl.querySelectorAll('.fx-ghost, .fx-spark, .fx-ring').forEach(el => el.remove());
+    render();
+  }
   function initBracket(){
     const parsed = parseNames();
     // ブラケット枠数: 参加人数を2の冪へ切上げ。不足分は自動で不戦勝枠に。
@@ -988,20 +1072,7 @@
       bracket.push(round);
       count /= 2;
     }
-    // 不戦勝を自動処理（連鎖対応）:
-    //  [実参加者 vs 不戦勝] は自動進出、[不戦勝 vs 不戦勝] は不戦勝が次ラウンドへ
-    for (let r = 0; r < bracket.length - 1; r++) {
-      bracket[r].forEach((match, mi) => {
-        const b0 = !!match[0].bye, b1 = !!match[1].bye;
-        if (!b0 && !b1) return;
-        const tm = Math.floor(mi / 2), ts = mi % 2;
-        if (b0 && b1) { bracket[r + 1][tm][ts] = { name: '—', img: '', bye: true }; return; }
-        const wi = b0 ? 1 : 0;
-        if (!entryOk(match[wi])) return;
-        match[wi].win = true;
-        bracket[r + 1][tm][ts] = { name: match[wi].name, img: match[wi].img, seed: match[wi].seed };
-      });
-    }
+    applyByes();
     // 現在のシード状況をヒントに表示
     const byes = bracketSize - entryCount;
     const byeHint = $('tt-bye-hint');
@@ -1016,7 +1087,14 @@
   }
   function updateHint() {
     const base = '「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の📷から追加（URLは省略表示）';
-    hintEl.textContent = scoreMode === 'manual' ? base + ' · スコア入力で勝敗' : base + ' · カードのクリックで勝者選択';
+    const tail = winnerMode === 'manual'
+      ? ' · 各対戦者の🏆ボタンで勝者を指定 → 再生でその通りに進行'
+      : (scoreMode === 'manual' ? ' · スコア入力で勝敗' : ' · カードのクリックで勝者選択');
+    hintEl.textContent = base + tail;
+    const wh = $('tt-winner-hint');
+    if (wh) wh.textContent = winnerMode === 'manual'
+      ? '各対戦者の🏆ボタンで勝ち上がりを指定します。指定は再生中も有効で、ボタンは動画には映りません（未指定の対戦はランダム）'
+      : '再生するたびに勝者を抽選します';
   }
   // スコア入力モードのサンプル値: 未決着・未入力の対戦カードに例として入れる（そのまま編集可能）
   function fillSampleScores() {
@@ -1081,6 +1159,11 @@
     if (slot.win === true) cls.push('win');
     if (slot.win === false) cls.push('lose');
     if (slot.isNew) cls.push('new');
+    if (slot.provisional) cls.push('provisional');
+    const isPicked = winnerMode === 'manual' && !playing
+      && slot.win !== true && slot.win !== false
+      && resolvePick(bracket[ri][mi]) === si;
+    if (isPicked) cls.push('picked');
     if (slot.arriving) cls.push('arriving');
     if (slot.justDecided) cls.push('just-decided');
     sEl.className = cls.join(' ');
@@ -1095,11 +1178,22 @@
     const editBtnHtml = (ri === 0 && hasEntry)
       ? '<button type="button" class="name-img" title="画像を設定" aria-label="画像を設定"><i class="ti ti-photo" aria-hidden="true"></i></button><button type="button" class="name-edit" title="名前を編集" aria-label="名前を編集"><i class="ti ti-pencil" aria-hidden="true"></i></button>'
       : '';
-    sEl.innerHTML = `${seedBadge}${avatarHtml}<span class="name">${displayName}</span>${editBtnHtml}${scoreHtml}`;
+    // 勝者=手動指定モードでのみ出す「この対戦者を勝たせる」ボタン（再生中はCSSで非表示）
+    const canPick = winnerMode === 'manual' && hasEntry
+      && slot.win !== true && slot.win !== false
+      && entryOk(bracket[ri][mi][1 - si]);
+    const pickBtnHtml = canPick
+      ? `<button type="button" class="pick-btn" title="${isPicked ? '勝者指定を解除' : 'この対戦者を勝者に指定'}" aria-pressed="${isPicked}" aria-label="勝者に指定"><i class="ti ti-${isPicked ? 'check' : 'trophy'}" aria-hidden="true"></i></button>`
+      : '';
+    sEl.innerHTML = `${seedBadge}${avatarHtml}<span class="name">${displayName}</span>${editBtnHtml}${pickBtnHtml}${scoreHtml}`;
     sEl.addEventListener('click', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
+      // 手動指定モードではカードクリックも「勝者の予約」。即確定はさせない
+      if (winnerMode === 'manual' && !playing) { if (canPick) togglePick(ri, mi, si); return; }
       advanceMatch(ri, mi, si, scoreMode === 'manual');
     });
+    const pickBtn = sEl.querySelector('.pick-btn');
+    if (pickBtn) pickBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePick(ri, mi, si); });
     const editBtn = sEl.querySelector('.name-edit');
     if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); startNameEdit(sEl, slot); });
     const imgBtn = sEl.querySelector('.name-img');
@@ -1503,7 +1597,10 @@
     if (!cw) return;
     const bandH = cw.clientHeight;
     if (!bandH) return;
-    const cardH = Math.max(42, Math.min(105, Math.round(bandH * 0.6)));
+    // 高さを明示指定していればそれを優先（自動時のみ帯の高さから算出）
+    const cardH = slotMinH != null
+      ? Math.max(42, Math.min(SLOT_MINH_MAX, slotMinH))
+      : Math.max(42, Math.min(105, Math.round(bandH * 0.6)));
     wrap.style.setProperty('--vcard-h', cardH + 'px');
   }
   function fitToScreen() {
@@ -1551,6 +1648,7 @@
     bracket.forEach(r => r.forEach(m => m.forEach(s => { if (s.seed === seed) s.img = img; })));
     render();
     renderEntryGrid();
+    scheduleSave();
   }
   // 名前変更をテキストエリアと全ラウンドへ反映（進行状況は維持）
   function updateEntryName(seed, newName, img) {
@@ -1558,9 +1656,13 @@
     while (lines.length < seed) lines.push('');
     lines[seed - 1] = img ? (newName ? `${newName}, ${img}` : img) : newName;
     input.value = lines.join('\n');
+    // 勝者の手動指定は名前で持っているので、改名に合わせて付け替える
+    const oldName = bracket.flat().flatMap(m => m).find(s => s.seed === seed)?.name;
     bracket.forEach(round => round.forEach(m => m.forEach(s => { if (s.seed === seed) s.name = newName; })));
+    if (oldName != null) bracket.forEach(round => round.forEach(m => { if (m.pickName === oldName) m.pickName = newName; }));
     render();
     renderEntryGrid();
+    scheduleSave();
   }
 
   // --- 優勝時の紙吹雪（エフェクト「派手」のみ） ---
@@ -1710,6 +1812,10 @@
     if (!keepScore && scoreMode !== 'none') {
       match[winnerIdx].score = Math.floor(Math.random()*2) + 2;
       match[1-winnerIdx].score = Math.floor(Math.random()*2);
+    } else if (scoreMode !== 'none') {
+      // 勝者を先に決めた場合、既存スコアと矛盾しないよう入れ替える
+      const ws = match[winnerIdx].score, ls = match[1-winnerIdx].score;
+      if (ws != null && ls != null && ws < ls) { match[winnerIdx].score = ls; match[1-winnerIdx].score = ws; }
     }
     if (ri < bracket.length - 1) {
       const tm = Math.floor(mi/2), ts = mi % 2;
@@ -1718,6 +1824,54 @@
     }
     render();
     runAdvanceFx(ri, mi, winnerIdx);
+  }
+  /* ===== 勝者の手動指定 =====
+     指定は「スロット位置」ではなく match.pickName（勝者の名前）で保持する。
+     こうすると再生時に盤面を巻き戻しても指定が消えず、上流の勝者が変わって
+     出場者が入れ替わった時点で自動的に無効化できる。 */
+  function resolvePick(match) {
+    if (match.pickName == null) return -1;
+    if (entryOk(match[0]) && match[0].name === match.pickName) return 0;
+    if (entryOk(match[1]) && match[1].name === match.pickName) return 1;
+    return -1;
+  }
+  // 指定済みの勝者を次ラウンドへ「仮」で反映する（勝敗は確定させない）。
+  // 仮反映しないと2回戦以降の勝者を指定できないため、名前だけ先に流し込む。
+  function recomputeProvisional() {
+    // 手動指定モード以外では仮反映を出さない（指定データ自体は保持する）
+    if (winnerMode !== 'manual') {
+      bracket.forEach((round, ri) => round.forEach((m, mi) => m.forEach((s, si) => {
+        if (s.provisional) bracket[ri][mi][si] = { name: null };
+      })));
+      return;
+    }
+    for (let r = 0; r < bracket.length - 1; r++) {
+      bracket[r].forEach((match, mi) => {
+        const tm = Math.floor(mi / 2), ts = mi % 2;
+        const dst = bracket[r + 1][tm][ts];
+        if (match[0].win === true || match[1].win === true) return; // 確定済みは実データが入っている
+        if (!dst || !dst.provisional) {
+          if (dst && (entryOk(dst) || dst.bye)) return; // 不戦勝など実データは触らない
+        }
+        const wi = resolvePick(match);
+        if (wi < 0) {
+          if (match.pickName != null) delete match.pickName; // 出場者が変わり無効になった指定は破棄
+          if (dst && dst.provisional) bracket[r + 1][tm][ts] = { name: null };
+          return;
+        }
+        const w = match[wi];
+        bracket[r + 1][tm][ts] = { name: w.name, img: w.img, seed: w.seed, provisional: true };
+      });
+    }
+  }
+  function togglePick(ri, mi, si) {
+    const match = bracket[ri][mi];
+    if (!entryOk(match[si]) || !entryOk(match[1 - si])) return;
+    if (match[0].win === true || match[1].win === true) return; // 確定済みは変更しない
+    match.pickName = (resolvePick(match) === si) ? undefined : match[si].name;
+    if (match.pickName === undefined) delete match.pickName;
+    recomputeProvisional();
+    render();
   }
   // 進出先の相手が不戦勝枠なら、そのまま更に上のラウンドへ自動進出（連鎖）
   function autoAdvanceByes(r, m) {
@@ -1739,7 +1893,17 @@
     round.forEach((match, mi) => {
       if (match[0].win === true || match[1].win === true) return;
       const ok0 = entryOk(match[0]), ok1 = entryOk(match[1]);
-      if (ok0 && ok1) advanceMatch(currentRound, mi, Math.random() < 0.5 ? 0 : 1, false);
+      if (ok0 && ok1) {
+        // 手動指定 > スコア > ランダム の優先順で勝者を決める
+        let wi = winnerMode === 'manual' ? resolvePick(match) : -1;
+        let keepScore = wi >= 0;
+        if (wi < 0 && scoreMode === 'manual') {
+          const s0 = match[0].score, s1 = match[1].score;
+          if (s0 != null && s1 != null && s0 !== s1) { wi = s0 > s1 ? 0 : 1; keepScore = true; }
+        }
+        if (wi < 0) { wi = Math.random() < 0.5 ? 0 : 1; keepScore = false; }
+        advanceMatch(currentRound, mi, wi, keepScore);
+      }
       else if (ok0 && match[1].bye) advanceMatch(currentRound, mi, 0, true); // 不戦勝
       else if (ok1 && match[0].bye) advanceMatch(currentRound, mi, 1, true);
     });
@@ -1753,8 +1917,9 @@
   async function play(){
     if (playing) { paused = !paused; updatePlayBtn(); return; }
     playing = true; paused = false;
+    wrap.dataset.playing = 'on';
     updatePlayBtn();
-    initBracket();
+    softReset();
     await new Promise(r => setTimeout(r, 500));
     while (playing && currentRound < bracket.length) {
       while (paused && playing) await new Promise(r => setTimeout(r, 120));
@@ -1763,7 +1928,9 @@
       await new Promise(r => setTimeout(r, ROUND_BASE_MS / speed));
     }
     playing = false; paused = false;
+    delete wrap.dataset.playing;
     updatePlayBtn();
+    render(); // 再生終了後に勝者指定ボタンを戻す
   }
   function segHandler(id, cb) {
     document.querySelectorAll('#' + id + ' button').forEach(b => {
@@ -1822,7 +1989,7 @@
 
   $('tt-play').addEventListener('click', play);
   $('tt-step').addEventListener('click', () => stepRound());
-  $('tt-reset').addEventListener('click', () => { playing = false; paused = false; updatePlayBtn(); initBracket(); });
+  $('tt-reset').addEventListener('click', () => { playing = false; paused = false; delete wrap.dataset.playing; updatePlayBtn(); initBracket(); });
   // スペースキーで再生/一時停止（入力中・ボタンフォーカス中は除外）
   document.addEventListener('keydown', (e) => {
     if (e.code !== 'Space' || e.repeat) return;
@@ -1872,6 +2039,12 @@
   });
   segHandler('tt-seed-seg', b => { seedMode = b.dataset.s; initBracket(); });
   segHandler('tt-seedview-seg', b => { seedView = b.dataset.v; render(); });
+  segHandler('tt-winner-seg', b => {
+    winnerMode = b.dataset.w;
+    wrap.dataset.winnermode = winnerMode;
+    if (winnerMode === 'manual') recomputeProvisional();
+    updateHint(); render();
+  });
   segHandler('tt-score-seg', b => { scoreMode = b.dataset.mode; wrap.dataset.scoremode = scoreMode; if (scoreMode === 'manual') fillSampleScores(); updateHint(); render(); });
   $('fontSelect').addEventListener('change', e => {
     wrap.dataset.font = e.target.value;
@@ -1989,9 +2162,16 @@
   const cardResizeTip = document.createElement('div');
   cardResizeTip.className = 'card-resize-tip';
   document.body.appendChild(cardResizeTip);
+  // ドラッグとスライダーの両方から呼ばれるので、UIの同期もここで行う
+  function syncCardSizeControls() {
+    const w = $('cardW'), h = $('cardH');
+    if (w) { w.value = cardWidth; $('cardWVal').textContent = cardWidth + 'px'; }
+    if (h) { h.value = slotMinH ?? 0; $('cardHVal').textContent = slotMinH == null ? '自動' : slotMinH + 'px'; }
+  }
   function setCardWidth(px) {
-    cardWidth = Math.round(Math.max(80, Math.min(400, px)));
+    cardWidth = Math.round(Math.max(80, Math.min(CARD_WIDTH_MAX, px)));
     wrap.style.setProperty('--card-maxw', cardWidth + 'px');
+    syncCardSizeControls();
     drawLines();
   }
   function setSlotMinH(px) {
@@ -1999,11 +2179,20 @@
       slotMinH = null;
       wrap.style.removeProperty('--slot-minh');
     } else {
-      slotMinH = Math.round(Math.max(18, Math.min(160, px)));
+      // スライダーの刻み(5px)より下限を高くすると、つまみが戻されて動かなくなる
+      slotMinH = Math.round(Math.max(5, Math.min(SLOT_MINH_MAX, px)));
       wrap.style.setProperty('--slot-minh', slotMinH + 'px');
     }
+    syncCardSizeControls();
+    applyVerticalCardSizing();
     drawLines();
   }
+  $('cardW').addEventListener('input', () => { setCardWidth(+$('cardW').value); fitToScreen(); });
+  $('cardH').addEventListener('input', () => {
+    const v = +$('cardH').value;
+    setSlotMinH(v <= 0 ? null : v);
+    fitToScreen();
+  });
   function canvasScale() {
     const w = canvasEl.offsetWidth;
     return w ? canvasEl.getBoundingClientRect().width / w : 1;
@@ -2126,9 +2315,112 @@
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setTipsOpen(false); });
 
-  fillDefaultNames();
+  /* ===== 設定の自動保存（localStorage） =====
+     セグメントは「選択中ボタンの位置」、他は入力要素の value をそのまま保存する。
+     復元は値を入れてから click / イベント発火で既存ハンドラに処理させ、
+     反映ロジックを二重に持たない。 */
+  const STATE_KEY = 'tt-bracket-state-v1';
+  let stateLoaded = false;
+  const SEG_IDS = ['tt-layout-seg','tt-flip-seg','tt-seed-seg','tt-seedview-seg','tt-winner-seg','tt-score-seg',
+    'tt-fx-seg','tt-showseed-seg','tt-slotstyle-seg','tt-slotcontent-seg','tt-connector-seg','tt-roundlabel-seg',
+    'tt-slotaxis-seg','tt-vtext-seg','tt-canvasbg-seg','tt-cardr-seg','tt-density-seg','tt-winstyle-seg'];
+  const FIELD_IDS = ['titleInput','fontSelect','canvasWidth','canvasHeight','fsTitle','fsRound','fsSlot','fsChamp','tt-speed'];
+  const segButtons = (id) => [...document.querySelectorAll('#' + id + ' button')];
+  const segIndex = (id) => Math.max(0, segButtons(id).findIndex(b => b.classList.contains('on')));
+
+  function saveState(){
+    if (!stateLoaded) return;
+    const state = {
+      version: 1,
+      entries: input.value,
+      entryCount,
+      aspect: $('aspectRatioPreset').value,
+      fields: Object.fromEntries(FIELD_IDS.map(id => [id, $(id) ? $(id).value : null]).filter(e => e[1] != null)),
+      segs: Object.fromEntries(SEG_IDS.map(id => [id, segIndex(id)])),
+      accent: wrap.dataset.accent,
+      cardWidth, slotMinH,
+      panelWidth: panelEl.style.width || '',
+      picks: bracket.map(round => round.map(m => m.pickName ?? null)),
+    };
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+    catch (_) {
+      // quota超過（画像dataURLが大きい）時は画像を落として再保存
+      try {
+        state.entries = input.value.split('\n').map(l => parseEntryLine(l).name).join('\n');
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+      } catch (_2) {}
+    }
+  }
+  const scheduleSave = (() => { let t = null; return () => { clearTimeout(t); t = setTimeout(saveState, 250); }; })();
+
+  function loadState(){
+    let s = null;
+    try { s = JSON.parse(localStorage.getItem(STATE_KEY)); } catch (_) {}
+    if (!s || typeof s !== 'object' || typeof s.entries !== 'string' || !s.entries.trim()) return false;
+    input.value = s.entries;
+    // 参加人数（既存ハンドラが名前行の補充・ブラケット再構築まで行う）
+    const n = Math.max(2, Math.min(32, Math.round(+s.entryCount || 8)));
+    $('entryCountInput').value = n;
+    applyEntryCount(n);
+    // セグメント: 保存時の位置のボタンをクリック
+    SEG_IDS.forEach(id => {
+      const bs = segButtons(id), i = s.segs?.[id];
+      if (bs.length && Number.isInteger(i) && bs[i]) bs[i].click();
+    });
+    // 入力系: 値を入れてから既存ハンドラを起こす
+    FIELD_IDS.forEach(id => {
+      const el = $(id), v = s.fields?.[id];
+      if (!el || v == null) return;
+      el.value = v;
+      el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+    });
+    // キャンバスサイズは幅・高さを入れると preset が custom に落ちるので、プリセットは後から戻す
+    if (s.aspect && s.aspect !== 'custom') {
+      $('aspectRatioPreset').value = s.aspect;
+      $('aspectRatioPreset').dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      $('aspectRatioPreset').value = 'custom';
+    }
+    const sw = s.accent && document.querySelector(`#tt-swatches .tt-sw[data-c="${s.accent}"]`);
+    if (sw) sw.click();
+    if (Number.isFinite(s.cardWidth)) setCardWidth(s.cardWidth);
+    if (s.slotMinH != null) setSlotMinH(s.slotMinH);
+    if (s.panelWidth) { panelEl.style.width = s.panelWidth; panelEl.style.flexBasis = s.panelWidth; }
+    // 勝者の手動指定は最後に戻す（上の復元処理が initBracket を何度も呼ぶため）
+    if (Array.isArray(s.picks)) {
+      bracket.forEach((round, ri) => round.forEach((m, mi) => {
+        const p = s.picks[ri]?.[mi];
+        if (p != null) m.pickName = p;
+      }));
+      recomputeProvisional(); // 名前が合わなくなった指定はここで自動的に破棄される
+    }
+    updateHint();
+    render();
+    return true;
+  }
+
+  // 変更の検知はパネル全体への委譲で拾う（個々のハンドラに手を入れない）
+  ['input', 'change', 'click'].forEach(ev => panelEl.addEventListener(ev, scheduleSave));
+  titleLine.addEventListener('blur', scheduleSave);
+  bracketEl.addEventListener('pointerup', scheduleSave);   // カード幅・高さのドラッグ
+  bracketEl.addEventListener('click', scheduleSave);       // 勝者の手動指定・勝敗の確定
+  panelResizer.addEventListener('pointerup', scheduleSave);
+  window.addEventListener('beforeunload', saveState);
+
+  $('tt-reset-state').addEventListener('click', () => {
+    if (!confirm('保存された設定と参加者を消して初期状態に戻します。よろしいですか？')) return;
+    stateLoaded = false;
+    try { localStorage.removeItem(STATE_KEY); } catch (_) {}
+    location.reload();
+  });
+
   syncFxT();
-  initBracket();
+  const restored = loadState();
+  if (!restored) {
+    fillDefaultNames();
+    initBracket();
+  }
+  stateLoaded = true;
   renderEntryGrid();
   updateSlotAxisAvailability();
   fitToScreen();
