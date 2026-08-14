@@ -1,0 +1,190 @@
+/* ==========================================================================
+   ブログ記事本文の共通スタイル（.rvg）
+   すべての記事の本文ラッパに class="rvg" を付けて使用する。
+   変数は .rvg にスコープしているため、tokens.css とは衝突しない。
+   ========================================================================== */
+.rvg{
+  --ink:#101c33;
+  --ink-soft:#41506c;
+  --paper:#ffffff;
+  --paper-2:#f5f6f9;
+  --line:#dfe3ea;
+  --gold:#b3842f;
+  --gold-soft:#f6efdf;
+  --signal:#1d6f6a;
+  --signal-soft:#e6f2f1;
+  --warn:#a4462d;
+  --warn-soft:#fbeeea;
+
+  max-width:860px;margin:0 auto;padding:0 4px;
+  color:var(--ink);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:17px;line-height:1.95;
+  letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;
+}
+.rvg *{box-sizing:border-box}
+.rvg p{margin:0 0 1.5em}
+.rvg a{color:var(--signal);text-decoration:underline;text-underline-offset:3px}
+.rvg a:hover{color:var(--gold)}
+.rvg a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.rvg img,.rvg video{max-width:100%;height:auto}
+
+/* ---- 見出し ---- */
+.rvg .rvg-title{
+  font-size:1.75em;line-height:1.55;font-weight:700;
+  margin:0 0 1em;padding-bottom:.6em;border-bottom:4px solid var(--gold);
+}
+.rvg h2{
+  font-size:1.5em;line-height:1.5;font-weight:700;
+  margin:3.2em 0 1.1em;padding:.55em 0 .55em .85em;
+  border-left:6px solid var(--gold);
+  background:linear-gradient(90deg,var(--gold-soft),transparent 78%);
+}
+.rvg h3{
+  font-size:1.2em;line-height:1.55;font-weight:700;
+  margin:2.6em 0 .9em;padding-bottom:.45em;
+  border-bottom:2px solid var(--line);
+}
+.rvg h4{font-size:1.03em;font-weight:700;margin:2em 0 .6em;color:var(--ink)}
+.rvg .lede{font-size:1.06em;font-weight:600;line-height:1.9}
+
+/* ---- テーブル ---- */
+.rvg .tw{overflow-x:auto;overflow-y:hidden;margin:1.6em 0 .6em;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);border-radius:10px;overscroll-behavior-x:contain}
+.rvg table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px;font-size:.93em;background:var(--paper)}
+.rvg table.wide{min-width:1040px}
+.rvg table.narrow{min-width:0}
+.rvg th,.rvg td{border-bottom:1px solid var(--line);padding:1em 1.1em;text-align:left;vertical-align:top;
+  line-height:1.8;word-break:auto-phrase;line-break:strict;overflow-wrap:break-word}
+.rvg thead th{background:var(--ink);color:#fff;font-weight:700;font-size:.95em;border-bottom:none;white-space:nowrap}
+/* 1列目は長いラベルでも列幅が伸びないよう、上限を設けて文節で折り返す */
+.rvg tbody th{background:var(--paper-2);font-weight:700;
+  white-space:normal;min-width:8em;max-width:13em;
+  position:sticky;left:0;z-index:2;box-shadow:1px 0 0 var(--line)}
+.rvg thead th:first-child{position:sticky;left:0;z-index:3}
+.rvg tbody tr:last-child th,.rvg tbody tr:last-child td{border-bottom:none}
+.rvg tbody tr:hover td{background:#fbfcfe}
+.rvg td.c,.rvg th.c{text-align:center;white-space:nowrap}
+.rvg table.wide td:last-child{min-width:18em}
+.rvg .best{color:var(--gold);font-weight:700}
+.rvg .scroll-note{font-size:.82em;color:var(--ink-soft);margin:.2em 0 2em;display:flex;align-items:center;gap:.4em}
+.rvg .scroll-note::before{content:"↔";font-size:1.1em;line-height:1}
+@media(max-width:600px){
+  .rvg .tw{margin-left:-4px;margin-right:-4px;border-radius:8px}
+  .rvg th,.rvg td{padding:.8em .85em}
+  .rvg tbody th{min-width:7em;max-width:10em}
+}
+
+/* ---- 表内タイプリンク ---- */
+.rvg .tlink{color:inherit;text-decoration:underline;text-decoration-style:dotted;
+  text-underline-offset:4px;text-decoration-thickness:1px}
+.rvg .tlink:hover{color:var(--gold);text-decoration-style:solid}
+.rvg h3[id]{scroll-margin-top:1.2em}
+
+/* ---- 判定バッジ ---- */
+.rvg .b{display:inline-block;min-width:2.4em;text-align:center;padding:.1em .5em;border-radius:4px;font-size:.85em;font-weight:700;line-height:1.6}
+.rvg .b-a{background:var(--signal-soft);color:var(--signal)}
+.rvg .b-b{background:var(--gold-soft);color:var(--gold)}
+.rvg .b-c{background:var(--paper-2);color:var(--ink-soft)}
+
+/* ---- ボックス ---- */
+.rvg .box{border:1px solid var(--line);border-radius:10px;padding:1.3em 1.4em;margin:1.8em 0;background:var(--paper-2)}
+.rvg .box>*:last-child{margin-bottom:0}
+.rvg .box .bt{font-weight:700;margin:0 0 .6em;display:block}
+.rvg .box.pick{background:var(--gold-soft);border-color:#e8d9b4}
+.rvg .box.note{background:var(--signal-soft);border-color:#c8e2e0}
+.rvg .box.warn{background:var(--warn-soft);border-color:#eecfc6}
+.rvg .box.warn .bt{color:var(--warn)}
+
+/* ---- リスト ---- */
+.rvg ul,.rvg ol{margin:0 0 1.6em;padding-left:1.5em}
+.rvg li{margin-bottom:.55em;line-height:1.9}
+
+/* ---- 目次 ---- */
+.rvg .toc{border:1px solid var(--line);border-radius:10px;padding:1.3em 1.5em;background:var(--paper);margin:2em 0 2.6em}
+.rvg .toc .bt{font-weight:700;display:block;margin-bottom:.7em;font-size:1.05em;border-bottom:2px solid var(--gold);padding-bottom:.4em}
+.rvg .toc ol{margin:0;padding-left:1.4em;font-size:.95em}
+.rvg .toc li{margin-bottom:.35em}
+
+/* ---- 手順 ---- */
+.rvg ol.steps{counter-reset:s;list-style:none;padding-left:0;margin:1.6em 0}
+.rvg ol.steps>li{counter-increment:s;position:relative;padding:0 0 1.1em 2.9em;margin-bottom:1.1em;border-bottom:1px dashed var(--line)}
+.rvg ol.steps>li:last-child{border-bottom:none}
+.rvg ol.steps>li::before{
+  content:counter(s);position:absolute;left:0;top:.15em;
+  width:2em;height:2em;line-height:2em;text-align:center;
+  background:var(--ink);color:#fff;border-radius:50%;font-size:.85em;font-weight:700;
+}
+.rvg ol.steps>li b{display:block;margin-bottom:.2em}
+
+/* ---- 図版 ---- */
+.rvg figure.fig{margin:1.8em 0}
+.rvg figure.fig figcaption{font-size:.86em;color:var(--ink-soft);line-height:1.7;margin-top:.5em}
+.rvg figure.fig img,.rvg figure.fig video{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.rvg figure.ph{margin:1.8em 0;padding:2.2em 1em;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--ink-soft);font-size:.9em;background:var(--paper-2)}
+.rvg figure.ph figcaption{margin-top:.4em;font-size:.9em}
+/* 見出し直下に置く作例動画（YouTube埋め込み・自前動画の共通枠） */
+.rvg figure.type-media{margin:1.4em 0 2em;max-width:560px}
+
+/* ---- CTA ---- */
+.rvg .cta{border:2px solid var(--gold);border-radius:12px;padding:1.5em;margin:2em 0;background:var(--paper)}
+.rvg .cta .bt{font-weight:700;font-size:1.1em;display:block;margin-bottom:.5em;line-height:1.6}
+.rvg .cta-actions{display:flex;flex-wrap:wrap;gap:.7em;margin-top:.9em}
+.rvg .cta-btn{flex:1 1 auto;min-width:min(100%,15em);max-width:100%;
+  display:inline-flex;align-items:center;justify-content:center;text-align:center;
+  padding:.85em 1.4em;background:var(--ink);color:#fff !important;
+  border-radius:6px;text-decoration:none;font-weight:700;font-size:.98em;line-height:1.5;
+  word-break:auto-phrase;overflow-wrap:anywhere}
+.rvg .cta-btn:hover{background:var(--gold);color:#fff !important}
+.rvg .cta-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(max-width:520px){.rvg .cta{padding:1.2em}.rvg .cta-actions{flex-direction:column}.rvg .cta-btn{width:100%}}
+
+/* ---- FAQ ---- */
+.rvg details{border:1px solid var(--line);border-radius:8px;padding:.9em 1.1em;margin-bottom:.7em;background:var(--paper)}
+.rvg details[open]{background:var(--paper-2)}
+.rvg summary{font-weight:700;cursor:pointer;line-height:1.7}
+.rvg details p{margin:.8em 0 0;font-size:.96em}
+
+/* ---- 埋め込み ---- */
+.rvg .embed{position:relative;width:100%;padding-top:56.25%;margin:0;border-radius:8px;overflow:hidden;background:#000}
+.rvg .embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.rvg .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.1em;margin:1.6em 0}
+.rvg .refgrid figure{margin:0}
+.rvg .refgrid figcaption,.rvg .embed-cap{font-size:.86em;color:var(--ink-soft);line-height:1.7;margin-top:.5em}
+.rvg .refgrid figcaption b,.rvg .embed-cap b{color:var(--ink)}
+@media(max-width:600px){.rvg .refgrid{grid-template-columns:1fr}}
+
+/* ---- 向いている／向いていない（2カラム） ---- */
+.rvg .fit{display:grid;grid-template-columns:1fr 1fr;gap:1em;margin:1.8em 0}
+.rvg .fit>div{border:1px solid var(--line);border-radius:10px;padding:1.05em 1.2em;background:var(--paper)}
+.rvg .fit .fit-y{border-top:4px solid var(--signal);background:var(--signal-soft)}
+.rvg .fit .fit-n{border-top:4px solid var(--warn);background:var(--warn-soft)}
+.rvg .fit .ft{display:block;font-weight:700;font-size:.95em;margin-bottom:.5em}
+.rvg .fit .fit-y .ft{color:var(--signal)}
+.rvg .fit .fit-n .ft{color:var(--warn)}
+.rvg .fit ul{margin:0;padding-left:1.2em;font-size:.92em}
+.rvg .fit li{margin-bottom:.35em;line-height:1.75}
+.rvg .fit li:last-child{margin-bottom:0}
+@media(max-width:600px){.rvg .fit{grid-template-columns:1fr}}
+
+/* ---- 参考リンクカード ---- */
+.rvg .reflinks{display:grid;gap:.8em;margin:1.6em 0}
+.rvg .reflink{display:block;border:1px solid var(--line);border-left:5px solid var(--signal);border-radius:8px;
+  padding:.95em 1.15em;background:var(--paper);text-decoration:none;color:var(--ink)}
+.rvg .reflink:hover{background:var(--signal-soft);color:var(--ink)}
+.rvg .reflink .rl-t{font-weight:700;display:block;line-height:1.6;text-decoration:underline;text-underline-offset:3px;color:var(--signal)}
+.rvg .reflink .rl-d{display:block;font-size:.88em;color:var(--ink-soft);margin-top:.3em;line-height:1.7}
+.rvg .reflink .rl-s{display:block;font-size:.78em;color:var(--ink-soft);margin-top:.35em;letter-spacing:.03em}
+
+/* ---- 記事メタ・関連記事 ---- */
+.rvg .meta{font-size:.86em;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:1.2em;margin-top:3em}
+
+@media(max-width:600px){
+  .rvg{font-size:16px}
+  .rvg .rvg-title{font-size:1.45em}
+  .rvg h2{font-size:1.3em}
+  .rvg h3{font-size:1.12em}
+  .rvg table{font-size:.88em}
+}
+@media(prefers-reduced-motion:reduce){.rvg *{transition:none !important;animation:none !important}}

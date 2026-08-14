@@ -15,12 +15,12 @@
   <meta property="og:title" content="バーチャートレース（動く棒グラフ）の作り方完全ガイド｜GraphRace Studio">
   <meta property="og:description" content="プログラミング不要で簡単に動くグラフ動画が作れる手順を解説。CSV/Excelの作り方から、見やすい動画に仕上げるためのテクニックまで紹介。">
   <meta property="og:url" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race">
-  <meta property="og:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg">
+  <meta property="og:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/%E3%83%8F%E3%82%99%E3%83%BC%E3%83%81%E3%83%A3%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="バーチャートレース（動く棒グラフ）の作り方完全ガイド｜GraphRace Studio">
   <meta name="twitter:description" content="プログラミング不要で動くグラフ動画を作成する手順。データの並べ方から動画化 of コツまで。">
-  <meta name="twitter:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg">
+  <meta name="twitter:image" content="https://graphrace-studio.com/blog/how-to-make-bar-chart-race/%E3%83%8F%E3%82%99%E3%83%BC%E3%83%81%E3%83%A3%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9.jpg">
   <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="../../shared/blog-article.css">
 
   <!-- 構造化データ -->
   <script type="application/ld+json">
@@ -46,7 +47,7 @@
     },
     "headline": "バーチャートレース（動く棒グラフ）の作り方完全ガイド｜初心者向け無料作成手順とコツ",
     "description": "SNSやYouTubeで人気の動く棒グラフ「バーチャートレース」の作り方をデータアナリストが詳しく解説。プログラミング不要・ブラウザだけで作れる無料ツールやExcelデータの準備手順、バズる動画にするためのコツまで網羅。",
-    "image": "https://graphrace-studio.com/blog/how-to-make-bar-chart-race/バーチャートレースの作り方.jpg",
+    "image": "https://graphrace-studio.com/blog/how-to-make-bar-chart-race/%E3%83%8F%E3%82%99%E3%83%BC%E3%83%81%E3%83%A3%E3%83%BC%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9%E3%81%AE%E4%BD%9C%E3%82%8A%E6%96%B9.jpg",
     "author": {
       "@type": "Person",
       "name": "GraphRace Studio 開発者",
@@ -61,7 +62,7 @@
       }
     },
     "datePublished": "2026-07-02",
-    "dateModified": "2026-07-04"
+    "dateModified": "2026-08-14"
   }
   </script>
 
@@ -207,9 +208,11 @@
 
     .blog-title {
       font-size: 32px;
-      line-height: 1.4;
-      color: var(--text-strong);
+      line-height: 1.45;
+      color: #101c33;
       margin: 0 0 16px;
+      padding-bottom: 16px;
+      border-bottom: 4px solid #b3842f;
       font-weight: 800;
     }
 
@@ -218,136 +221,6 @@
       color: var(--text-muted);
       display: flex;
       gap: 16px;
-    }
-
-    .blog-content h2 {
-      font-size: 22px;
-      color: var(--text-strong);
-      border-left: 4px solid var(--accent);
-      padding-left: 12px;
-      margin-top: 48px;
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
-
-    .blog-content h3 {
-      font-size: 18px;
-      color: var(--text-strong);
-      margin-top: 32px;
-      margin-bottom: 14px;
-      font-weight: 700;
-    }
-
-    .blog-content p {
-      margin: 0 0 20px;
-    }
-
-    /* 比較表 */
-    .compare-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 24px 0;
-      font-size: 14px;
-    }
-
-    .compare-table th,
-    .compare-table td {
-      border: 1px solid var(--panel-border);
-      padding: 12px;
-      text-align: left;
-    }
-
-    .compare-table th {
-      background: var(--panel-surface);
-      color: var(--text-strong);
-      font-weight: 700;
-    }
-
-    /* データ解説用テーブル */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-      font-size: 13px;
-      font-family: monospace;
-    }
-
-    .data-table th,
-    .data-table td {
-      border: 1px solid var(--panel-border);
-      padding: 8px 12px;
-      text-align: center;
-    }
-
-    .data-table th {
-      background: var(--panel-surface);
-      color: var(--text-strong);
-    }
-
-    .data-table td.highlight {
-      background: rgba(110, 98, 240, 0.08);
-      font-weight: 600;
-    }
-
-    /* アラート・メモ */
-    .info-box {
-      background: rgba(110, 98, 240, 0.05);
-      border: 1px solid rgba(110, 98, 240, 0.15);
-      border-radius: 8px;
-      padding: 20px;
-      margin: 28px 0;
-    }
-
-    .info-box h4 {
-      margin: 0 0 10px;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .info-box p {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    /* 内部リンクカード */
-    .cta-card {
-      background: var(--panel-surface);
-      border: 1px solid var(--panel-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin: 40px 0;
-      text-align: center;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .cta-card h4 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      color: var(--text-strong);
-    }
-
-    .cta-card p {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: var(--text-muted);
-    }
-
-    .btn-cta {
-      display: inline-block;
-      padding: 12px 28px;
-      border-radius: 8px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: background 0.15s ease, transform 0.15s ease;
-    }
-
-    .btn-cta:hover {
-      background: var(--accent-strong);
-      transform: translateY(-1px);
     }
 
     /* フッター */
@@ -382,14 +255,6 @@
     @media (max-width: 600px) {
       .blog-title {
         font-size: 26px;
-      }
-
-      .compare-table,
-      .data-table {
-        font-size: 12px;
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
       }
     }
   </style>
@@ -451,7 +316,7 @@
         </video>
       </div>
 
-      <div class="blog-content">
+      <div class="blog-content rvg">
         <p>YouTubeのデータ比較動画やSNSで、時間の経過とともに順位が入れ替わる棒グラフ動画を見たことはありませんか？</p>
         <p>
           あの視覚的に惹きつけられるアニメーショングラフは「バーチャートレース（棒グラフレース）」と呼ばれています。国別の人口推移、企業価値のランキング推移、スポーツ選手の通算成績など、時系列のランキングデータを視覚化するのに最も適した手法です。
@@ -469,7 +334,8 @@
         <h2>バーチャートレースを作成する3つのアプローチ</h2>
         <p>動くグラフを作成する方法は、大きく分けて以下の3つのアプローチがあります。それぞれの特徴やスキルレベルに合わせて選ぶことができます。</p>
 
-        <table class="compare-table">
+        <div class="tw">
+        <table>
           <thead>
             <tr>
               <th>作成方法</th>
@@ -503,21 +369,24 @@
             </tr>
           </tbody>
         </table>
+        </div>
+        <p class="scroll-note">横にスクロールできます</p>
 
         <p>プログラミングはさすがにハードルが高いと思いますので、Flourishなどの海外ツールや本サイトのようなデータを読み込むだけで作れるものが最も効率的です。</p>
 
         <h2>作成に必要な「時系列データ」の基本構造</h2>
         <p>バーチャートレースを作る上で、初心者が最もつまずきやすいのが「データの準備」です。ツールにデータを読み込ませるには、Excelやスプレッドシートで以下のような特定のテーブル構造を用意する必要があります。</p>
 
-        <table class="data-table">
+        <div class="tw">
+        <table>
           <thead>
             <tr>
               <th>名前（A列）</th>
               <th>カテゴリ（B列、任意）</th>
               <th>画像URL（C列、任意）</th>
-              <th class="highlight">2020年（D列）</th>
-              <th class="highlight">2021年（E列）</th>
-              <th class="highlight">2022年（F列）</th>
+              <th class="best">2020年（D列）</th>
+              <th class="best">2021年（E列）</th>
+              <th class="best">2022年（F列）</th>
             </tr>
           </thead>
           <tbody>
@@ -525,28 +394,30 @@
               <td>日本</td>
               <td>アジア</td>
               <td>https://example.com/flags/jp.webp</td>
-              <td class="highlight">100</td>
-              <td class="highlight">102</td>
-              <td class="highlight">101</td>
+              <td class="best">100</td>
+              <td class="best">102</td>
+              <td class="best">101</td>
             </tr>
             <tr>
               <td>アメリカ</td>
               <td>北米</td>
               <td>https://example.com/flags/us.webp</td>
-              <td class="highlight">200</td>
-              <td class="highlight">205</td>
-              <td class="highlight">210</td>
+              <td class="best">200</td>
+              <td class="best">205</td>
+              <td class="best">210</td>
             </tr>
             <tr>
               <td>ドイツ</td>
               <td>ヨーロッパ</td>
               <td>https://example.com/flags/de.webp</td>
-              <td class="highlight">80</td>
-              <td class="highlight">82</td>
-              <td class="highlight">83</td>
+              <td class="best">80</td>
+              <td class="best">82</td>
+              <td class="best">83</td>
             </tr>
           </tbody>
         </table>
+        </div>
+        <p class="scroll-note">横にスクロールできます</p>
         <p>ただ、今は ChatGPT や Claude といったAIで、指定した形式に整えてくれるので、データの用意は相当楽にできるようになりました。 </p>
         <p>データを作成する際の重要なルールは以下の通りです。</p>
         <ul>
@@ -556,8 +427,8 @@
           <li><strong>4列目以降（D列以降）：</strong> 時系列のデータ（年、月、日付など）を左から右へ順番に入力します。値は必ず半角数値である必要があります。</li>
         </ul>
 
-        <div class="info-box">
-          <h4>よくあるデータ作成のエラーと対策</h4>
+        <div class="box note">
+          <span class="bt">よくあるデータ作成のエラーと対策</span>
           <p>データを読み込んだ際にエラーが発生する場合、数値データ内に全角スペースやカンマ（,）、円記号（¥）などの文字が含まれているケースがほとんどです。データセルは純粋な半角数値（例:
             10000）で入力し、単位や表記はツールの表示設定で後から調整するようにしましょう。</p>
         </div>
@@ -585,10 +456,12 @@
           グラフが期待通りに動くようになったら、PCやスマートフォンの画面録画機能（キャプチャ機能）や、録画ツールを用いてブラウザ上の再生画面を撮影し、動画ファイルとして保存します。これにより、簡単にSNSやプレゼンテーションで使える動画素材が完成します。
         </p>
 
-        <div class="cta-card">
-          <h4>今すぐブラウザでバーチャートレースを作ってみる</h4>
+        <div class="cta">
+          <span class="bt">今すぐブラウザでバーチャートレースを作ってみる</span>
           <p>アカウント登録やアプリのインストールは一切不要。お手持ちのExcelデータを貼り付けるだけで、動くグラフアニメーションが作成できます。</p>
-          <a href="../../bar-chart-race/app/" class="btn-cta">バーチャートレース作成ツールを開く</a>
+          <div class="cta-actions">
+            <a class="cta-btn" href="../../bar-chart-race/app/">バーチャートレース作成ツールを開く</a>
+          </div>
         </div>
 
         <h2>バズるグラフ動画に仕上げるための3つのデータ表現テクニック</h2>
@@ -613,6 +486,16 @@
           バーチャートレースは、時間の経過に伴うデータのダイナミックな変化を伝えるのに最も優れたビジュアル表現の1つです。プログラミングの学習や海外ツールの英語に苦労することなく、データの並び方さえ理解できれば、誰でも簡単に美しいグラフ動画を作成することができます。
         </p>
         <p>まずは、手元の小さなデータを使って、当サイトの無料ツールでどのような動きになるか試してみてはいかがでしょうか。データの新しい価値や面白いストーリーが、アニメーションを通じて見つかるはずです。</p>
+        <div class="reflinks">
+          <a class="reflink" href="../how-to-make-ranking-announcement-video/">
+            <span class="rl-t">順位発表動画の作り方｜演出6タイプと無料ツール・素材まとめ</span>
+            <span class="rl-d">バーチャートレースを含む6つの演出タイプを、用途・項目数から選べる早見表つきで解説しています。</span>
+          </a>
+          <a class="reflink" href="../how-to-make-ranking-video/">
+            <span class="rl-t">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</span>
+            <span class="rl-d">スマホと無料ツールだけで流れるランキング動画を作る手順をまとめています。</span>
+          </a>
+        </div>
       </div>
     </article>
   </main>
