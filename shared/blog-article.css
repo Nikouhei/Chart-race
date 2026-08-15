@@ -147,7 +147,7 @@
 .rvg details p{margin:.8em 0 0;font-size:.96em}
 
 /* ---- 埋め込み ---- */
-.rvg .embed{position:relative;width:100%;padding-top:56.25%;margin:0;border-radius:8px;overflow:hidden;background:#000}
+.rvg .embed{position:relative;width:100%;aspect-ratio:16/9;padding-top:56.25%;margin:0;border-radius:8px;overflow:hidden;background:#000}
 .rvg .embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .rvg .refgrid{display:grid;grid-template-columns:1fr 1fr;gap:1.1em;margin:1.6em 0}
 .rvg .refgrid figure{margin:0}
