@@ -772,7 +772,7 @@ function makeGroundShadow(){
 }
 
 /* ---------- 馬CGアセット ----------
-   horse.glb        : モデル本体 + 走行クリップ horse.gallop (歩幅7.00m / 実測)
+   horse.glb        : モデル本体 + 走行クリップ horse.gallop (歩幅2.82m / 実測)
    horse-motions.glb: 頭振り・尻尾振り (加算ブレンド用。読めなくても走行は成立する)
    textures/        : 毛色4種。GLB内には placeholder しか入っていないので必須
 
@@ -881,7 +881,16 @@ async function loadHorseAsset(){
    【決定論】書き出しとプレビューを一致させるため mixer.update(delta) は使わない。
    action.time を毎フレーム直接決め、mixer.update(0) で評価だけさせる
    (r128 の AnimationAction._updateTime は deltaTime===0 のとき time を素通しする)。
-   歩容は時間ではなく走行距離で駆動するので、速度が変わっても足は滑らない。 */
+
+   【歩容の駆動】脚のピッチは走行速度から切り離し、一定に保つ。
+   クリップは元のCGアセットの脚さばきをそのまま使っており、1完歩で 2.82m しか
+   進まない。走行速度 16.8m/s との差 (毎秒2.4ストライド × 2.82m = 6.77m/s) は
+   前向きの横滑りとして受け入れる。歩幅を移動距離に合わせたクリップも作ったが、
+   脚を伸ばすぶん走行中に蹄が 9cm 地面へめり込むので、そちらは採らなかった。
+
+   時計に実時間 (frame/FPS) を使ってはいけない。ゴール前のスローはレース時刻の
+   進みを遅くして作っているので、実時間で回すと体だけスローになり脚が置いていかれる。
+   raceClockSec を使えば体と脚が同じ倍率で遅くなる。 */
 const GAIT_BLEND_M = 3.0;   // 立ち姿→ギャロップを混ぜる距離[m] (17m/sで約0.18秒)
 
 class GLBHorse {
@@ -937,7 +946,10 @@ class GLBHorse {
     this.group.add(this.nameSprite);
     if(index%3>0) this.group.add(makeLeaderLine(nameY));
 
-    this.strideLen=7.00;            // horse.gallop の1完歩の実測値[m]
+    /* 脚のピッチ[ストライド/秒]。走行速度とは連動させない。
+       元アセットのギャロップは1周期 0.417秒 = 毎秒2.4ストライド。
+       1完歩で進むのは 2.82m (実測) なので、16.8m/s では毎秒 10.0m 前へ滑る */
+    this.cadence=1/this.runDur;
     this.phaseOffset=index*0.173;   // 決定論のため乱数を使わない
     scene.add(this.group);
   }
@@ -956,7 +968,8 @@ class GLBHorse {
     this.aIdle.setEffectiveWeight(1-w);
     this.aRun.setEffectiveWeight(w);
 
-    const gait=(((distTraveled/this.strideLen + this.phaseOffset)%1)+1)%1;
+    /* 積算せずレース時刻から毎フレーム引き直す。だからシークしても絵は変わらない */
+    const gait=(((raceClockSec*this.cadence + this.phaseOffset)%1)+1)%1;
     this.aRun.time=gait*this.runDur;
 
     /* ゲート内では頭を振り、尾を振る。
@@ -2628,6 +2641,9 @@ let frame=0, playing=false, totalFrames=0;
 let raceFrames=0, resultsStartFrame=0;
 let gateFrames=0, gateDoors=[], gateGroup=null;
 let timeWarp=null;
+/* 脚を回すための時計[秒]。実時間ではなく「レース時刻」で測る (GLBHorse の説明を参照)。
+   renderFrame が毎フレーム引き直す。積算しないので決定論は保たれる */
+let raceClockSec=0;
 
 /* フレーム番号 → レース時刻t (スロー区間で進みが遅くなる単調写像) */
 function raceTOfFrame(f){
@@ -3273,6 +3289,9 @@ function renderFrame(){
      レース時刻はゲート分を差し引いたフレームから算出 */
   const standing = frame < gateFrames;
   const t=raceTOfFrame(Math.max(0, frame-gateFrames));
+  /* t は等倍なら raceFrames フレームで 0→1 進む。秒に直せば
+     「スローがかかっていない世界でのレース経過時間」になる */
+  raceClockSec = t*raceFrames/FPS;
   // 扉: レース開始の0.25秒前から開き始め、開始と同時に全開
   const doorOpen=smoothstep(gateFrames-FPS*0.25, gateFrames, frame);
   for(const d of gateDoors) d.hinge.rotation.y = d.dir*1.5*doorOpen;

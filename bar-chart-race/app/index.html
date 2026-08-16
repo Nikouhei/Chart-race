@@ -307,6 +307,37 @@
     .category-legend.active { display: flex; }
     .category-legend .legend-item { display: inline-flex; align-items: center; gap: 5px; }
     .category-legend .legend-swatch { width: 0.85em; height: 0.85em; border-radius: 0.2em; flex: none; }
+    /* 凡例の表示位置（top/bottom は %、left/right は 2% で本文と揃える） */
+    .category-legend[data-pos="top-left"] { top: 4%; bottom: auto; left: 2%; right: auto; justify-content: flex-start; }
+    .category-legend[data-pos="bottom-right"] { top: auto; bottom: 4%; left: auto; right: 2%; justify-content: flex-end; }
+    .category-legend[data-pos="bottom-left"] { top: auto; bottom: 4%; left: 2%; right: auto; justify-content: flex-start; }
+    /* 縦並び */
+    .category-legend[data-layout="vertical"] { flex-direction: column; flex-wrap: nowrap; gap: 0.25em; max-width: 34%; align-items: flex-start; }
+    .category-legend[data-layout="vertical"][data-pos="top-right"],
+    .category-legend[data-layout="vertical"][data-pos="bottom-right"] { align-items: flex-end; }
+    .category-legend[data-swatch="circle"] .legend-swatch { border-radius: 50%; }
+    .category-legend[data-bg="light"] { background: rgba(255,255,255,0.82); padding: 0.45em 0.7em; border-radius: 0.35em; }
+    .category-legend[data-bg="dark"] { background: rgba(17,24,39,0.72); padding: 0.45em 0.7em; border-radius: 0.35em; }
+
+    /* 使用条件を満たさない設定セクションのグレーアウト */
+    .settings-locked { opacity: 0.42; pointer-events: none; filter: grayscale(0.6); }
+    .locked-note { display: none; font-size: 12px; line-height: 1.6; color: #b8c5d6; background: #1d2631; border: 1px dashed #3d5570; border-radius: 6px; padding: 9px 11px; margin: 0 0 12px; }
+    .locked-note.active { display: block; }
+    .locked-note b { color: #86b7ff; font-weight: 700; }
+
+    /* ⓘ 注釈アイコン */
+    .info-tip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex: none; border-radius: 50%; border: 1px solid #7d8ba0; color: #9fb0c6; font-size: 11px; font-weight: 700; font-style: normal; line-height: 1; cursor: help; user-select: none; }
+    .info-tip:hover, .info-tip:focus-visible { border-color: var(--accent, #6E62F0); color: var(--accent, #6E62F0); outline: none; }
+    .info-tip .info-tip-text {
+      position: fixed; left: 0; top: 0; z-index: 5000;
+      display: none; width: max-content; max-width: 260px; padding: 9px 11px;
+      border-radius: 6px; background: rgba(255,255,255,0.97); color: #1b1f27;
+      border: 1px solid rgba(20,30,44,0.16); box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+      font-size: 12px; font-weight: 500; line-height: 1.65; text-align: left; white-space: normal; cursor: auto;
+      pointer-events: none;
+    }
+    .info-tip .info-tip-text.active { display: block; }
+    .info-tip .info-tip-text b { font-weight: 700; }
     /* 列役割バッジ（データ形式ヒント・「使う列」チェック）: データ編集テーブルの列色と対応 */
     .col-badge { display: inline-block; min-width: 20px; margin-right: 2px; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; text-align: center; color: #1f2937; }
     .col-badge.role-label { background: #fff1f1; }
@@ -1009,6 +1040,9 @@
     body.light-mode .data-hint { background: var(--accent-soft) !important; border-color: rgba(110,98,240,0.22) !important; }
     body.light-mode .data-hint label { color: var(--accent-strong) !important; }
     body.light-mode .data-hint p { color: var(--text-main) !important; }
+    body.light-mode .locked-note { background: var(--accent-soft); border-color: rgba(110,98,240,0.22); color: var(--text-main); }
+    body.light-mode .locked-note b { color: var(--accent-strong); }
+    body.light-mode .info-tip { border-color: var(--text-muted); color: var(--text-muted); }
     /* 入力フォーカス */
     body.light-mode input[type="text"]:focus,
     body.light-mode input[type="number"]:focus,
@@ -1296,16 +1330,67 @@
         <div id="customColorList" class="individual-color-list"></div>
       </div>
       <div id="barColorCategoryPanel" class="color-mode-panel">
-        <p class="color-empty-note" style="margin:0 0 8px;">自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。</p>
+        <p class="color-empty-note" style="margin:0 0 8px;">自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。凡例の表示は下の「カテゴリ」で設定できます。</p>
         <div id="categoryColorList" class="individual-color-list"></div>
-        <div class="checkbox-group">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>カテゴリ</label>
+      <p class="locked-note" id="categoryLockedNote"></p>
+      <div id="categoryLegendControls">
+        <div class="checkbox-group" style="margin-top:0;">
           <input type="checkbox" id="showCategoryLegend">
           <span>カテゴリの凡例を表示</span>
+          <span class="info-tip" id="categoryLegendInfo" tabindex="0" role="note" aria-label="カテゴリ凡例の使い方">i<span class="info-tip-text">
+            カテゴリごとの色と名前を、グラフの外側に一覧表示します。<br>
+            使うには <b>①「使う列」でカテゴリ列をON</b> ・ <b>②「グラフの色」の色の決め方を「カテゴリ」</b> ・ <b>③カテゴリ列にデータが入っている</b> の3つが必要です。<br>
+            色そのものは「グラフの色」で個別に変更できます。
+          </span></span>
         </div>
         <div class="setting-row">
           <div class="setting-field">
-            <span>凡例の文字サイズ(%)</span>
+            <span>表示位置</span>
+            <select id="categoryLegendPosition">
+              <option value="top-right">右上</option>
+              <option value="top-left">左上</option>
+              <option value="bottom-right">右下</option>
+              <option value="bottom-left">左下</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <span>並び方向</span>
+            <select id="categoryLegendLayout">
+              <option value="horizontal">横並び</option>
+              <option value="vertical">縦並び</option>
+            </select>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>文字サイズ(%)</span>
             <input type="number" id="categoryLegendSize" value="2.2" min="0.5" max="8" step="0.1">
+          </div>
+          <div class="setting-field">
+            <span>文字色</span>
+            <input type="color" id="categoryLegendColor" value="#222222">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>色見本の形</span>
+            <select id="categoryLegendSwatch">
+              <option value="square">四角</option>
+              <option value="circle">丸</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <span>凡例の背景</span>
+            <select id="categoryLegendBg">
+              <option value="none">なし</option>
+              <option value="light">白（半透明）</option>
+              <option value="dark">黒（半透明）</option>
+            </select>
           </div>
         </div>
       </div>
@@ -1760,9 +1845,11 @@
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax',
-      'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize'
+      'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize',
+      'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg'
     ];
-    const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2' };
+    const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2',
+      categoryLegendPosition: 'top-right', categoryLegendLayout: 'horizontal', categoryLegendColor: '#222222', categoryLegendSwatch: 'square', categoryLegendBg: 'none' };
     const COLOR_PALETTES = {
       standard: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
       light: ['#8EC5FF', '#FFD166', '#B8E986', '#FFB3BA', '#CDB4DB', '#A0E7E5', '#FDD6A2', '#BDE0FE', '#D8F3DC', '#F1F5F9'],
@@ -2156,6 +2243,7 @@
       renderPalettePreview();
       renderCustomColorList();
       renderCategoryColorList();
+      renderCategoryLegend();
     }
 
     function onBarColorSettingChange() {
@@ -4285,17 +4373,49 @@
       document.getElementById('sourceDisplay').innerText = document.getElementById('sourceInput').value;
     }
 
+    // カテゴリ凡例が使える条件。満たさない理由も返し、設定セクションのグレーアウトに使う
+    function getCategoryLegendAvailability() {
+      const useCategory = document.getElementById('useCategoryColumn')?.checked ?? false;
+      if (!useCategory || getColumnRoles().categoryIdx < 0) {
+        return { available: false, reason: 'このデータでは使えません。<b>「使う列」でカテゴリ列をON</b>にすると設定できます。' };
+      }
+      if (!getUniqueCategories().length) {
+        return { available: false, reason: 'カテゴリ列にデータがありません。<b>カテゴリ列に値を入力</b>すると設定できます。' };
+      }
+      if ((document.getElementById('barColorMode')?.value || 'pattern') !== 'category') {
+        return { available: false, reason: '<b>「グラフの色」の色の決め方を「カテゴリ」</b>にすると設定できます。' };
+      }
+      return { available: true, reason: '' };
+    }
+
+    // 条件を満たさないときはカテゴリ設定をグレーアウトし、理由を表示する
+    function updateCategoryLegendControls() {
+      const controls = document.getElementById('categoryLegendControls');
+      const note = document.getElementById('categoryLockedNote');
+      if (!controls || !note) return;
+      const { available, reason } = getCategoryLegendAvailability();
+      controls.classList.toggle('settings-locked', !available);
+      controls.querySelectorAll('input, select').forEach(el => { el.disabled = !available; });
+      note.classList.toggle('active', !available);
+      note.innerHTML = available ? '' : reason;
+    }
+
     let lastLegendHtml = null;
     function renderCategoryLegend() {
       const legend = document.getElementById('categoryLegend');
       if (!legend) return;
+      updateCategoryLegendControls();
       const show = (document.getElementById('showCategoryLegend')?.checked ?? false)
-        && getColumnRoles().categoryIdx >= 0
-        && (document.getElementById('barColorMode')?.value === 'category');
+        && getCategoryLegendAvailability().available;
       const categories = show ? getUniqueCategories() : [];
       legend.classList.toggle('active', categories.length > 0);
       const sizePct = parseFloat(document.getElementById('categoryLegendSize')?.value);
       legend.style.fontSize = Math.max(10, resolveCanvasShortSide() * ((Number.isFinite(sizePct) ? sizePct : 2.2) / 100)) + 'px';
+      legend.style.color = document.getElementById('categoryLegendColor')?.value || '';
+      legend.dataset.pos = document.getElementById('categoryLegendPosition')?.value || 'top-right';
+      legend.dataset.layout = document.getElementById('categoryLegendLayout')?.value || 'horizontal';
+      legend.dataset.swatch = document.getElementById('categoryLegendSwatch')?.value || 'square';
+      legend.dataset.bg = document.getElementById('categoryLegendBg')?.value || 'none';
       const html = categories.map(category =>
         `<span class="legend-item"><span class="legend-swatch" style="background:${escapeHtml(getCategoryColor(category))}"></span>${escapeHtml(category)}</span>`
       ).join('');
@@ -5267,6 +5387,37 @@
       refreshCurrentPreview({ reset: true });
     });
     document.getElementById('categoryLegendSize').addEventListener('input', renderCategoryLegend);
+    ['categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendSwatch', 'categoryLegendBg'].forEach(id => {
+      document.getElementById(id)?.addEventListener('change', renderCategoryLegend);
+    });
+    document.getElementById('categoryLegendColor')?.addEventListener('input', renderCategoryLegend);
+
+    // ⓘ の注釈: パネルのスクロール領域でクリップされないよう fixed 配置で表示する
+    function showInfoTip(tip) {
+      const text = tip.querySelector('.info-tip-text');
+      if (!text) return;
+      text.classList.add('active');
+      const icon = tip.getBoundingClientRect();
+      const box = text.getBoundingClientRect();
+      const margin = 8;
+      let left = icon.left + icon.width / 2 - box.width / 2;
+      left = Math.min(Math.max(margin, left), window.innerWidth - box.width - margin);
+      let top = icon.bottom + 6;
+      if (top + box.height > window.innerHeight - margin) top = Math.max(margin, icon.top - box.height - 6);
+      text.style.left = left + 'px';
+      text.style.top = top + 'px';
+    }
+    function hideInfoTip(tip) {
+      tip.querySelector('.info-tip-text')?.classList.remove('active');
+    }
+    document.querySelectorAll('.info-tip').forEach(tip => {
+      ['mouseenter', 'focus'].forEach(ev => tip.addEventListener(ev, () => showInfoTip(tip)));
+      ['mouseleave', 'blur'].forEach(ev => tip.addEventListener(ev, () => hideInfoTip(tip)));
+      tip.addEventListener('click', () => {
+        const active = tip.querySelector('.info-tip-text')?.classList.contains('active');
+        active ? hideInfoTip(tip) : showInfoTip(tip);
+      });
+    });
     ['useCategoryColumn', 'useImageColumn'].forEach(id => {
       document.getElementById(id).addEventListener('change', onColumnRoleSettingChange);
     });

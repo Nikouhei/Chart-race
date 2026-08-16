@@ -229,7 +229,10 @@
     .section-sub { text-align: center; color: var(--text-muted); margin: 0 0 40px; }
 
     /* 特長グリッド */
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    /* カードは6枚。3列×2行に固定して、割り切れない端数が出ないようにする */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 900px) { .features { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
     .feature-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft); }
     .feature-card .ico { font-size: 26px; margin-bottom: 12px; }
     .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
@@ -1096,9 +1099,14 @@
             <p>すぐ開けて軽い「競馬風」と、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」の2種類。出走馬もレース設定も共通なので、同じ顔ぶれのまま表現だけを比べられます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎲</div>
-            <h3>展開は毎回ランダム</h3>
-            <p>大逃げ・まくり・差し切りなど展開は毎回変わるのに、ゴールは必ず設定した順位。何度でも走らせて好きな展開を選べます。</p>
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🔀</div>
+            <h3>展開は自由に調整できる</h3>
+            <p>道中の荒れ具合をおだやか〜大波乱の4段階で指定でき、リアル競馬風なら大逃げ・差しなど各馬の脚質まで設定可能。ゴールは必ず設定した順位のまま、気に入る展開になるまで何度でも走らせられます。</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">📣</div>
+            <h3>実況テロップと結果掲示板つき</h3>
+            <p>道中は実況テロップでレースを盛り上げ、ゴール後はレース名入りの結果掲示板を自動表示。ハナ・クビ・1馬身といった着差まで競馬の表記で出せます。</p>
           </div>
           <div class="feature-card">
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
@@ -1106,7 +1114,7 @@
             <p>録画ボタンひとつでレース開始から結果掲示板までをWebM動画として自動保存。編集ソフトなしで投稿用素材が完成します。</p>
           </div>
           <div class="feature-card">
-            <div class="ico"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" style="line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
             <h3>インストール不要</h3>
             <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐにレース動画を作り始められます。</p>
           </div>
