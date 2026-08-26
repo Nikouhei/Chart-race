@@ -236,6 +236,14 @@
     .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
     .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
+    /* 解説記事への導線 */
+    .guide-link { display: block; max-width: 640px; margin: 28px auto 0; padding: 18px 22px; background: var(--panel-surface); border: 1px solid var(--panel-border); border-left: 5px solid var(--accent); border-radius: 12px; text-decoration: none; box-shadow: var(--shadow-soft); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .guide-link:hover { border-color: var(--accent); box-shadow: var(--shadow-pop); transform: translateY(-1px); }
+    .guide-link .label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--accent-strong); background: var(--accent-soft); border-radius: 6px; padding: 3px 8px; margin-bottom: 10px; }
+    .guide-link .ttl { display: block; font-size: 15px; font-weight: 700; color: var(--text-strong); line-height: 1.6; }
+    .guide-link .desc { display: block; font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-top: 6px; }
+    .guide-link .more { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--accent); }
+
     /* 末尾CTA */
     .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
     .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
@@ -447,6 +455,12 @@
             <p>「再生」でアニメーションをプレビュー。OSの画面録画機能でキャプチャすれば動画として保存できます。</p>
           </div>
         </div>
+        <a class="guide-link" href="../blog/how-to-make-ranking-video/">
+          <span class="label">くわしい使い方ガイド</span>
+          <span class="ttl">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</span>
+          <span class="desc">流れるランキング動画を、スマホと無料ツールだけで作る手順と、見られる動画に仕上げるコツをまとめています。</span>
+          <span class="more">記事を読む →</span>
+        </a>
       </div>
     </section>
 

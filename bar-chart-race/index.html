@@ -311,6 +311,14 @@
     .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
     .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
+    /* 解説記事への導線 */
+    .guide-link { display: block; max-width: 640px; margin: 28px auto 0; padding: 18px 22px; background: var(--panel-surface); border: 1px solid var(--panel-border); border-left: 5px solid var(--accent); border-radius: 12px; text-decoration: none; box-shadow: var(--shadow-soft); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .guide-link:hover { border-color: var(--accent); box-shadow: var(--shadow-pop); transform: translateY(-1px); }
+    .guide-link .label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--accent-strong); background: var(--accent-soft); border-radius: 6px; padding: 3px 8px; margin-bottom: 10px; }
+    .guide-link .ttl { display: block; font-size: 15px; font-weight: 700; color: var(--text-strong); line-height: 1.6; }
+    .guide-link .desc { display: block; font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-top: 6px; }
+    .guide-link .more { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--accent); }
+
     /* 末尾CTA */
     .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
     .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
@@ -721,6 +729,12 @@
             <p>色やフォントを整えてアニメーションを再生。気に入ったら保存して完成です。</p>
           </div>
         </div>
+        <a class="guide-link" href="../blog/how-to-make-bar-chart-race/">
+          <span class="label">くわしい使い方ガイド</span>
+          <span class="ttl">バーチャートレース（動く棒グラフ）の作り方完全ガイド｜初心者向け無料作成手順とコツ</span>
+          <span class="desc">CSV／Excelデータの整え方から書き出しまで、初心者がつまずきやすいポイントを画像つきで解説しています。</span>
+          <span class="more">記事を読む →</span>
+        </a>
       </div>
     </section>
 
@@ -734,7 +748,7 @@
           </details>
           <details class="faq-item">
             <summary class="faq-q">アップロードするCSVやExcelデータはどのような形式にすればよいですか。</summary>
-            <div class="faq-a">1列目に項目名（国名やキャラクター名など）、2列目にカテゴリ名（任意）、3列目にアイコン画像のURL（任意）、4列目以降に日付や年ごとの数値を入力したデータをご用意ください。サンプルデータをダウンロードして編集することもできます。また、ファイルを用意しなくても、ブラウザ上の表に直接手動で入力することも可能です。</div>
+            <div class="faq-a">1列目に項目名（国名やキャラクター名など）、2列目にカテゴリ名（任意）、3列目にアイコン画像のURL（任意）、4列目以降に日付や年ごとの数値を入力したデータをご用意ください。サンプルデータをダウンロードして編集することもできます。また、ファイルを用意しなくても、ブラウザ上の表に直接手動で入力することも可能です。データの並べ方でつまずいた場合は、<a href="../blog/how-to-make-bar-chart-race/">バーチャートレースの作り方ガイド</a>で具体例つきに解説しています。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">スマートフォンでも作成できますか。また、アプリのインストールは必要ですか。</summary>

@@ -245,6 +245,14 @@
     .step h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
     .step p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
+    /* 解説記事への導線 */
+    .guide-link { display: block; max-width: 640px; margin: 28px auto 0; padding: 18px 22px; background: var(--panel-surface); border: 1px solid var(--panel-border); border-left: 5px solid var(--accent); border-radius: 12px; text-decoration: none; box-shadow: var(--shadow-soft); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .guide-link:hover { border-color: var(--accent); box-shadow: var(--shadow-pop); transform: translateY(-1px); }
+    .guide-link .label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--accent-strong); background: var(--accent-soft); border-radius: 6px; padding: 3px 8px; margin-bottom: 10px; }
+    .guide-link .ttl { display: block; font-size: 15px; font-weight: 700; color: var(--text-strong); line-height: 1.6; }
+    .guide-link .more { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: var(--accent); }
+    .guide-link .desc { display: block; font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-top: 6px; }
+
     /* 末尾CTA */
     .cta-band { background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); text-align: center; }
     .cta-band h2 { font-size: clamp(22px, 3vw, 28px); color: var(--text-strong); margin: 0 0 22px; font-weight: 800; }
@@ -1182,6 +1190,12 @@
             <p>「レース開始」でプレビュー、「録画してWebM保存」ならゴール後に動画が自動保存されます。</p>
           </div>
         </div>
+        <a class="guide-link" href="../blog/how-to-make-horse-race-ranking-video/">
+          <span class="label">くわしい使い方ガイド</span>
+          <span class="ttl">競馬風の順位発表動画「格付けダービー」の作り方｜2D・3D両ツールの詳しい使い方</span>
+          <span class="desc">全設定項目の意味、2Dと3Dの使い分け、動画をきれいに仕上げるコツまで、実際の画面写真つきで解説しています。</span>
+          <span class="more">記事を読む →</span>
+        </a>
       </div>
     </section>
 
@@ -1202,11 +1216,11 @@
           </details>
           <details class="faq-item">
             <summary class="faq-q">作成したレース動画を保存するにはどうすればいいですか？</summary>
-            <div class="faq-a">画面にある「録画してWebM保存」ボタンをクリックしてからレースを開始すると、レース終了後に動画ファイルが自動でダウンロードされます。特別な録画ソフトは不要です。</div>
+            <div class="faq-a">画面にある「録画してWebM保存」ボタンをクリックしてからレースを開始すると、レース終了後に動画ファイルが自動でダウンロードされます。特別な録画ソフトは不要です。書き出される形式や、SNSへ投稿するときの注意点は<a href="../blog/how-to-make-horse-race-ranking-video/#step3">解説記事のSTEP3</a>で説明しています。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">「競馬風」と「リアル競馬風」は何が違いますか？設定はやり直しになりますか？</summary>
-            <div class="faq-a">「競馬風」は2Dのイラスト表現で、ページを開いてすぐに使える軽量なモードです。「リアル競馬風」は3DCGの馬が実際の競馬場のようなコースを走り、カメラワークも自動で切り替わります。<strong>出走馬（名前・順位・枠番・馬体色・脚質）と、レース名・カウントダウン・結果発表設定は2つのモードで共通</strong>なので、切り替えてもやり直しは不要です。レース時間とコース、展開の設定、画面サイズの3:4と1:1のように仕組みが異なる設定は、それぞれのモードで別々に記憶され、戻ってくると元の状態に復元されます。馬体色については、リアル競馬風の毛色を「カラー」にすると競馬風とまったく同じ色が使われます。「リアル」のときは実在の毛色テクスチャが鹿毛・芦毛・青鹿毛・青毛の4種しかないため、その4種から選ぶ形になりますが、この選択は競馬風の馬体色とは別に記憶されるので、どちらの色設定も失われません。なお出走馬のアイコン画像は3Dの馬には貼れないため、リアル競馬風では使われません（設定自体は消えず、競馬風に戻すとそのまま反映されます）。</div>
+            <div class="faq-a">「競馬風」は2Dのイラスト表現で、ページを開いてすぐに使える軽量なモードです。「リアル競馬風」は3DCGの馬が実際の競馬場のようなコースを走り、カメラワークも自動で切り替わります。<strong>出走馬（名前・順位・枠番・馬体色・脚質）と、レース名・カウントダウン・結果発表設定は2つのモードで共通</strong>なので、切り替えてもやり直しは不要です。レース時間とコース、展開の設定、画面サイズの3:4と1:1のように仕組みが異なる設定は、それぞれのモードで別々に記憶され、戻ってくると元の状態に復元されます。馬体色については、リアル競馬風の毛色を「カラー」にすると競馬風とまったく同じ色が使われます。「リアル」のときは実在の毛色テクスチャが鹿毛・芦毛・青鹿毛・青毛の4種しかないため、その4種から選ぶ形になりますが、この選択は競馬風の馬体色とは別に記憶されるので、どちらの色設定も失われません。なお出走馬のアイコン画像は3Dの馬には貼れないため、リアル競馬風では使われません（設定自体は消えず、競馬風に戻すとそのまま反映されます）。読み込みの速さやカメラワークまで含めた違いは、<a href="../blog/how-to-make-horse-race-ranking-video/#s5">2Dと3Dの比較早見表</a>にまとめています。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">「リアル競馬風」に切り替えると読み込みに時間がかかります。</summary>
