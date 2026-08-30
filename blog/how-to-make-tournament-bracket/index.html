@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【無料】動くトーナメント表の作り方｜トーナメント表アニメーターの使い方｜GraphRace Studio</title>
+  <meta name="description"
+    content="参加者名を入力するだけで、勝ち上がりがアニメーションで進む無料のトーナメント表作成ツール「トーナメント表アニメーター」の使い方を解説。参加者ごとの画像設定やレイアウト・配色のカスタマイズ方法、大会運営や配信での活用シーンまで、実際の画面付きで紹介します。">
+  <link rel="canonical" href="https://graphrace-studio.com/blog/how-to-make-tournament-bracket/">
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content="【無料】動くトーナメント表の作り方｜トーナメント表アニメーターの使い方">
+  <meta property="og:description" content="参加者名を入力するだけで、勝ち上がりがアニメーションで進むトーナメント表を無料で作成。画像の設定やレイアウト・配色のカスタマイズ方法まで画像付きで解説します。">
+  <meta property="og:url" content="https://graphrace-studio.com/blog/how-to-make-tournament-bracket/">
+  <meta property="og:image" content="https://graphrace-studio.com/blog/how-to-make-tournament-bracket/tournament-bracket-eyecatch.jpg">
+  <meta property="og:image:width" content="1044">
+  <meta property="og:image:height" content="582">
+  <meta property="og:locale" content="ja_JP">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="【無料】動くトーナメント表の作り方｜トーナメント表アニメーターの使い方">
+  <meta name="twitter:description" content="参加者名を入力するだけで、勝ち上がりがアニメーションで進むトーナメント表を無料で作成できます。画像設定やカスタマイズ方法も紹介。">
+  <meta name="twitter:image" content="https://graphrace-studio.com/blog/how-to-make-tournament-bracket/tournament-bracket-eyecatch.jpg">
+  <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap"
+    media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
+  </noscript>
+  <link rel="stylesheet" href="../../shared/tokens.css">
+  <link rel="stylesheet" href="../../shared/blog-article.css">
+
+  <!-- 構造化データ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://graphrace-studio.com/blog/how-to-make-tournament-bracket/"
+    },
+    "headline": "【無料】動くトーナメント表の作り方！トーナメント表アニメーターの使い方",
+    "description": "参加者名を入力するだけで、勝ち上がりがアニメーションで進む無料のトーナメント表作成ツール「トーナメント表アニメーター」の使い方を解説。参加者ごとの画像設定やレイアウト・配色のカスタマイズ方法、大会運営や配信での活用シーンまで、実際の画面付きで紹介します。",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://graphrace-studio.com/blog/how-to-make-tournament-bracket/tournament-bracket-eyecatch.jpg",
+      "width": 1044,
+      "height": 582
+    },
+    "author": {
+      "@type": "Person",
+      "name": "GraphRace Studio 開発者",
+      "url": "https://graphrace-studio.com/about.html"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "GraphRace Studio",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.png"
+      }
+    },
+    "inLanguage": "ja",
+    "datePublished": "2026-08-28",
+    "dateModified": "2026-08-28",
+    "about": {
+      "@type": "SoftwareApplication",
+      "name": "トーナメント表アニメーター",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "url": "https://graphrace-studio.com/tournament-bracket-animator/",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" }
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "動くトーナメント表（トーナメント表アニメーター）の作り方",
+    "description": "ブラウザだけで勝ち上がりアニメーション付きのトーナメント表を作る手順です。参加者を入力し、レイアウトと配色を選び、勝者を決めて再生します。",
+    "totalTime": "PT5M",
+    "estimatedCost": { "@type": "MonetaryAmount", "currency": "JPY", "value": "0" },
+    "supply": [
+      { "@type": "HowToSupply", "name": "参加者・チームの名前リスト" },
+      { "@type": "HowToSupply", "name": "各参加者のアイコン画像（任意）" }
+    ],
+    "tool": [
+      { "@type": "HowToTool", "name": "トーナメント表アニメーター（無料のブラウザツール）" }
+    ],
+    "step": [
+      {
+        "@type": "HowToStep",
+        "position": 1,
+        "name": "参加人数と名前を入力する",
+        "text": "参加人数（2〜32）を入力し、エントリー欄に参加者名を1行1名ずつ入力します。一括入力での貼り付けや、各行への画像アップロード・URL指定にも対応しています。",
+        "url": "https://graphrace-studio.com/blog/how-to-make-tournament-bracket/#step1"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 2,
+        "name": "レイアウトと配色を選ぶ",
+        "text": "表示レイアウト（横・両側/横・両側/縦・縦）とデザイン（アクセントカラー・フォント・カードの大きさなど）を設定します。",
+        "url": "https://graphrace-studio.com/blog/how-to-make-tournament-bracket/#step2"
+      },
+      {
+        "@type": "HowToStep",
+        "position": 3,
+        "name": "勝者を決めて再生する",
+        "text": "対戦カードをクリックするかスコアを入力して勝者を決め、「再生」で勝ち上がりのアニメーションを確認します。画面録画でそのまま動画として保存できます。",
+        "url": "https://graphrace-studio.com/blog/how-to-make-tournament-bracket/#step3"
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "トーナメント表アニメーターは無料ですか？商用利用もできますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "無料で使えます。会員登録もインストールも不要で、動画への書き出しやSNS投稿を含む商用利用も可能です。事前連絡は不要ですが、クレジット表記にご協力をお願いしています。" }
+      },
+      {
+        "@type": "Question",
+        "name": "参加人数の上限・下限はありますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "2名から32名まで設定できます。2の累乗にならない人数（10人、20人など）でも、不戦勝（シード）を含めたトーナメント表が自動で組まれます。" }
+      },
+      {
+        "@type": "Question",
+        "name": "参加者に画像を設定できますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "できます。各エントリーの画像ボタンから、ファイルのアップロードまたは画像URLの指定で設定できます。カードの表示内容は「画像＋名前」「画像のみ」「名前のみ」から選べます。" }
+      },
+      {
+        "@type": "Question",
+        "name": "入力したデータは外部に送信されますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "送信されません。参加者名や画像を含め、処理はすべてブラウザの中で完結します。設定はブラウザに自動保存され、次に開いたときにそのまま復元されます。" }
+      },
+      {
+        "@type": "Question",
+        "name": "完成したトーナメント表は動画として保存できますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "ツール自体に動画の書き出し機能はないため、PCやスマートフォンの画面録画機能を使って「再生」中の画面を録画してください。録画した動画はそのまま配信やSNS投稿に使えます。" }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--text-main);
+      background: var(--app-bg);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ヘッダ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+    }
+
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-strong);
+      letter-spacing: 0.2px;
+      text-decoration: none;
+    }
+
+    .brand img {
+      height: 24px;
+      width: auto;
+      display: block;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: color .2s ease, background-color .2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    .nav-link.current {
+      color: var(--accent);
+      background-color: var(--accent-soft);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+
+      .site-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+      }
+
+      .site-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav-link {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+    }
+
+    /* ブログレイアウト */
+    .blog-container {
+      margin-top: 40px;
+      margin-bottom: 80px;
+    }
+
+    .blog-header {
+      margin-bottom: 28px;
+    }
+
+    .blog-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: -0.8em 0 2em;
+    }
+
+    .blog-eyecatch {
+      margin: 0 0 40px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--panel-border);
+    }
+
+    .blog-eyecatch video,
+    .blog-eyecatch img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: 1044 / 582;
+    }
+
+    /* フッター */
+    footer.site-footer {
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--panel-border);
+      background: var(--panel-surface);
+      margin-top: 80px;
+    }
+
+    .site-footer .wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1040px;
+    }
+
+    .site-footer nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 18px;
+    }
+
+    .site-footer nav a:hover {
+      color: var(--text-main);
+    }
+
+    /* 設定パネルのスクリーンショットは縦長なので、幅を抑えて中央に置く */
+    .rvg figure.fig.fig-panel {
+      text-align: center;
+    }
+
+    .rvg figure.fig.fig-panel img {
+      width: auto;
+      max-width: min(360px, 100%);
+      margin: 0 auto;
+    }
+
+    .rvg figure.fig.fig-panel figcaption {
+      text-align: center;
+      max-width: 32em;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../../" class="brand">
+        <picture>
+          <source srcset="../../Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
+          <img src="../../Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24"
+            decoding="async">
+        </picture>
+        GraphRace Studio
+      </a>
+      <nav class="site-nav">
+        <a class="nav-link" href="../../bar-chart-race/">バーチャートレース</a>
+        <a class="nav-link" href="../../regular-chart/">線グラフレース</a>
+        <a class="nav-link current" href="../../tournament-bracket-animator/">トーナメント表</a>
+        <a class="nav-link" href="../../ranking-video-maker/">ランキング動画</a>
+        <a class="nav-link" href="../../horse-race-ranking-maker/">格付けダービー</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="blog-container">
+      <header class="blog-header">
+        <!-- パンくずリスト -->
+        <nav class="breadcrumb" aria-label="パンくずリスト">
+          <ol itemscope itemtype="https://schema.org/BreadcrumbList"
+            style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-muted); line-height: 1.4;">
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
+              style="display: flex; align-items: center;">
+              <a itemprop="item" href="../../" style="color: var(--text-muted); text-decoration: none;"><span
+                  itemprop="name">ホーム</span></a>
+              <meta itemprop="position" content="1" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
+              style="display: flex; align-items: center;">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <a itemprop="item" href="../" style="color: var(--text-muted); text-decoration: none;"><span
+                  itemprop="name">ブログ</span></a>
+              <meta itemprop="position" content="2" />
+            </li>
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"
+              style="display: flex; align-items: center; color: var(--text-muted);">
+              <span style="margin: 0 8px; font-size: 11px;">&gt;</span>
+              <span itemprop="name" style="color: var(--text-main);">動くトーナメント表の作り方</span>
+              <meta itemprop="position" content="3" />
+            </li>
+          </ol>
+        </nav>
+      </header>
+
+      <div class="blog-content rvg">
+
+        <h1 class="rvg-title">【無料】動くトーナメント表の作り方！トーナメント表アニメーターの使い方</h1>
+        <div class="blog-meta">
+          <span>投稿日: 2026.08.28</span>
+          <span>カテゴリー: チュートリアル</span>
+        </div>
+
+        <div class="blog-eyecatch">
+          <picture>
+            <source srcset="tournament-bracket-eyecatch.webp" type="image/webp">
+            <img src="tournament-bracket-eyecatch.jpg" alt="トーナメント表アニメーターで作成した「名前がカッコいい都道府県」トーナメント表。都道府県の写真アイコン付きで京都が優勝している" width="1044" height="582" decoding="async" fetchpriority="high">
+          </picture>
+        </div>
+
+        <p class="lede">
+          大会の組み合わせ表を作ろうとして、Excelやパワーポイントでの罫線調整に手間取ったことはありませんか。
+        </p>
+
+        <p>
+          <a href="../../tournament-bracket-animator/">トーナメント表アニメーター</a>は、参加者名を入力するだけで、1回戦から決勝までの勝ち上がりがアニメーションで進む動くトーナメント表を作れる無料ツールです。参加者ごとに画像を設定したり、配色やフォントを変えたりと、見た目を細かくカスタマイズできるのも特長です。
+        </p>
+
+        <p>
+          この記事では、登録不要ですぐに使える作成手順と、画像設定を含むカスタマイズ項目、見やすく仕上げるためのコツを、実際の画面とあわせて解説します。
+        </p>
+
+        <div class="toc">
+          <span class="bt">この記事の内容</span>
+          <ol>
+            <li><a href="#s1">トーナメント表アニメーターでできること</a></li>
+            <li><a href="#step1">STEP1：参加人数と名前を入力する</a></li>
+            <li><a href="#step2">STEP2：レイアウトと配色を選ぶ</a></li>
+            <li><a href="#step3">STEP3：勝者を決めて再生する</a></li>
+            <li><a href="#s5">自由にカスタマイズできる項目</a></li>
+            <li><a href="#s6">見やすいトーナメント表に仕上げる3つのコツ</a></li>
+            <li><a href="#s7">こんな場面で活用できます</a></li>
+            <li><a href="#s8">よくある質問（FAQ）</a></li>
+            <li><a href="#s9">まとめ</a></li>
+          </ol>
+        </div>
+
+        <h2 id="s1">トーナメント表アニメーターでできること</h2>
+
+        <p>ブラウザで開くだけで使える、勝ち上がり演出つきのトーナメント表作成ツールです。主な特長は次のとおりです。</p>
+
+        <div class="tw">
+          <table class="narrow">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>内容</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>参加人数</th>
+                <td>2〜32名に対応。人数を選ぶだけで組み合わせを自動生成</td>
+              </tr>
+              <tr>
+                <th>組み合わせ方式</th>
+                <td>バランス配置・ランダム・順序どおりから選択可能</td>
+              </tr>
+              <tr>
+                <th>勝者の決め方</th>
+                <td>対戦カードのクリック、またはスコア入力で自動判定。手動指定モードなら勝ち上がりを先に決めておくこともできる</td>
+              </tr>
+              <tr>
+                <th>参加者の画像</th>
+                <td>各エントリーにアップロードまたはURL指定で画像を設定可能</td>
+              </tr>
+              <tr>
+                <th>レイアウト・デザイン</th>
+                <td>横／両側・横／両側・縦／縦の4種類のレイアウトに加え、配色・フォント・カードサイズなどを細かく調整可能</td>
+              </tr>
+              <tr>
+                <th>料金・利用条件</th>
+                <td>インストール不要・登録不要・無料（商用利用可、クレジット表記にご協力ください）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="scroll-note">横にスクロールできます</p>
+
+        <div class="box note">
+          <span class="bt">前提として押さえておきたい仕様</span>
+          <ul style="margin-bottom:0">
+            <li>ブラウザだけで動作。インストール・会員登録は不要です</li>
+            <li>入力した名前や画像は<strong>外部に送信されません</strong>（すべてブラウザ内で処理）</li>
+            <li>設定はブラウザに自動保存され、次に開いたときに復元されます</li>
+            <li>動画としての書き出し機能はないため、<strong>画面録画</strong>で保存する前提のツールです</li>
+          </ul>
+        </div>
+
+        <h2 id="step1">STEP1：参加人数と名前を入力する</h2>
+
+        <p>
+          ツールを開いたら、「参加者」パネルで参加人数（2〜32）を入力し、エントリー欄に参加者名を1行1名ずつ入力します。「一括入力」を使えば、Excelやメモ帳で作った名前リストをまとめて貼り付けることも可能です。
+        </p>
+
+        <p>
+          各エントリーの画像ボタンからは、ファイルのアップロードまたは画像URLの指定でアイコン画像を設定できます。都道府県名やチーム名にゆかりの画像を入れておくと、勝ち上がった参加者がひと目で分かるようになります。
+        </p>
+
+        <figure class="fig fig-panel">
+          <picture>
+            <source srcset="tournament-bracket-entries.webp" type="image/webp">
+            <img src="tournament-bracket-entries.jpg" alt="トーナメント表アニメーターの参加者入力欄。16件の都道府県名と画像URLが1行ずつ入力されている" width="330" height="578" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>参加人数を増やすと入力欄も自動で増えます。各行の画像ボタンから写真を設定できます。</figcaption>
+        </figure>
+
+        <p>参加人数が2の累乗にならない場合は、「シード表示」で不戦勝の扱いを選べます。詳しくは後述のコツで解説します。</p>
+
+        <h2 id="step2">STEP2：レイアウトと配色を選ぶ</h2>
+
+        <p>
+          「表示レイアウト」パネルで、横・両側/横・両側/縦・縦の4種類からレイアウトを選びます。人数が多い大会は「両側・横」で左右から中央に絞り込む構成にすると、決勝までの流れが見やすくなります。
+        </p>
+
+        <figure class="fig fig-panel">
+          <picture>
+            <source srcset="tournament-bracket-layout-panel.webp" type="image/webp">
+            <img src="tournament-bracket-layout-panel.jpg" alt="表示レイアウトパネル。レイアウト（横・両側/横・両側/縦・縦）、進行方向、接続線、ラウンド名表示位置の設定項目" width="700" height="696" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>「表示レイアウト」パネル。人数や用途に合わせて4種類のレイアウトを切り替えられます。</figcaption>
+        </figure>
+
+        <p>
+          「デザイン」パネルでは、アクセントカラー（5色）・カードの色・フォント（6種類）・文字サイズ・カードの大きさなどを調整できます。大会のテーマカラーやチームカラーに合わせて配色を選ぶと、対戦表全体に統一感が出ます。設定項目の詳細は、この後の「自由にカスタマイズできる項目」でまとめて紹介します。
+        </p>
+
+        <h2 id="step3">STEP3：勝者を決めて再生する</h2>
+
+        <p>
+          各対戦カードをクリックすると、その場で勝者を指定できます。「勝者の決め方」を「手動で指定」にすると、対戦カードに🏆ボタンが表示され、決勝までの勝ち上がりを先にまとめて決めておくことも可能です（このボタンは再生中は表示されないため、録画には映りません）。
+        </p>
+
+        <figure class="fig">
+          <picture>
+            <source srcset="tournament-bracket-manual-winner.webp" type="image/webp">
+            <img src="tournament-bracket-manual-winner.jpg" alt="対戦カードの🏆ボタンをクリックして勝者を手動で指定している画面。「この対戦者を勝者に指定」というヒントが表示されている" width="1044" height="586" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>🏆ボタンで勝者を指定すると、その場でカードの色が変わり勝ち上がりが確定します。</figcaption>
+        </figure>
+
+        <p>
+          スコアをつけて勝敗を決めたい場合は、「スコア表示」を「スコア入力」に切り替えます。対戦カードに点数入力欄が現れるので、両者の得点を入力するだけで、点数の多い方が自動的に勝者と判定されます（🏆ボタンで手動指定した対戦カードがある場合は、そちらの指定が優先されます）。試合結果や得点を記録しながら勝ち上がりを反映したいときに便利です。
+        </p>
+
+        <p>
+          「再生」を押すと、決勝までの流れをアニメーションで通しで確認できます。スペースキーでも再生・一時停止でき、速度スライダーでエフェクトの速さも調整可能です。優勝者が決まると、中央の「優勝」カードに名前と画像が表示されます。
+        </p>
+
+        <p>完成した対戦表は、PCやスマートフォンの画面録画機能で撮影すれば、そのまま配信やSNS投稿用の動画素材として使えます。</p>
+
+        <div class="cta">
+          <span class="bt">今すぐブラウザでトーナメント表を作ってみる</span>
+          <p>アカウント登録やアプリのインストールは一切不要。参加者名を入力するだけで、勝ち上がりアニメーション付きの対戦表が作成できます。</p>
+          <div class="cta-actions">
+            <a class="cta-btn" href="../../tournament-bracket-animator/app/">トーナメント表作成ツールを開く</a>
+          </div>
+        </div>
+
+        <h2 id="s5">自由にカスタマイズできる項目</h2>
+
+        <p>
+          トーナメント表アニメーターは、初期設定のままでも十分見やすい対戦表になりますが、「デザイン」「カード」パネルには見た目を細かく調整できる項目が揃っています。ここでは主なカスタマイズ項目をまとめます。
+        </p>
+
+        <h3>画像・表示内容</h3>
+
+        <ul>
+          <li><strong>参加者の画像</strong>：各エントリーの画像ボタンから、ファイルのアップロードまたはURL指定で設定。画像のないエントリーは名前のみで表示されます</li>
+          <li><strong>カードの表示内容</strong>：「画像＋名前」「画像のみ」「名前のみ」から選択可能</li>
+          <li><strong>対戦カードのスタイル</strong>：対戦者どうしをつなげて見せる「連結」と、間隔を空ける「分離」から選択</li>
+        </ul>
+
+        <h3>配色・フォント</h3>
+
+        <ul>
+          <li><strong>アクセントカラー</strong>：5色のプリセットから選択。勝ち上がりのラインや優勝カードに反映されます</li>
+          <li><strong>カードの色</strong>：自動（背景テーマに合わせる）・ホワイト・ソフトグレー・クリーム・ラベンダーのプリセットに加え、カスタムカラーも指定可能</li>
+          <li><strong>フォント</strong>：ゴシック・丸ゴシック・ポップ・手書き風・明朝・等幅の6種類</li>
+          <li><strong>角丸</strong>：角なし・標準・丸めの3段階</li>
+          <li><strong>キャンバスの背景</strong>：ライト・ソフト・ダークの3種類</li>
+        </ul>
+
+        <figure class="fig fig-panel">
+          <picture>
+            <source srcset="tournament-bracket-design-panel.webp" type="image/webp">
+            <img src="tournament-bracket-design-panel.jpg" alt="デザインパネルのアクセントカラー・フォント・文字サイズの設定項目" width="380" height="440" loading="lazy" decoding="async">
+          </picture>
+          <figcaption>アクセントカラーは5色のプリセットから選べます。フォントや文字サイズも項目ごとに調整可能です。</figcaption>
+        </figure>
+
+        <h3>サイズ・レイアウトの微調整</h3>
+
+        <ul>
+          <li><strong>文字サイズ</strong>：タイトル・ラウンド名・対戦カード・優勝表示をそれぞれ60〜400%の範囲で個別に調整</li>
+          <li><strong>カードの大きさ</strong>：幅（80〜900px）・高さ（自動〜400px）をスライダーで調整。プレビュー上でカードの右端・下端を直接ドラッグしてサイズ変更することも可能（ダブルクリックで初期値に戻せます）</li>
+          <li><strong>行の余白</strong>：コンパクト・標準・ゆったりの3段階</li>
+          <li><strong>勝者ハイライトの見せ方</strong>：バー・塗り・枠から選択</li>
+          <li><strong>順位番号・着順ラベル</strong>：表示・非表示を切り替え可能</li>
+          <li><strong>エフェクト</strong>：勝ち上がり時のアニメーションの強さを、なし・控えめ・標準・派手から選択</li>
+        </ul>
+
+        <div class="box note">
+          <span class="bt">その場でサクッと編集できる操作</span>
+          <ul style="margin-bottom:0">
+            <li>カードにマウスを乗せて✎ボタンをクリックすると、その場で名前を編集できます</li>
+            <li>大会タイトルは、プレビュー上のタイトル部分をダブルクリックすると直接編集できます</li>
+            <li>プレビューは画面サイズに自動でフィットするため、設定パネルを開いたままでも見やすく確認できます</li>
+          </ul>
+        </div>
+
+        <h2 id="s6">見やすいトーナメント表に仕上げる3つのコツ</h2>
+
+        <h3>1. 参加人数に合わせてレイアウトを選ぶ</h3>
+
+        <p>8〜16人程度なら「両側・横」で決勝を中央に置くと大会らしい見栄えになります。スマホ縦画面向けの動画にしたい場合は、「キャンバス」のアスペクト比を9:16に、表示レイアウトを「縦」に設定すると、画面に収まりやすくSNS投稿にも向いた形になります。</p>
+
+        <h3>2. アクセントカラーは1色に絞る</h3>
+
+        <p>勝ち上がりのラインや優勝カードに使うアクセントカラーは、5色のプリセットから1色を選ぶだけのシンプルな設計です。カードの色・フォントとあわせて大会のテーマカラーに寄せると、対戦表全体の統一感が出ます。</p>
+
+        <h3>3. シード表示の扱いを大会形式に合わせる</h3>
+
+        <p>参加人数が2の累乗（8人、16人など）にならない場合は「不戦勝を表示」に切り替えると、誰が1回戦を免除されたのかが一目で分かります。逆にシンプルに見せたいだけなら「省略（線を延長）」のままで問題ありません。</p>
+
+        <h2 id="s7">こんな場面で活用できます</h2>
+
+        <p>参加者と画像を入れ替えるだけで、さまざまな場面の組み合わせ表として使い回せます。</p>
+
+        <div class="tw">
+          <table class="narrow">
+            <thead>
+              <tr>
+                <th>シーン</th>
+                <th>使い方の例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>スポーツ・ゲーム大会</th>
+                <td>eスポーツイベントや部活動の対戦表を作成し、勝ち上がりをその場で更新しながら進行・結果報告に使う</td>
+              </tr>
+              <tr>
+                <th>配信・イベント企画</th>
+                <td>ゲーム配信内の対戦企画や、コミュニティイベントの組み合わせを自動生成して配信画面に表示する</td>
+              </tr>
+              <tr>
+                <th>エンタメ・SNS投稿</th>
+                <td>「一番好きな○○は？」のようなお題に画像付きで勝ち抜き戦を作り、考察系コンテンツの図解として投稿する</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="scroll-note">横にスクロールできます</p>
+
+        <h2 id="s8">よくある質問（FAQ）</h2>
+
+        <details>
+          <summary>トーナメント表アニメーターは無料ですか？商用利用もできますか？</summary>
+          <p>無料で使えます。会員登録もインストールも不要で、動画への書き出しやSNS投稿を含む商用利用も可能です。事前連絡は不要ですが、<strong>クレジット表記</strong>にご協力をお願いしています。</p>
+        </details>
+
+        <details>
+          <summary>参加人数の上限・下限はありますか？</summary>
+          <p>2名から32名まで設定できます。2の累乗にならない人数（10人、20人など）でも、不戦勝（シード）を含めたトーナメント表が自動で組まれます。</p>
+        </details>
+
+        <details>
+          <summary>参加者に画像を設定できますか？</summary>
+          <p>できます。各エントリーの画像ボタンから、ファイルのアップロードまたは画像URLの指定で設定できます。カードの表示内容は「画像＋名前」「画像のみ」「名前のみ」から選べます。</p>
+        </details>
+
+        <details>
+          <summary>入力したデータは外部に送信されますか？</summary>
+          <p>送信されません。参加者名や画像を含め、処理はすべてブラウザの中で完結します。設定はブラウザに自動保存され、次に開いたときにそのまま復元されます。</p>
+        </details>
+
+        <details>
+          <summary>完成したトーナメント表は動画として保存できますか？</summary>
+          <p>ツール自体に動画の書き出し機能はないため、PCやスマートフォンの画面録画機能を使って「再生」中の画面を録画してください。録画した動画はそのまま配信やSNS投稿に使えます。</p>
+        </details>
+
+        <h2 id="s9">まとめ</h2>
+
+        <p>動くトーナメント表は、対戦表を用意する手間と、結果発表の盛り上がりを両立できる形式です。プログラミングの知識がなくても、参加者名を入力してレイアウトを選ぶだけで、勝ち上がりがアニメーションで進む対戦表を無料で作成できます。</p>
+
+        <div class="box pick">
+          <span class="bt">この記事の要点</span>
+          <ul style="margin-bottom:0">
+            <li><strong>参加者名と画像を入力するだけ</strong>で、1回戦から決勝までのトーナメント表が自動で組まれる</li>
+            <li><strong>配色・フォント・カードサイズまで細かくカスタマイズ可能</strong>。大会のテーマに合わせて仕上げられる</li>
+            <li><strong>データはすべてブラウザ内で処理</strong>。保存も自動なので、途中で中断しても続きから作れる</li>
+          </ul>
+        </div>
+
+        <p>次の大会や配信企画で組み合わせ表が必要になったら、まずは手元の参加者リストでどのような動きになるか試してみてください。</p>
+
+        <div class="reflinks">
+          <a class="reflink" href="../how-to-make-ranking-announcement-video/">
+            <span class="rl-t">順位発表動画の作り方｜演出6タイプと無料ツール・素材まとめ</span>
+            <span class="rl-d">トーナメント型を含む6つの演出タイプを比較し、用途から最適な形式を選べる早見表をまとめています。</span>
+          </a>
+          <a class="reflink" href="../how-to-make-horse-race-ranking-video/">
+            <span class="rl-t">競馬風の順位発表動画「格付けダービー」の作り方</span>
+            <span class="rl-d">勝ち上がりではなく、レース形式で盛り上げたい場合はこちらの形式が適しています。</span>
+          </a>
+          <a class="reflink" href="../how-to-make-bar-chart-race/">
+            <span class="rl-t">バーチャートレース（動く棒グラフ）の作り方完全ガイド</span>
+            <span class="rl-d">数値データの推移を見せたい場合は、こちらの形式が適しています。</span>
+          </a>
+        </div>
+
+        <p class="meta">
+          本記事は「トーナメント表アニメーター」を開発・運用している立場から執筆しています。掲載している仕様は2026年8月時点のもので、機能追加により変更される場合があります。<br>
+          最終更新：2026年8月28日　／　執筆：<a href="../../about.html">GraphRace Studio 開発者</a>
+        </p>
+
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
+      <nav>
+        <a href="../../about.html">このツールについて</a>
+        <a href="../../terms.html">利用規約</a>
+        <a href="../../privacy.html">プライバシーポリシー</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+
+</html>
