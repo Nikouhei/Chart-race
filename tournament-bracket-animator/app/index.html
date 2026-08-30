@@ -19,9 +19,6 @@
   <title>トーナメント表アニメーター｜GraphRace Studio</title>
   <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png?v=1" type="image/png">
 
-  <!-- Google AdSense -->
-  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
-
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
   <link rel="stylesheet" href="../../shared/tokens.css">
 
@@ -321,6 +318,20 @@
     .tt-sw[data-c="coral"] { background:#D85A30; }
     .tt-sw[data-c="pink"] { background:#D4537E; }
 
+    /* カード背景色スウォッチ */
+    .tt-sw-auto { background:#fff; background-image:linear-gradient(45deg, transparent 47%, #e11d48 49%, #e11d48 51%, transparent 53%); }
+    .tt-sw-custom { position:relative; display:inline-flex; width:24px; height:24px; }
+    .tt-sw-custom input[type="color"] {
+      -webkit-appearance:none; appearance:none; width:24px; height:24px; padding:0; border:1px solid var(--panel-border);
+      border-radius:50%; cursor:pointer; background:conic-gradient(from 180deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa, #f87171);
+      transition:transform 0.15s;
+    }
+    .tt-sw-custom input[type="color"]:hover { transform:scale(1.12); }
+    .tt-sw-custom input[type="color"].on { outline:2px solid var(--text-strong); outline-offset:1px; transform:scale(1.12); }
+    .tt-sw-custom input[type="color"]::-webkit-color-swatch-wrapper { padding:0; border-radius:50%; }
+    .tt-sw-custom input[type="color"]::-webkit-color-swatch { border:none; border-radius:50%; }
+    .tt-sw-custom input[type="color"]::-moz-color-swatch { border:none; border-radius:50%; }
+
     /* 再生コントロール（常時表示） */
     .play-block { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--panel-border); }
     .tt-play-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -585,7 +596,7 @@
 </head>
 <body class="light-mode">
 
-<div class="tt-wrap" id="tt-wrap" data-accent="purple" data-font="sans" data-slotstyle="compact" data-fxlevel="normal" data-canvasbg="light" data-cardr="std" data-winstyle="bar" data-scoremode="none" data-winnermode="random" data-roundlabel="left" data-slotaxis="stack" data-vtext="off">
+<div class="tt-wrap" id="tt-wrap" data-accent="purple" data-font="sans" data-slotstyle="compact" data-fxlevel="normal" data-canvasbg="soft" data-cardr="std" data-winstyle="bar" data-scoremode="none" data-winnermode="random" data-roundlabel="left" data-slotaxis="stack" data-vtext="off">
   <h1 class="sr-only">トーナメント表アニメーター</h1>
 
   <div class="control-panel">
@@ -662,8 +673,8 @@
           <div class="field">
             <span class="field-label">背景</span>
             <div class="tt-seg" id="tt-canvasbg-seg">
-              <button class="on" data-bg="light">ライト</button>
-              <button data-bg="soft">ソフト</button>
+              <button data-bg="light">ライト</button>
+              <button class="on" data-bg="soft">ソフト</button>
               <button data-bg="dark">ダーク</button>
             </div>
           </div>
@@ -810,6 +821,20 @@
               <button class="tt-sw" data-c="coral" aria-label="コーラル"></button>
               <button class="tt-sw" data-c="pink" aria-label="ピンク"></button>
             </div>
+          </div>
+          <div class="field">
+            <span class="field-label">カードの色</span>
+            <div class="tt-swatches" id="tt-cardcolor-swatches">
+              <button class="tt-sw tt-sw-auto on" data-cc="" aria-label="自動（テーマに合わせる）" title="自動（テーマに合わせる）"></button>
+              <button class="tt-sw" data-cc="#FFFFFF" aria-label="ホワイト" title="ホワイト"></button>
+              <button class="tt-sw" data-cc="#F4F5F9" aria-label="ソフトグレー" title="ソフトグレー"></button>
+              <button class="tt-sw" data-cc="#FDF6EC" aria-label="クリーム" title="クリーム"></button>
+              <button class="tt-sw" data-cc="#EDEBFC" aria-label="ラベンダー" title="ラベンダー"></button>
+              <label class="tt-sw-custom" title="カスタムカラー">
+                <input type="color" id="tt-cardcolor-custom" value="#ffffff" aria-label="カスタムカラー">
+              </label>
+            </div>
+            <p class="hint">カードの背景色を変更できます（「自動」はテーマ（背景）に合わせて決まります）</p>
           </div>
           <div class="field">
             <span class="field-label">フォント</span>
@@ -2072,6 +2097,29 @@
     });
   });
 
+  // --- カードの色（--surface-2 を上書き。「自動」選択時はテーマ既定値に戻す） ---
+  const cardColorCustomInput = $('tt-cardcolor-custom');
+  function setCardColorSwatchesOn(activeEl) {
+    document.querySelectorAll('#tt-cardcolor-swatches .tt-sw').forEach(x => x.classList.remove('on'));
+    cardColorCustomInput.classList.remove('on');
+    if (activeEl) activeEl.classList.add('on');
+  }
+  function applyCardColor(hex) {
+    if (hex) wrap.style.setProperty('--surface-2', hex);
+    else wrap.style.removeProperty('--surface-2');
+  }
+  document.querySelectorAll('#tt-cardcolor-swatches .tt-sw').forEach(sw => {
+    sw.addEventListener('click', () => {
+      setCardColorSwatchesOn(sw);
+      applyCardColor(sw.dataset.cc || null);
+      if (sw.dataset.cc) cardColorCustomInput.value = sw.dataset.cc;
+    });
+  });
+  cardColorCustomInput.addEventListener('input', () => {
+    setCardColorSwatchesOn(cardColorCustomInput);
+    applyCardColor(cardColorCustomInput.value);
+  });
+
   // --- キャンバスサイズ ---
   $('aspectRatioPreset').addEventListener('change', applyAspectRatioPreset);
   ['canvasWidth', 'canvasHeight'].forEach(id => {
@@ -2338,6 +2386,7 @@
       fields: Object.fromEntries(FIELD_IDS.map(id => [id, $(id) ? $(id).value : null]).filter(e => e[1] != null)),
       segs: Object.fromEntries(SEG_IDS.map(id => [id, segIndex(id)])),
       accent: wrap.dataset.accent,
+      cardColor: wrap.style.getPropertyValue('--surface-2') || '',
       cardWidth, slotMinH,
       panelWidth: panelEl.style.width || '',
       picks: bracket.map(round => round.map(m => m.pickName ?? null)),
@@ -2383,6 +2432,11 @@
     }
     const sw = s.accent && document.querySelector(`#tt-swatches .tt-sw[data-c="${s.accent}"]`);
     if (sw) sw.click();
+    if (s.cardColor) {
+      const ccSw = document.querySelector(`#tt-cardcolor-swatches .tt-sw[data-cc="${s.cardColor}"]`);
+      if (ccSw) { ccSw.click(); }
+      else { cardColorCustomInput.value = s.cardColor; cardColorCustomInput.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
     if (Number.isFinite(s.cardWidth)) setCardWidth(s.cardWidth);
     if (s.slotMinH != null) setSlotMinH(s.slotMinH);
     if (s.panelWidth) { panelEl.style.width = s.panelWidth; panelEl.style.flexBasis = s.panelWidth; }
