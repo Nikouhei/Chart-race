@@ -1452,6 +1452,77 @@
     .site-footer nav a:hover {
       color: var(--text-main);
     }
+
+    /* 更新履歴セクション */
+    .update-history {
+      background: var(--app-bg);
+      border-top: 1px solid var(--panel-border);
+      padding: 56px 0;
+    }
+    .update-history .section-title {
+      margin-bottom: 32px;
+    }
+    .update-list-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .update-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+    .update-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--panel-border-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .update-item:first-child {
+      border-top: 1px solid var(--panel-border-soft);
+    }
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .update-date {
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+      width: 90px;
+    }
+    .update-content {
+      color: var(--text-main);
+      flex-grow: 1;
+    }
+    @media (max-width: 600px) {
+      .update-item {
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px 0;
+      }
+      .update-date {
+        width: auto;
+      }
+      .badge-new {
+        margin-top: 0;
+      }
+      .update-history {
+        padding: 40px 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1937,6 +2008,22 @@
         <a class="btn-primary" href="#tool">あみだくじツールを開く</a>
       </div>
     </div>
+
+    <!-- 更新履歴 -->
+    <section class="update-history">
+      <div class="wrap">
+        <h2 class="section-title">更新履歴</h2>
+        <div class="update-list-container">
+          <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.09.09</span>
+              <span class="update-content">あみだくじ作成ツール（あみだくじメーカー）をリリースしました。完全ランダムな公平自動生成、リアルなアニメーション演出、効果音、個別スタート（積上方式）、チーム分けモード、画像保存、URL共有に対応。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- フッター -->
