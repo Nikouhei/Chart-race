@@ -22,15 +22,15 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GraphRace Studio">
   <meta property="og:title" content="GraphRace Studio｜無料・動くグラフ＆ランキング動画作成ツール">
-  <meta property="og:description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta property="og:description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <meta property="og:url" content="https://graphrace-studio.com/">
   <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="GraphRace Studio｜無料・動くグラフ＆ランキング動画作成ツール">
-  <meta name="twitter:description" content="動くバーチャートレース、線グラフ、トーナメント表、競馬風レース、ランキング動画を無料でブラウザ作成。">
+  <meta name="twitter:description" content="動くバーチャートレース、線グラフ、トーナメント表、競馬風レース、ランキング動画、あみだくじを無料でブラウザ作成。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
-  <meta name="description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
+  <meta name="description" content="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。">
   <link rel="icon" href="Logo/GraphRace_Studio_Logo.png" type="image/png">
 
   <!-- Google AdSense -->
@@ -776,14 +776,14 @@
     /* ツールグリッド（カード型） */
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 24px;
     }
     .tool-card {
       background: var(--panel-surface);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 28px;
+      padding: 24px 20px;
       box-shadow: var(--shadow-soft);
       display: flex;
       flex-direction: column;
@@ -797,21 +797,44 @@
     .tool-card .card-top {
       margin-bottom: 20px;
     }
-    .tool-card .icon {
-      font-size: 34px;
-      margin-bottom: 12px;
+    .tool-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .tool-card-header .icon {
+      font-size: 32px;
+      margin-bottom: 0;
+      line-height: 1;
+    }
+    .tool-category-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(110, 98, 240, 0.08);
+      border: 1px solid rgba(110, 98, 240, 0.2);
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
     }
     .tool-card h4 {
       margin: 0 0 10px;
-      font-size: 19px;
+      font-size: 18px;
+      line-height: 1.4;
       color: var(--text-strong);
       font-weight: 800;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
     }
     .tool-card p {
       margin: 0 0 16px;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-muted);
       line-height: 1.6;
+      min-height: 65px;
     }
 
     /* ツールタグ */
@@ -974,6 +997,13 @@
     .site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
     .site-footer nav a:hover { color: var(--text-main); }
 
+    @media (max-width: 960px) {
+      .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+
     @media (max-width: 800px) {
       .hero { padding: 48px 0 32px; }
       .hero-flex {
@@ -993,8 +1023,14 @@
         margin: 0 auto;
       }
       section { padding: 40px 0; }
-      .tools-grid { grid-template-columns: 1fr; }
       .use-cases-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .tools-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
     }
 
     @media (max-width: 540px) {
@@ -1108,7 +1144,7 @@
         "url": "https://graphrace-studio.com/",
         "name": "GraphRace Studio",
         "alternateName": ["グラフレーススタジオ"],
-        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画を無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
+        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
         "publisher": {
           "@id": "https://graphrace-studio.com/#organization"
         }
@@ -1175,8 +1211,8 @@
               <span class="badge">商用利用OK</span>
               <span class="badge">外部送信なし</span>
             </div>
-            <h1>データ・ランキング・対戦を、<br>ダイナミックな動画演出に</h1>
-            <p class="lead">CSVや手動入力から、動きのあるグラフ動画、勝ち上がりトーナメント表、格付けダービー、カード型ランキング動画をブラウザ内で無料作成できます。</p>
+            <h1>データ・ランキング・対戦・抽選を、<br>ダイナミックな演出に</h1>
+            <p class="lead">CSVや手動入力から、動きのあるグラフ動画、勝ち上がりトーナメント表、格付けダービー、カード型ランキング動画、公平なあみだくじ抽選演出をブラウザ内で無料作成できます。</p>
           </div>
           
           <div class="hero-visual">
@@ -1266,110 +1302,118 @@
     <!-- ツール選択セクション -->
     <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
-        <h2 class="section-title">全5種類の演出ツール</h2>
+        <h2 class="section-title">全6種類の演出ツール</h2>
         <p class="section-sub">用途やコンテンツに合わせて、お好みのツールをブラウザで選択・ご利用いただけます。</p>
         
-        <!-- カテゴリ1: データビジュアライゼーション -->
-        <div class="category-group">
-          <div class="category-header">
-            <span class="cat-icon">📊</span>
-            <h3>データビジュアライゼーション</h3>
-          </div>
-          <div class="tools-grid">
-            <div class="tool-card">
-              <div class="card-top">
+        <div class="tools-grid">
+          <!-- 1. バーチャートレース作成ツール -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
                 <div class="icon">📊</div>
-                <h4>バーチャートレース作成ツール</h4>
-                <p>時系列データのランキング変動を、軽快に走るアニメーション棒グラフとして視覚化します。SNS発信やYouTubeの動画コンテンツに最適です。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">CSV / Excel対応</span>
-                  <span class="tool-tag">縦横比率自由</span>
-                  <span class="tool-tag">国旗・アイコン対応</span>
-                </div>
+                <span class="tool-category-badge">時系列グラフ</span>
               </div>
-              <a class="btn-tool" href="bar-chart-race/">ツールを使う</a>
+              <h4>バーチャートレース作成ツール</h4>
+              <p>時系列データのランキング変動を、軽快に走るアニメーション棒グラフとして視覚化します。SNS発信やYouTubeの動画コンテンツに最適です。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">CSV / Excel対応</span>
+                <span class="tool-tag">縦横比率自由</span>
+                <span class="tool-tag">国旗・アイコン対応</span>
+              </div>
             </div>
+            <a class="btn-tool" href="bar-chart-race/">ツールを使う</a>
+          </div>
 
-            <div class="tool-card">
-              <div class="card-top">
+          <!-- 2. 線グラフレース作成ツール -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
                 <div class="icon">📈</div>
-                <h4>線グラフレース作成ツール</h4>
-                <p>複数項目の時系列データをすっきりと比較する動的折れ線グラフを作成します。プレゼン資料やブログ、ニュース解説図解に適しています。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">CSV / Excel対応</span>
-                  <span class="tool-tag">デザインカスタマイズ</span>
-                  <span class="tool-tag">データ自動保存</span>
-                </div>
+                <span class="tool-category-badge">折れ線グラフ</span>
               </div>
-              <a class="btn-tool" href="regular-chart/">ツールを使う</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- カテゴリ2: エンタメ・対戦・ランキング演出 -->
-        <div class="category-group" style="margin-bottom: 0;">
-          <div class="category-header">
-            <span class="cat-icon">🎬</span>
-            <h3>エンタメ・対戦・ランキング演出</h3>
-          </div>
-          <div class="tools-grid">
-            <div class="tool-card">
-              <div class="card-top">
-                <div class="icon">🏆</div>
-                <h4>トーナメント表アニメーター</h4>
-                <p>参加人数や組み合わせを選ぶだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表を作成します。大会の演出や配信画面に最適です。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">シード対応</span>
-                  <span class="tool-tag">自動勝ち上がりアニメ</span>
-                  <span class="tool-tag">ゲーム・スポーツ大会</span>
-                </div>
+              <h4>線グラフレース作成ツール</h4>
+              <p>複数項目の時系列データをすっきりと比較する動的折れ線グラフを作成します。プレゼン資料やブログ、ニュース解説図解に適しています。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">CSV / Excel対応</span>
+                <span class="tool-tag">デザインカスタマイズ</span>
+                <span class="tool-tag">データ自動保存</span>
               </div>
-              <a class="btn-tool" href="tournament-bracket-animator/">ツールを使う</a>
             </div>
+            <a class="btn-tool" href="regular-chart/">ツールを使う</a>
+          </div>
 
-            <div class="tool-card">
-              <div class="card-top">
+          <!-- 3. ランキング動画メーカー -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
                 <div class="icon">🏅</div>
-                <h4>ランキング動画メーカー</h4>
-                <p>順位・画像・名称・説明を入力するだけで、カードが右から流れてランクインする動画を作成します。YouTube ShortsやTikTokに最適です。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">画像アップロード</span>
-                  <span class="tool-tag">縦型Shorts推奨</span>
-                  <span class="tool-tag">カードアニメーション</span>
-                </div>
+                <span class="tool-category-badge">順位発表動画</span>
               </div>
-              <a class="btn-tool" href="ranking-video-maker/">ツールを使う</a>
+              <h4>ランキング動画メーカー</h4>
+              <p>順位・画像・名称・説明を入力するだけで、カードが右から流れてランクインする動画を作成します。YouTube ShortsやTikTokに最適です。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">画像アップロード</span>
+                <span class="tool-tag">縦型Shorts推奨</span>
+                <span class="tool-tag">カードアニメーション</span>
+              </div>
             </div>
+            <a class="btn-tool" href="ranking-video-maker/">ツールを使う</a>
+          </div>
 
-            <div class="tool-card">
-              <div class="card-top">
+          <!-- 4. 格付けダービー -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
                 <div class="icon">🏇</div>
-                <h4>格付けダービー（競馬風ランキング動画）</h4>
-                <p>順位を決めて走らせるだけで、本格的な競馬中継風のレース動画を作成します。道中の展開は毎回ランダムで盛り上がり抜群。軽快な2Dと、3DCGの馬が走る「リアル競馬風」を切り替えて使えます。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">確定順位指定</span>
-                  <span class="tool-tag">ランダムレース展開</span>
-                  <span class="tool-tag">競馬実況演出</span>
-                  <span class="tool-tag">3Dリアル対応</span>
-                </div>
+                <span class="tool-category-badge">競馬風レース</span>
               </div>
-              <a class="btn-tool" href="horse-race-ranking-maker/">ツールを使う</a>
+              <h4>格付けダービー（競馬風ランキング動画）</h4>
+              <p>順位を決めて走らせるだけで、本格的な競馬中継風のレース動画を作成します。道中の展開は毎回ランダムで盛り上がり抜群。軽快な2Dと、3DCGの馬が走る「リアル競馬風」を切り替えて使えます。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">確定順位指定</span>
+                <span class="tool-tag">ランダムレース展開</span>
+                <span class="tool-tag">競馬実況演出</span>
+                <span class="tool-tag">3Dリアル対応</span>
+              </div>
             </div>
+            <a class="btn-tool" href="horse-race-ranking-maker/">ツールを使う</a>
+          </div>
 
-            <div class="tool-card">
-              <div class="card-top">
-                <div class="icon">🎲</div>
-                <h4>あみだくじメーカー</h4>
-                <p>参加者と結果を入力するだけで、公平なあみだくじを自動作成。光る軌跡のアニメーションや効果音、紙吹雪演出で盛り上がります。便利なチーム分けモードやURL共有にも対応。</p>
-                <div class="tool-tags">
-                  <span class="tool-tag">完全ランダム生成</span>
-                  <span class="tool-tag">チーム分け対応</span>
-                  <span class="tool-tag">アニメ演出・効果音</span>
-                  <span class="tool-tag">URL共有・画像保存</span>
-                </div>
+          <!-- 5. トーナメント表アニメーター -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
+                <div class="icon">🏆</div>
+                <span class="tool-category-badge">トーナメント</span>
               </div>
-              <a class="btn-tool" href="amidakuji-maker/">ツールを使う</a>
+              <h4>トーナメント表アニメーター</h4>
+              <p>参加人数や組み合わせを選ぶだけで、勝ち上がりがアニメーションで進む華やかなトーナメント表を作成します。大会の演出や配信画面に最適です。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">シード対応</span>
+                <span class="tool-tag">自動勝ち上がりアニメ</span>
+                <span class="tool-tag">ゲーム・スポーツ大会</span>
+              </div>
             </div>
+            <a class="btn-tool" href="tournament-bracket-animator/">ツールを使う</a>
+          </div>
+
+          <!-- 6. あみだくじメーカー -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
+                <div class="icon">🎲</div>
+                <span class="tool-category-badge">くじ引き・抽選</span>
+              </div>
+              <h4>あみだくじメーカー</h4>
+              <p>参加者と結果を入力するだけで、公平なあみだくじを自動作成。光る軌跡のアニメーションや効果音、紙吹雪演出で盛り上がります。便利なチーム分けモードやURL共有にも対応。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">完全ランダム生成</span>
+                <span class="tool-tag">チーム分け対応</span>
+                <span class="tool-tag">アニメ演出・効果音</span>
+                <span class="tool-tag">URL共有・画像保存</span>
+              </div>
+            </div>
+            <a class="btn-tool" href="amidakuji-maker/">ツールを使う</a>
           </div>
         </div>
 
@@ -1380,7 +1424,7 @@
     <section style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
         <h2 class="section-title">あらゆるシーンで視線を引きつける</h2>
-        <p class="section-sub">GraphRace Studioは、数字やランキングを魅力的な動的動画へ変えるフリーツール群です。</p>
+        <p class="section-sub">GraphRace Studioは、数字やランキング、抽選や対戦を魅力的な動的演出へ変えるフリーツール群です。</p>
         <div class="use-cases-grid">
           <div class="use-case-card">
             <div class="icon-wrapper">📱</div>
@@ -1390,7 +1434,7 @@
           <div class="use-case-card">
             <div class="icon-wrapper">🎮</div>
             <h3>大会・イベント・ゲーム配信での対戦演出</h3>
-            <p>トーナメント表アニメーションで対戦カードの組み合わせや勝ち上がりをダイナミックに実況・演出できます。</p>
+            <p>トーナメント表アニメーションやあみだくじで、対戦カードの組み合わせ・勝ち上がり・グループ分けをダイナミックに実況・演出できます。</p>
           </div>
           <div class="use-case-card">
             <div class="icon-wrapper">💼</div>
@@ -1456,9 +1500,9 @@
             </div>
           </details>
           <details class="faq-item">
-            <summary><h3>トーナメント表や格付けダービーの入力は難しいですか？</h3></summary>
+            <summary><h3>あみだくじやトーナメント表、格付けダービーの入力は難しいですか？</h3></summary>
             <div class="faq-content">
-              非常にシンプルです。トーナメント表アニメーターは参加者名やチーム名を入力するだけで自動生成され、勝ち上がりボタンを押すだけで動きます。格付けダービーも順位（ゴール順）と馬名・カラーを選択するだけで簡単に本格的な競馬風動画を作成できます。
+              非常にシンプルです。あみだくじメーカーやトーナメント表アニメーターは参加者名を入力するだけで公平な線を自動生成・アニメーション演出できます。格付けダービーも順位（ゴール順）と馬名・カラーを選択するだけで簡単に本格的な競馬風動画を作成できます。
             </div>
           </details>
           <details class="faq-item">
