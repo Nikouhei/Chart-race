@@ -597,6 +597,9 @@
     .umarace #timeline{width:100%;accent-color:var(--gold);cursor:pointer}
     .umarace #timeline:disabled{cursor:default;opacity:.5}
     .umarace .timeline-time{font-size:11px;color:#8a8060;text-align:right;margin-top:2px}
+    /* 並べ替えの判定は行の offsetTop 基準なので、基準点(offsetParent)をこの箱に固定する。
+       positionを外すと offsetTop がページ全体からの距離になり、入れ替え先の計算が壊れる */
+    .umarace #entries{position:relative}
     /* 16頭ぶんが縦に伸びすぎないよう、1行1頭で高さを詰めている。
        名前欄は狭くなるが、入力中は name-editing で他の操作要素を隠して広がる */
     .umarace .entry{
