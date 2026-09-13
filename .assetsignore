@@ -3,3 +3,13 @@
 .claude/
 First Coding/
 *.md
+# OS生成ファイル（ディレクトリ構成が外部から読み取れてしまうため除外）
+.DS_Store
+**/.DS_Store
+# 作業用バックアップ・スクリーンショット類
+*.bak
+*.orig
+*.swp
+スクリーンショット*
+generate-sitemap.js
+node_modules/

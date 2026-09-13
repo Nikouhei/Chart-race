@@ -1,4 +1,122 @@
+# ------------------------------------------------------------
+# GraphRace Studio robots.txt
+#
+# 方針：
+#   ・検索エンジン、およびAI検索／AI学習クローラは「許可」
+#     （AI検索経由の流入・引用は集客につながるため歓迎）
+#   ・サイトを丸ごと複製するツール、コンテンツ／構成の模倣目的で
+#     巡回するSEO調査・コンテンツ収集系クローラは「拒否」
+#
+# ※robots.txtは「行儀の良いbotへのお願い」であり強制力はない。
+#   UAを偽装する模倣スクレイパーへの実効ブロックは
+#   Cloudflare側（Bot Fight Mode / WAF / Rate Limiting）で行う。
+# ------------------------------------------------------------
+
+# --- 検索エンジン・SNSプレビュー・AIクローラ：許可 ---
 User-agent: *
 Allow: /
+# 内部・非公開ディレクトリ
+Disallow: /First%20Coding/
+Disallow: /.git/
+
+# --- サイト丸ごとコピー系ツール：拒否 ---
+User-agent: HTTrack
+Disallow: /
+
+User-agent: WebCopier
+Disallow: /
+
+User-agent: Webster
+Disallow: /
+
+User-agent: WebZIP
+Disallow: /
+
+User-agent: WebStripper
+Disallow: /
+
+User-agent: WebReaper
+Disallow: /
+
+User-agent: Teleport
+Disallow: /
+
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: Offline Explorer
+Disallow: /
+
+User-agent: SiteSnagger
+Disallow: /
+
+User-agent: Xenu
+Disallow: /
+
+# --- 汎用スクレイピングツール／スクリプト：拒否 ---
+User-agent: Scrapy
+Disallow: /
+
+User-agent: python-requests
+Disallow: /
+
+User-agent: python-urllib
+Disallow: /
+
+User-agent: Go-http-client
+Disallow: /
+
+User-agent: Java
+Disallow: /
+
+User-agent: libwww-perl
+Disallow: /
+
+User-agent: wget
+Disallow: /
+
+User-agent: curl
+Disallow: /
+
+# --- 競合分析・コンテンツ複製系クローラ：拒否 ---
+# 構成・内部リンク・文面をまとめて吸い出す用途が中心で、流入に寄与しないため
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: SerpstatBot
+Disallow: /
+
+User-agent: rogerbot
+Disallow: /
+
+User-agent: Screaming Frog SEO Spider
+Disallow: /
+
+User-agent: SiteAuditBot
+Disallow: /
+
+User-agent: Sitebulb
+Disallow: /
+
+User-agent: ZoominfoBot
+Disallow: /
+
+User-agent: magpie-crawler
+Disallow: /
 
 Sitemap: https://graphrace-studio.com/sitemap.xml

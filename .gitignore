@@ -6,3 +6,7 @@
 スクリーンショット*.png
 *.mp4
 *.webm
+
+# ビルド成果物・依存パッケージ
+node_modules/
+dist/

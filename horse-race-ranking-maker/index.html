@@ -16,6 +16,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>競馬風ランキング動画メーカー無料｜格付けダービー（3Dリアル対応）</title>
+  <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
+  <script src="../shared/origin-guard.js" defer></script>
   <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。軽快な2Dと、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」をワンタッチで切り替え。最大16頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画対応、インストール不要。">
   <link rel="canonical" href="https://graphrace-studio.com/horse-race-ranking-maker/">
   <meta name="theme-color" content="#6E62F0">
@@ -1273,6 +1275,13 @@
 
 <script>
 "use strict";
+/* -----------------------------------------------------------------
+   © 2026 Koh — GraphRace Studio (https://graphrace-studio.com/)
+   格付けダービー（競馬風ランキング動画メーカー）
+   本ソースコードの無断複製・転載・改変配布を禁じます。
+   利用規約: https://graphrace-studio.com/terms.html
+   Fingerprint: GRS-HRM-8f3a2e91
+   ----------------------------------------------------------------- */
 /* ================= 出走馬管理 ================= */
 /* 出走馬の既定の馬体色。リアル競馬風の毛色パターン「カラー」でも同じ値を使う。
    この配列が唯一の持ち主で、「カラー」パターンは e.color をそのまま馬体に乗せる。
@@ -1343,6 +1352,10 @@ function normalizeGates(){
   const sorted=[...entries].sort((a,b)=>a.gate-b.gate);
   sorted.forEach((e,i)=>e.gate=i+1);
 }
+// 属性値に差し込む文字列の無害化（貼り付け名やlocalStorage復元値がHTMLとして解釈されるのを防ぐ）
+function escAttrHR(v){
+  return String(v ?? "").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 function render(){
   normalizeGates();
   entriesEl.innerHTML="";
@@ -1354,15 +1367,15 @@ function render(){
     row.innerHTML=`<div class="grip" title="ドラッグで最終順位を入れ替え">⠿</div>
       <div class="rank">${i+1}</div>
       <div class="avatar" title="アイコン画像を設定">${e.img?"":"🐴"}</div>
-      <input type="text" value="${e.name.replace(/"/g,"&quot;")}" maxlength="10">
-      <input type="color" value="${e.color}" title="馬体色">
+      <input type="text" value="${escAttrHR(e.name)}" maxlength="10">
+      <input type="color" value="${escAttrHR(e.color)}" title="馬体色">
       <select class="coat" title="毛色"></select>
       <select class="gate" title="出走枠">${gateOpts}</select>
       <select class="style" title="脚質">${styleOpts}</select>
       <button class="del" title="削除">✕</button>`;
     fillCoatSelect(row.querySelector(".coat"),e,i);
     const av=row.querySelector(".avatar");
-    if(e.img)av.style.backgroundImage=`url(${e.img})`;
+    if(e.img)av.style.backgroundImage=`url("${String(e.img).replace(/["\\]/g,"")}")`;
     av.onclick=()=>{
       const f=document.createElement("input");f.type="file";f.accept="image/*";
       f.onchange=()=>{const r=new FileReader();r.onload=()=>{e.img=r.result;e.imgEl=null;render();};r.readAsDataURL(f.files[0]);};
@@ -1963,6 +1976,7 @@ let timelineDragging=false,resumeAfterSeek=false;
    2つのツールで共有する唯一の入口にしておくと、リアル競馬風(3D)側も
    同じ値を見るだけで済み、設定の解釈が食い違わない。
    entries とこの戻り値が、そのままエンジンへの入力になる */
+const __grsMark_8f3a2e91_b = "GRS-HRM-8f3a2e91";
 function raceConfig(){
   const v=id=>{const el=document.getElementById(id);return el?el.value:null;};
   return{
@@ -1981,6 +1995,8 @@ function raceConfig(){
   };
 }
 
+/* internal build marker — do not remove */
+const __grsMark_8f3a2e91_a = "GRS-HRM-8f3a2e91";
 function buildRace(){
   const cfg=raceConfig();
   const dur=cfg.duration;

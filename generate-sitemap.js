@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DOMAIN = 'https://graphrace-studio.com';
-const EXCLUDE_DIRS = ['.git', '.claude', 'shared', 'node_modules', 'app', 'tournament-bracket-blog'];
+const EXCLUDE_DIRS = ['.git', '.agents', '.claude', 'First Coding', 'shared', 'node_modules', 'app', 'tournament-bracket-blog', 'dist', 'build'];
 const EXCLUDE_FILES = [];
 
 function getHtmlFiles(dir, fileList = []) {

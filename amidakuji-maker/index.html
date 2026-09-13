@@ -14,6 +14,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>あみだくじ作成ツール【無料・登録不要】オンライン公平抽選・チーム分け</title>
+  <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
+  <script src="../shared/origin-guard.js" defer></script>
   <meta name="description" content="【登録不要・完全無料】ブラウザで公平なあみだくじを瞬時に自動作成できるオンライン抽選ツール。当たりハズレ抽選からチーム分け・席替え・順番決めまで対応。臨場感あるアニメーション演出や効果音、結果コピー、画像保存、URL共有も完備。スマホ・PCですぐに使えます。">
   <link rel="canonical" href="https://graphrace-studio.com/amidakuji-maker/">
   <meta name="theme-color" content="#6E62F0">
@@ -3157,16 +3159,37 @@
     }
   };
 
+  // 共有URLは第三者から渡され得る唯一の外部入力。
+  // 復元前に「文字列配列であること・件数・文字数」を必ず検証し、想定外の値は捨てる。
+  const SHARE_MAX_ITEMS = 100;     // 参加者・ゴールの最大件数
+  const SHARE_MAX_LEN = 100;       // 1項目あたりの最大文字数
+  const SHARE_MAX_HASH = 20000;    // ハッシュ全体の最大長（巨大データによるフリーズ防止）
+
+  function sanitizeShareList(value) {
+    if (!Array.isArray(value)) return null;
+    return value
+      .slice(0, SHARE_MAX_ITEMS)
+      .filter(v => typeof v === "string" || typeof v === "number")
+      .map(v => String(v).slice(0, SHARE_MAX_LEN));
+  }
+
   function loadFromUrlHash() {
     if (!window.location.hash.startsWith("#data=")) return;
     try {
       const b64 = window.location.hash.substring(6);
+      if (b64.length > SHARE_MAX_HASH) throw new Error("share data too large");
       const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(b64))));
       const data = JSON.parse(jsonStr);
-      if (data.u && Array.isArray(data.u)) users = data.u;
-      if (data.g && Array.isArray(data.g)) goalItems = data.g;
-      if (data.m) currentMode = data.m;
-      if (data.tc) teamCount = data.tc;
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("invalid share data");
+
+      const u = sanitizeShareList(data.u);
+      const g = sanitizeShareList(data.g);
+      if (u && u.length) users = u;
+      if (g && g.length) goalItems = g;
+      if (data.m === "normal" || data.m === "team") currentMode = data.m;
+      const tc = Number(data.tc);
+      if (Number.isInteger(tc) && tc >= 2 && tc <= SHARE_MAX_ITEMS) teamCount = tc;
+
       showToast("共有された設定を読み込みました");
     } catch(e) {
       console.warn("URLデータの復元に失敗しました", e);

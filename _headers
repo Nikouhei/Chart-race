@@ -3,6 +3,23 @@
 # 全般のデフォルト（HTML含む）
 /*
   Cache-Control: public, max-age=0, must-revalidate
+  # --- セキュリティヘッダー ---
+  # MIMEスニッフィング禁止（.js/.jsonを画像等と誤解釈させる攻撃の防止）
+  X-Content-Type-Options: nosniff
+  # 他サイトへのiframe埋め込み禁止（クリックジャッキング対策）
+  X-Frame-Options: SAMEORIGIN
+  # HTTPSを常に強制（1年・サブドメイン含む）
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  # 外部リンク遷移時に送るリファラを「ドメインのみ」に制限
+  Referrer-Policy: strict-origin-when-cross-origin
+  # 使っていない強い権限を明示的に無効化
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+  # 生成物（PNG/動画）のダウンロードはローカル完結。外部からの埋め込み・読み出しを制限
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: same-site
+  # CSP: インラインscript/styleを多用しているため 'unsafe-inline' は現状必須。
+  # object/base/form-action と frame-ancestors を締めることで実害の大きい攻撃を塞ぐ。
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://d3js.org https://cdn.sheetjs.com https://www.instagram.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' data: blob: https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://docs.google.com https://www.instagram.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com; frame-ancestors 'self'; upgrade-insecure-requests
 
 # 動画・静的メディア（長期キャッシュ）
 /*.webm

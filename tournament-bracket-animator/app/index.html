@@ -17,6 +17,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>トーナメント表アニメーター｜GraphRace Studio</title>
+  <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
+  <script src="../../shared/origin-guard.js" defer></script>
+  <!-- コピーサイトに対してオリジナルを示すため、アプリ画面にもcanonicalを付与 -->
+  <link rel="canonical" href="https://graphrace-studio.com/tournament-bracket-animator/app/">
   <link rel="icon" href="../../Logo/GraphRace_Studio_Logo.png?v=1" type="image/png">
 
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
@@ -941,7 +945,9 @@
   const previewArea = document.querySelector('.preview-area');
   const entryGrid = $('tt-entry-grid'), bulkEl = $('tt-bulk'), bulkToggle = $('tt-bulk-toggle');
   const MAX_CANVAS_SIZE = 2500;
-  const escAttr = (s) => String(s).replace(/"/g, '&quot;');
+  const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // テキストノードとして差し込む値用（< > & を確実に無害化）
+  const escText = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   // 名前あり or 画像ありなら有効なエントリー
   const entryOk = (s) => (s.name && s.name !== '—') || !!s.img;
 
@@ -1192,14 +1198,14 @@
     if (slot.arriving) cls.push('arriving');
     if (slot.justDecided) cls.push('just-decided');
     sEl.className = cls.join(' ');
-    const seedBadge = (showSeed && slot.seed) ? `<span class="seed">${slot.seed}</span>` : '';
+    const seedBadge = (showSeed && slot.seed) ? `<span class="seed">${escText(slot.seed)}</span>` : '';
     const hasText = slot.name && slot.name !== '—';
     const hasEntry = hasText || !!slot.img;
     const avatarHtml = slot.img ? `<img class="avatar" src="${escAttr(slot.img)}" alt="" loading="lazy" onerror="this.remove()">` : '';
     const displayName = hasText ? slot.name : (slot.img ? '' : '—');
     const scoreHtml = scoreMode === 'manual' && hasEntry
-      ? `<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="sc-input" value="${slot.score ?? ''}" data-r="${ri}" data-m="${mi}" data-s="${si}" />`
-      : `<span class="sc">${slot.score ?? ''}</span>`;
+      ? `<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" class="sc-input" value="${escAttr(slot.score ?? '')}" data-r="${ri}" data-m="${mi}" data-s="${si}" />`
+      : `<span class="sc">${escText(slot.score ?? '')}</span>`;
     const editBtnHtml = (ri === 0 && hasEntry)
       ? '<button type="button" class="name-img" title="画像を設定" aria-label="画像を設定"><i class="ti ti-photo" aria-hidden="true"></i></button><button type="button" class="name-edit" title="名前を編集" aria-label="名前を編集"><i class="ti ti-pencil" aria-hidden="true"></i></button>'
       : '';
@@ -1210,7 +1216,7 @@
     const pickBtnHtml = canPick
       ? `<button type="button" class="pick-btn" title="${isPicked ? '勝者指定を解除' : 'この対戦者を勝者に指定'}" aria-pressed="${isPicked}" aria-label="勝者に指定"><i class="ti ti-${isPicked ? 'check' : 'trophy'}" aria-hidden="true"></i></button>`
       : '';
-    sEl.innerHTML = `${seedBadge}${avatarHtml}<span class="name">${displayName}</span>${editBtnHtml}${pickBtnHtml}${scoreHtml}`;
+    sEl.innerHTML = `${seedBadge}${avatarHtml}<span class="name">${escText(displayName)}</span>${editBtnHtml}${pickBtnHtml}${scoreHtml}`;
     sEl.addEventListener('click', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
       // 手動指定モードではカードクリックも「勝者の予約」。即確定はさせない
@@ -1232,7 +1238,7 @@
     c.className = 'champ' + (w ? ' filled' : '');
     const avatar = (w && w.img) ? `<img class="avatar" src="${escAttr(w.img)}" alt="" onerror="this.remove()">` : '';
     const label = w ? (w.name || '') : '?';
-    c.innerHTML = `<div class="cw-label"><i class="ti ti-crown" style="font-size:11px;vertical-align:-1px" aria-hidden="true"></i> 優勝</div><div class="cw-name">${avatar}<span class="cw-nm">${label}</span></div>`;
+    c.innerHTML = `<div class="cw-label"><i class="ti ti-crown" style="font-size:11px;vertical-align:-1px" aria-hidden="true"></i> 優勝</div><div class="cw-name">${avatar}<span class="cw-nm">${escText(label)}</span></div>`;
     return c;
   }
 
@@ -1782,7 +1788,7 @@
     const g = document.createElement('div');
     g.className = 'fx-ghost';
     g.innerHTML = (winner.img ? `<img class="avatar" src="${escAttr(winner.img)}" alt="">` : '') +
-      `<span>${winner.name && winner.name !== '—' ? winner.name : ''}</span>`;
+      `<span>${escText(winner.name && winner.name !== '—' ? winner.name : '')}</span>`;
     canvasEl.appendChild(g);
     const s = fxLocalRect(srcSlot), t = fxLocalRect(target);
     const gw = g.offsetWidth || 60, gh = g.offsetHeight || 24;

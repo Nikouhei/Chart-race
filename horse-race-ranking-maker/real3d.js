@@ -15,6 +15,10 @@
    - フレーム番号駆動 (t = frame / FPS) : プレビューと書き出しの一致を保証
    - 進行度(0..1)ベース : 動画長・コース長が変わってもカメラ台本が崩れない
    - mixer.update(delta) は使わない : シークしても結果が変わらないようにするため
+
+   © 2026 Koh — GraphRace Studio (https://graphrace-studio.com/)
+   本ファイルは https://graphrace-studio.com/horse-race-ranking-maker/ 専用の描画エンジンです。
+   無断複製・転載・改変配布を禁じます。 Fingerprint: GRS-HRM-8f3a2e91-R3D
    ===================================================================== */
 (function(global){
 "use strict";
@@ -564,6 +568,7 @@ function laneUpdateSideMem(n, P, L){
     if(Math.abs((P[i]-P[j])*cfg.raceLen)>LONG1) laneSideMem[i][j]=L[i]-L[j]+0.02;
 }
 
+const __grsMark_8f3a2e91_c = "GRS-HRM-8f3a2e91-R3D";
 function laneBuildTo(tNow){
   const n=cfg.n;
   if(!laneTrace){
@@ -1324,6 +1329,7 @@ let SHOTS=[];
    ・コーナーが2つ(向正面がある)コース → 向正面を分割画面にする
    ・コーナーが1つのコース → スタート後の長い助走を分割画面にする
    どちらも「長い直線は分割画面」というご指定どおりの割り当て */
+const __grsMark_8f3a2e91_d = "GRS-HRM-8f3a2e91-R3D";
 function buildShotPlan(){
   const L=cfg.raceLen, sec=(p)=>p*L/cfg.speed;   // 進行度 → 秒
   // コーナー区間を実測

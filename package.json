@@ -1,0 +1,14 @@
+{
+  "name": "chart-tool-build",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GraphRace Studio デプロイ用ビルド（Terserミニファイ＋初期化系関数の部分難読化）",
+  "scripts": {
+    "build": "node build/build.js"
+  },
+  "devDependencies": {
+    "acorn": "^8.14.0",
+    "javascript-obfuscator": "^5.7.0",
+    "terser": "^5.51.2"
+  }
+}
