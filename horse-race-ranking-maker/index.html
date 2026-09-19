@@ -925,6 +925,11 @@
                 <option value="off">表示しない</option>
               </select>
             </div>
+            <div class="field mode-classic">
+              <label>馬上アイコンの大きさ<span class="info-tip" tabindex="0" role="button" aria-label="馬上アイコンの大きさについて">i<span class="info-bubble">馬の背に乗せた丸いアイコン画像の大きさです。<p>名前ラベルの大きさは変わりません。</p></span></span></label>
+              <input type="range" id="iconSize" min="80" max="130" step="5" value="100">
+              <div class="timeline-time" id="iconSizeValue">100%</div>
+            </div>
             <div class="field">
               <label>再生タイムライン</label>
               <input type="range" id="timeline" min="0" max="1000" value="0" disabled>
@@ -1586,7 +1591,7 @@ const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
   common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin"],
-  classic:["duration","drama","captions"],
+  classic:["duration","drama","captions","iconSize"],
   real   :["coursePreset","handed","algo","seed","palette","showMap","showField","showMark"],
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
@@ -1788,6 +1793,14 @@ loadState();
     const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
     el.addEventListener(isText?"input":"change",saveState);
   });
+  // アイコンサイズの表示(%)はドラッグ中もリアルタイムに更新する
+  const iconSizeEl=document.getElementById("iconSize");
+  const iconSizeValueEl=document.getElementById("iconSizeValue");
+  if(iconSizeEl&&iconSizeValueEl){
+    const syncIconSizeLabel=()=>{iconSizeValueEl.textContent=iconSizeEl.value+"%";};
+    iconSizeEl.addEventListener("input",syncIconSizeLabel);
+    syncIconSizeLabel();
+  }
   // 見た目だけの設定はレースを組み直さず即座に反映する
   ["showMap","showField","showMark"].forEach(id=>{
     document.getElementById(id).addEventListener("change",()=>{
@@ -1805,7 +1818,7 @@ loadState();
 }
 
 /* ---- 馬のギャロップ描画(サラブレッド体型・3関節脚・砂埃付き) ---- */
-function drawHorse(g,x,y,scale,phase,color,name,img,imgCache){
+function drawHorse(g,x,y,scale,phase,color,name,img,imgCache,iconScale){
   g.save();g.translate(x,y);g.scale(scale,scale);
   const t=phase*Math.PI*2;
 
@@ -1938,22 +1951,25 @@ function drawHorse(g,x,y,scale,phase,color,name,img,imgCache){
   leg(-24,6,Math.PI*0.5,false,false);
   leg(25,8,0,true,false);
 
-  // ゼッケン(騎手位置に画像 or 番号丸)
+  // ゼッケン(騎手位置に画像 or 番号丸)。大きさは設定パネルの「馬上アイコンの大きさ」(iconScale)で調整
   if(img&&imgCache.ok){
-    // ゼッケン画像(鞍の位置に騎手アイコン風)
+    // ゼッケン画像(鞍の位置に騎手アイコン風)。中心(4,-34)を基準に拡大縮小する
+    const r=20*(iconScale||1);
     g.save();
-    g.beginPath();g.arc(4,-34,20,0,7);g.closePath();g.clip();
-    g.drawImage(imgCache.el,-16,-54,40,40);
+    g.beginPath();g.arc(4,-34,r,0,7);g.closePath();g.clip();
+    g.drawImage(imgCache.el,4-r,-34-r,r*2,r*2);
     g.restore();
     g.strokeStyle="#fff";g.lineWidth=3;
-    g.beginPath();g.arc(4,-34,20,0,7);g.stroke();
+    g.beginPath();g.arc(4,-34,r,0,7);g.stroke();
   }
-  // 名前ラベル
-  g.font="bold 15px 'Hiragino Kaku Gothic ProN',sans-serif";
-  const w=g.measureText(name).width;
-  g.fillStyle="rgba(0,0,0,.55)";
-  roundRect(g,-w/2-7,-72,w+14,20,5);g.fill();
-  g.fillStyle="#fff";g.textAlign="center";g.fillText(name,0,-57);
+  // 名前ラベル(名前が1文字も無ければ、黒背景ごと何も描かない)
+  if(name&&name.trim().length>0){
+    g.font="bold 15px 'Hiragino Kaku Gothic ProN',sans-serif";
+    const w=g.measureText(name).width;
+    g.fillStyle="rgba(0,0,0,.55)";
+    roundRect(g,-w/2-7,-72,w+14,20,5);g.fill();
+    g.fillStyle="#fff";g.textAlign="center";g.fillText(name,0,-57);
+  }
   g.restore();
 }
 function shade(hex,amt){
@@ -1988,6 +2004,7 @@ function raceConfig(){
     countdown:v("countdown")==="on",
     aspect:v("aspect"),
     captions:v("captions")==="on",
+    iconSize:+(v("iconSize")||100),
     name:v("raceName")||"ランキング杯",
     board:{
       title:v("boardTitle")||"結果発表",
@@ -2053,6 +2070,7 @@ function buildRace(){
     t:t0,t0,endT:Math.max(...horses.map(h=>h.finishT)),
     done:false,goalOrder:[],slowmo:1,
     captions:cfg.captions,
+    iconScale:(cfg.iconSize||100)/100,
     name:cfg.name,
     board:cfg.board};
 }
@@ -2305,7 +2323,7 @@ function draw(dt){
         const cadence=3.4*(0.88+0.12*(h.v/base));
         h.phase=(h.phase+dt*R.slowmo*cadence)%1;
       }
-      drawHorse(ctx,x,laneY,scale,h.phase,h.color,h.name,h.img,h.imgCache);
+      drawHorse(ctx,x,laneY,scale,h.phase,h.color,h.name,h.img,h.imgCache,R.iconScale);
     });
   }
   // 上部バー(レース名)
