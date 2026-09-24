@@ -4577,7 +4577,19 @@
           }
         }));
         if (Number.isFinite(mx)) {
-          const span = (mx - mn) || Math.abs(mx) || 1;
+          // 開始直後は見えている点が1〜2個しかなく、そのままだと僅かな差が
+          // 画面の高さいっぱいに拡大されて線が跳ねる。全期間レンジに対する
+          // 下限を設けて防ぐ。0 にすると従来どおり見えている範囲ぴったりになる。
+          const DYNAMIC_MIN_SPAN_RATIO = 0.05;
+          const globalSpan = Math.abs(globalDomainMax - globalDomainMin);
+          const minSpan = globalSpan * DYNAMIC_MIN_SPAN_RATIO;
+          let span = (mx - mn) || Math.abs(mx) || 1;
+          if (minSpan > 0 && span < minSpan) {
+            const center = (mx + mn) / 2;
+            mn = center - minSpan / 2;
+            mx = center + minSpan / 2;
+            span = minSpan;
+          }
           domainMax = mx + span * 0.10;
           domainMin = mn - span * 0.10;
         }
