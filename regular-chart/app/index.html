@@ -1161,6 +1161,16 @@
       #timelineSvg { height: 58px; }
       #chartAreaWrapper { height: calc(100% - 72px); margin-bottom: 72px; }
     }
+    /* 再生速度: 倍速ボタン（タイムライン右）と再生時間の目安 */
+    .playback-speed { display: flex; gap: 4px; flex: none; }
+    .playback-speed button {
+      width: auto; min-width: 0; margin: 0; padding: 5px 9px;
+      font-size: 12px; font-weight: 700; line-height: 1;
+      border-radius: 6px; border: 1px solid #d4d4d4; background: #fff; color: #666; cursor: pointer;
+    }
+    .playback-speed button:hover { border-color: #9a9a9a; color: #333; }
+    .playback-speed button.active { background: var(--accent, #6c5ce7); border-color: var(--accent, #6c5ce7); color: #fff; }
+    .playback-hint { font-size: 11px; color: #888; margin: 8px 0 0; line-height: 1.6; }
   </style>
 </head>
 <body class="light-mode">
@@ -1466,10 +1476,17 @@
         <input type="checkbox" id="lineGlow" checked>
         <span>線の下地（淡い帯）を表示</span>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="showEndLabel" checked>
-        <span>末端ラベル（国旗・名前・値）を表示</span>
+      <div class="setting-row" style="margin-top:12px;">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>項目名の表示</span>
+          <select id="seriesLabelMode">
+            <option value="label" selected>末端ラベル（線の先に名前・値）</option>
+            <option value="legend">凡例（グラフ上部にまとめて表示）</option>
+            <option value="none">表示しない</option>
+          </select>
+        </div>
       </div>
+      <input type="checkbox" id="showEndLabel" checked hidden>
     </div>
 
     <!-- バー専用設定: レギュラーグラフでは非表示。getGraphSettings 等の互換のため hidden 入力で保持 -->
@@ -1604,17 +1621,17 @@
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">文字色</span>
-          <input type="color" id="axisTextColor" value="#999999">
+          <input type="color" id="axisTextColor" value="#4f4f4f">
         </div>
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">文字サイズ(px)</span>
-          <input type="number" id="axisTextSize" value="11" min="1" max="80">
+          <input type="number" id="axisTextSize" value="16" min="1" max="80">
         </div>
       </div>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">線の色</span>
-          <input type="color" id="axisLineColor" value="#d2d2d2">
+          <input type="color" id="axisLineColor" value="#a6a6a6">
         </div>
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">線の太さ(px)</span>
@@ -1634,10 +1651,35 @@
           <input type="number" id="axisLineDash" value="4" min="0" max="30">
         </div>
       </div>
+      <div class="checkbox-group" style="margin-top:10px;">
+        <input type="checkbox" id="showYGridLines" checked>
+        <span>Y軸の補助線（横線）を表示</span>
+      </div>
       <div id="axisFixedMaxWrap" style="margin-top:10px;">
         <span style="font-size:11px; color:#aaa;">固定最大値（空白 = 自動）</span>
         <input type="number" id="axisFixedMax" placeholder="自動" min="0" step="0.01">
       </div>
+    </div>
+
+    <div class="input-group">
+      <label>再生速度</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>動画の長さ</span>
+          <select id="playbackLengthMode">
+            <option value="auto" selected>自動（1期間 1.2秒）</option>
+            <option value="15">15秒</option>
+            <option value="30">30秒</option>
+            <option value="60">60秒</option>
+            <option value="custom">秒数を指定</option>
+          </select>
+        </div>
+        <div class="setting-field" id="playbackCustomSecondsWrap" style="display:none;">
+          <span>秒数</span>
+          <input type="number" id="playbackCustomSeconds" value="45" min="3" max="3600" step="1">
+        </div>
+      </div>
+      <p class="playback-hint" id="playbackLengthHint"></p>
     </div>
 
     <!-- 再生プレビュー（折れ線を年号に同期して描画するアニメーション） -->
@@ -1712,6 +1754,12 @@
     <div class="timeline-bar">
       <button id="timelinePlayBtn" disabled aria-label="再生"></button>
       <svg id="timelineSvg"></svg>
+      <div class="playback-speed" id="playbackSpeed" role="group" aria-label="再生速度（倍速）">
+        <button type="button" data-speed="1" class="active">1x</button>
+        <button type="button" data-speed="2">2x</button>
+        <button type="button" data-speed="4">4x</button>
+        <button type="button" data-speed="8">8x</button>
+      </div>
     </div>
   </div>
 
@@ -1827,10 +1875,10 @@
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
-      'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel',
+      'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel', 'seriesLabelMode', 'playbackLengthMode', 'playbackCustomSeconds',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
-      'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax',
+      'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax', 'showYGridLines',
       'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize'
     ];
     const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2' };
@@ -1984,6 +2032,9 @@
           });
         }
       }
+      // タブ切替でタイムラインの表示幅が変わるので描き直す
+      // （データタブ中に読み込むと幅0で描かれ、戻っても目盛りが縮んだままになるため）
+      requestAnimationFrame(() => renderTimeline());
     }
 
     function setupSettingsAccordions() {
@@ -2065,6 +2116,11 @@
       syncBarSettingsControls();
       updateBarColorControls();
       syncAxisFixedMaxVisibility();
+      if (!Object.prototype.hasOwnProperty.call(settings, 'seriesLabelMode')
+          && Object.prototype.hasOwnProperty.call(settings, 'showEndLabel')) {
+        const modeEl = document.getElementById('seriesLabelMode');
+        if (modeEl) modeEl.value = settings.showEndLabel ? 'label' : 'none';
+      }
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     }
 
@@ -2569,7 +2625,8 @@
         lineWidth: Number.isFinite(lineWidthValue) ? Math.max(0, lineWidthValue) : 1,
         lineDash: Number.isFinite(lineDashValue) ? Math.max(0, lineDashValue) : 0,
         scaleMode: document.getElementById('axisScaleMode').value || 'dynamic',
-        fixedMax: fixedMaxValue !== null && fixedMaxValue > 0 ? fixedMaxValue : null
+        fixedMax: fixedMaxValue !== null && fixedMaxValue > 0 ? fixedMaxValue : null,
+        showGrid: document.getElementById('showYGridLines')?.checked !== false
       };
     }
 
@@ -4173,12 +4230,63 @@
         sortMode: document.getElementById('lineSortMode')?.value || 'desc',
         curve: document.getElementById('lineCurve')?.value || 'straight',
         dash: document.getElementById('lineDash')?.value || 'solid',
-        showEndLabel: document.getElementById('showEndLabel')?.checked !== false,
+        labelMode: getSeriesLabelMode(),
+        showEndLabel: getSeriesLabelMode() === 'label',
         xLabelMax: Number.isFinite(xLabelMaxValue) && xLabelMaxValue > 0 ? xLabelMaxValue : 3
       };
     }
 
     // 折れ線チャートのメトリクス（左=Y軸ラベル幅 / 右=線末端の国旗+ラベル幅）
+    function getSeriesLabelMode() {
+      const value = document.getElementById('seriesLabelMode')?.value;
+      if (value === 'legend' || value === 'none') return value;
+      // セレクトが無い古い画面・保存データでは旧チェックに従う
+      if (!document.getElementById('seriesLabelMode')) {
+        return document.getElementById('showEndLabel')?.checked === false ? 'none' : 'label';
+      }
+      return 'label';
+    }
+
+    // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
+    // 高さを先に確定させて余白計算に使うため、描画ではなくレイアウトだけをここで求める。
+    function layoutSeriesLegend(series, width, height, labelSettings) {
+      const fontSize = Math.max(10, Math.round(labelSettings.fontSize * 0.85));
+      const swatchW = Math.round(fontSize * 1.4);
+      const gapInner = Math.round(fontSize * 0.45);
+      const gapItem = Math.round(fontSize * 1.2);
+      const rowH = Math.round(fontSize * 1.6);
+      const sidePad = Math.max(16, width * 0.04);
+      const maxRowWidth = Math.max(40, width - sidePad * 2);
+
+      if (!layoutSeriesLegend.ctx) {
+        layoutSeriesLegend.ctx = document.createElement('canvas').getContext('2d');
+      }
+      const ctx = layoutSeriesLegend.ctx;
+      ctx.font = `600 ${fontSize}px ${getLayoutAppearanceSettings().font}`;
+
+      const rows = [];
+      let row = [];
+      let rowWidth = 0;
+      series.forEach(s => {
+        const itemWidth = swatchW + gapInner + ctx.measureText(s.name).width;
+        if (row.length && rowWidth + gapItem + itemWidth > maxRowWidth) {
+          rows.push({ items: row, width: rowWidth });
+          row = [];
+          rowWidth = 0;
+        }
+        rowWidth = row.length ? rowWidth + gapItem + itemWidth : itemWidth;
+        row.push({ key: s.key, name: s.name, width: itemWidth });
+      });
+      if (row.length) rows.push({ items: row, width: rowWidth });
+
+      return {
+        rows, fontSize, swatchW, gapInner, gapItem, rowH,
+        top: height * 0.10,
+        height: rows.length * rowH,
+        gap: Math.round(fontSize * 0.9)
+      };
+    }
+
     function recomputeChartMetrics() {
       if (!years.length) {
         chartMetrics = null;
@@ -4217,9 +4325,17 @@
       // 左: Y軸の目盛り数値
       const yAxisLabelSpace = Math.max(36, maxValueStringLength * axisSettings.textSize * 0.62 + 22);
 
+      const labelMode = getSeriesLabelMode();
+      // 末端ラベルが無いときは、線の太さぶん＋見た目の余白だけ残してグラフを横いっぱいに使う
+      const lineWidthForPad = getLineSettings().width;
+      const plainRightPad = Math.max(16, width * 0.04, lineWidthForPad * 2);
+      const legendLayout = labelMode === 'legend'
+        ? layoutSeriesLegend(series, width, height, labelSettings)
+        : null;
+      const baseTop = height * 0.10;
       const margin = {
-        top: height * 0.10,
-        right: endLabelSpace,
+        top: legendLayout ? baseTop + legendLayout.height + legendLayout.gap : baseTop,
+        right: labelMode === 'label' ? endLabelSpace : plainRightPad,
         bottom: Math.max(height * 0.08, axisSettings.textSize * 2.6 + 18),
         left: yAxisLabelSpace
       };
@@ -4236,7 +4352,8 @@
         innerWidth,
         innerHeight,
         globalDomainMax,
-        globalDomainMin
+        globalDomainMin,
+        legendLayout
       };
       return chartMetrics;
     }
@@ -4263,6 +4380,7 @@
     }
 
     function renderTimeline() {
+      updatePlaybackLengthUI();
       const svg = d3.select('#timelineSvg');
       const node = svg.node();
       if (!node) return;
@@ -4349,10 +4467,21 @@
       if (!svg || !years.length) return 0;
       if (years.length === 1) return 0;
 
-      const rect = svg.getBoundingClientRect();
-      const width = Math.max(220, rect.width || 220);
-      const x = createTimelineScale(width);
-      const pointerX = (event.clientX - rect.left) * (width / (rect.width || width));
+      // 描画に使った座標系（viewBox）へ変換してから、描画に使ったスケールで逆算する。
+      // 要素の実幅と描画時の幅がズレていても、見えている目盛りとクリック位置が一致する。
+      let pointerX;
+      const ctm = svg.getScreenCTM?.();
+      if (ctm && svg.createSVGPoint) {
+        const pt = svg.createSVGPoint();
+        pt.x = event.clientX;
+        pt.y = event.clientY;
+        pointerX = pt.matrixTransform(ctm.inverse()).x;
+      } else {
+        const rect = svg.getBoundingClientRect();
+        pointerX = event.clientX - rect.left;
+      }
+      const viewWidth = svg.viewBox?.baseVal?.width || Math.max(220, svg.getBoundingClientRect().width || 220);
+      const x = timelineMarkerScale || createTimelineScale(viewWidth);
       const rawIndex = x.invert(pointerX);
       return Math.max(0, Math.min(years.length - 1, Math.round(rawIndex)));
     }
@@ -4369,7 +4498,7 @@
         recomputeChartMetrics();
         fitToScreen();
         renderPreviewFrame(nextIndex, { instant: true, reset: true, timelinePosition: nextIndex });
-        document.getElementById('status').innerText = `✅ ${years[nextIndex]} を表示中`;
+        document.getElementById('status').innerText = `✅ ${getYearLabel(years[nextIndex])} を表示中`;
       } catch (err) {
         document.getElementById('status').innerText = "❌ 表示更新失敗: " + err.message;
       }
@@ -4602,7 +4731,8 @@
       // --- Y軸（左）＋ 横グリッド線 ---
       const yAxis = d3.axisLeft(yScale)
         .ticks(6)
-        .tickSize(-innerWidth)
+        // 補助線OFFのときは目盛り線の長さを0にして、数値ラベルだけ残す
+        .tickSize(axisSettings.showGrid ? -innerWidth : 0)
         .tickFormat(d => formatNumberValue(d));
       const yAxisGroup = g.append("g").attr("class", "y-axis").call(yAxis);
       yAxisGroup.select(".domain").remove();
@@ -4745,6 +4875,37 @@
         }
       });
 
+      // --- 凡例（項目名をグラフ上部にまとめて表示）---
+      if (lineSettings.labelMode === 'legend' && metrics.legendLayout) {
+        const lg = metrics.legendLayout;
+        const byKey = new Map(series.map(s => [s.key, s]));
+        const legendGroup = svg.append("g").attr("class", "series-legend");
+        const swatchStroke = Math.max(3, Math.min(lineSettings.width, lg.fontSize * 0.35));
+        lg.rows.forEach((legendRow, rowIndex) => {
+          let x = (layout.width - legendRow.width) / 2;
+          const y = lg.top + rowIndex * lg.rowH + lg.rowH / 2;
+          legendRow.items.forEach(item => {
+            const s = byKey.get(item.key);
+            const color = s ? getBarColor(s) : '#888888';
+            legendGroup.append("line")
+              .attr("x1", x).attr("x2", x + lg.swatchW)
+              .attr("y1", y).attr("y2", y)
+              .attr("stroke", color)
+              .attr("stroke-width", swatchStroke)
+              .attr("stroke-linecap", "round");
+            legendGroup.append("text")
+              .attr("x", x + lg.swatchW + lg.gapInner)
+              .attr("y", y)
+              .attr("dominant-baseline", "central")
+              .style("font-size", lg.fontSize + "px")
+              .style("font-weight", "600")
+              .style("fill", layoutAppearance.textColor)
+              .text(item.name);
+            x += item.width + lg.gapItem;
+          });
+        });
+      }
+
       // --- 背景の年号表示を更新 ---
       const yearText = yearLabelOverride ?? getYearLabel(years[Math.round(pos)]);
       if (yearText !== lastRenderedYearDisplayText) {
@@ -4832,6 +4993,102 @@
       return true;
     }
 
+    // --- 再生速度 ---
+    // 「動画の長さ」で全期間を何秒で流すかを決め、倍速ボタンはその上に掛ける。
+    // ※ var にしているのは、初期化中に renderTimeline 経由で参照されても TDZ にならないようにするため
+    var DEFAULT_MS_PER_PERIOD = 1200;
+    var playbackSpeedMultiplier = 1;
+
+    function getMsPerPeriod() {
+      const periods = Math.max(1, years.length - 1);
+      const mode = document.getElementById('playbackLengthMode')?.value || 'auto';
+      if (mode === 'auto') return DEFAULT_MS_PER_PERIOD;
+      const seconds = mode === 'custom'
+        ? parseFloat(document.getElementById('playbackCustomSeconds')?.value)
+        : parseFloat(mode);
+      if (!Number.isFinite(seconds) || seconds <= 0) return DEFAULT_MS_PER_PERIOD;
+      return (seconds * 1000) / periods;
+    }
+
+    function formatPlaybackDuration(ms) {
+      const totalSeconds = Math.max(0, Math.round(ms / 1000));
+      if (totalSeconds < 60) return `${totalSeconds}秒`;
+      return `${Math.floor(totalSeconds / 60)}分${String(totalSeconds % 60).padStart(2, '0')}秒`;
+    }
+
+    function updatePlaybackLengthUI() {
+      const mode = document.getElementById('playbackLengthMode')?.value || 'auto';
+      const wrap = document.getElementById('playbackCustomSecondsWrap');
+      if (wrap) wrap.style.display = mode === 'custom' ? '' : 'none';
+      const hint = document.getElementById('playbackLengthHint');
+      if (!hint) return;
+      if (!years.length) {
+        hint.textContent = 'データを読み込むと、再生時間の目安が表示されます。';
+        return;
+      }
+      const periods = Math.max(1, years.length - 1);
+      const msPerPeriod = getMsPerPeriod();
+      const totalMs = msPerPeriod * periods;
+      const perText = msPerPeriod < 100 ? (msPerPeriod / 1000).toFixed(3) : (msPerPeriod / 1000).toFixed(2);
+      let text = `${years.length}期間 → 約${formatPlaybackDuration(totalMs)}（1期間 ${perText}秒）`;
+      if (playbackSpeedMultiplier !== 1) {
+        text += ` ／ ${playbackSpeedMultiplier}倍速では約${formatPlaybackDuration(totalMs / playbackSpeedMultiplier)}`;
+      }
+      hint.textContent = text;
+    }
+
+    // 全期間を1本の時間軸として進める。
+    // 1期間ずつ区切って動かすと1期間が1フレーム(約17ms)より短くできないため、
+    // 経過時間から小数の位置を直接求める。速度・長さの変更は再生中でも即座に反映される。
+    async function animateTimeline(fromIndex, runId) {
+      const lastIndex = years.length - 1;
+      let pos = fromIndex;
+      let lastTimestamp = performance.now();
+
+      while (pos < lastIndex) {
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') {
+          const ok = await waitWhilePaused(runId);
+          if (!ok) return false;
+          lastTimestamp = performance.now();
+          continue;
+        }
+
+        await new Promise(requestAnimationFrame);
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') continue;
+
+        const now = performance.now();
+        // タブ復帰などで間が空いたときに一気に飛ばないよう、1フレームの進みに上限を設ける
+        const dt = Math.min(now - lastTimestamp, 250);
+        lastTimestamp = now;
+        pos = Math.min(lastIndex, pos + (dt * playbackSpeedMultiplier) / getMsPerPeriod());
+
+        const floorIdx = Math.floor(pos);
+        playback.yearIndex = pos;
+        renderPreviewFrame(floorIdx, {
+          instant: true,
+          reset: false,
+          nextYearIndex: Math.min(floorIdx + 1, lastIndex),
+          transitionProgress: pos - floorIdx,
+          timelinePosition: pos,
+          rowMotionDuration: 340
+        });
+      }
+
+      playback.yearIndex = lastIndex;
+      renderPreviewFrame(lastIndex, {
+        instant: true,
+        reset: false,
+        nextYearIndex: null,
+        transitionProgress: 1,
+        timelinePosition: lastIndex,
+        yearLabelOverride: getYearLabel(years[lastIndex]),
+        rowMotionDuration: 340
+      });
+      return true;
+    }
+
     async function runChartRace(fromIndex = 0) {
       if (!years.length) return;
 
@@ -4861,12 +5118,8 @@
         rowMotionDuration: 0
       });
 
-      for (let i = fromIndex; i < years.length - 1; i++) {
-        if (runId !== playback.runId) return;
-        playback.yearIndex = i;
-        const ok = await animateYearTransition(i, i + 1, runId);
-        if (!ok) return;
-      }
+      const ok = await animateTimeline(fromIndex, runId);
+      if (!ok) return;
 
       if (runId === playback.runId && years.length) {
         playback.yearIndex = years.length - 1;
@@ -4903,7 +5156,36 @@
 
     document.getElementById('startBtn').addEventListener('click', togglePlayback);
     document.getElementById('timelinePlayBtn').addEventListener('click', togglePlayback);
+    document.querySelectorAll('#playbackSpeed button').forEach(button => {
+      button.addEventListener('click', () => {
+        playbackSpeedMultiplier = parseFloat(button.dataset.speed) || 1;
+        document.querySelectorAll('#playbackSpeed button').forEach(b => b.classList.toggle('active', b === button));
+        button.blur(); // フォーカスが残ると Space キーで押されてしまうため
+        updatePlaybackLengthUI();
+      });
+    });
+    document.getElementById('playbackLengthMode').addEventListener('change', updatePlaybackLengthUI);
+    document.getElementById('playbackCustomSeconds').addEventListener('input', updatePlaybackLengthUI);
+    updatePlaybackLengthUI();
+
     const timelineSvg = document.getElementById('timelineSvg');
+    // データタブ表示中など、タイムラインが幅0の状態で描かれると最小幅(220px)で固定され、
+    // 表示に戻ったとき目盛りが中央に縮んでしまう。実幅が変わったら描き直す。
+    if (typeof ResizeObserver !== 'undefined') {
+      let lastTimelineWidth = 0;
+      let timelineResizeFrame = 0;
+      new ResizeObserver(entries => {
+        const width = Math.round(entries[0]?.contentRect?.width || 0);
+        if (width === lastTimelineWidth) return;
+        lastTimelineWidth = width;   // 幅0（非表示）も記録して、再表示時に必ず描き直す
+        if (!width) return;
+        cancelAnimationFrame(timelineResizeFrame);
+        timelineResizeFrame = requestAnimationFrame(() => {
+          renderTimeline();
+          if (years.length) updateTimelineMarker(playback.yearIndex);
+        });
+      }).observe(timelineSvg);
+    }
     timelineSvg.addEventListener('pointerdown', e => {
       e.preventDefault();
       try { timelineSvg.setPointerCapture(e.pointerId); } catch {}
@@ -5477,13 +5759,17 @@
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
     });
     ['lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
-     'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel'].forEach(id => {
+     'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel', 'seriesLabelMode'].forEach(id => {
       const eventName = (id === 'lineWidth' || id === 'lineCount' || id === 'xLabelMax') ? 'input' : 'change';
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
     });
     ['showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY'].forEach(id => {
       const eventName = id === 'showTimeCounter' ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => applyTimeCounterSettings());
+    });
+    document.getElementById('seriesLabelMode')?.addEventListener('change', event => {
+      const legacy = document.getElementById('showEndLabel');
+      if (legacy) legacy.checked = event.target.value === 'label';
     });
     document.getElementById('autoHeight').addEventListener('change', () => onLayoutSettingChange('autoHeight'));
     ['titleInput', 'sourceInput'].forEach(id => {
@@ -5496,8 +5782,8 @@
       const eventName = ['negativeStyle', 'trimTrailingZeros', 'hideSmallThousands'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
     });
-    ['axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisLineDash', 'axisScaleMode', 'axisFixedMax'].forEach(id => {
-      const eventName = id === 'axisScaleMode' ? 'change' : 'input';
+    ['axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisLineDash', 'axisScaleMode', 'axisFixedMax', 'showYGridLines'].forEach(id => {
+      const eventName = (id === 'axisScaleMode' || id === 'showYGridLines') ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
     });
     document.getElementById('axisScaleMode').addEventListener('change', syncAxisFixedMaxVisibility);
