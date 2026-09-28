@@ -1349,32 +1349,71 @@
         </div>
       </div>
       <div class="setting-row">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>項目名の表示</span>
+          <select id="seriesLabelMode">
+            <option value="label" selected>線の先端</option>
+            <option value="legend">凡例</option>
+            <option value="both">線の先端＋凡例</option>
+            <option value="none">表示しない</option>
+          </select>
+        </div>
+      </div>
+      <input type="checkbox" id="showNameLabels" checked hidden>
+      <div class="setting-row" style="margin-top:12px;">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>値の表示</span>
+          <select id="valueLabelMode">
+            <option value="label" selected>線の先端</option>
+            <option value="legend">凡例</option>
+            <option value="both">線の先端＋凡例</option>
+            <option value="none">表示しない</option>
+          </select>
+        </div>
+      </div>
+      <input type="checkbox" id="showValueLabels" checked hidden>
+      <div class="setting-row" id="legendPositionRow" style="margin-top:12px; display:none;">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>凡例の位置</span>
+          <select id="legendPosition">
+            <option value="top" selected>グラフ上部</option>
+            <option value="bottom">グラフ下部</option>
+          </select>
+        </div>
+      </div>
+      <div class="setting-row" id="endLabelFontRow" style="margin-top:12px;">
         <div class="setting-field">
-          <span>文字サイズ(px)</span>
+          <span>先端の文字サイズ(px)</span>
           <input type="number" id="labelFontSize" value="18" min="1" max="120">
         </div>
-        <div class="setting-field">
+        <div class="setting-field" id="nameLabelColorField">
           <span>項目名の色</span>
           <input type="color" id="nameLabelColor" value="#333333">
         </div>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="showNameLabels" checked>
-        <span>項目名を表示</span>
-      </div>
-      <div class="setting-row" style="margin-top:12px;">
+      <div class="setting-row" id="legendSettingsRow" style="margin-top:12px; display:none;">
         <div class="setting-field">
+          <span>凡例の文字サイズ(px)</span>
+          <input type="number" id="legendFontSize" value="15" min="6" max="120">
+        </div>
+        <div class="setting-field">
+          <span>凡例の文字色</span>
+          <input type="color" id="legendColor" value="#333333">
+        </div>
+      </div>
+      <div class="setting-row" id="valueStyleRow" style="margin-top:12px;">
+        <div class="setting-field" id="valueLabelColorField">
           <span>値の色</span>
           <input type="color" id="valueLabelColor" value="#333333">
         </div>
         <div class="setting-field">
-          <span>値の余白(px)</span>
-          <input type="number" id="valueLabelSpace" value="15" min="-80" max="200" step="0.5">
+          <span>名前と値の間隔(px)</span>
+          <input type="number" id="valueLabelSpace" value="8" min="-80" max="200" step="0.5">
         </div>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="showValueLabels" checked>
-        <span>値を表示</span>
+      <div class="checkbox-group" id="labelUseLineColorRow">
+        <input type="checkbox" id="labelUseLineColor" checked>
+        <span>先端の文字と凡例の値を線と同じ色にする</span>
       </div>
       <!-- ランキング表示専用（バーチャートレース）。折れ線では非表示（互換のため保持） -->
       <div style="display:none;">
@@ -1475,16 +1514,6 @@
       <div class="checkbox-group">
         <input type="checkbox" id="lineGlow" checked>
         <span>線の下地（淡い帯）を表示</span>
-      </div>
-      <div class="setting-row" style="margin-top:12px;">
-        <div class="setting-field" style="flex:1 1 100%;">
-          <span>項目名の表示</span>
-          <select id="seriesLabelMode">
-            <option value="label" selected>末端ラベル（線の先に名前・値）</option>
-            <option value="legend">凡例（グラフ上部にまとめて表示）</option>
-            <option value="none">表示しない</option>
-          </select>
-        </div>
       </div>
       <input type="checkbox" id="showEndLabel" checked hidden>
     </div>
@@ -1871,7 +1900,7 @@
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
-      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
@@ -1883,7 +1912,8 @@
     ];
     const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2' };
     const COLOR_PALETTES = {
-      standard: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
+      // 白背景で見分けやすい濃いめの10色。隣り合う色どうしが似ないよう並び順も調整済み
+      standard: ['#2563EB', '#EA580C', '#16A34A', '#9333EA', '#DC2626', '#0891B2', '#DB2777', '#A16207', '#4F46E5', '#0D9488'],
       light: ['#8EC5FF', '#FFD166', '#B8E986', '#FFB3BA', '#CDB4DB', '#A0E7E5', '#FDD6A2', '#BDE0FE', '#D8F3DC', '#F1F5F9'],
       dark: ['#1F4E79', '#6B3E26', '#7A1E26', '#245953', '#2F5D50', '#6C584C', '#4A3F73', '#633974', '#334155', '#111827'],
       vivid: ['#2563EB', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'],
@@ -2116,11 +2146,8 @@
       syncBarSettingsControls();
       updateBarColorControls();
       syncAxisFixedMaxVisibility();
-      if (!Object.prototype.hasOwnProperty.call(settings, 'seriesLabelMode')
-          && Object.prototype.hasOwnProperty.call(settings, 'showEndLabel')) {
-        const modeEl = document.getElementById('seriesLabelMode');
-        if (modeEl) modeEl.value = settings.showEndLabel ? 'label' : 'none';
-      }
+      migrateSeriesLabelSettings(settings);
+      syncSeriesLabelControls();
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     }
 
@@ -2198,10 +2225,16 @@
       return COLOR_PALETTES[paletteKey] || COLOR_PALETTES.standard;
     }
 
-    function getPaletteColor(name) {
+    // パターンの色は表の行順に割り当てる（1行目=1色目…）。
+    // 名前のハッシュで選ぶと、別の項目に同じ色が当たることがあったため。
+    // 行番号が分からない呼び出し（名前だけ）は従来どおりハッシュで選ぶ。
+    function getPaletteColor(nameOrItem) {
       const colors = getSelectedPaletteColors();
-      const index = Math.abs(hashString(name)) % colors.length;
-      return colors[index];
+      const key = typeof nameOrItem === 'object' && nameOrItem ? String(nameOrItem.key || '') : '';
+      const rowMatch = key.match(/^(\d+):/);
+      if (rowMatch) return colors[(Number(rowMatch[1]) - 1) % colors.length];
+      const name = typeof nameOrItem === 'object' && nameOrItem ? nameOrItem.name : nameOrItem;
+      return colors[Math.abs(hashString(String(name ?? ''))) % colors.length];
     }
 
     function getBarColorForMode(item, mode) {
@@ -2209,12 +2242,12 @@
         return document.getElementById('singleBarColor')?.value || '#4f8cff';
       }
       if (mode === 'custom') {
-        return customBarColors[item.key] || getPaletteColor(item.name);
+        return customBarColors[item.key] || getPaletteColor(item);
       }
       if (mode === 'category') {
-        return getCategoryColor(item.category) || getPaletteColor(item.name);
+        return getCategoryColor(item.category) || getPaletteColor(item);
       }
-      return getPaletteColor(item.name);
+      return getPaletteColor(item);
     }
 
     function getBarColor(item) {
@@ -2245,7 +2278,7 @@
         return;
       }
       list.innerHTML = items.map(item => {
-        const color = customBarColors[item.key] || getPaletteColor(item.name);
+        const color = customBarColors[item.key] || getPaletteColor(item);
         return `
           <label class="individual-color-row">
             <span title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
@@ -2674,11 +2707,20 @@
       const valueSpaceValue = +document.getElementById('valueLabelSpace').value;
       return {
         fontSize: Number.isFinite(fontSizeValue) ? Math.max(1, fontSizeValue) : 18,
-        showNames: document.getElementById('showNameLabels').checked,
+        // 線の先端に項目名を出すか（「項目名の表示」セレクトから導く）
+        showNames: seriesLabelModeShowsTip(getSeriesLabelMode()),
         nameColor: document.getElementById('nameLabelColor').value || '#333333',
-        showValues: document.getElementById('showValueLabels').checked,
+        // 線の先端に値を出すか（「値の表示」セレクトから導く）
+        showValues: seriesLabelModeShowsTip(getValueLabelMode()),
+        legendNames: seriesLabelModeShowsLegend(getSeriesLabelMode()),
+        legendValues: seriesLabelModeShowsLegend(getValueLabelMode()),
+        legendPosition: document.getElementById('legendPosition')?.value === 'bottom' ? 'bottom' : 'top',
+        useLineColor: document.getElementById('labelUseLineColor')?.checked !== false,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
         valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
+        legendFontSize: Number.isFinite(+document.getElementById('legendFontSize')?.value) && +document.getElementById('legendFontSize').value > 0
+          ? Math.max(6, +document.getElementById('legendFontSize').value) : 15,
+        legendColor: document.getElementById('legendColor')?.value || '#333333',
         showRankingItemAfterBar: document.getElementById('showRankingItemAfterBar').checked,
         showRankingValueInsideBar: document.getElementById('showRankingValueInsideBar').checked
       };
@@ -4231,26 +4273,97 @@
         curve: document.getElementById('lineCurve')?.value || 'straight',
         dash: document.getElementById('lineDash')?.value || 'solid',
         labelMode: getSeriesLabelMode(),
-        showEndLabel: getSeriesLabelMode() === 'label',
+        // 線の先端ラベル（国旗・名前・値）は、項目名か値のどちらかを出すときだけ描く
+        showEndLabel: seriesLabelModeShowsTip(getSeriesLabelMode())
+          || seriesLabelModeShowsTip(getValueLabelMode()),
         xLabelMax: Number.isFinite(xLabelMaxValue) && xLabelMaxValue > 0 ? xLabelMaxValue : 3
       };
     }
 
     // 折れ線チャートのメトリクス（左=Y軸ラベル幅 / 右=線末端の国旗+ラベル幅）
+    // 項目名の表示: label=線の先端 / legend=凡例 / both=両方 / none=表示しない
     function getSeriesLabelMode() {
       const value = document.getElementById('seriesLabelMode')?.value;
-      if (value === 'legend' || value === 'none') return value;
-      // セレクトが無い古い画面・保存データでは旧チェックに従う
-      if (!document.getElementById('seriesLabelMode')) {
-        return document.getElementById('showEndLabel')?.checked === false ? 'none' : 'label';
-      }
+      if (value === 'legend' || value === 'none' || value === 'both') return value;
       return 'label';
+    }
+    // 値の表示: 項目名と同じ4択
+    function getValueLabelMode() {
+      const value = document.getElementById('valueLabelMode')?.value;
+      if (value === 'legend' || value === 'none' || value === 'both') return value;
+      return 'label';
+    }
+    function seriesLabelModeShowsTip(mode) { return mode === 'label' || mode === 'both'; }
+    function seriesLabelModeShowsLegend(mode) { return mode === 'legend' || mode === 'both'; }
+
+    // 選択に応じて設定欄を出し分け、保存互換用の隠しチェックを同期する
+    function syncSeriesLabelControls() {
+      const mode = getSeriesLabelMode();
+      const valueMode = getValueLabelMode();
+      const showTipName = seriesLabelModeShowsTip(mode);
+      const showTipValue = seriesLabelModeShowsTip(valueMode);
+      const anyLegend = seriesLabelModeShowsLegend(mode) || seriesLabelModeShowsLegend(valueMode);
+      const anyValue = valueMode !== 'none';
+      const useLineColor = document.getElementById('labelUseLineColor')?.checked !== false;
+      const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+      const nameCb = document.getElementById('showNameLabels');
+      if (nameCb) nameCb.checked = showTipName;
+      const valueCb = document.getElementById('showValueLabels');
+      if (valueCb) valueCb.checked = showTipValue;
+      const endCb = document.getElementById('showEndLabel');
+      if (endCb) endCb.checked = showTipName || showTipValue;
+      show('endLabelFontRow', showTipName || showTipValue);
+      const nameColorField = document.getElementById('nameLabelColorField');
+      if (nameColorField) nameColorField.style.visibility = (showTipName && !useLineColor) ? '' : 'hidden';
+      show('legendPositionRow', anyLegend);
+      show('legendSettingsRow', anyLegend);
+      show('valueStyleRow', anyValue);
+      const valueColorField = document.getElementById('valueLabelColorField');
+      if (valueColorField) valueColorField.style.visibility = useLineColor ? 'hidden' : '';
+      show('labelUseLineColorRow', showTipName || showTipValue || seriesLabelModeShowsLegend(valueMode));
+    }
+
+    // 旧形式の保存データ（「項目名を表示」チェック＋ライン側の3択）を新しい4択に読み替える。
+    // 新形式では showNameLabels が常にセレクトと一致しているので、食い違っていれば旧データと判断する。
+    function migrateSeriesLabelSettings(settings) {
+      const has = key => Object.prototype.hasOwnProperty.call(settings, key);
+      const modeEl = document.getElementById('seriesLabelMode');
+      const valuesEl = document.getElementById('showValueLabels');
+      if (!modeEl) return;
+      let mode = has('seriesLabelMode') ? settings.seriesLabelMode : null;
+      if (!mode && has('showEndLabel')) mode = settings.showEndLabel ? 'label' : 'none';
+      if (!mode) mode = modeEl.value || 'label';
+      if (has('showNameLabels')) {
+        const namesOn = Boolean(settings.showNameLabels);
+        if (mode === 'label' && !namesOn) {
+          // 旧: 末端ラベルに値だけ → 新: 項目名は表示しない（値はそのまま）
+          mode = 'none';
+        } else if ((mode === 'none' || mode === 'legend') && namesOn) {
+          // 旧: 末端ラベルごと非表示だった → 値も出さない
+          if (valuesEl) valuesEl.checked = false;
+        }
+      } else if (mode === 'none' || mode === 'legend') {
+        if (valuesEl) valuesEl.checked = false;
+      }
+      modeEl.value = mode;
+      // 「値を表示」チェックだけの保存データは「値の表示」セレクトに読み替える
+      const valueModeEl = document.getElementById('valueLabelMode');
+      if (valueModeEl && !has('valueLabelMode') && valuesEl) {
+        valueModeEl.value = valuesEl.checked ? 'label' : 'none';
+      }
+      // 旧データは先端の文字を線の色で描いていたので、その見た目を保つ
+      const lineColorEl = document.getElementById('labelUseLineColor');
+      if (lineColorEl && !has('labelUseLineColor')) lineColorEl.checked = true;
     }
 
     // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
     // 高さを先に確定させて余白計算に使うため、描画ではなくレイアウトだけをここで求める。
-    function layoutSeriesLegend(series, width, height, labelSettings) {
-      const fontSize = Math.max(10, Math.round(labelSettings.fontSize * 0.85));
+    // 値も凡例に出すときは、再生中に値の桁が変わっても並びが揺れないよう、
+    // 全期間で最も幅の広い値が入る幅（valueWidth）を先に確保する。
+    function layoutSeriesLegend(series, width, height, labelSettings, valueRange) {
+      const fontSize = labelSettings.legendFontSize || 15;
+      const showNames = labelSettings.legendNames !== false;
+      const showValues = Boolean(labelSettings.legendValues);
       const swatchW = Math.round(fontSize * 1.4);
       const gapInner = Math.round(fontSize * 0.45);
       const gapItem = Math.round(fontSize * 1.2);
@@ -4262,29 +4375,81 @@
         layoutSeriesLegend.ctx = document.createElement('canvas').getContext('2d');
       }
       const ctx = layoutSeriesLegend.ctx;
-      ctx.font = `600 ${fontSize}px ${getLayoutAppearanceSettings().font}`;
+      const family = getLayoutAppearanceSettings().font;
+      let valueWidth = 0;
+      if (showValues) {
+        ctx.font = `700 ${fontSize}px ${family}`;
+        const candidates = [valueRange?.min, valueRange?.max].filter(Number.isFinite);
+        if (!candidates.length) candidates.push(0);
+        valueWidth = Math.ceil(Math.max(...candidates.map(v => ctx.measureText(formatNumberValue(v)).width)));
+      }
+      ctx.font = `600 ${fontSize}px ${family}`;
+      const valueGap = showNames && showValues ? (Number.isFinite(labelSettings.valueSpace) ? labelSettings.valueSpace : 8) : 0;
 
       const rows = [];
       let row = [];
       let rowWidth = 0;
       series.forEach(s => {
-        const itemWidth = swatchW + gapInner + ctx.measureText(s.name).width;
+        const nameWidth = showNames ? ctx.measureText(s.name).width : 0;
+        const itemWidth = swatchW + gapInner + nameWidth + valueGap + valueWidth;
         if (row.length && rowWidth + gapItem + itemWidth > maxRowWidth) {
           rows.push({ items: row, width: rowWidth });
           row = [];
           rowWidth = 0;
         }
         rowWidth = row.length ? rowWidth + gapItem + itemWidth : itemWidth;
-        row.push({ key: s.key, name: s.name, width: itemWidth });
+        row.push({ key: s.key, name: s.name, width: itemWidth, nameWidth });
       });
       if (row.length) rows.push({ items: row, width: rowWidth });
 
       return {
         rows, fontSize, swatchW, gapInner, gapItem, rowH,
+        showNames, showValues, valueWidth, valueGap,
         top: height * 0.10,
         height: rows.length * rowH,
         gap: Math.round(fontSize * 0.9)
       };
+    }
+
+    // 末端ラベル「(国旗) — 名前 値」が収まる右余白を、実際のフォントで測って求める。
+    // 値は再生中に変わるので、全期間の最大値・最小値のうち幅の広い方で見積もる。
+    function measureEndLabelSpace(series, labelSettings, domainMin, domainMax) {
+      try {
+        if (!measureEndLabelSpace.ctx) {
+          measureEndLabelSpace.ctx = document.createElement('canvas').getContext('2d');
+        }
+        const ctx = measureEndLabelSpace.ctx;
+        if (!ctx) return null;
+        const fontSize = labelSettings.fontSize;
+        const family = getLayoutAppearanceSettings().font;
+
+        let valueWidth = 0;
+        if (labelSettings.showValues) {
+          ctx.font = `700 ${fontSize}px ${family}`;
+          valueWidth = Math.max(
+            ctx.measureText(formatNumberValue(domainMax)).width,
+            ctx.measureText(formatNumberValue(domainMin)).width
+          );
+        }
+
+        ctx.font = `600 ${fontSize}px ${family}`;
+        const spaceWidth = ctx.measureText(' ').width;
+        let widest = 0;
+        series.forEach(s => {
+          const nameWidth = labelSettings.showNames ? ctx.measureText(s.name).width : 0;
+          const gap = labelSettings.showNames && labelSettings.showValues
+            ? (Number.isFinite(labelSettings.valueSpace) ? labelSettings.valueSpace : spaceWidth) : 0;
+          widest = Math.max(widest, nameWidth + gap + valueWidth);
+        });
+
+        // 描画側の配置に合わせる: 画像ありは 12 + 画像幅 + 8、なしは「–」の後ろ 22px から文字が始まる
+        const imgSize = Math.max(12, fontSize * 1.7);
+        const hasImage = series.some(s => s.imageUrl);
+        const textStart = hasImage ? 12 + imgSize + 8 : 22;
+        return Math.max(70, Math.ceil(textStart + widest + 16));
+      } catch (err) {
+        return null;
+      }
     }
 
     function recomputeChartMetrics() {
@@ -4318,10 +4483,9 @@
       const maxNameLength = d3.max(series, s => s.name.length) || 4;
       const maxValueStringLength = formatNumberValue(globalDomainMax).length;
       // 右: 線末端ラベル「国旗 — 名前 値」
-      const endLabelSpace = Math.max(
-        70,
-        (maxNameLength + maxValueStringLength + 2) * labelSettings.fontSize * 0.62 + 64
-      );
+      // 文字数×係数の見積もりだと日本語（全角）の名前で幅が足りず見切れるので、実際の文字幅を測る
+      const endLabelSpace = measureEndLabelSpace(series, labelSettings, globalDomainMin, globalDomainMax)
+        ?? Math.max(70, (maxNameLength + maxValueStringLength + 2) * labelSettings.fontSize * 0.62 + 64);
       // 左: Y軸の目盛り数値
       const yAxisLabelSpace = Math.max(36, maxValueStringLength * axisSettings.textSize * 0.62 + 22);
 
@@ -4329,14 +4493,26 @@
       // 末端ラベルが無いときは、線の太さぶん＋見た目の余白だけ残してグラフを横いっぱいに使う
       const lineWidthForPad = getLineSettings().width;
       const plainRightPad = Math.max(16, width * 0.04, lineWidthForPad * 2);
-      const legendLayout = labelMode === 'legend'
-        ? layoutSeriesLegend(series, width, height, labelSettings)
+      const legendLayout = (labelSettings.legendNames || labelSettings.legendValues)
+        ? layoutSeriesLegend(series, width, height, labelSettings, { min: minValue, max: maxValue })
         : null;
+      const hasEndLabel = labelSettings.showNames || labelSettings.showValues;
       const baseTop = height * 0.10;
+      const baseBottom = Math.max(height * 0.08, axisSettings.textSize * 2.6 + 18);
+      const legendAtBottom = legendLayout && labelSettings.legendPosition === 'bottom';
+      // 下に置く凡例は、右下の出典と重ならないようその高さぶん上に置く
+      let bottomPad = 0;
+      if (legendAtBottom) {
+        const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
+        const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
+        const sourceFont = resolveCanvasShortSide() * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
+        bottomPad = height * 0.03 + (sourceText ? sourceFont * 1.6 : 0);
+        legendLayout.top = height - bottomPad - legendLayout.height;
+      }
       const margin = {
-        top: legendLayout ? baseTop + legendLayout.height + legendLayout.gap : baseTop,
-        right: labelMode === 'label' ? endLabelSpace : plainRightPad,
-        bottom: Math.max(height * 0.08, axisSettings.textSize * 2.6 + 18),
+        top: legendLayout && !legendAtBottom ? baseTop + legendLayout.height + legendLayout.gap : baseTop,
+        right: hasEndLabel ? endLabelSpace : plainRightPad,
+        bottom: legendAtBottom ? baseBottom + legendLayout.gap + legendLayout.height + bottomPad : baseBottom,
         left: yAxisLabelSpace
       };
 
@@ -4794,6 +4970,7 @@
       const effectiveLabelFontSize = Math.max(6, Math.min(labelSettings.fontSize, innerHeight / Math.max(1, seriesVisible.length) * 0.9));
       const imgSize = Math.max(12, effectiveLabelFontSize * 1.7);
 
+      const tipValues = new Map(); // 凡例に出す「今の値」
       seriesVisible.forEach(sv => {
         const s = sv.s;
         const color = getBarColor(s);
@@ -4838,6 +5015,7 @@
           if (Number.isFinite(sv.points[i].value)) { tip = sv.points[i]; break; }
         }
         if (!tip) return;
+        tipValues.set(s.key, tip.value);
         if (!lineSettings.showEndLabel) return;
         const endGroup = g.append("g").attr("class", "series-end")
           .attr("transform", `translate(${xPx(tip.idx)},${yScale(tip.value)})`);
@@ -4868,15 +5046,21 @@
           .style("font-weight", "600")
           .style("fill", color);
         if (labelSettings.showNames) {
-          label.append("tspan").text(s.name + (labelSettings.showValues ? ' ' : ''));
+          label.append("tspan")
+            .style("fill", labelSettings.useLineColor ? color : labelSettings.nameColor)
+            .text(s.name);
         }
         if (labelSettings.showValues) {
-          label.append("tspan").style("font-weight", "700").text(formatNumberValue(tip.value));
+          const valueSpan = label.append("tspan")
+            .style("font-weight", "700")
+            .style("fill", labelSettings.useLineColor ? color : labelSettings.valueColor)
+            .text(formatNumberValue(tip.value));
+          if (labelSettings.showNames) valueSpan.attr("dx", labelSettings.valueSpace);
         }
       });
 
       // --- 凡例（項目名をグラフ上部にまとめて表示）---
-      if (lineSettings.labelMode === 'legend' && metrics.legendLayout) {
+      if (metrics.legendLayout) {
         const lg = metrics.legendLayout;
         const byKey = new Map(series.map(s => [s.key, s]));
         const legendGroup = svg.append("g").attr("class", "series-legend");
@@ -4893,14 +5077,32 @@
               .attr("stroke", color)
               .attr("stroke-width", swatchStroke)
               .attr("stroke-linecap", "round");
-            legendGroup.append("text")
-              .attr("x", x + lg.swatchW + lg.gapInner)
-              .attr("y", y)
-              .attr("dominant-baseline", "central")
-              .style("font-size", lg.fontSize + "px")
-              .style("font-weight", "600")
-              .style("fill", layoutAppearance.textColor)
-              .text(item.name);
+            const textX = x + lg.swatchW + lg.gapInner;
+            if (lg.showNames) {
+              legendGroup.append("text")
+                .attr("x", textX)
+                .attr("y", y)
+                .attr("dominant-baseline", "central")
+                .style("font-size", lg.fontSize + "px")
+                .style("font-weight", "600")
+                .style("fill", labelSettings.legendColor || layoutAppearance.textColor)
+                .text(item.name);
+            }
+            if (lg.showValues) {
+              // 右寄せ＋等幅数字で、桁が変わっても位置が揺れないようにする
+              const value = tipValues.get(item.key);
+              legendGroup.append("text")
+                .attr("class", "series-legend-value")
+                .attr("x", textX + item.nameWidth + lg.valueGap + lg.valueWidth)
+                .attr("y", y)
+                .attr("text-anchor", "end")
+                .attr("dominant-baseline", "central")
+                .style("font-size", lg.fontSize + "px")
+                .style("font-weight", "700")
+                .style("font-variant-numeric", "tabular-nums")
+                .style("fill", labelSettings.useLineColor ? color : labelSettings.valueColor)
+                .text(Number.isFinite(value) ? formatNumberValue(value) : '–');
+            }
             x += item.width + lg.gapItem;
           });
         });
@@ -5743,7 +5945,7 @@
       };
       reader.readAsDataURL(file);
     });
-    ['topN', 'barSpacing', 'labelFontSize', 'nameLabelColor', 'valueLabelColor', 'valueLabelSpace'].forEach(id => {
+    ['topN', 'barSpacing', 'labelFontSize', 'nameLabelColor', 'valueLabelColor', 'valueLabelSpace', 'legendFontSize', 'legendColor'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => onLayoutSettingChange(id));
     });
     document.getElementById('chartStyle').addEventListener('change', () => {
@@ -5767,10 +5969,14 @@
       const eventName = id === 'showTimeCounter' ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => applyTimeCounterSettings());
     });
-    document.getElementById('seriesLabelMode')?.addEventListener('change', event => {
-      const legacy = document.getElementById('showEndLabel');
-      if (legacy) legacy.checked = event.target.value === 'label';
+    // 「項目名の表示」「値を表示」の変更で設定欄を出し分ける（再描画より先に同期する）
+    ['seriesLabelMode', 'valueLabelMode', 'legendPosition', 'labelUseLineColor'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('change', syncSeriesLabelControls);
+      if (id !== 'seriesLabelMode') el.addEventListener('change', () => onLayoutSettingChange(id));
     });
+    syncSeriesLabelControls();
     document.getElementById('autoHeight').addEventListener('change', () => onLayoutSettingChange('autoHeight'));
     ['titleInput', 'sourceInput'].forEach(id => {
       document.getElementById(id).addEventListener('input', syncOverlayText);
