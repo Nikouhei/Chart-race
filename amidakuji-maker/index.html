@@ -118,7 +118,7 @@
             "name": "あみだくじの結果は本当に公平ですか？",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "はい、完全に公平です。横線はプログラムの暗号論的乱数に基づき完全ランダムに配置されます。意図的な操作や偏りなく、全員が同じ確率で抽選されます。"
+              "text": "はい、公平です。手書きのあみだくじは選んだ縦線の真下に落ちやすい偏りがありますが、当ツールでは横線に加えて、下に並ぶ結果の順番をくじを作るたびにブラウザの暗号論的乱数でシャッフルしています。そのため横線の本数に関係なく、どの位置の人も各結果に当たる確率は同じ（1/人数）です。"
             }
           },
           {
@@ -1767,7 +1767,7 @@
           <div class="feature-card">
             <div class="icon-badge">🎲</div>
             <h3>完全ランダムで公平</h3>
-            <p>あみだくじの横線は暗号学的乱数を用いて完全ランダムに自動生成。人為的な意図や偏りがなく、誰に対しても完全に平等な結果を保証します。</p>
+            <p>横線はランダムに自動生成。さらに下に並ぶ結果の順番を、くじを作るたびに暗号論的乱数でシャッフルするので、どの位置を選んでも当たる確率は全員同じです。</p>
           </div>
           <div class="feature-card">
             <div class="icon-badge">👥</div>
@@ -1850,7 +1850,7 @@
               手書きのあみだくじで横線の本数が極端に少ない場合、「自分の真下のゴールに行きやすい」という確率の偏りが生じることが知られています。
             </p>
             <p>
-              当ツールでは、参加人数に応じて十分な本数の横線をランダムに配置し、各参加者がすべてのゴールにほぼ均等な確率で到達できるようにアルゴリズムを最適化しています。そのため、どの位置を選んでも完全に公平な抽選が成り立ちます。
+              横線を増やせば偏りは小さくなりますが、たとえば10人で公平に近づけるには200本以上が必要で、線をたどるのが見づらくなります。そこで当ツールでは、横線に加えて、下に並ぶ結果の順番をくじを作るたびにブラウザの暗号論的乱数でシャッフルしています。結果の並び順は入力した人にも事前には分からないため、横線の本数に関係なく、どの位置を選んでも各結果に当たる確率は同じ（1/人数）になります。<a href="../blog/amidakuji-probability/">あみだくじの確率の詳しい検証はこちら</a>。
             </p>
           </div>
 
@@ -1940,7 +1940,7 @@
               <span>公平な抽選ができますか？不正や偏りはありませんか？</span>
             </summary>
             <div class="faq-a">
-              あみだくじの横線は、ブラウザの暗号論的乱数発生器を用いてランダムに自動生成されます。人が意図的に線を引く手書きと違い、完全に中立で公平な結果が得られます。
+              横線はランダムに自動生成され、さらに下に並ぶ結果の順番を、くじを作るたびにブラウザの暗号論的乱数でシャッフルしています。どの位置を選んでも当たる確率は全員同じです。なお、結果を見てから何度も「再生成」すれば特定の人に有利なくじを選べてしまうため、再生成は参加者の前で行うのがおすすめです。
             </div>
           </details>
 
@@ -2019,6 +2019,10 @@
           <ul class="update-list">
             <li class="update-item">
               <span class="badge-new">New</span>
+              <span class="update-date">2026.09.28</span>
+              <span class="update-content">公平性を強化しました。くじを作るたびに、下に並ぶ結果の順番を暗号論的乱数でシャッフルするようにし、横線の本数に関係なく、どの位置を選んでも当たる確率が全員同じ（1/人数）になりました。あわせて解説記事「<a href="../blog/amidakuji-probability/">あみだくじの確率は公平じゃない？当たりやすい場所と必勝法を計算で検証</a>」を公開しました。</span>
+            </li>
+            <li class="update-item">
               <span class="update-date">2026.09.09</span>
               <span class="update-content">あみだくじ作成ツール（あみだくじメーカー）をリリースしました。完全ランダムな公平自動生成、リアルなアニメーション演出、効果音、個別スタート（積上方式）、チーム分けモード、画像保存、URL共有に対応。</span>
             </li>
@@ -2116,6 +2120,7 @@
   let density = 3; // 1〜5
   let speedLevel = 2; // 1: 遅い, 2: 標準, 3: 高速, 4: 瞬時
   let isBlind = false;
+  let goalOrder = []; // goalOrder[列] = その列に表示する goalItems のインデックス（生成のたびに暗号論的乱数でシャッフル）
   let isSoundOn = false; // デフォルトはOFF
 
   function setSoundState(enabled, showToastNotice = false) {
@@ -2472,6 +2477,9 @@
   /* ================= あみだくじ構造生成アルゴリズム ================= */
   function generateAmidaStructure() {
     const N = users.length;
+    // 横線だけでは「真下に落ちやすい」偏りが残るため、結果の並び順を毎回シャッフルする。
+    // これにより横線の本数に関係なく、どの位置でも各結果に着く確率は正確に 1/N になる。
+    goalOrder = secureShuffle([...Array(N).keys()]);
     amidaLines = [];
     userPaths = [];
     userFinalGoals = [];
@@ -2639,7 +2647,7 @@
         }
       }
 
-      const rawText = goalItems[i] || "はずれ";
+      const rawText = goalAt(i) || "はずれ";
       const isArrived = arrivedUser !== null;
       const showHidden = isBlind && !isArrived;
 
@@ -3018,7 +3026,7 @@
 
           // ゴール音 & 紙吹雪判定
           const goalIdx = userFinalGoals[u];
-          const goalText = goalItems[goalIdx] || "";
+          const goalText = goalAt(goalIdx) || "";
           const isHit = goalText.includes("当たり") || goalText.includes("1等") || goalText.includes("特賞");
           playGoalSound(isHit);
           if (isHit) triggerConfetti();
@@ -3050,7 +3058,7 @@
       const teamMap = {};
       for (let u = 0; u < N; u++) {
         const gIdx = userFinalGoals[u];
-        const teamName = goalItems[gIdx] || "未定";
+        const teamName = goalAt(gIdx) || "未定";
         if (!teamMap[teamName]) teamMap[teamName] = [];
         teamMap[teamName].push({ name: users[u], color: COLOR_PALETTE[u % COLOR_PALETTE.length] });
       }
@@ -3083,7 +3091,7 @@
       for (let u = 0; u < N; u++) {
         const color = COLOR_PALETTE[u % COLOR_PALETTE.length];
         const gIdx = userFinalGoals[u];
-        const resultVal = goalItems[gIdx] || "はずれ";
+        const resultVal = goalAt(gIdx) || "はずれ";
         const isDone = userAnimState[u] && userAnimState[u].isFinished;
         const displayVal = (isBlind && !isDone) ? "？（未確定）" : escapeHtml(resultVal);
 
@@ -3113,7 +3121,7 @@
       const teamMap = {};
       for (let u = 0; u < N; u++) {
         const gIdx = userFinalGoals[u];
-        const teamName = goalItems[gIdx] || "未定";
+        const teamName = goalAt(gIdx) || "未定";
         if (!teamMap[teamName]) teamMap[teamName] = [];
         teamMap[teamName].push(users[u]);
       }
@@ -3124,7 +3132,7 @@
     } else {
       for (let u = 0; u < N; u++) {
         const gIdx = userFinalGoals[u];
-        const resultVal = goalItems[gIdx] || "はずれ";
+        const resultVal = goalAt(gIdx) || "はずれ";
         text += `${users[u]} → ${resultVal}\n`;
       }
     }
@@ -3308,7 +3316,7 @@
       ctx.fillStyle = "#F3F4F6";
       ctx.fillRect(x - 28, startY + lineH + 15, 56, 26);
       ctx.fillStyle = "#1F2937";
-      ctx.fillText((goalItems[i] || "").substring(0, 5), x, startY + lineH + 32);
+      ctx.fillText((goalAt(i) || "").substring(0, 5), x, startY + lineH + 32);
     }
 
     const link = document.createElement("a");
@@ -3410,6 +3418,32 @@
   }
 
   /* ================= ユーティリティ ================= */
+  // 暗号論的乱数による偏りのない整数（0〜max-1）。剰余の偏りは棄却法で除去する
+  function secureRandomInt(max) {
+    const buf = new Uint32Array(1);
+    const limit = Math.floor(0x100000000 / max) * max;
+    let x;
+    do {
+      crypto.getRandomValues(buf);
+      x = buf[0];
+    } while (x >= limit);
+    return x % max;
+  }
+
+  function secureShuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = secureRandomInt(i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // 列 col に表示する結果（生成前は入力順のまま）
+  function goalAt(col) {
+    const idx = goalOrder.length === goalItems.length ? goalOrder[col] : col;
+    return goalItems[idx];
+  }
+
   function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
