@@ -3923,6 +3923,21 @@
       return { rows, columns };
     }
 
+    // d3.csvParse は内部で new Function() を使うため、CSP（unsafe-eval 無し）で弾かれる。
+    // eval を使わない d3.csvParseRows で行配列にし、オブジェクト化は自前で行う。
+    // 戻り値の形（行オブジェクト配列 + .columns、欠損セルは ''）は d3.csvParse と同じ。
+    function csvParseNoEval(text) {
+      const table = d3.csvParseRows(text);
+      const columns = (table[0] || []).slice();
+      const rows = table.slice(1).map(row => {
+        const obj = {};
+        columns.forEach((col, i) => { obj[col] = row[i] || ''; });
+        return obj;
+      });
+      rows.columns = columns;
+      return rows;
+    }
+
     function readDataFile(file, options = {}) {
       updateSelectedFileName(file);
       const ext = file.name.split('.').pop().toLowerCase();
@@ -3936,7 +3951,7 @@
             const { rows, columns } = parseExcel(event.target.result);
             applyLoadedData(rows, columns, options);
           } else {
-            const parsed = d3.csvParse(event.target.result);
+            const parsed = csvParseNoEval(event.target.result);
             applyLoadedData(parsed, parsed.columns, options);
           }
         } catch (err) {
