@@ -1186,6 +1186,16 @@
       #timelineSvg { height: 58px; }
       #chartAreaWrapper { height: calc(100% - 72px); margin-bottom: 72px; }
     }
+    /* 再生速度: 倍速ボタン（タイムライン右）と再生時間の目安 */
+    .playback-speed { display: flex; gap: 4px; flex: none; }
+    .playback-speed button {
+      width: auto; min-width: 0; margin: 0; padding: 5px 9px;
+      font-size: 12px; font-weight: 700; line-height: 1;
+      border-radius: 6px; border: 1px solid #d4d4d4; background: #fff; color: #666; cursor: pointer;
+    }
+    .playback-speed button:hover { border-color: #9a9a9a; color: #333; }
+    .playback-speed button.active { background: var(--accent, #6c5ce7); border-color: var(--accent, #6c5ce7); color: #fff; }
+    .playback-hint { font-size: 11px; color: #888; margin: 8px 0 0; line-height: 1.6; }
   </style>
 </head>
 <body class="light-mode">
@@ -1655,6 +1665,27 @@
       </div>
     </div>
 
+    <div class="input-group">
+      <label>再生速度</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>動画の長さ</span>
+          <select id="playbackLengthMode">
+            <option value="auto" selected>自動（1期間 1.2秒）</option>
+            <option value="15">15秒</option>
+            <option value="30">30秒</option>
+            <option value="60">60秒</option>
+            <option value="custom">秒数を指定</option>
+          </select>
+        </div>
+        <div class="setting-field" id="playbackCustomSecondsWrap" style="display:none;">
+          <span>秒数</span>
+          <input type="number" id="playbackCustomSeconds" value="45" min="3" max="3600" step="1">
+        </div>
+      </div>
+      <p class="playback-hint" id="playbackLengthHint"></p>
+    </div>
+
     <button id="startBtn" disabled><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>再生プレビュー</span></button>
     <p style="font-size:11px; margin:0; color:#888; text-align:center;">Spaceキー: 再生 / 一時停止 / 再開</p>
     </div>
@@ -1726,6 +1757,12 @@
     <div class="timeline-bar">
       <button id="timelinePlayBtn" disabled aria-label="再生"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
       <svg id="timelineSvg"></svg>
+      <div class="playback-speed" id="playbackSpeed" role="group" aria-label="再生速度（倍速）">
+        <button type="button" data-speed="1" class="active">1x</button>
+        <button type="button" data-speed="2">2x</button>
+        <button type="button" data-speed="4">4x</button>
+        <button type="button" data-speed="8">8x</button>
+      </div>
     </div>
   </div>
 
@@ -1841,6 +1878,7 @@
     const MAX_COLUMN_WIDTH = 420;
     const BLANK_COLUMN_PREFIX = '__blank_column_';
     const PROJECT_SETTING_IDS = [
+      'playbackLengthMode', 'playbackCustomSeconds',
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
@@ -4277,6 +4315,7 @@
     }
 
     function renderTimeline() {
+      updatePlaybackLengthUI();
       const svg = d3.select('#timelineSvg');
       const node = svg.node();
       if (!node) return;
@@ -4813,6 +4852,102 @@
       return true;
     }
 
+    // --- 再生速度 ---
+    // 「動画の長さ」で全期間を何秒で流すかを決め、倍速ボタンはその上に掛ける。
+    // ※ var にしているのは、初期化中に renderTimeline 経由で参照されても TDZ にならないようにするため
+    var DEFAULT_MS_PER_PERIOD = 1200;
+    var playbackSpeedMultiplier = 1;
+
+    function getMsPerPeriod() {
+      const periods = Math.max(1, years.length - 1);
+      const mode = document.getElementById('playbackLengthMode')?.value || 'auto';
+      if (mode === 'auto') return DEFAULT_MS_PER_PERIOD;
+      const seconds = mode === 'custom'
+        ? parseFloat(document.getElementById('playbackCustomSeconds')?.value)
+        : parseFloat(mode);
+      if (!Number.isFinite(seconds) || seconds <= 0) return DEFAULT_MS_PER_PERIOD;
+      return (seconds * 1000) / periods;
+    }
+
+    function formatPlaybackDuration(ms) {
+      const totalSeconds = Math.max(0, Math.round(ms / 1000));
+      if (totalSeconds < 60) return `${totalSeconds}秒`;
+      return `${Math.floor(totalSeconds / 60)}分${String(totalSeconds % 60).padStart(2, '0')}秒`;
+    }
+
+    function updatePlaybackLengthUI() {
+      const mode = document.getElementById('playbackLengthMode')?.value || 'auto';
+      const wrap = document.getElementById('playbackCustomSecondsWrap');
+      if (wrap) wrap.style.display = mode === 'custom' ? '' : 'none';
+      const hint = document.getElementById('playbackLengthHint');
+      if (!hint) return;
+      if (!years.length) {
+        hint.textContent = 'データを読み込むと、再生時間の目安が表示されます。';
+        return;
+      }
+      const periods = Math.max(1, years.length - 1);
+      const msPerPeriod = getMsPerPeriod();
+      const totalMs = msPerPeriod * periods;
+      const perText = msPerPeriod < 100 ? (msPerPeriod / 1000).toFixed(3) : (msPerPeriod / 1000).toFixed(2);
+      let text = `${years.length}期間 → 約${formatPlaybackDuration(totalMs)}（1期間 ${perText}秒）`;
+      if (playbackSpeedMultiplier !== 1) {
+        text += ` ／ ${playbackSpeedMultiplier}倍速では約${formatPlaybackDuration(totalMs / playbackSpeedMultiplier)}`;
+      }
+      hint.textContent = text;
+    }
+
+    // 全期間を1本の時間軸として進める。
+    // 1期間ずつ区切って動かすと1期間が1フレーム(約17ms)より短くできないため、
+    // 経過時間から小数の位置を直接求める。速度・長さの変更は再生中でも即座に反映される。
+    async function animateTimeline(fromIndex, runId) {
+      const lastIndex = years.length - 1;
+      let pos = fromIndex;
+      let lastTimestamp = performance.now();
+
+      while (pos < lastIndex) {
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') {
+          const ok = await waitWhilePaused(runId);
+          if (!ok) return false;
+          lastTimestamp = performance.now();
+          continue;
+        }
+
+        await new Promise(requestAnimationFrame);
+        if (runId !== playback.runId) return false;
+        if (playback.state === 'paused') continue;
+
+        const now = performance.now();
+        // タブ復帰などで間が空いたときに一気に飛ばないよう、1フレームの進みに上限を設ける
+        const dt = Math.min(now - lastTimestamp, 250);
+        lastTimestamp = now;
+        pos = Math.min(lastIndex, pos + (dt * playbackSpeedMultiplier) / getMsPerPeriod());
+
+        const floorIdx = Math.floor(pos);
+        playback.yearIndex = pos;
+        renderPreviewFrame(floorIdx, {
+          instant: true,
+          reset: false,
+          nextYearIndex: Math.min(floorIdx + 1, lastIndex),
+          transitionProgress: pos - floorIdx,
+          timelinePosition: pos,
+          rowMotionDuration: 340
+        });
+      }
+
+      playback.yearIndex = lastIndex;
+      renderPreviewFrame(lastIndex, {
+        instant: true,
+        reset: false,
+        nextYearIndex: null,
+        transitionProgress: 1,
+        timelinePosition: lastIndex,
+        yearLabelOverride: getYearLabel(years[lastIndex]),
+        rowMotionDuration: 340
+      });
+      return true;
+    }
+
     async function runChartRace(fromIndex = 0) {
       if (!years.length) return;
 
@@ -4842,12 +4977,8 @@
         rowMotionDuration: 0
       });
 
-      for (let i = fromIndex; i < years.length - 1; i++) {
-        if (runId !== playback.runId) return;
-        playback.yearIndex = i;
-        const ok = await animateYearTransition(i, i + 1, runId);
-        if (!ok) return;
-      }
+      const ok = await animateTimeline(fromIndex, runId);
+      if (!ok) return;
 
       if (runId === playback.runId && years.length) {
         playback.yearIndex = years.length - 1;
@@ -4884,6 +5015,17 @@
 
     document.getElementById('startBtn').addEventListener('click', togglePlayback);
     document.getElementById('timelinePlayBtn').addEventListener('click', togglePlayback);
+    document.querySelectorAll('#playbackSpeed button').forEach(button => {
+      button.addEventListener('click', () => {
+        playbackSpeedMultiplier = parseFloat(button.dataset.speed) || 1;
+        document.querySelectorAll('#playbackSpeed button').forEach(b => b.classList.toggle('active', b === button));
+        button.blur(); // フォーカスが残ると Space キーで押されてしまうため
+        updatePlaybackLengthUI();
+      });
+    });
+    document.getElementById('playbackLengthMode').addEventListener('change', updatePlaybackLengthUI);
+    document.getElementById('playbackCustomSeconds').addEventListener('input', updatePlaybackLengthUI);
+    updatePlaybackLengthUI();
     const timelineSvg = document.getElementById('timelineSvg');
     timelineSvg.addEventListener('pointerdown', e => {
       e.preventDefault();
