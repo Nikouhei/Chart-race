@@ -2516,8 +2516,10 @@
       renderTimeline();
       renderPreviewFrame(0, { instant: true, reset: true });
       updateProjectActionButtons();
-      updateSelectedFileName({ name: project.name || '保存済みデータ' });
-      document.getElementById('status').innerText = `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
+      updateSelectedFileName({ name: project.name === '__active__' ? '引き継いだデータ' : (project.name || '保存済みデータ') });
+      document.getElementById('status').innerText = project.name === '__active__'
+        ? '✅ 編集中のデータを引き継ぎました'
+        : `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
     }
 
     function exportCurrentProject() {
@@ -4008,6 +4010,21 @@
       return { rows, columns };
     }
 
+    // d3.csvParse は内部で new Function() を使うため、CSP（unsafe-eval 無し）で弾かれる。
+    // eval を使わない d3.csvParseRows で行配列にし、オブジェクト化は自前で行う。
+    // 戻り値の形（行オブジェクト配列 + .columns、欠損セルは ''）は d3.csvParse と同じ。
+    function csvParseNoEval(text) {
+      const table = d3.csvParseRows(text);
+      const columns = (table[0] || []).slice();
+      const rows = table.slice(1).map(row => {
+        const obj = {};
+        columns.forEach((col, i) => { obj[col] = row[i] || ''; });
+        return obj;
+      });
+      rows.columns = columns;
+      return rows;
+    }
+
     function readDataFile(file, options = {}) {
       updateSelectedFileName(file);
       const ext = file.name.split('.').pop().toLowerCase();
@@ -4021,7 +4038,7 @@
             const { rows, columns } = parseExcel(event.target.result);
             applyLoadedData(rows, columns, options);
           } else {
-            const parsed = d3.csvParse(event.target.result);
+            const parsed = csvParseNoEval(event.target.result);
             applyLoadedData(parsed, parsed.columns, options);
           }
         } catch (err) {
@@ -4306,10 +4323,12 @@
       const anyValue = valueMode !== 'none';
       const useLineColor = document.getElementById('labelUseLineColor')?.checked !== false;
       const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+      // 隠しチェックは「どこかに出しているか」を表す。バーチャートレースへ切り替えたとき、
+      // 同じIDの「項目名を表示／値を表示」として引き継がれるため（線の先端だけの意味にすると、凡例表示でバーのラベルが消える）
       const nameCb = document.getElementById('showNameLabels');
-      if (nameCb) nameCb.checked = showTipName;
+      if (nameCb) nameCb.checked = mode !== 'none';
       const valueCb = document.getElementById('showValueLabels');
-      if (valueCb) valueCb.checked = showTipValue;
+      if (valueCb) valueCb.checked = valueMode !== 'none';
       const endCb = document.getElementById('showEndLabel');
       if (endCb) endCb.checked = showTipName || showTipValue;
       show('endLabelFontRow', showTipName || showTipValue);
@@ -4333,7 +4352,10 @@
       let mode = has('seriesLabelMode') ? settings.seriesLabelMode : null;
       if (!mode && has('showEndLabel')) mode = settings.showEndLabel ? 'label' : 'none';
       if (!mode) mode = modeEl.value || 'label';
-      if (has('showNameLabels')) {
+      // 「値の表示」がある保存データは新しい形式なので、旧形式の読み替えはしない
+      if (has('valueLabelMode')) {
+        // 何もしない
+      } else if (has('showNameLabels')) {
         const namesOn = Boolean(settings.showNameLabels);
         if (mode === 'label' && !namesOn) {
           // 旧: 末端ラベルに値だけ → 新: 項目名は表示しない（値はそのまま）
@@ -4452,6 +4474,54 @@
       }
     }
 
+    // 線の先端ラベルが右余白（budget px）に収まるよう、名前の末尾を「…」で縮める
+    function fitEndLabelName(name, valueText, fontSize, budget, valueGap) {
+      try {
+        if (!fitEndLabelName.ctx) fitEndLabelName.ctx = document.createElement('canvas').getContext('2d');
+        const ctx = fitEndLabelName.ctx;
+        const family = getLayoutAppearanceSettings().font;
+        let valueWidth = 0;
+        if (valueText) {
+          ctx.font = `700 ${fontSize}px ${family}`;
+          valueWidth = ctx.measureText(valueText).width + (Number.isFinite(valueGap) ? valueGap : 4);
+        }
+        ctx.font = `600 ${fontSize}px ${family}`;
+        const room = budget - valueWidth;
+        if (ctx.measureText(name).width <= room) return name;
+        // 「〇〇（TSM）」のような末尾の括弧は見分けに使うので残し、その前を縮める
+        const tagMatch = name.match(/^(.+?)\s*([（(][^（）()]+[）)])$/);
+        const base = tagMatch ? tagMatch[1] : name;
+        const tag = tagMatch ? tagMatch[2] : '';
+        const chars = [...base];
+        while (chars.length > 1 && ctx.measureText(chars.join('') + '…' + tag).width > room) chars.pop();
+        return chars.join('').trimEnd() + '…' + tag;
+      } catch (err) {
+        return name;
+      }
+    }
+
+    // 横軸の線から日付ラベルまでの間隔（px）
+    const X_LABEL_GAP = 6;
+
+    // 傾けた日付ラベル（rotate(-35)・右端揃え）の、軸の線から下／左へのはみ出し量（px）
+    function measureXLabelExtent(fontSize) {
+      try {
+        if (!measureXLabelExtent.ctx) measureXLabelExtent.ctx = document.createElement('canvas').getContext('2d');
+        const ctx = measureXLabelExtent.ctx;
+        ctx.font = `${fontSize}px ${getLayoutAppearanceSettings().font}`;
+        let widest = 0;
+        years.forEach(year => { widest = Math.max(widest, ctx.measureText(getYearLabel(year)).width); });
+        const angle = 35 * Math.PI / 180;
+        return {
+          // 目盛りとの間隔 ＋ 文字列の傾き分 ＋ 文字の高さの傾き分
+          down: X_LABEL_GAP + widest * Math.sin(angle) + fontSize * Math.cos(angle),
+          left: widest * Math.cos(angle)
+        };
+      } catch (err) {
+        return { down: 0, left: 0 };
+      }
+    }
+
     function recomputeChartMetrics() {
       if (!years.length) {
         chartMetrics = null;
@@ -4478,14 +4548,21 @@
         : maxValue + span * 0.10;
       const globalDomainMin = axisSettings.scaleMode === 'fixed' && axisSettings.fixedMax
         ? Math.min(0, minValue)
-        : minValue - span * 0.10;
+        // 値がすべて0以上なら下端は0で止める（0より下に空白ができて、横軸の日付が遠くなるのを防ぐ）
+        : (minValue >= 0 ? Math.max(0, minValue - span * 0.10) : minValue - span * 0.10);
 
       const maxNameLength = d3.max(series, s => s.name.length) || 4;
       const maxValueStringLength = formatNumberValue(globalDomainMax).length;
       // 右: 線末端ラベル「国旗 — 名前 値」
       // 文字数×係数の見積もりだと日本語（全角）の名前で幅が足りず見切れるので、実際の文字幅を測る
-      const endLabelSpace = measureEndLabelSpace(series, labelSettings, globalDomainMin, globalDomainMax)
+      let endLabelSpace = measureEndLabelSpace(series, labelSettings, globalDomainMin, globalDomainMax)
         ?? Math.max(70, (maxNameLength + maxValueStringLength + 2) * labelSettings.fontSize * 0.62 + 64);
+      // 名前が長いと右余白がグラフを押しつぶして描けなくなるので、余白は画面幅の一定割合までに抑え、
+      // 入り切らない名前は線の先端でだけ「…」で縮める（凡例や表の名前はそのまま）
+      const END_LABEL_MAX_RATIO = 0.42;
+      const endLabelCap = Math.max(70, width * END_LABEL_MAX_RATIO);
+      const endLabelClamped = endLabelSpace > endLabelCap;
+      if (endLabelClamped) endLabelSpace = endLabelCap;
       // 左: Y軸の目盛り数値
       const yAxisLabelSpace = Math.max(36, maxValueStringLength * axisSettings.textSize * 0.62 + 22);
 
@@ -4498,22 +4575,26 @@
         : null;
       const hasEndLabel = labelSettings.showNames || labelSettings.showValues;
       const baseTop = height * 0.10;
-      const baseBottom = Math.max(height * 0.08, axisSettings.textSize * 2.6 + 18);
+      // X軸の日付ラベルは -35° に傾けて右端揃えで描くので、最も長いラベルの実寸から
+      // 下（傾いた分の高さ）と左（1つ目のラベルが左にはみ出す分）の余白を確保する
+      const xLabelExtent = measureXLabelExtent(axisSettings.textSize);
       const legendAtBottom = legendLayout && labelSettings.legendPosition === 'bottom';
-      // 下に置く凡例は、右下の出典と重ならないようその高さぶん上に置く
+      // 右下の出典（下から3%の位置）と、日付ラベル・下の凡例が重ならないよう、その高さぶんを空ける
+      const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
+      const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
+      const sourceFont = resolveCanvasShortSide() * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
+      const sourcePad = sourceText ? height * 0.03 + sourceFont * 1.6 : 0;
+      const baseBottom = Math.max(axisSettings.textSize * 2 + 12, xLabelExtent.down + 14) + (legendAtBottom ? 0 : sourcePad);
       let bottomPad = 0;
       if (legendAtBottom) {
-        const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
-        const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
-        const sourceFont = resolveCanvasShortSide() * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
-        bottomPad = height * 0.03 + (sourceText ? sourceFont * 1.6 : 0);
+        bottomPad = Math.max(height * 0.03, sourcePad);
         legendLayout.top = height - bottomPad - legendLayout.height;
       }
       const margin = {
         top: legendLayout && !legendAtBottom ? baseTop + legendLayout.height + legendLayout.gap : baseTop,
         right: hasEndLabel ? endLabelSpace : plainRightPad,
         bottom: legendAtBottom ? baseBottom + legendLayout.gap + legendLayout.height + bottomPad : baseBottom,
-        left: yAxisLabelSpace
+        left: Math.max(yAxisLabelSpace, xLabelExtent.left + 8)
       };
 
       const innerWidth = width - margin.left - margin.right;
@@ -4529,7 +4610,8 @@
         innerHeight,
         globalDomainMax,
         globalDomainMin,
-        legendLayout
+        legendLayout,
+        endLabelClamped
       };
       return chartMetrics;
     }
@@ -4896,7 +4978,7 @@
             span = minSpan;
           }
           domainMax = mx + span * 0.10;
-          domainMin = mn - span * 0.10;
+          domainMin = mn >= 0 ? Math.max(0, mn - span * 0.10) : mn - span * 0.10;
         }
       }
       const yScale = d3.scaleLinear().domain([domainMin, domainMax]).range([innerHeight, 0]).nice();
@@ -4930,19 +5012,19 @@
         xAxisGroup.selectAll("text").data(keep)
           .enter().append("text")
           .attr("x", i => xPx(i))
-          .attr("y", 12)
+          .attr("y", X_LABEL_GAP)
           .style("font-size", axisSettings.textSize + "px")
           .style("fill", axisSettings.textColor)
           .style("text-anchor", "end")
           .attr("dx", "-0.4em")
-          .attr("transform", i => `rotate(-35,${xPx(i)},12)`)
+          .attr("transform", i => `rotate(-35,${xPx(i)},${X_LABEL_GAP})`)
           .text(i => getYearLabel(years[i]));
       } else {
         // 全期間固定: スケールは全年で保持しつつ、表示ラベルを最大数で間引く
         const xLabels = years.map(getYearLabel);
         const xScale = d3.scalePoint().domain(xLabels).range([0, innerWidth]).padding(0);
         const keepIdx = thinTickIndices(d3.range(0, years.length), lineSettings.xLabelMax);
-        const xAxis = d3.axisBottom(xScale).tickSize(0).tickPadding(12)
+        const xAxis = d3.axisBottom(xScale).tickSize(0).tickPadding(X_LABEL_GAP)
           .tickValues(keepIdx.map(i => xLabels[i]));
         xAxisGroup.call(xAxis);
         xAxisGroup.select(".domain").remove();
@@ -5046,9 +5128,13 @@
           .style("font-weight", "600")
           .style("fill", color);
         if (labelSettings.showNames) {
+          const nameText = metrics.endLabelClamped
+            ? fitEndLabelName(s.name, labelSettings.showValues ? formatNumberValue(tip.value) : '',
+                effectiveLabelFontSize, margin.right - textX - 16, labelSettings.valueSpace)
+            : s.name;
           label.append("tspan")
             .style("fill", labelSettings.useLineColor ? color : labelSettings.nameColor)
-            .text(s.name);
+            .text(nameText);
         }
         if (labelSettings.showValues) {
           const valueSpan = label.append("tspan")

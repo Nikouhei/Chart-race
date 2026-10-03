@@ -16,11 +16,52 @@
   // 編集中プロジェクトの一時引き継ぎ枠。保存済み一覧(chartToolSavedProjects)とは別管理。
   var ACTIVE_KEY = 'chartToolActiveProject';
 
+  // ツールごとに持っている設定項目が違う（例: 凡例・値の表示は線グラフレースだけ）。
+  // 切替先のツールは自分の知らない設定を保存し直さないため、そのままだと
+  // 「線グラフ → バー → 線グラフ」と戻ったときに線グラフ専用の設定が消える。
+  // 引き継いだ設定をタブ単位で覚えておき、次の切替時に欠けている項目だけ補う。
+  var CARRY_KEY = 'chartToolCarrySettings';
+
+  function readCarrySettings() {
+    try {
+      var raw = sessionStorage.getItem(CARRY_KEY);
+      var parsed = raw ? JSON.parse(raw) : null;
+      return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function rememberCarrySettings(settings) {
+    if (!settings || typeof settings !== 'object') return;
+    try {
+      var merged = readCarrySettings();
+      Object.keys(settings).forEach(function (key) { merged[key] = settings[key]; });
+      sessionStorage.setItem(CARRY_KEY, JSON.stringify(merged));
+    } catch (e) {}
+  }
+
+  // 自分の設定を優先し、自分が持っていない項目だけ前回引き継いだ値で補う
+  function withCarriedSettings(payload) {
+    if (!payload || typeof payload !== 'object') return payload;
+    var carry = readCarrySettings();
+    var own = (payload.settings && typeof payload.settings === 'object') ? payload.settings : {};
+    var settings = {};
+    Object.keys(carry).forEach(function (key) { settings[key] = carry[key]; });
+    Object.keys(own).forEach(function (key) { settings[key] = own[key]; });
+    var out = {};
+    Object.keys(payload).forEach(function (key) { out[key] = payload[key]; });
+    out.settings = settings;
+    return out;
+  }
+
   // 現在の編集内容を保存して対象ツールへ遷移する。
   // payload は各アプリの makeProjectPayload() の戻り値（data:{columns,rows} 共通スキーマ）。
   window.saveActiveProjectAndGo = function (toolId, payload) {
     var target = window.CHART_TOOLS.filter(function (t) { return t.id === toolId; })[0];
     if (!target) return;
+    payload = withCarriedSettings(payload);
+    if (payload) rememberCarrySettings(payload.settings);
     try {
       if (payload) localStorage.setItem(ACTIVE_KEY, JSON.stringify(payload));
       else localStorage.removeItem(ACTIVE_KEY);
@@ -41,7 +82,9 @@
     }
     if (!raw) return null;
     try {
-      return JSON.parse(raw);
+      var payload = JSON.parse(raw);
+      if (payload) rememberCarrySettings(payload.settings);
+      return payload;
     } catch (e) {
       return null;
     }

@@ -1894,7 +1894,8 @@
     const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2',
       categoryLegendPosition: 'top-right', categoryLegendLayout: 'horizontal', categoryLegendColor: '#222222', categoryLegendSwatch: 'square', categoryLegendBg: 'none' };
     const COLOR_PALETTES = {
-      standard: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'],
+      // 白背景で見分けやすい濃いめの10色。隣り合う色どうしが似ないよう並び順も調整済み（線グラフレースと同じ）
+      standard: ['#2563EB', '#EA580C', '#16A34A', '#9333EA', '#DC2626', '#0891B2', '#DB2777', '#A16207', '#4F46E5', '#0D9488'],
       light: ['#8EC5FF', '#FFD166', '#B8E986', '#FFB3BA', '#CDB4DB', '#A0E7E5', '#FDD6A2', '#BDE0FE', '#D8F3DC', '#F1F5F9'],
       dark: ['#1F4E79', '#6B3E26', '#7A1E26', '#245953', '#2F5D50', '#6C584C', '#4A3F73', '#633974', '#334155', '#111827'],
       vivid: ['#2563EB', '#EF4444', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1'],
@@ -2193,10 +2194,16 @@
       return COLOR_PALETTES[paletteKey] || COLOR_PALETTES.standard;
     }
 
-    function getPaletteColor(name) {
+    // パターンの色は表の行順に割り当てる（1行目=1色目…）。
+    // 名前のハッシュで選ぶと、別の項目に同じ色が当たることがあったため（線グラフレースと同じ）。
+    // 行番号が分からない呼び出し（名前だけ）は従来どおりハッシュで選ぶ。
+    function getPaletteColor(nameOrItem) {
       const colors = getSelectedPaletteColors();
-      const index = Math.abs(hashString(name)) % colors.length;
-      return colors[index];
+      const key = typeof nameOrItem === 'object' && nameOrItem ? String(nameOrItem.key || '') : '';
+      const rowMatch = key.match(/^(\d+):/);
+      if (rowMatch) return colors[(Number(rowMatch[1]) - 1) % colors.length];
+      const name = typeof nameOrItem === 'object' && nameOrItem ? nameOrItem.name : nameOrItem;
+      return colors[Math.abs(hashString(String(name ?? ''))) % colors.length];
     }
 
     function getBarColorForMode(item, mode) {
@@ -2204,12 +2211,12 @@
         return document.getElementById('singleBarColor')?.value || '#4f8cff';
       }
       if (mode === 'custom') {
-        return customBarColors[item.key] || getPaletteColor(item.name);
+        return customBarColors[item.key] || getPaletteColor(item);
       }
       if (mode === 'category') {
-        return getCategoryColor(item.category) || getPaletteColor(item.name);
+        return getCategoryColor(item.category) || getPaletteColor(item);
       }
-      return getPaletteColor(item.name);
+      return getPaletteColor(item);
     }
 
     function getBarColor(item) {
@@ -2240,7 +2247,7 @@
         return;
       }
       list.innerHTML = items.map(item => {
-        const color = customBarColors[item.key] || getPaletteColor(item.name);
+        const color = customBarColors[item.key] || getPaletteColor(item);
         return `
           <label class="individual-color-row">
             <span title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
@@ -2479,8 +2486,10 @@
       renderTimeline();
       renderPreviewFrame(0, { instant: true, reset: true });
       updateProjectActionButtons();
-      updateSelectedFileName({ name: project.name || '保存済みデータ' });
-      document.getElementById('status').innerText = `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
+      updateSelectedFileName({ name: project.name === '__active__' ? '引き継いだデータ' : (project.name || '保存済みデータ') });
+      document.getElementById('status').innerText = project.name === '__active__'
+        ? '✅ 編集中のデータを引き継ぎました'
+        : `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
     }
 
     function exportCurrentProject() {
@@ -4213,6 +4222,45 @@
       return item.name;
     }
 
+    function barNameCtx(fontSize) {
+      if (!barNameCtx.ctx) barNameCtx.ctx = document.createElement('canvas').getContext('2d');
+      const ctx = barNameCtx.ctx;
+      if (ctx) ctx.font = `600 ${fontSize}px ${getLayoutAppearanceSettings().font}`;
+      return ctx;
+    }
+
+    // 全期間に出てくる項目名のうち、最も幅の広いもの（px）
+    function measureBarNameWidth(yearList, layout) {
+      try {
+        const ctx = barNameCtx(layout.labelFontSize);
+        if (!ctx) return null;
+        const names = new Set();
+        yearList.forEach(year => getYearData(year, layout.topN, layout).forEach(d => names.add(d.name)));
+        let widest = 0;
+        names.forEach(name => { widest = Math.max(widest, ctx.measureText(name).width); });
+        return Math.ceil(widest);
+      } catch (err) {
+        return null;
+      }
+    }
+
+    // 項目名が maxWidth（px）に収まらなければ末尾を「…」で縮める。「〇〇（TSM）」の括弧は見分けに使うので残す
+    function fitBarName(name, fontSize, maxWidth) {
+      if (!maxWidth) return name;
+      try {
+        const ctx = barNameCtx(fontSize);
+        if (!ctx || ctx.measureText(name).width <= maxWidth) return name;
+        const tagMatch = name.match(/^(.+?)\s*([（(][^（）()]+[）)])$/);
+        const base = tagMatch ? tagMatch[1] : name;
+        const tag = tagMatch ? tagMatch[2] : '';
+        const chars = [...base];
+        while (chars.length > 1 && ctx.measureText(chars.join('') + '…' + tag).width > maxWidth) chars.pop();
+        return chars.join('').trimEnd() + '…' + tag;
+      } catch (err) {
+        return name;
+      }
+    }
+
     function recomputeChartMetrics() {
       if (!years.length) {
         chartMetrics = null;
@@ -4243,7 +4291,20 @@
       const shouldShowNameLabels = layout.chartStyle === 'ranking' || labelSettings.showNames;
       const shouldShowValueLabels = layout.chartStyle !== 'ranking' && labelSettings.showValues;
       const shouldShowRankingItemAfterBar = layout.chartStyle === 'ranking' && labelSettings.showRankingItemAfterBar;
-      const nameLabelSpace = shouldShowNameLabels ? globalMaxNameLength * layout.labelFontSize * 1.05 + 12 : 22;
+      // 項目名の幅は実際のフォントで測る（文字数×係数だと英字の長い名前で幅を取りすぎ、描けなくなる）。
+      // それでも画面幅の一定割合を超える分は、描画時に名前の末尾を「…」で縮めて収める
+      const NAME_LABEL_MAX_RATIO = 0.38;
+      let nameLabelSpace = shouldShowNameLabels ? globalMaxNameLength * layout.labelFontSize * 1.05 + 12 : 22;
+      let nameLabelMaxTextWidth = null;
+      if (shouldShowNameLabels && layout.chartStyle !== 'ranking') {
+        const measured = measureBarNameWidth(years, layout);
+        if (measured != null) nameLabelSpace = measured + 12;
+        const cap = Math.max(60, layout.width * NAME_LABEL_MAX_RATIO);
+        if (nameLabelSpace > cap) {
+          nameLabelSpace = cap;
+          nameLabelMaxTextWidth = cap - 12;
+        }
+      }
       const defaultValueSpace = shouldShowValueLabels
         ? (maxValueStringLength * layout.labelFontSize * 0.62) + Math.max(12, labelSettings.valueSpace + 9)
         : 18;
@@ -4288,7 +4349,8 @@
         globalDomainMax,
         zeroAxisPx,
         barAreaRight,
-        nameLabelX: zeroAxisPx - 15
+        nameLabelX: zeroAxisPx - 15,
+        nameLabelMaxTextWidth
       };
       return chartMetrics;
     }
@@ -4709,7 +4771,9 @@
         .style("font-size", effectiveLabelFontSize + "px")
         .style("fill", labelSettings.nameColor)
         .style("display", shouldShowNameLabels ? "block" : "none")
-        .text((d, index) => layout.chartStyle === 'ranking' ? `${d.rank ?? index + 1}位` : d.name);
+        .text((d, index) => layout.chartStyle === 'ranking'
+          ? `${d.rank ?? index + 1}位`
+          : fitBarName(d.name, effectiveLabelFontSize, frameMetrics.nameLabelMaxTextWidth));
       transition(rowsUpdate.select(".name-label")).attr("x", nameLabelX);
 
       const rankingItemLabels = rowsUpdate.select(".ranking-item-label")
