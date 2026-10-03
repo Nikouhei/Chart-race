@@ -8,11 +8,13 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    // 接続しているホスト名が localhost または 127.0.0.1 でない場合のみ計測を開始する
-    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
+    if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
       gtag('config', 'G-NS736Y3MY9');
     }
   </script>
+  <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
+  <script src="../../shared/analytics.js?v=20261003" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

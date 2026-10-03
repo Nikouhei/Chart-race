@@ -2,6 +2,20 @@
 <html lang="ja">
 
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
+    if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
+      gtag('config', 'G-NS736Y3MY9');
+    }
+  </script>
+  <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
+  <script src="../../shared/analytics.js?v=20261003" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>【無料】動くトーナメント表の作り方｜トーナメント表アニメーターの使い方｜GraphRace Studio</title>
