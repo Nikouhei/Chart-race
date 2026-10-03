@@ -13,3 +13,7 @@ First Coding/
 スクリーンショット*
 generate-sitemap.js
 node_modules/
+# 計測データ取得スクリプトとその出力（サイトには載せない）
+analytics/
+# 株価レース（未公開の検証用）。誤ってデプロイしないよう除外
+stock-race/

@@ -10,3 +10,8 @@
 # ビルド成果物・依存パッケージ
 node_modules/
 dist/
+
+# GA4 / Search Console の取得データと鍵（鍵は ~/.config/graphrace-studio/ に置く運用）
+analytics/data/
+analytics/config.local.json
+*service-account*.json

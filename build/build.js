@@ -24,7 +24,7 @@ const acorn = require("acorn");
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "dist");
 
-const IGNORE_DIRS = new Set([".git", ".agents", ".claude", "First Coding", "node_modules", "dist", "build"]);
+const IGNORE_DIRS = new Set([".git", ".agents", ".claude", "First Coding", "node_modules", "dist", "build", "analytics"]);
 const IGNORE_FILE_PATTERNS = [
   /^\.DS_Store$/,
   /\.bak$/,
