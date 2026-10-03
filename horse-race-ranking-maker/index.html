@@ -36,7 +36,7 @@
   <meta name="twitter:description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料作成。軽快な2Dと3DCGのリアル競馬風を切り替え可能。インストール不要、ブラウザだけで完結。">
   <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
   <!-- favicon（アプリと統一） -->
-  <link rel="icon" href="../Logo/GraphRace_Studio_Logo.png" type="image/png">
+  <link rel="icon" href="assets/GraphRace_Studio_Logo_48.png" type="image/png">
 
   <!-- Google AdSense -->
   <meta name="google-adsense-account" content="ca-pub-7525273601757171">
@@ -105,6 +105,31 @@
   </script>
 
   <style>
+    /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
+    :root {
+      --font-sans: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      --app-bg: #FFFFFF;
+      --panel-bg: #FFFFFF;
+      --panel-surface: #F7F8FA;
+      --panel-surface-2: #F2F3F5;
+      --panel-border: #ECEDEF;
+      --panel-border-soft: #F1F2F4;
+      --text-strong: #1A1B1E;
+      --text-main: #3C4149;
+      --text-muted: #8A8F98;
+      --input-bg: #FFFFFF;
+      --accent: #6E62F0;
+      --accent-strong: #5B4FE0;
+      --accent-soft: rgba(110,98,240,0.10);
+      --btn-bg: #E7E9ED;
+      --btn-bg-hover: #DCDFE4;
+      --btn-border: #D7DAE0;
+      --success: #3FB37F;
+      --danger: #E5484D;
+      --shadow-deep: 0 1px 2px rgba(16,18,22,0.05);
+      --shadow-soft: 0 1px 2px rgba(16,18,22,0.05);
+      --shadow-pop: 0 8px 28px rgba(16,18,22,0.10);
+    }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -861,8 +886,8 @@
     <div class="site-header-inner">
       <a href="../" class="brand">
         <picture>
-          <source srcset="../Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
-          <img src="../Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
+          <source srcset="assets/GraphRace_Studio_Logo_48.webp" type="image/webp">
+          <img src="assets/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
         </picture>
         GraphRace Studio
       </a>
@@ -1135,7 +1160,7 @@
             <p>録画ボタンひとつでレース開始から結果掲示板までをWebM動画として自動保存。編集ソフトなしで投稿用素材が完成します。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;"><img src="../shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" style="line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;"><img src="assets/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;" onerror="var p=this.parentElement;if(!p)return;p.style.fontSize='48px';p.textContent='⚡';"></div>
             <h3>インストール不要</h3>
             <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐにレース動画を作り始められます。</p>
           </div>
