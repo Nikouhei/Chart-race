@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "GraphRace Studio デプロイ用ビルド（Terserミニファイ＋初期化系関数の部分難読化）",
   "scripts": {
-    "build": "node build/build.js"
+    "build": "node build/build.js",
+    "indexnow": "node analytics/submit-indexnow.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.0",

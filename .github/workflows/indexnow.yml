@@ -1,0 +1,28 @@
+name: IndexNow Auto Submit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**.html"
+      - "sitemap.xml"
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # デプロイ（Cloudflare Pages / Vercelなど）の反映を少し待つ
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Submit to IndexNow
+        run: node analytics/submit-indexnow.mjs
