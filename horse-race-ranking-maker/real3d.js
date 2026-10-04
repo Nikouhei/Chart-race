@@ -949,7 +949,8 @@ class GLBHorse {
     this.nameSprite=makeNameSprite(name, coat, gateNo);
     this.nameSprite.position.set(0,nameY,0);
     this.group.add(this.nameSprite);
-    if(index%3>0) this.group.add(makeLeaderLine(nameY));
+    this.leaderLine = index%3>0 ? makeLeaderLine(nameY) : null;
+    if(this.leaderLine) this.group.add(this.leaderLine);
 
     /* 脚のピッチ[ストライド/秒]。走行速度とは連動させない。
        元アセットのギャロップは1周期 0.417秒 = 毎秒2.4ストライド。
@@ -1050,7 +1051,8 @@ class BlockHorse {
     this.nameSprite = makeNameSprite(name, coat, gateNo);
     this.nameSprite.position.set(0,nameY,0);
     this.group.add(this.nameSprite);
-    if(index%3>0) this.group.add(makeLeaderLine(nameY));
+    this.leaderLine = index%3>0 ? makeLeaderLine(nameY) : null;
+    if(this.leaderLine) this.group.add(this.leaderLine);
 
     this.strideLen = 6.5; // 1完歩の距離[m] : 足滑り防止の基準
     this.phase = Math.random()*0; // 決定論のため0固定。位相差はindexで付与
@@ -3006,6 +3008,112 @@ function showSplitLine(H){
   splitLine.material.opacity=1;
   splitLine.visible=true;
 }
+/* ---------- 分割画面 下段の名札 (2D) ----------
+   下段は横幅9mのアップなので、3D名札 (地上3.2〜5.3m・幅4.2m) は
+   画角の上に外れて映らず、仮に下げても画面の半分を覆ってしまう。
+   そこで下段を描く間だけ3D名札を隠し、各馬の頭の位置を下段カメラで
+   投影して、画面座標に固定サイズの名札を描く。上段は3D名札のまま。
+   オーバーレイに置くので書き出し動画にも乗る。
+   位置は毎フレームのカメラと馬の姿勢だけから決まる (決定論) */
+let stPlane=null, stCanvas=null, stTex=null;
+const ST_CW=1600;                     // キャンバス幅[px] (高さは下段の縦横比から)
+const ST_HEAD=new THREE.Vector3(1.0, 2.35, 0);   // 馬ローカルの頭上の点 (+X が進行方向)
+const ST_ROWS=3;                      // 横に重なったときに逃がす段数
+function setNameSpritesVisible(on){
+  for(const h of horses){
+    if(h.nameSprite) h.nameSprite.visible=on;
+    if(h.leaderLine) h.leaderLine.visible=on;
+  }
+}
+function drawSplitTags(camB, paneA, refPt){
+  const CW=ST_CW, CH=Math.max(1, Math.round(CW/paneA));
+  if(!stCanvas || stCanvas.height!==CH){
+    if(!stCanvas) stCanvas=document.createElement("canvas");
+    stCanvas.width=CW; stCanvas.height=CH;
+    if(stTex) stTex.dispose();
+    stTex=new THREE.CanvasTexture(stCanvas);
+    stTex.generateMipmaps=false;
+    stTex.minFilter=THREE.LinearFilter; stTex.magFilter=THREE.LinearFilter;
+    if(!stPlane){
+      stPlane=new THREE.Mesh(new THREE.PlaneGeometry(1,1),
+        new THREE.MeshBasicMaterial({transparent:true, depthTest:false}));
+      ovScene.add(stPlane);
+    }
+    stPlane.material.map=stTex; stPlane.material.needsUpdate=true;
+  }
+  const c=stCanvas.getContext("2d");
+  c.clearRect(0,0,CW,CH);
+
+  /* 名札の高さ: 横長では下段の高さ基準、縦長・正方形では幅基準で頭打ち */
+  const T=Math.round(Math.min(CH*0.078, CW*0.056));   // 旧 0.062/0.045 から約1.25倍
+  const FONT=`bold ${Math.round(T*0.56)}px 'Hiragino Kaku Gothic ProN', sans-serif`;
+  c.font=FONT;
+
+  const ctr=new THREE.Vector3(), head=new THREE.Vector3();
+  const tags=[];
+  for(let i=0;i<horses.length;i++){
+    const g=horses[i].group;
+    ctr.copy(g.position).project(camB);
+    if(ctr.z>1) continue;               // カメラの後ろ
+    head.copy(ST_HEAD); g.localToWorld(head); head.project(camB);
+    const tw=Math.min(c.measureText(cfg.names[i]).width, T*7);
+    const hx=(head.x+1)/2*CW, w=T*1.15+tw+T*0.45;
+    /* 札は常に頭の真上 (画面内へ押し込まない)。馬が画面端から出ていくときは
+       札も一緒に見切れる。札が丸ごと画面外なら描かない */
+    if(hx+w/2<0 || hx-w/2>CW) continue;
+    tags.push({i, hx, hy:(1-head.y)/2*CH, tw, w});
+  }
+
+  /* x順に並べ、左右の札と重なるものは下の段へ逃がす */
+  tags.sort((a,b)=>a.hx-b.hx);
+  const GAP=T*0.2, ROW=T*1.25, rows=[...Array(ST_ROWS)].map(()=>[]);
+  /* 段の基準高さ。横長では下段の上端付近、縦長では馬の上が大きく空くので
+     馬の頭のすぐ上まで下ろす。基準は馬ごとの頭ではなく、スクロール位置の
+     少し手前のレーン (refPt) から決める。馬の出入りで段が跳ねないように、
+     また全段 (ST_ROWS) を確保した高さにしておく */
+  const ref=refPt.clone().project(camB), refHy=(1-ref.y)/2*CH;
+  const baseY=Math.max(T*0.45, refHy - T*1.0 - T - ROW*(ST_ROWS-1));
+  for(const t of tags){
+    t.x=t.hx-t.w/2;
+    let r=rows.findIndex(row=>row.every(o=>t.x>o.x+o.w+GAP || t.x+t.w<o.x-GAP));
+    if(r<0) r=ST_ROWS-1;
+    rows[r].push(t);
+    t.y=baseY + r*ROW;
+  }
+
+  // 引き出し線 (札の下から頭上へ)。札より先に描いて下に敷く
+  c.strokeStyle="rgba(255,255,255,0.6)"; c.lineWidth=Math.max(1.5,T*0.05);
+  for(const t of tags){
+    const top=t.y+T;
+    if(t.hy<=top+T*0.2) continue;
+    c.beginPath(); c.moveTo(t.hx, top); c.lineTo(t.hx, t.hy); c.stroke();
+  }
+  for(const t of tags){
+    const x=t.x, y=t.y, gate=cfg.gates[t.i];
+    c.fillStyle="rgba(8,14,10,0.84)";
+    c.beginPath(); c.roundRect(x,y,t.w,T,T*0.24); c.fill();
+    // 馬番の丸は隊列パネルと同じ枠色 (上下で色を揃えて目で追えるように)
+    const wk=WAKU[wakuOf(gate, cfg.n)-1];
+    const cx=x+T*0.6, cy=y+T/2;
+    c.beginPath(); c.arc(cx,cy,T*0.36,0,Math.PI*2);
+    c.fillStyle=wk.bg; c.fill();
+    c.strokeStyle="#e3b34c"; c.lineWidth=T*0.06; c.stroke();
+    c.fillStyle=wk.fg;
+    c.font=`bold ${Math.round(T*(gate>9?0.36:0.46))}px sans-serif`;
+    c.textAlign="center"; c.textBaseline="middle";
+    c.fillText(gate, cx, cy+1);
+    c.font=FONT; c.textAlign="left";
+    c.fillStyle="#f2f6f2";
+    c.fillText(cfg.names[t.i], x+T*1.15, cy+1, t.tw);
+  }
+  c.textBaseline="alphabetic";
+
+  stTex.needsUpdate=true;
+  // 下段 (NDC で y=-1 〜 -1+2*SPLIT_Y) にぴったり貼る
+  stPlane.scale.set(2, 2*SPLIT_Y, 1);
+  stPlane.position.set(0, -1+SPLIT_Y, 0);
+  stPlane.visible=tags.length>0;
+}
 /* ---------- スタートのカウントダウン (3→2→1) ----------
    ゲート待機の残り秒を画面中央に出す。オーバーレイに置くので
    分割画面でも結果発表でも位置がぶれず、書き出し動画にも乗る */
@@ -3525,7 +3633,13 @@ function renderFrame(){
     cam.lookAt(sp.pos.x, 1.05, sp.pos.z);
     renderer.setViewport(0,0,W,Math.round(H*SPLIT_Y));
     renderer.setScissor(0,0,W,Math.round(H*SPLIT_Y));
+    /* 下段は3D名札が画角外に出るので隠し、2D名札に差し替える (drawSplitTags) */
+    setNameSpritesVisible(false);
     renderer.render(scene,cam);
+    setNameSpritesVisible(true);
+    /* 名札の段の基準: 平均レーンより2.5m手前(=カメラ寄りで大きく映る側)の頭上 */
+    const refS=course.sample(scrollP, ctx.laneAvg+2.5);
+    drawSplitTags(cam, paneA, new THREE.Vector3(refS.pos.x, 2.35, refS.pos.z));
     if(window.__keibaDebug){          // 検証用: 下段カメラの姿勢を控えておく
       window.__keibaDebug.botPos=cam.position.clone();
       window.__keibaDebug.botQuat=cam.quaternion.clone();
@@ -3583,6 +3697,7 @@ function renderFrame(){
   }else{
     renderer.render(scene,cam);
     if(splitLine) splitLine.visible=false;
+    if(stPlane) stPlane.visible=false;
   }
 
   /* --- 結果発表オーバーレイ ---
@@ -3697,6 +3812,7 @@ function renderFrame(){
 
   if((ovPlane&&ovPlane.visible) || (mapPlane&&mapPlane.visible)
      || (fieldPlane&&fieldPlane.visible) || (splitLine&&splitLine.visible)
+     || (stPlane&&stPlane.visible)
      || (cdPlane&&cdPlane.visible) || (markPlane&&markPlane.visible)){
     renderer.autoClear=false;
     renderer.render(ovScene,ovCam);
