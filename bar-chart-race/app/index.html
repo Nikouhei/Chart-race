@@ -2768,15 +2768,22 @@
       return { labelIdx: 0, categoryIdx, imageIdx, valueStartIdx: idx };
     }
 
+    // 数値列の判定: 1行目（年など）が入っている列、または1行目が空欄でも2行目以降に数値がある列。
+    // 1行目は空欄・重複（例: 全列 2026）でもよい。列は位置（A,B,C…）で管理しているので見出しの重複は衝突しない。
+    function isValueColumn(column, rows) {
+      const headerRow = rows[0] || {};
+      if (String(headerRow[column] ?? '').trim() !== '') return true;
+      return rows.slice(1).some(row => parseNumber(row[column]) !== null);
+    }
+
     function getYearColumns() {
-      const headerRow = getHeaderRow();
       return (csvData.columns || [])
         .slice(getColumnRoles().valueStartIdx)
-        .filter(column => String(headerRow[column] ?? '').trim() !== '');
+        .filter(column => isValueColumn(column, csvData));
     }
 
     function getYearLabel(yearColumn) {
-      return String(getHeaderRow()[yearColumn] ?? yearColumn).trim() || yearColumn;
+      return String(getHeaderRow()[yearColumn] ?? '').trim();
     }
 
     // 直編集用：空の編集グリッドを生成（列=A,B,C… / 行は空オブジェクト）
@@ -2809,22 +2816,16 @@
         throw new Error(`${getDataFormatDescription()} の形式にしてください`);
       }
 
+      // rows は値の配列（列位置ベース）を推奨。旧形式の {見出し: 値} オブジェクトも受け付ける
+      const rowValues = rows.map(row => Array.isArray(row)
+        ? row.map(cell => cell ?? '')
+        : originalColumns.map(col => row[col] ?? ''));
       const table = [
         cleanColumns,
-        ...rows
-          .filter(row => originalColumns.some(col => String(row[col] ?? '').trim() !== ''))
-          .map(row => originalColumns.map(col => row[col] ?? ''))
+        ...rowValues.filter(values => values.some(cell => String(cell ?? '').trim() !== ''))
       ];
       const columnCount = Math.max(...table.map(row => row.length));
       const generatedColumns = Array.from({ length: columnCount }, (_, index) => getColumnLetter(index));
-      const headerRowValues = table[0] || [];
-      const yearColumns = generatedColumns
-        .slice(roles.valueStartIdx)
-        .filter((column, index) => String(headerRowValues[index + roles.valueStartIdx] ?? '').trim() !== '');
-      if (!yearColumns.length) {
-        throw new Error(`${getColumnLetter(roles.valueStartIdx)}列以降に年別の列がありません`);
-      }
-
       const normalizedRows = table.map(rowValues => {
         const normalized = {};
         generatedColumns.forEach((column, index) => {
@@ -2832,6 +2833,13 @@
         });
         return normalized;
       });
+
+      const yearColumns = generatedColumns
+        .slice(roles.valueStartIdx)
+        .filter(column => isValueColumn(column, normalizedRows));
+      if (!yearColumns.length) {
+        throw new Error(`${getColumnLetter(roles.valueStartIdx)}列以降に年別の列がありません`);
+      }
 
       const hasDisplayableData = normalizedRows.slice(1).some(row =>
         yearColumns.some(year => parseNumber(row[year]) !== null)
@@ -3961,28 +3969,24 @@
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const table = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
       if (table.length < 2) throw new Error('データ行がありません');
-      const columns = table[0].map(col => String(col ?? '').trim());
+      // 見出しが空欄・重複していても値を失わないよう、行は列位置ベースの配列のまま返す
+      const width = Math.max(...table.map(row => row.length));
+      const columns = Array.from({ length: width }, (_, i) => String(table[0][i] ?? '').trim());
       const rows = table.slice(1)
         .filter(row => row.some(cell => String(cell ?? '').trim() !== ''))
-        .map(row => {
-          const obj = {};
-          columns.forEach((col, i) => { obj[col] = row[i] ?? ''; });
-          return obj;
-        });
+        .map(row => columns.map((_, i) => row[i] ?? ''));
       return { rows, columns };
     }
 
     // d3.csvParse は内部で new Function() を使うため、CSP（unsafe-eval 無し）で弾かれる。
     // eval を使わない d3.csvParseRows で行配列にし、オブジェクト化は自前で行う。
     // 戻り値の形（行オブジェクト配列 + .columns、欠損セルは ''）は d3.csvParse と同じ。
+    // 見出しの空欄・重複に対応するため、行は列位置ベースの配列で返す（.columns に見出し）
     function csvParseNoEval(text) {
-      const table = d3.csvParseRows(text);
-      const columns = (table[0] || []).slice();
-      const rows = table.slice(1).map(row => {
-        const obj = {};
-        columns.forEach((col, i) => { obj[col] = row[i] || ''; });
-        return obj;
-      });
+      const table = d3.csvParseRows(String(text ?? '').replace(/^\uFEFF/, ''));
+      const width = Math.max(0, ...table.map(row => row.length));
+      const columns = Array.from({ length: width }, (_, i) => (table[0] || [])[i] ?? '');
+      const rows = table.slice(1).map(row => columns.map((_, i) => row[i] || ''));
       rows.columns = columns;
       return rows;
     }
