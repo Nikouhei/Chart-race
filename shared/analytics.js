@@ -109,6 +109,7 @@
     "rv-play": "preview_start",
     "tt-play": "preview_start",
     btnAllStart: "preview_start",
+    timelinePlayBtn: "preview_start", // バーチャート・線グラフのタイムライン再生ボタン（再生／一時停止を兼ねる）
     recBtn: ["export_start", { export_format: "webm" }],
     btnConfirmDownloadImage: ["export_start", { export_format: "png" }],
     saveProjectBtn: "project_save",
@@ -170,6 +171,14 @@
     track(kind === "video" || kind === "image" ? "export_complete" : "file_save", p);
   }
 
+  // クリック時点（ボタンの処理より前）に一時停止の表示になっているか
+  function isPauseClick(btn) {
+    var label = (btn.getAttribute("aria-label") || "") + " " + (btn.textContent || "");
+    if (/一時停止|pause/i.test(label)) return true;
+    // アイコンだけのボタン：一時停止アイコン（縦棒2本の rect）が出ていれば再生中
+    return !!btn.querySelector("svg rect") && !btn.querySelector("svg path");
+  }
+
   // ── クリックの委譲 ─────────────────────────────────────
   document.addEventListener("click", function (ev) {
     var t = ev.target;
@@ -222,6 +231,12 @@
     markEngaged("click");
 
     var sem = SEMANTIC[btn.id] || SEMANTIC_ACTION[btn.getAttribute("data-corner-action")];
+    // 再生／一時停止を兼ねるボタンで「一時停止」を押したときは preview_start にしない
+    if (sem === "preview_start" && isPauseClick(btn)) {
+      if (throttled("b:pause" + key, 1000)) return;
+      track("tool_ui_click", { button_id: key || "(no-id)", button_label: "一時停止" });
+      return;
+    }
     if (sem) {
       var evName = typeof sem === "string" ? sem : sem[0];
       var extra = typeof sem === "string" ? {} : sem[1];

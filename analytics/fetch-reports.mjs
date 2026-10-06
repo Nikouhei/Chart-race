@@ -328,6 +328,7 @@ const CUSTOM_DIMENSIONS = [
   ["file_kind", "ファイル種別"], ["file_ext", "拡張子"], ["export_format", "書き出し形式"], ["target_tool", "遷移先ツール"],
   ["target_page_type", "遷移先ページ種別"], ["engage_action", "最初の操作"], ["input_id", "入力欄ID"], ["via", "保存経路"],
   ["from_sample", "サンプルから開始"], ["plan", "プラン"],
+  ["error_message", "エラー内容"], ["error_source", "エラー発生ファイル"], ["error_line", "エラー行番号"],
 ];
 const CUSTOM_METRICS = [["seconds_since_open", "ツールを開いてからの秒数", "SECONDS"], ["seconds_to_engage", "最初の操作までの秒数", "SECONDS"]];
 
