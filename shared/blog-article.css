@@ -17,6 +17,9 @@
   --warn-soft:#fbeeea;
 
   max-width:860px;margin:0 auto;padding:0 4px;
+  min-width:0;
+  overflow-wrap:break-word;
+  word-break:break-word;
   color:var(--ink);
   font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;
   font-size:17px;line-height:1.95;
@@ -24,7 +27,7 @@
   -webkit-font-smoothing:antialiased;
 }
 .rvg *{box-sizing:border-box}
-.rvg p{margin:0 0 1.5em}
+.rvg p{margin:0 0 1.5em;overflow-wrap:break-word;word-break:break-word}
 .rvg a{color:var(--signal);text-decoration:underline;text-underline-offset:3px}
 .rvg a:hover{color:var(--gold)}
 .rvg a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -317,11 +320,30 @@
   }
 }
 
+@media(max-width:768px){
+  .wrap{padding:0 16px !important}
+}
+
 @media(max-width:600px){
-  .rvg{font-size:16px}
-  .rvg .rvg-title{font-size:1.45em}
-  .rvg h2{font-size:1.3em}
-  .rvg h3{font-size:1.12em}
+  .rvg{font-size:15.5px;line-height:1.85}
+  .rvg .rvg-title{font-size:1.38em;line-height:1.45}
+  .rvg .blog-title{font-size:1.38em;line-height:1.45}
+  .rvg h2{font-size:1.24em;line-height:1.45;margin:2.4em 0 1em;padding:.45em 0 .45em .7em}
+  .rvg h3{font-size:1.1em;line-height:1.45;margin:2em 0 .8em}
+  .rvg h4{font-size:1em}
   .rvg table{font-size:.88em}
+  .rvg ul, .rvg ol{padding-left:1.25em}
+  .rvg .box{padding:1.1em 1.15em}
+  .rvg .toc{padding:1.1em 1.2em}
+}
+
+@media(max-width:400px){
+  .wrap{padding:0 12px !important}
+  .rvg{font-size:15px;line-height:1.8}
+  .rvg .rvg-title{font-size:1.28em}
+  .rvg .blog-title{font-size:1.28em}
+  .rvg h2{font-size:1.16em}
+  .rvg h3{font-size:1.05em}
+  .rvg ul, .rvg ol{padding-left:1.15em}
 }
 @media(prefers-reduced-motion:reduce){.rvg *{transition:none !important;animation:none !important}}
