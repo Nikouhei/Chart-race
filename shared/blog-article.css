@@ -180,6 +180,143 @@
 /* ---- 記事メタ・関連記事 ---- */
 .rvg .meta{font-size:.86em;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:1.2em;margin-top:3em}
 
+/* ---- 著者カード（E-E-A-T） ---- */
+.rvg .author-card{
+  background:#ffffff;
+  border:1px solid var(--line);
+  border-left:4px solid var(--gold);
+  border-radius:12px;
+  padding:24px 28px;
+  margin:2.8em 0 1.8em;
+  box-shadow:0 2px 12px rgba(16,28,51,0.04);
+}
+.rvg .author-card-header{
+  margin-bottom:14px;
+}
+.rvg .author-card-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11.5px;
+  font-weight:700;
+  letter-spacing:0.04em;
+  color:var(--gold);
+  background:var(--gold-soft);
+  padding:3px 10px;
+  border-radius:12px;
+}
+.rvg .author-card-main{
+  display:flex;
+  align-items:flex-start;
+  gap:22px;
+}
+.rvg .author-card-avatar{
+  flex-shrink:0;
+  width:84px;
+  height:84px;
+  border-radius:50%;
+  overflow:hidden;
+  border:1px solid var(--line);
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  background:#fff;
+}
+.rvg .author-card-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.rvg .author-card-content{
+  flex:1;
+  min-width:0;
+}
+.rvg .author-card-title-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:10px;
+  margin-bottom:8px;
+}
+.rvg .author-card-name{
+  font-size:16.5px;
+  font-weight:700;
+  color:var(--ink);
+  line-height:1.4;
+}
+.rvg .author-card-name a{
+  color:var(--ink);
+  text-decoration:none;
+}
+.rvg .author-card-name a:hover{
+  color:var(--signal);
+  text-decoration:underline;
+}
+.rvg .author-card-tag{
+  font-size:12px;
+  color:var(--ink-soft);
+  background:var(--paper-2);
+  border:1px solid var(--line);
+  padding:1px 8px;
+  border-radius:4px;
+  white-space:nowrap;
+}
+.rvg .author-card-bio{
+  font-size:13.5px;
+  line-height:1.8;
+  color:var(--ink-soft);
+  margin:0 0 14px;
+}
+.rvg .author-card-footer{
+  display:flex;
+  align-items:center;
+}
+.rvg .author-card-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--signal);
+  text-decoration:none;
+  padding:5px 12px;
+  background:var(--signal-soft);
+  border-radius:6px;
+  transition:all .15s ease;
+}
+.rvg .author-card-btn:hover{
+  background:var(--signal);
+  color:#ffffff !important;
+}
+.rvg .author-card-arrow{
+  font-size:13px;
+  transition:transform .15s ease;
+}
+.rvg .author-card-btn:hover .author-card-arrow{
+  transform:translateX(3px);
+}
+
+@media(max-width:600px){
+  .rvg .author-card{
+    padding:20px 18px;
+  }
+  .rvg .author-card-main{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:16px;
+  }
+  .rvg .author-card-header{
+    text-align:center;
+  }
+  .rvg .author-card-title-row{
+    justify-content:center;
+    margin-bottom:10px;
+  }
+  .rvg .author-card-footer{
+    justify-content:center;
+  }
+}
+
 @media(max-width:600px){
   .rvg{font-size:16px}
   .rvg .rvg-title{font-size:1.45em}
