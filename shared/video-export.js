@@ -302,6 +302,7 @@
       var n = nodes[i];
       if (n.nodeType === 3) { flow.push(n); continue; }
       if (n.nodeType !== 1) continue;
+      if (n.getAttribute("data-grs-skip") != null) continue; // プレビュー用の透かしなど、動画に描かないもの
       var ccs = getComputedStyle(n);
       if (ccs.position !== "static") positioned.push({ n: n, z: ccs.zIndex === "auto" ? 0 : num(ccs.zIndex, 0), i: i });
       else flow.push(n);
@@ -595,7 +596,7 @@
   // ════════════════════════════════════════════════════════
   var MARK_TEXT = "GraphRace Studio";
   var MARK_STYLE = "tile";
-  var MARK_OPACITY = { tile: 0.13, center: 0.16, band: 0.14, grid: 0.12, drift: 0.13 };
+  var MARK_OPACITY = { tile: 0.07, center: 0.16, band: 0.14, grid: 0.12, drift: 0.13 };
   var MARK_ANGLE = -24 * Math.PI / 180;
   var markTone = "#000000";
   var logoPromise = null, logoImg = null;
@@ -705,6 +706,39 @@
       }
     }
     ctx.restore();
+  }
+
+  // プレビューにも同じ透かしを重ねる（ステージの上に canvas を1枚置く）。
+  // 動画の描き写しでは data-grs-skip で無視し、透かしの有無は書き出し設定に従う。
+  function attachPreviewMark(stage) {
+    if (!stage || stage.querySelector("canvas.grs-preview-mark")) return;
+    var cv = document.createElement("canvas");
+    cv.className = "grs-preview-mark";
+    cv.setAttribute("aria-hidden", "true");
+    cv.setAttribute("data-grs-skip", "");
+    cv.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:50";
+    if (getComputedStyle(stage).position === "static") stage.style.position = "relative";
+    stage.appendChild(cv);
+    var pending = false;
+    function draw() {
+      pending = false;
+      var w = stage.offsetWidth, h = stage.offsetHeight;
+      if (!w || !h) return;
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      var cw = Math.round(w * dpr), ch = Math.round(h * dpr);
+      if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+      var g = cv.getContext("2d");
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, cw, ch);
+      setMarkToneFrom(stage);
+      drawWatermark(g, cw, ch, 0);
+    }
+    function schedule() { if (!pending) { pending = true; requestAnimationFrame(draw); } }
+    loadLogo().then(schedule);
+    try { new ResizeObserver(schedule).observe(stage); } catch (e) { window.addEventListener("resize", schedule); }
+    // 背景色やサイズの設定変更（style 属性）に追従する
+    new MutationObserver(schedule).observe(stage, { attributes: true, attributeFilter: ["style", "class"] });
+    schedule();
   }
 
   // ════════════════════════════════════════════════════════
@@ -1212,6 +1246,7 @@
 
   function attach(cfg) {
     if (!cfg || !cfg.button || !cfg.adapter) return;
+    try { attachPreviewMark(cfg.adapter.getStage()); } catch (e) {}
     cfg.button.addEventListener("click", function () {
       if (state.busy) return;
       if (!cfg.adapter.isReady()) {
