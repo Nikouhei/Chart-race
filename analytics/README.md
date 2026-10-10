@@ -85,6 +85,16 @@ node analytics/fetch-reports.mjs --setup-dimensions   # ボタンIDなどを GA4
 | stock_fetch | 株価レースで株価を取得 |
 | tool_ui_click | 上記以外のツール内ボタン（button_id / button_label 付き） |
 | js_error | サイトのスクリプトエラー（1表示3件まで） |
+| upgrade_click | 有料機能（透かしなし・MP4）を選んで購入案内が出た（有料化スイッチ ON のときだけ） plan_feature 付き |
+| license_activate | ライセンスキーの確認（license_result = ok / invalid / error） |
+| survey_view | 有料化アンケートを表示した（回答率の分母） |
+| survey_submit | アンケートに回答（use_case / wanted_features / pay_model / survey_comment） |
+| survey_dismiss | アンケートをスキップした |
+
+バーチャート・線グラフの動画書き出し（`shared/video-export.js`）では、ダイアログの「書き出す」で
+`export_start` に `export_format`（webm/mp4）・`watermark`（on/off）・`export_scale`・`export_fps` が付く。
+有料化スイッチ（`shared/export-plan.js` の `paywallEnabled`）が OFF の間は、`watermark=off` と
+`export_format=mp4` の件数が「有料でも欲しい人」の目安になる。
 
 今後「透かしなしで書き出す」ボタンなどを足すときは、HTML に `data-track` を付けるだけで計測される:
 

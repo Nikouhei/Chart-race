@@ -329,6 +329,13 @@ const CUSTOM_DIMENSIONS = [
   ["target_page_type", "遷移先ページ種別"], ["engage_action", "最初の操作"], ["input_id", "入力欄ID"], ["via", "保存経路"],
   ["from_sample", "サンプルから開始"], ["plan", "プラン"],
   ["error_message", "エラー内容"], ["error_source", "エラー発生ファイル"], ["error_line", "エラー行番号"],
+  // 動画書き出し（shared/video-export.js）
+  ["watermark", "透かし"], ["export_scale", "書き出し画質"], ["export_fps", "書き出しfps"],
+  // 有料化の判定・購入案内（shared/export-plan.js）
+  ["plan_feature", "有料機能"], ["upgrade_from", "購入案内の表示元"], ["license_result", "ライセンス確認結果"],
+  // 有料化アンケート（shared/export-plan.js）
+  ["survey_id", "アンケートID"], ["use_case", "用途"], ["wanted_features", "欲しい機能"],
+  ["pay_model", "希望の払い方"], ["survey_comment", "アンケート自由記述"],
 ];
 const CUSTOM_METRICS = [["seconds_since_open", "ツールを開いてからの秒数", "SECONDS"], ["seconds_to_engage", "最初の操作までの秒数", "SECONDS"]];
 
@@ -336,6 +343,16 @@ async function setupDimensions(token, propertyId) {
   const base = `https://analyticsadmin.googleapis.com/v1beta/properties/${propertyId}`;
   const existing = await api(token, "GET", `${base}/customDimensions?pageSize=200`);
   const have = new Set((existing.customDimensions || []).map((d) => d.parameterName));
+  // GA4（無料版）のイベント単位カスタムディメンションは 50 個まで。超えるなら登録せずに止める
+  const eventDims = (existing.customDimensions || []).filter((d) => d.scope === "EVENT");
+  const toAdd = CUSTOM_DIMENSIONS.filter(([param]) => !have.has(param));
+  const LIMIT = 50;
+  console.log(`  登録済み ${eventDims.length} 個 + 追加 ${toAdd.length} 個 = ${eventDims.length + toAdd.length} / 上限 ${LIMIT}`);
+  const extra = eventDims.filter((d) => !CUSTOM_DIMENSIONS.some(([param]) => param === d.parameterName));
+  if (extra.length) console.log(`  （このスクリプト以外で登録された項目: ${extra.map((d) => d.parameterName).join(", ")}）`);
+  if (eventDims.length + toAdd.length > LIMIT) {
+    throw new Error(`カスタムディメンションの上限（${LIMIT}）を超えるため登録を中止しました。使っていない項目を GA4 の管理画面でアーカイブしてから再実行してください。`);
+  }
   for (const [param, name] of CUSTOM_DIMENSIONS) {
     if (have.has(param)) { console.log(`  = ${param}（登録済み）`); continue; }
     await api(token, "POST", `${base}/customDimensions`, { parameterName: param, displayName: name, scope: "EVENT" });

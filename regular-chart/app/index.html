@@ -15,6 +15,9 @@
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261006" defer></script>
+  <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
+  <script src="../../shared/export-plan.js?v=2026101002" defer></script>
+  <script src="../../shared/video-export.js?v=2026101003" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -691,6 +694,21 @@
       gap: 8px;
     }
     #startBtn svg { width: 16px; height: 16px; display: block; }
+    #exportVideoBtn {
+      min-height: 42px;
+      margin-top: 0;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #exportVideoBtn svg { width: 16px; height: 16px; display: block; }
+    #exportVideoBtn:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    #exportVideoBtn:disabled { border-color: var(--panel-surface-2); color: var(--text-muted); background: transparent; }
 
     #startBtn:hover:not(:disabled) {
       background: var(--accent-strong);
@@ -1715,6 +1733,7 @@
 
     <!-- 再生プレビュー（折れ線を年号に同期して描画するアニメーション） -->
     <button id="startBtn" disabled></button>
+    <button id="exportVideoBtn" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>動画を書き出す（MP4 / WebM）</span></button>
     </div>
 
     <div id="dataTab" class="tab-panel">
@@ -5428,6 +5447,7 @@
 
     function togglePlayback() {
       if (!years.length || document.getElementById('startBtn').disabled) return;
+      if (playback.state === 'exporting') return;
 
       if (playback.state === 'playing') {
         playback.state = 'paused';
@@ -6114,6 +6134,72 @@
         togglePlayback();
       }
     });
+
+    // --- 動画書き出し（shared/video-export.js）---
+    // 線グラフは毎フレーム全体を描き直す（トランジションを使わない）ので、
+    // 指定時刻の位置で renderPreviewFrame を呼ぶだけでプレビューと同じ絵になる。
+    // 動画の長さは「動画の長さ」の設定どおり（プレビュー用の倍速ボタンは掛けない）。
+    (function setupVideoExport() {
+      const btn = document.getElementById('exportVideoBtn');
+      const startBtn = document.getElementById('startBtn');
+      const syncButton = () => { btn.disabled = startBtn.disabled; };
+      new MutationObserver(syncButton).observe(startBtn, { attributes: true, attributeFilter: ['disabled'] });
+      syncButton();
+
+      const nextFrame = () => new Promise(requestAnimationFrame);
+      let saved = null;
+      const adapter = {
+        isReady: () => years.length > 0 && !startBtn.disabled,
+        getStage: () => document.getElementById('chartArea'),
+        getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
+        getDurationMs: () => getMsPerPeriod() * Math.max(0, years.length - 1),
+        async beginExport() {
+          saved = { yearIndex: playback.yearIndex, tab: null };
+          stopPlayback();
+          // スマホで設定タブを開いているとプレビューが非表示なので、描き写せるよう表示に切り替える
+          if (!isDesktop() && currentPanelTab !== 'previewTab') {
+            saved.tab = currentPanelTab;
+            switchPanelTab('previewTab');
+          }
+          await nextFrame(); await nextFrame(); await nextFrame();
+          recomputeChartMetrics();
+          frozenMetrics = chartMetrics;
+          playback.state = 'exporting';
+          fitToScreen();
+        },
+        renderAt(tMs) {
+          const lastIndex = years.length - 1;
+          const pos = lastIndex > 0 ? Math.min(lastIndex, tMs / getMsPerPeriod()) : 0;
+          playback.yearIndex = pos;
+          renderPreviewFrame(Math.floor(pos), {
+            transitionProgress: pos - Math.floor(pos),
+            timelinePosition: pos,
+            yearLabelOverride: pos >= lastIndex ? getYearLabel(years[lastIndex]) : null
+          });
+        },
+        endExport() {
+          playback.state = 'idle';
+          frozenMetrics = null;
+          playback.yearIndex = saved ? Math.min(saved.yearIndex, Math.max(0, years.length - 1)) : 0;
+          if (saved && saved.tab) switchPanelTab(saved.tab);
+          updatePlaybackUI();
+          refreshCurrentPreview({ reset: true });
+        }
+      };
+
+      const attach = () => {
+        if (!window.GRSVideoExport) return;
+        window.GRSVideoExport.attach({
+          button: btn,
+          adapter,
+          fileBase: 'line-chart-race',
+          onNotReady: () => { document.getElementById('status').innerText = 'データを読み込むと書き出せます'; }
+        });
+      };
+      // 共有スクリプトは defer なので、この時点ではまだ無いことがある
+      if (window.GRSVideoExport) attach();
+      else document.addEventListener('DOMContentLoaded', attach, { once: true });
+    })();
   </script>
 </body>
 </html>

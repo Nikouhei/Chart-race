@@ -15,6 +15,9 @@
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261006" defer></script>
+  <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
+  <script src="../../shared/export-plan.js?v=2026101002" defer></script>
+  <script src="../../shared/video-export.js?v=2026101003" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -713,6 +716,21 @@
       gap: 8px;
     }
     #startBtn svg { width: 16px; height: 16px; display: block; }
+    #exportVideoBtn {
+      min-height: 42px;
+      margin-top: 0;
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #exportVideoBtn svg { width: 16px; height: 16px; display: block; }
+    #exportVideoBtn:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    #exportVideoBtn:disabled { border-color: var(--panel-surface-2); color: var(--text-muted); background: transparent; }
 
     #startBtn:hover:not(:disabled) {
       background: var(--accent-strong);
@@ -1689,6 +1707,7 @@
     </div>
 
     <button id="startBtn" disabled><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>再生プレビュー</span></button>
+    <button id="exportVideoBtn" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>動画を書き出す（MP4 / WebM）</span></button>
     <p style="font-size:11px; margin:0; color:#888; text-align:center;">Spaceキー: 再生 / 一時停止 / 再開</p>
     </div>
 
@@ -4743,9 +4762,13 @@
       const imgHeight = yScale.bandwidth() * 0.7;
       const imgWidth = imageSettings.shape === 'circle' ? imgHeight : imgHeight * 1.4;
 
-      rowTransition(rowsUpdate)
-        .attr("transform", d => `translate(0, ${getRowY(d)})`)
-        .style("opacity", d => yScale(d.key) === undefined ? 0 : 1);
+      if (exportRowMotion) {
+        stepExportRowMotion(rowsUpdate, rows.exit(), getRowY, d => yScale(d.key) === undefined ? 0 : 1, overflowY);
+      } else {
+        rowTransition(rowsUpdate)
+          .attr("transform", d => `translate(0, ${getRowY(d)})`)
+          .style("opacity", d => yScale(d.key) === undefined ? 0 : 1);
+      }
 
       rowsUpdate.select(".bar")
         .attr("fill", d => getBarColor(d))
@@ -4840,10 +4863,45 @@
           });
       }
 
-      rowTransition(rows.exit())
-        .attr("transform", `translate(0, ${overflowY})`)
-        .style("opacity", 0)
-        .remove();
+      if (!exportRowMotion) {
+        rowTransition(rows.exit())
+          .attr("transform", `translate(0, ${overflowY})`)
+          .style("opacity", 0)
+          .remove();
+      }
+    }
+
+    // --- 動画書き出し用: 順位入れ替えの動き ---
+    // プレビューでは毎フレーム「今の位置 → 目標位置」へ 340ms の easeCubicOut トランジションを
+    // 張り直していて、結果として1フレームごとに残り距離の一定割合ずつ近づく動きになる。
+    // d3 のトランジションは実時間で進むため、フレームを1枚ずつ作る書き出しでは使えない。
+    // 同じ割合（1フレームの経過 dt に対する easeCubicOut(dt/340)）で近づける計算に置き換える。
+    let exportRowMotion = null; // { dt, rows: Map<key, {y, o}> }
+    const EXPORT_ROW_MOTION_MS = 340;
+
+    function stepExportRowMotion(updateSel, exitSel, getY, getOpacity, exitY) {
+      const st = exportRowMotion;
+      const k = st.dt > 0 ? d3.easeCubicOut(Math.min(1, st.dt / EXPORT_ROW_MOTION_MS)) : 1;
+      const step = (node, key, ty, to) => {
+        let cur = st.rows.get(key);
+        if (!cur || k >= 1) {
+          cur = { y: ty, o: to };
+        } else {
+          cur.y += (ty - cur.y) * k;
+          cur.o += (to - cur.o) * k;
+          if (Math.abs(ty - cur.y) < 0.05) cur.y = ty;
+          if (Math.abs(to - cur.o) < 0.004) cur.o = to;
+        }
+        st.rows.set(key, cur);
+        node.setAttribute('transform', `translate(0, ${cur.y})`);
+        node.style.opacity = cur.o;
+        return cur;
+      };
+      updateSel.each(function(d) { step(this, d.key, getY(d), getOpacity(d)); });
+      exitSel.each(function(d) {
+        const cur = step(this, d.key, exitY, 0);
+        if (cur.o <= 0.004) { this.remove(); st.rows.delete(d.key); }
+      });
     }
 
     function waitWhilePaused(runId) {
@@ -5063,6 +5121,7 @@
 
     function togglePlayback() {
       if (!years.length || document.getElementById('startBtn').disabled) return;
+      if (playback.state === 'exporting') return;
 
       if (playback.state === 'playing') {
         playback.state = 'paused';
@@ -5747,6 +5806,96 @@
       e.preventDefault();
       togglePlayback();
     });
+
+    // --- 動画書き出し（shared/video-export.js）---
+    // 書き出しは「時刻を1フレームずつ進めて renderPreviewFrame を呼ぶ」だけで、描画処理はプレビューと共通。
+    // 再生と同じ位置の計算（animateTimeline）を、実時間ではなく指定時刻で行う。
+    // 動画の長さは「動画の長さ」の設定どおり（プレビュー用の倍速ボタンは掛けない）。
+    (function setupVideoExport() {
+      const btn = document.getElementById('exportVideoBtn');
+      const startBtn = document.getElementById('startBtn');
+      const syncButton = () => { btn.disabled = startBtn.disabled; };
+      new MutationObserver(syncButton).observe(startBtn, { attributes: true, attributeFilter: ['disabled'] });
+      syncButton();
+
+      const nextFrame = () => new Promise(requestAnimationFrame);
+      let saved = null;
+      const adapter = {
+        isReady: () => years.length > 0 && !startBtn.disabled,
+        getStage: () => document.getElementById('chartArea'),
+        getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
+        getDurationMs: () => getMsPerPeriod() * Math.max(0, years.length - 1),
+        async beginExport() {
+          saved = { yearIndex: playback.yearIndex, tab: null };
+          stopPlayback();
+          // スマホで設定タブを開いているとプレビューが非表示なので、描き写せるよう表示に切り替える
+          if (!isDesktop() && currentPanelTab !== 'previewTab') {
+            saved.tab = currentPanelTab;
+            switchPanelTab('previewTab');
+          }
+          // タブ切替後の再描画（2フレーム後に走る）を先に済ませておく
+          await nextFrame(); await nextFrame(); await nextFrame();
+          recomputeChartMetrics();
+          frozenMetrics = chartMetrics;
+          playback.state = 'exporting';
+          fitToScreen();
+          exportRowMotion = { dt: 0, rows: new Map() };
+          renderPreviewFrame(0, {
+            instant: true, reset: true,
+            nextYearIndex: years.length > 1 ? 1 : null,
+            transitionProgress: 0, timelinePosition: 0
+          });
+        },
+        renderAt(tMs, dtMs) {
+          const lastIndex = years.length - 1;
+          const pos = lastIndex > 0 ? Math.min(lastIndex, tMs / getMsPerPeriod()) : 0;
+          exportRowMotion.dt = dtMs;
+          playback.yearIndex = pos;
+          if (pos >= lastIndex) {
+            renderPreviewFrame(lastIndex, {
+              instant: true, nextYearIndex: null, transitionProgress: 1,
+              timelinePosition: lastIndex, yearLabelOverride: getYearLabel(years[lastIndex])
+            });
+            return;
+          }
+          const floorIdx = Math.floor(pos);
+          renderPreviewFrame(floorIdx, {
+            instant: true,
+            nextYearIndex: Math.min(floorIdx + 1, lastIndex),
+            transitionProgress: pos - floorIdx,
+            timelinePosition: pos
+          });
+        },
+        endExport() {
+          exportRowMotion = null;
+          playback.state = 'idle';
+          frozenMetrics = null;
+          playback.yearIndex = saved ? Math.min(saved.yearIndex, Math.max(0, years.length - 1)) : 0;
+          if (saved && saved.tab) switchPanelTab(saved.tab);
+          updatePlaybackUI();
+          refreshCurrentPreview({ reset: true });
+        }
+      };
+
+      const attach = () => {
+        if (!window.GRSVideoExport) return;
+        window.GRSVideoExport.attach({
+          button: btn,
+          adapter,
+          fileBase: 'bar-chart-race',
+          // アンケートの「あったら嬉しいもの」に、このツールで要望の多そうな項目を足す
+          surveyFeatures: [
+            ['hd', 'フルHD・4Kの高画質'],
+            ['bgm', 'BGM・効果音'], ['templates', 'デザインのテンプレート'], ['datasets', '人口・GDPなどのデータ収録'],
+            ['vertical', '縦向きの棒グラフ'], ['long', '長い動画（数分以上）'], ['other', 'その他']
+          ],
+          onNotReady: () => { document.getElementById('status').innerText = 'データを読み込むと書き出せます'; }
+        });
+      };
+      // 共有スクリプトは defer なので、この時点ではまだ無いことがある
+      if (window.GRSVideoExport) attach();
+      else document.addEventListener('DOMContentLoaded', attach, { once: true });
+    })();
   </script>
 </body>
 </html>
