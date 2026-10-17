@@ -1217,6 +1217,31 @@
     .playback-speed button:hover { border-color: #9a9a9a; color: #333; }
     .playback-speed button.active { background: var(--accent, #6c5ce7); border-color: var(--accent, #6c5ce7); color: #fff; }
     .playback-hint { font-size: 11px; color: #888; margin: 8px 0 0; line-height: 1.6; }
+    /* データ編集の操作ガイド（ℹ︎） */
+    .data-editor-toolbar { position: relative; }
+    .data-editor-title { display: flex; align-items: center; gap: 6px; }
+    .editor-help { display: inline-flex; }
+    .editor-help-button {
+      width: 18px; height: 18px; padding: 0; border-radius: 50%;
+      border: 1px solid var(--panel-border); background: var(--panel-surface);
+      color: var(--text-muted); font: 700 11px/16px Georgia, serif; font-style: italic;
+      cursor: help; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .editor-help-button:hover, .editor-help.open .editor-help-button { color: var(--text-strong); border-color: var(--text-muted); }
+    .editor-help-pop {
+      display: none; position: absolute; top: calc(100% - 4px); left: 8px; z-index: 50;
+      box-sizing: border-box; width: min(340px, calc(100% - 16px)); padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--panel-border); background: var(--panel-surface);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      color: var(--text-strong); font-size: 12px; font-weight: normal; line-height: 1.6; text-align: left;
+    }
+    .editor-help:hover .editor-help-pop, .editor-help.open .editor-help-pop { display: block; }
+    /* ボタンからポップアップへマウスを動かす間に閉じないよう、上の隙間を埋める */
+    .editor-help-pop::before { content: ''; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+    .editor-help-pop b { display: block; margin: 6px 0 2px; color: var(--text-muted); font-size: 11px; }
+    .editor-help-pop b:first-child { margin-top: 0; }
+    .editor-help-pop ul { margin: 0; padding-left: 16px; }
+    .editor-help-pop kbd { font: inherit; font-size: 11px; padding: 0 4px; border: 1px solid var(--panel-border); border-radius: 3px; }
   </style>
 </head>
 <body class="light-mode">
@@ -1752,7 +1777,31 @@
       </div>
       <div id="dataEditorHost">
         <div class="data-editor-toolbar">
-          <label style="margin:0;">データ編集</label>
+          <div class="data-editor-title">
+            <label style="margin:0;">データ編集</label>
+            <div class="editor-help" id="editorHelp">
+              <button type="button" class="editor-help-button" id="editorHelpButton" aria-label="データ編集の操作方法" aria-expanded="false" aria-controls="editorHelpPop">i</button>
+              <div class="editor-help-pop" id="editorHelpPop" role="tooltip">
+                <b>マウス</b>
+                <ul>
+                  <li>ダブルクリック：セルを編集</li>
+                  <li>右クリック：行・列の挿入／削除、並べ替え</li>
+                  <li>表の左上の ▾：行と列の入れ替え、CSV・Excelで保存</li>
+                  <li><kbd>Shift</kbd>＋クリック：範囲を選択</li>
+                </ul>
+                <b>キーボード</b>
+                <ul>
+                  <li><kbd>Tab</kbd>：右のセルへ（<kbd>Shift</kbd>＋<kbd>Tab</kbd> で左へ）</li>
+                  <li>矢印キー：セルを移動</li>
+                  <li><kbd>Enter</kbd>：編集を開始／確定して下のセルへ</li>
+                  <li>文字を打つ：そのまま上書き入力</li>
+                  <li><kbd>Esc</kbd>：編集を取り消し　<kbd>Delete</kbd>：消去</li>
+                  <li><kbd>Ctrl</kbd>/<kbd>⌘</kbd>＋<kbd>Z</kbd>：元に戻す</li>
+                  <li><kbd>Ctrl</kbd>/<kbd>⌘</kbd>＋<kbd>C</kbd>・<kbd>V</kbd>：コピー・貼り付け（Excelやスプレッドシートからも可。足りない行・列は自動で増えます）</li>
+                </ul>
+              </div>
+            </div>
+          </div>
           <span id="dataEditorSummary">未読み込み</span>
         </div>
         <div id="dataEditor" class="empty-data-editor">
@@ -5519,6 +5568,10 @@
           e.preventDefault();
           commitCellEdit();
           moveActiveCell(1, 0, false);
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          commitCellEdit();
+          moveActiveCell(0, e.shiftKey ? -1 : 1, false);
         } else if (e.key === 'Escape') {
           e.preventDefault();
           cancelCellEdit();
@@ -5615,6 +5668,19 @@
         e.preventDefault();
         beginCellEdit(getEditorCell(activeCell.rowIndex, activeCell.colIndex), e.key);
       }
+    });
+
+    // データ編集の操作ガイド：PCはホバー、タッチ端末はタップで開閉
+    const editorHelp = document.getElementById('editorHelp');
+    document.getElementById('editorHelpButton').addEventListener('click', e => {
+      e.stopPropagation();
+      const open = editorHelp.classList.toggle('open');
+      e.currentTarget.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('click', e => {
+      if (!editorHelp.classList.contains('open') || editorHelp.contains(e.target)) return;
+      editorHelp.classList.remove('open');
+      document.getElementById('editorHelpButton').setAttribute('aria-expanded', 'false');
     });
 
     dataEditor.addEventListener('copy', e => {
