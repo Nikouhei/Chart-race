@@ -16,8 +16,9 @@
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261006" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
-  <script src="../../shared/export-plan.js?v=2026101002" defer></script>
-  <script src="../../shared/video-export.js?v=2026101005" defer></script>
+  <script src="../../shared/export-plan.js?v=2026101703" defer></script>
+  <script src="../../shared/video-export.js?v=2026101703" defer></script>
+  <script src="../../shared/export-cta.js?v=2026101703" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -5405,6 +5406,7 @@
     async function runChartRace(fromIndex = 0) {
       if (!years.length) return;
 
+      if (window.GRSExportCTA) window.GRSExportCTA.hideEnd();
       const runId = ++playback.runId;
       playback.state = 'playing';
       playback.yearIndex = fromIndex;
@@ -5443,6 +5445,7 @@
       frozenMetrics = null;
       updatePlaybackUI();
       document.getElementById('status').innerText = "✅ 再生完了";
+      if (window.GRSExportCTA) window.GRSExportCTA.showEnd();
     }
 
     function togglePlayback() {
@@ -6189,12 +6192,18 @@
 
       const attach = () => {
         if (!window.GRSVideoExport) return;
-        window.GRSVideoExport.attach({
+        const exportCfg = {
           button: btn,
           adapter,
           fileBase: 'line-chart-race',
           onNotReady: () => { document.getElementById('status').innerText = 'データを読み込むと書き出せます'; }
-        });
+        };
+        window.GRSVideoExport.attach(exportCfg);
+        // タイムラインの「動画を保存」と、再生完了時の案内カード（shared/export-cta.js）
+        if (window.GRSExportCTA) {
+          window.GRSExportCTA.init({ startBtn, timelineBar: document.querySelector('.timeline-bar') })
+            .forEach(b => window.GRSVideoExport.attach(Object.assign({}, exportCfg, { button: b })));
+        }
       };
       // 共有スクリプトは defer なので、この時点ではまだ無いことがある
       if (window.GRSVideoExport) attach();

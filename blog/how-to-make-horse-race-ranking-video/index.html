@@ -92,7 +92,7 @@
     },
     "inLanguage": "ja",
     "datePublished": "2026-08-26",
-    "dateModified": "2026-08-26",
+    "dateModified": "2026-10-17",
     "about": {
       "@type": "SoftwareApplication",
       "name": "格付けダービー（競馬風ランキング動画メーカー）",
@@ -109,7 +109,7 @@
     "@context": "https://schema.org",
     "@type": "HowTo",
     "name": "競馬風の順位発表動画（格付けダービー）の作り方",
-    "description": "ブラウザだけで競馬中継風のランキング発表動画を作る手順です。出走馬を並べ替えて最終順位を決め、表現とレースを設定し、録画してWebMで保存します。",
+    "description": "ブラウザだけで競馬中継風のランキング発表動画を作る手順です。出走馬を並べ替えて最終順位を決め、表現とレースを設定し、MP4またはWebMの動画ファイルに書き出します。",
     "totalTime": "PT10M",
     "estimatedCost": { "@type": "MonetaryAmount", "currency": "JPY", "value": "0" },
     "supply": [
@@ -138,7 +138,7 @@
         "@type": "HowToStep",
         "position": 3,
         "name": "レースを走らせて動画として保存する",
-        "text": "「レース開始」でプレビューし、気に入った展開になったら「録画してWebM保存」を押します。ゴール後に動画ファイルが自動でダウンロードされます。",
+        "text": "「レース開始」でプレビューし、気に入った展開になったら「動画を保存」を押します。形式（MP4／WebM）を選んで書き出すと、動画ファイルがダウンロードされます。",
         "url": "https://graphrace-studio.com/blog/how-to-make-horse-race-ranking-video/#step3"
       }
     ]
@@ -168,7 +168,7 @@
       {
         "@type": "Question",
         "name": "動画はどの形式で保存されますか？MP4で欲しい場合は？",
-        "acceptedAnswer": { "@type": "Answer", "text": "WebM形式（VP9・30fps）で保存されます。MP4しか受け付けない編集ソフトやSNSに投稿する場合は、無料の変換ツールや動画編集ソフトの書き出し機能でMP4に変換してください。YouTubeとX（旧Twitter）はWebMのまま投稿できます。" }
+        "acceptedAnswer": { "@type": "Answer", "text": "MP4とWebM（どちらも30fps）から選べます。iPhoneやAndroidでそのまま再生でき、TikTok・Instagram・PowerPointにも使いやすいMP4がおすすめです。" }
       },
       {
         "@type": "Question",
@@ -449,7 +449,7 @@
 
         <h1 class="rvg-title">競馬風の順位発表動画「格付けダービー」の作り方！2D・3D両ツールの詳しい使い方</h1>
         <div class="blog-meta">
-          <span>更新日: 2026.08.26</span>
+          <span>更新日: 2026.10.17</span>
           <span>カテゴリー: チュートリアル</span>
           <span>執筆: <a href="../../about.html" style="color: inherit; text-decoration: underline;">GraphRace Studio 開発者</a></span>
         </div>
@@ -528,7 +528,7 @@
             <li>入力した名前や画像は<strong>外部に送信されません</strong>（すべてブラウザ内で処理）</li>
             <li>設定はブラウザに自動保存され、次に開いたときに復元されます</li>
             <li>出走馬は<strong>2〜16頭</strong>。名前は10文字までです</li>
-            <li>動画の書き出し形式は<strong>WebM</strong>（MP4は非対応）</li>
+            <li>動画の書き出し形式は<strong>MP4またはWebM</strong>（選べます）</li>
             <li>BGM・効果音は付きません（動画編集側で足す前提です）</li>
           </ul>
         </div>
@@ -545,7 +545,7 @@
         <ol class="steps">
           <li><b>出走馬を入力する</b>名前を入れて、上が1位になるようドラッグで並べ替えます。</li>
           <li><b>表現とレースを設定する</b>「競馬風」か「リアル競馬風」を選び、尺・展開・レース名を決めます。</li>
-          <li><b>走らせて保存する</b>プレビューで確認し、気に入ったら録画してWebMで保存します。</li>
+          <li><b>走らせて保存する</b>プレビューで確認し、気に入ったら「動画を保存」でMP4かWebMに書き出します。</li>
         </ol>
 
         <p>ここからは、各ステップの設定項目を1つずつ見ていきます。</p>
@@ -761,7 +761,7 @@
 
         <figure class="fig fig-panel">
           <img src="kakuzuke-derby-display-settings.webp" alt="3Dモードの画面表示パネル。コースマップ、隊列パネル、透かしの表示切り替え" width="708" height="646" loading="lazy" decoding="async">
-          <figcaption>ここで表示した内容は、そのまま録画された動画にも記録されます。</figcaption>
+          <figcaption>ここで表示した内容は、そのまま書き出した動画にも記録されます。</figcaption>
         </figure>
 
         <ul>
@@ -868,8 +868,8 @@
         <h2 id="step3">STEP3：レースを走らせて動画に保存する</h2>
 
         <figure class="fig fig-panel">
-          <img src="kakuzuke-derby-video-settings.webp" alt="動画設定パネル。画面サイズ、実況テロップ、再生タイムライン、レース開始ボタンと録画ボタン" width="708" height="808" loading="lazy" decoding="async">
-          <figcaption>「レース開始」でプレビュー、「録画してWebM保存」で書き出しです。</figcaption>
+          <img src="kakuzuke-derby-video-settings.webp" alt="動画設定パネル。画面サイズ、実況テロップ、再生タイムライン、レース開始ボタンと動画の保存ボタン" width="708" height="808" loading="lazy" decoding="async">
+          <figcaption>「レース開始」でプレビュー、「動画を保存」で書き出しです。</figcaption>
         </figure>
 
         <h3>まずプレビューで展開を確認する</h3>
@@ -882,24 +882,25 @@
           展開が気に入らなければ、もう一度「レース開始」を押すだけで引き直せます。<strong>何度走らせても着順は変わりません</strong>ので、納得いくまで試してください。3Dなら展開シードを変えるほうが確実です。
         </p>
 
-        <h3>録画してWebMで保存する</h3>
+        <h3>動画ファイルに書き出して保存する</h3>
 
         <p>
-          「⏺ 録画してWebM保存」を押すと、<strong>レース開始と同時に録画が始まり、結果掲示板まで終わったところで動画ファイルが自動的にダウンロード</strong>されます。別途キャプチャソフトを用意する必要はありません。
+          「⬇ 動画を保存」を押すと書き出し画面が開きます（レースを最後まで見たときに出る「この動画を保存」からも開けます）。形式と透かしの有無を選んで「書き出す」を押すと、<strong>スタートから結果掲示板までが動画ファイルになり、自動でダウンロード</strong>されます。別途キャプチャソフトを用意する必要はありません。
         </p>
 
         <div class="box warn">
-          <span class="bt">録画するときの注意</span>
+          <span class="bt">書き出すときのポイント</span>
           <ul style="margin-bottom:0">
-            <li>形式は<strong>WebM（VP9・30fps）</strong>です。MP4が必要な場合は変換してください</li>
-            <li>録画中は<strong>タブを切り替えない</strong>でください。描画が止まりコマ落ちすることがあります</li>
-            <li>画面に出ている表示はそのまま記録されます。透かしを消したい場合は、録画前に「画面表示」で設定します</li>
+            <li>形式は<strong>MP4</strong>がおすすめです。iPhoneやAndroidでそのまま再生でき、写真アプリにも保存できます。WebMはパソコン向けです</li>
+            <li>実時間で録画するのではなく<strong>1コマずつ動画にする</strong>ので、端末が重くてもカクつきません。そのぶん、古いスマホの3Dでは書き出しに時間がかかることがあります</li>
+            <li>画面に出ている表示（実況テロップなど）はそのまま記録されます。透かしの有無は書き出し画面で選べます</li>
             <li>音声は含まれません。BGMや効果音は編集ソフトで足してください</li>
+            <li>LINEやInstagramなど<strong>アプリの中のブラウザでは保存できない</strong>ことがあります。SafariやChromeで開いてから作ってください</li>
           </ul>
         </div>
 
         <p>
-          YouTubeとX（旧Twitter）はWebMをそのまま投稿できます。TikTokやInstagram、PowerPointへの貼り付けなどMP4が必要な場面では、動画編集ソフトや無料の変換ツールでMP4（H.264）に書き出し直してください。会場で上映する場合は、事前に再生機材で試写しておくと安心です。
+          MP4で書き出せば、TikTokやInstagram、PowerPointへの貼り付けにもそのまま使えます。会場で上映する場合は、事前に再生機材で試写しておくと安心です。
         </p>
 
         <h3>縦型（9:16）で作る場合</h3>
@@ -1005,7 +1006,7 @@
 
         <details>
           <summary>動画はどの形式で保存されますか？MP4で欲しい場合は？</summary>
-          <p>WebM形式（VP9・30fps）で保存されます。MP4しか受け付けない編集ソフトやSNSに投稿する場合は、無料の変換ツールや動画編集ソフトの書き出し機能でMP4に変換してください。YouTubeとX（旧Twitter）はWebMのまま投稿できます。
+          <p>MP4とWebM（どちらも30fps）から選べます。iPhoneやAndroidでそのまま再生でき、TikTok・Instagram・PowerPointにも使いやすいMP4がおすすめです。
           </p>
         </details>
 
@@ -1046,7 +1047,7 @@
           <ul style="margin-bottom:0">
             <li><strong>出走馬リストの並び＝最終着順</strong>。ドラッグで決めれば、あとは何度走らせても結果は変わらない</li>
             <li><strong>2Dは軽さと分かりやすさ、3Dは見栄えと競馬らしさ</strong>。出走馬は共通なので両方試して選べる</li>
-            <li><strong>録画はWebM・音声なし</strong>。BGMと効果音は編集側で足す前提で作ると仕上がりが伸びる</li>
+            <li><strong>動画はMP4／WebM・音声なし</strong>。BGMと効果音は編集側で足す前提で作ると仕上がりが伸びる</li>
           </ul>
         </div>
 

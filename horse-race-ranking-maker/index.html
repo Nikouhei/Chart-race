@@ -15,12 +15,16 @@
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../shared/analytics.js?v=20261006" defer></script>
+  <!-- 動画書き出し（MP4 / WebM）・有料化に向けたアンケート・保存への導線 -->
+  <script src="../shared/export-plan.js?v=2026101703" defer></script>
+  <script src="../shared/video-export.js?v=2026101703" defer></script>
+  <script src="../shared/export-cta.js?v=2026101703" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>競馬風ランキング動画メーカー無料｜格付けダービー（3Dリアル対応）</title>
   <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
   <script src="../shared/origin-guard.js" defer></script>
-  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。軽快な2Dと、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」をワンタッチで切り替え。最大16頭・展開は毎回ランダム、でも結果は指定どおり。WebM録画対応、インストール不要。">
+  <meta name="description" content="順位を決めて走らせるだけで、競馬中継風のランキング発表動画を無料で作成。軽快な2Dと、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」をワンタッチで切り替え。最大16頭・展開は毎回ランダム、でも結果は指定どおり。MP4／WebMで動画保存、インストール不要。">
   <link rel="canonical" href="https://graphrace-studio.com/horse-race-ranking-maker/">
   <meta name="theme-color" content="#6E62F0">
   <!-- Open Graph -->
@@ -66,7 +70,7 @@
           "最大16頭・ドラッグで最終順位を指定",
           "2Dの競馬風と3DCGのリアル競馬風をワンタッチで切り替え",
           "出走馬とレース設定は2つのモードで共通",
-          "WebM形式での動画書き出し",
+          "MP4／WebM形式での動画書き出し",
           "16:9 / 9:16 / 3:4 / 1:1 のアスペクト比に対応"
         ],
         "offers": {
@@ -95,8 +99,8 @@
           {
             "@type": "HowToStep",
             "position": 3,
-            "name": "レース開始・録画する",
-            "text": "「レース開始」でプレビュー、「録画してWebM保存」ならゴール後に動画が自動保存されます。"
+            "name": "レース開始・動画を保存する",
+            "text": "「レース開始」でプレビューし、気に入ったら「動画を保存」でMP4またはWebMの動画ファイルに書き出します。"
           }
         ]
       }
@@ -913,7 +917,7 @@
           <span class="badge">3Dリアル対応</span>
         </div>
         <h1>競馬風ランキング動画を<br>無料でカンタン作成</h1>
-        <p class="lead">順位を決めて、走らせるだけ。展開は毎回ランダムなのに、ゴールは必ず設定どおり。競馬中継風のランキング発表動画がブラウザだけで完成し、WebM録画にも対応しています。<strong>軽快な「競馬風」</strong>と、3DCGの馬が実際の競馬場のようなコースを駆ける<strong>「リアル競馬風」</strong>を、ボタンひとつで切り替えられます。</p>
+        <p class="lead">順位を決めて、走らせるだけ。展開は毎回ランダムなのに、ゴールは必ず設定どおり。競馬中継風のランキング発表動画がブラウザだけで完成し、MP4／WebMの動画ファイルとして保存できます。<strong>軽快な「競馬風」</strong>と、3DCGの馬が実際の競馬場のようなコースを駆ける<strong>「リアル競馬風」</strong>を、ボタンひとつで切り替えられます。</p>
       </div>
     </section>
 
@@ -963,7 +967,7 @@
               <div class="timeline-time" id="timelineTime">0.0s / 0.0s</div>
             </div>
             <button class="btn btn-start" id="startBtn">▶ レース開始</button>
-            <button class="btn btn-secondary" id="recBtn" title="レース開始と同時に録画し、ゴール後にWebMを自動保存します">⏺ 録画してWebM保存</button>
+            <button class="btn btn-secondary" id="exportVideoBtn" type="button" title="レースを動画ファイル（MP4 / WebM）にして保存します">⬇ 動画を保存（MP4 / WebM）</button>
           </div>
 
           <div class="panel" style="margin-top:14px">
@@ -1157,7 +1161,7 @@
           <div class="feature-card">
             <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
             <h3>そのまま動画保存</h3>
-            <p>録画ボタンひとつでレース開始から結果掲示板までをWebM動画として自動保存。編集ソフトなしで投稿用素材が完成します。</p>
+            <p>「動画を保存」ボタンから、スタートから結果掲示板までをMP4／WebMの動画ファイルに書き出し。1コマずつ動画にするので、端末が重くてもカクつきません。編集ソフトなしで投稿用素材が完成します。</p>
           </div>
           <div class="feature-card">
             <div class="ico" style="line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;"><img src="assets/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;" onerror="var p=this.parentElement;if(!p)return;p.style.fontSize='48px';p.textContent='⚡';"></div>
@@ -1224,8 +1228,8 @@
           </div>
           <div class="step">
             <span class="num">3</span>
-            <h3>レース開始・録画</h3>
-            <p>「レース開始」でプレビュー、「録画してWebM保存」ならゴール後に動画が自動保存されます。</p>
+            <h3>レース開始・動画を保存</h3>
+            <p>「レース開始」でプレビューし、気に入ったら「動画を保存」でMP4またはWebMの動画ファイルに書き出します。</p>
           </div>
         </div>
         <a class="guide-link" href="../blog/how-to-make-horse-race-ranking-video/">
@@ -1254,7 +1258,7 @@
           </details>
           <details class="faq-item">
             <summary class="faq-q">作成したレース動画を保存するにはどうすればいいですか？</summary>
-            <div class="faq-a">画面にある「録画してWebM保存」ボタンをクリックしてからレースを開始すると、レース終了後に動画ファイルが自動でダウンロードされます。特別な録画ソフトは不要です。書き出される形式や、SNSへ投稿するときの注意点は<a href="../blog/how-to-make-horse-race-ranking-video/#step3">解説記事のSTEP3</a>で説明しています。</div>
+            <div class="faq-a">「動画を保存」ボタン（レースが終わったときに出る「この動画を保存」からも可）を押し、形式を選んで書き出すと、スタートから結果掲示板までの動画ファイルがダウンロードされます。iPhoneやAndroidでそのまま再生できるMP4にも対応しており、特別な録画ソフトは不要です。書き出される形式や、SNSへ投稿するときの注意点は<a href="../blog/how-to-make-horse-race-ranking-video/#step3">解説記事のSTEP3</a>で説明しています。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">「競馬風」と「リアル競馬風」は何が違いますか？設定はやり直しになりますか？</summary>
@@ -1269,6 +1273,10 @@
             <div class="faq-a">はい、スマートフォンやタブレットのブラウザからでもご利用いただけます。アプリのインストールや会員登録は一切不要です。</div>
           </details>
           <details class="faq-item">
+            <summary class="faq-q">スマホで動画を保存できない場合は？</summary>
+            <div class="faq-a">LINE・Instagram・X（旧Twitter）などのアプリの中でページを開いていると、アプリ内のブラウザがダウンロードを止めるため、動画を保存できないことがあります。SafariやChromeで開き直してから作成・書き出しをしてください（LINEの場合は、ツール上部に出る「Safari・Chromeで開き直す」ボタンから開けます）。iPhoneでは形式にMP4を選ぶと、保存した動画を写真アプリに入れて再生できます。</div>
+          </details>
+          <details class="faq-item">
             <summary class="faq-q">うまく作成・プレビューできない場合は？</summary>
             <div class="faq-a">ブラウザのキャッシュクリアや再起動をお試しください。それでも解決しない場合は、フッターにある「<a href="../about.html">このツールについて</a>」ページ内のお問い合わせフォームより、不具合の内容やご利用の環境（ブラウザ、OSなど）をご報告いただけますと幸いです。</div>
           </details>
@@ -1281,6 +1289,11 @@
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.10.17</span>
+              <span class="update-content">格付けダービー：動画の保存をMP4にも対応しました。録画ではなく1コマずつ動画にするため、端末が重くてもカクつきません。スマホでもそのまま再生できます。レースが終わると保存を案内し、LINEなどアプリ内のブラウザで開いたときは保存できないことを先にお知らせします。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.08.02</span>
@@ -1614,6 +1627,13 @@ function syncCoatMode(){
    戻ってくれば元どおりになる。
    レース時間(競馬風=秒で指定)とコース(リアル=距離で決まり尺は逆算)は
    尺の決め方が根本から違うので、あえて共通化せず両方を持ち続ける。 */
+/* 動画の書き出し中の状態(書き出しの本体はファイル末尾の setupVideoExport)。
+   saveState() から触るので、状態の復元(loadState)より前に宣言しておく */
+let exportActive=false;   // 書き出し中は通常の描画ループとシークを止める
+let exportNoMark=false;   // 競馬風の透かし(流れる文字)を書き出しで消すか
+let exportClockMs=0;      // 書き出し中の仮想時計。掲示板のフェードを実時間ではなくこれで進める
+let classicDirty=true;    // 競馬風: 最後にレースを組んだあと設定が変わったか
+const clockNow=()=>exportActive?exportClockMs:performance.now();
 const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
@@ -1646,6 +1666,7 @@ function saveState(){
   if(!stateLoaded)return;
   // 設定が動いた = リアル競馬風は次の開始でレースを組み直す
   realDirty=true;
+  classicDirty=true;   // 競馬風も、書き出し時は今の設定でレースを組み直す
   const state={
     version:2,
     mode:toolMode,
@@ -2015,7 +2036,7 @@ function roundRect(g,x,y,w,h,r){
 // レース時間が長い場合はコース自体が長くなる(=同じ速さで長く走る)
 const BASE_SPEED=11000/15;
 let COURSE=11000; // buildRace()でレース時間×BASE_SPEEDに再計算される
-let race=null,rafId=null,recorder=null,recChunks=[],paused=false;
+let race=null,rafId=null,paused=false;
 let timelineDragging=false,resumeAfterSeek=false;
 
 /* レース設定をDOMから1か所で読み取る。
@@ -2242,10 +2263,10 @@ function stepRace(dt){
   }
   if(R.goalOrder.length>0)R.slowmo=Math.min(1,R.slowmo+dt*0.6);
   if(R.goalOrder.length===R.horses.length&&!R.done){
-    R.done=true;R.doneAt=performance.now();
-    if(!R.seeking){
-      finishRecording();
+    R.done=true;R.doneAt=clockNow();
+    if(!R.seeking&&!exportActive){
       updateStartBtn();
+      if(window.GRSExportCTA)GRSExportCTA.showEnd();
       statusEl.textContent="ゴール！もう一度走らせると展開が変わります。";
     }
   }
@@ -2270,6 +2291,7 @@ let lastTs=null;
 let wmX=null; // 透かしのスクロール位置(nullなら右端から開始)
 function loop(ts){
   rafId=requestAnimationFrame(loop);
+  if(exportActive){lastTs=null;return;} // 書き出し中はコマを書き出し側が描く
   if(lastTs==null)lastTs=ts;
   const dt=Math.min(0.05,Math.max(0,(ts-lastTs)/1000)||0);lastTs=ts;
   if(race&&!race.done&&!paused)stepRace(dt);
@@ -2360,7 +2382,8 @@ function draw(dt){
   ctx.font="bold 24px 'Hiragino Kaku Gothic ProN',sans-serif";
   ctx.fillStyle="#f2ecd9";ctx.textAlign="left";
   ctx.fillText(R?R.name:"格付けダービー",20,35);
-  // 透かし(右下から左へ流れ続ける。録画にも焼き込まれる)
+  // 透かし(右下から左へ流れ続ける。動画にも焼き込まれる。書き出し画面で「なし」なら描かない)
+  if(!exportNoMark){
   ctx.save();
   ctx.font="bold 18px 'Hiragino Kaku Gothic ProN',sans-serif";
   const wmText="GraphRace Studio 格付けダービー";
@@ -2372,6 +2395,7 @@ function draw(dt){
   ctx.textAlign="left";
   ctx.fillText(wmText,wmX,H-12);
   ctx.restore();
+  }
   // 実況テロップ(設定で非表示にできる)
   if(R&&!R.done&&R.captions){
     const msg=commentary(R);
@@ -2410,7 +2434,7 @@ function drawStands(off){
   }
 }
 function drawResults(R){
-  const el=Math.min(1,(performance.now()-R.doneAt)/600);
+  const el=Math.min(1,(clockNow()-R.doneAt)/600);
   ctx.save();ctx.globalAlpha=el;
   ctx.fillStyle="rgba(8,20,12,.88)";
   const bw=560,n=R.horses.length;
@@ -2481,8 +2505,10 @@ function drawResults(R){
 function startRace(){
   if(entries.length<2){statusEl.textContent="出走馬は2頭以上必要です。";return null;}
   race=buildRace();
+  classicDirty=false;
   paused=false;
   timeline.disabled=false;
+  if(window.GRSExportCTA)GRSExportCTA.hideEnd();
   updateStartBtn();
   statusEl.textContent="レース中…設定した順位でゴールします。";
   return race;
@@ -2503,10 +2529,6 @@ function togglePlay(){
   if(toolMode==="real"){togglePlayReal();return;}
   if(race&&!race.done){
     paused=!paused;
-    if(recorder){
-      if(paused&&recorder.state==="recording")recorder.pause();
-      else if(!paused&&recorder.state==="paused")recorder.resume();
-    }
     statusEl.textContent=paused?"一時停止中。クリックで再開します。":"レース中…設定した順位でゴールします。";
     updateStartBtn();
   }else{
@@ -2527,41 +2549,6 @@ document.addEventListener("keydown",e=>{
   e.preventDefault();
   togglePlay();
 });
-/* 録画は2つのツールで共通。録る対象のキャンバスが違うだけなので、
-   captureStream するキャンバスを引数で受け取る形にしてある */
-function beginRecording(canvas){
-  recChunks=[];
-  const stream=canvas.captureStream(30);
-  recorder=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported("video/webm;codecs=vp9")?"video/webm;codecs=vp9":"video/webm"});
-  recorder.ondataavailable=e=>{if(e.data.size)recChunks.push(e.data)};
-  recorder.onstop=()=>{
-    const blob=new Blob(recChunks,{type:"video/webm"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="kakuzuke-derby.webm";a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-    recorder=null;
-    // 上げていた書き出し解像度を画面表示用に戻す
-    if(real3dReady)Real3D.setExportMode(false);
-    timeline.disabled=false;
-    statusEl.textContent="WebMを保存しました。";
-  };
-  recorder.start();
-  // 録画中のシークはキャンバスストリームの時間軸が乱れるため禁止
-  timeline.disabled=true;
-  statusEl.textContent="録画中…ゴール後に自動保存します。";
-}
-document.getElementById("recBtn").onclick=()=>{
-  if(toolMode==="real"){recordReal();return;}
-  const r=startRace();if(!r)return;
-  beginRecording(cv);
-};
-function finishRecording(){
-  if(recorder&&recorder.state==="recording"){
-    setTimeout(()=>recorder.stop(),2500); // 結果掲示板を2.5秒映してから停止
-  }
-}
-
 /* ================= 再生タイムライン(シーク) ================= */
 // 乱数はbuildRace()時にシード済みなので、固定dtで頭から再ステップすれば
 // 同じ展開が決定的に再現される。シークはこの再シミュレーション方式。
@@ -2570,7 +2557,7 @@ const timelineTime=document.getElementById("timelineTime");
 function seekTo(targetT){
   const R=race;
   if(!R)return;
-  if(recorder&&recorder.state!=="inactive")return;
+  if(exportActive)return;
   R.seeking=true;
   R.t=R.t0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
   for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
@@ -2580,7 +2567,7 @@ function seekTo(targetT){
   const target=Math.max(R.t0,Math.min(targetT,R.endT+0.6));
   while(R.t<target){stepRace(dt);updateCam(R,dt);}
   R.seeking=false;
-  if(R.done)R.doneAt=performance.now(); // 掲示板フェードを今からやり直す
+  if(R.done)R.doneAt=clockNow(); // 掲示板フェードを今からやり直す
   updateStartBtn();
 }
 function syncTimeline(){
@@ -2658,7 +2645,7 @@ const REAL3D_SCRIPTS=[
   "vendor/three.r128.min.js",
   "vendor/GLTFLoader.js",
   "vendor/SkeletonUtils.js",
-  "real3d.js",
+  "real3d.js?v=20261017",
 ];
 const loading3d=document.getElementById("loading3d");
 const loading3dText=document.getElementById("loading3dText");
@@ -2755,8 +2742,8 @@ function bindReal3DEvents(){
   Real3D.on("playing",()=>{ if(toolMode==="real")updateStartBtnReal(); });
   Real3D.on("ended",()=>{
     if(toolMode!=="real")return;
-    finishRecording();
     updateStartBtnReal();
+    if(window.GRSExportCTA)GRSExportCTA.showEnd();
     statusEl.textContent="ゴール！シードを変えると展開が変わります。";
   });
 }
@@ -2783,20 +2770,13 @@ function togglePlayReal(){
      途中で止めていた場合はそのまま続きから流す */
   if(!s.ready||realDirty||s.frame>=s.totalFrames)applyRealRace();
   timeline.disabled=false;
+  if(window.GRSExportCTA)GRSExportCTA.hideEnd();
   Real3D.play();
   statusEl.textContent="レース中…設定した順位でゴールします。";
 }
-function recordReal(){
-  if(!real3dReady){statusEl.textContent="3Dの読み込みが終わってから録画してください。";return;}
-  applyRealRace();
-  // 画面が小さくても書き出しは固定解像度で。戻すのは録画停止時(onstop)
-  const canvas=Real3D.setExportMode(true);
-  Real3D.play();
-  beginRecording(canvas);
-}
 function seekRealFromTimeline(){
   if(!real3dReady)return;
-  if(recorder&&recorder.state!=="inactive")return;
+  if(exportActive)return;
   const s=Real3D.state();
   if(!s.ready)return;
   Real3D.seekFrame((timeline.value/1000)*s.totalFrames);
@@ -2809,7 +2789,6 @@ async function switchMode(next){
   // 切り替え前に、今動いているほうを止める
   if(prev==="classic"){paused=true;}
   else if(real3dReady){Real3D.pause();}
-  if(recorder&&recorder.state!=="inactive"){recorder.stop();}
 
   toolMode=next;
   document.getElementById("tool").dataset.toolMode=next;
@@ -2863,6 +2842,156 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
   updateStartBtn();
   if(target==="real")switchMode("real");
 }
+
+/* ================= 動画の書き出し(shared/video-export.js) =================
+   以前はキャンバスを captureStream で実時間に録画していたため、端末が重いと
+   コマ落ちがそのまま動画に残り、形式も WebM だけだった。
+   いまはバーチャートレースと同じく「時刻を1コマずつ進めて描く → WebCodecs で
+   エンコード」する。実時間に追われないので、遅い端末でもカクつかない。
+   - 競馬風(2D): レースの乱数は buildRace() の時点で決まっているので、
+     頭から固定の刻みで進めれば同じ展開になる。最後に結果掲示板を2.5秒映す(以前の録画と同じ)。
+   - リアル競馬風(3D): real3d.js はフレーム番号で絵が決まるので、renderAtFrame(f) で任意のコマを描ける。
+   透かしはツール自身のもの(競馬風=流れる文字、リアル=ロゴ)を使い、有無は書き出し画面の選択に従う。 */
+(function setupVideoExport(){
+  const EXPORT_FPS=30;
+  const BOARD_HOLD_SEC=2.5;
+  const btn=document.getElementById("exportVideoBtn");
+  const isReal=()=>toolMode==="real";
+  let saved=null;
+
+  function resetClassic(R){
+    R.t=R.t0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+    for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
+  }
+  /* 競馬風のレースを用意して、頭から最後まで走らせたときの実時間[秒]を返す。
+     設定が変わっていれば今の設定で組み直す(プレビューした直後なら同じレース)。
+     測るためにいったん走らせるので、終わったら元の再生位置に戻す */
+  function prepareClassic(){
+    if(!race||classicDirty){
+      race=buildRace();classicDirty=false;paused=true; // 組んだだけでは走らせない
+      timeline.disabled=false;updateStartBtn();
+    }
+    const R=race;
+    if(R.exportSec==null){
+      const prevT=R.t;
+      resetClassic(R);
+      const dt=1/EXPORT_FPS;let sec=0;
+      R.seeking=true;
+      while(!R.done&&sec<600){stepRace(dt);sec+=dt;}
+      R.seeking=false;
+      R.exportSec=sec;
+      seekTo(prevT);
+      if(R.t<=R.t0+1e-9)resetClassic(R);
+    }
+    return R.exportSec;
+  }
+  function ensureReal(){
+    const s=Real3D.state();
+    if(!s.ready||realDirty)applyRealRace();
+    return Real3D.state();
+  }
+
+  const adapter={
+    ownWatermark:true,
+    isReady(){ return isReal()?real3dReady:entries.length>=2; },
+    getStage(){ return isReal()?Real3D.canvas():cv; },
+    getSize(){ return isReal()?Real3D.exportSize():{width:cv.width,height:cv.height}; },
+    getDurationMs(){
+      if(isReal()){const s=ensureReal();return Math.max(0,s.totalFrames-1)/Real3D.FPS*1000;}
+      return (prepareClassic()+BOARD_HOLD_SEC)*1000;
+    },
+    beginExport(opts){
+      if(isReal()){
+        const s=ensureReal();
+        saved={frame:s.frame};
+        Real3D.pause();
+        exportActive=true;
+        Real3D.setView({showMark:!!opts.watermark});
+        Real3D.setExportMode(true);
+        Real3D.renderAtFrame(0);
+      }else{
+        prepareClassic();
+        saved={t:race.t};
+        exportActive=true;
+        paused=true;
+        resetClassic(race);
+        exportNoMark=!opts.watermark;
+        exportClockMs=0;
+        wmX=null;
+      }
+      if(window.GRSExportCTA)GRSExportCTA.hideEnd();
+      statusEl.textContent="動画を書き出しています…";
+    },
+    renderAt(tMs,dtMs){
+      if(isReal()){Real3D.renderAtFrame(tMs/1000*Real3D.FPS);return;}
+      const dt=dtMs/1000;
+      exportClockMs=tMs;
+      if(dt>0&&race&&!race.done)stepRace(dt);
+      draw(dt);
+    },
+    paintFrame(g,w,h,opts){
+      if(opts&&opts.preview){
+        // 書き出し画面の見本: 今のコマを、選んだ透かしの有無で描いてから元に戻す
+        if(isReal()){
+          Real3D.setView({showMark:!!opts.watermark});
+          g.drawImage(Real3D.canvas(),0,0,w,h);
+          Real3D.setView(realViewConfig());
+        }else{
+          const keep=exportNoMark;
+          exportNoMark=!opts.watermark;
+          draw(0);
+          g.drawImage(cv,0,0,w,h);
+          exportNoMark=keep;
+          draw(0);
+        }
+        return;
+      }
+      g.drawImage(isReal()?Real3D.canvas():cv,0,0,w,h);
+    },
+    endExport(){
+      if(isReal()){
+        Real3D.setExportMode(false);
+        Real3D.setView(realViewConfig());
+        exportActive=false;
+        if(saved)Real3D.seekFrame(saved.frame);
+        updateStartBtnReal();
+      }else{
+        exportActive=false;
+        exportNoMark=false;
+        if(saved&&race)seekTo(saved.t);
+        paused=true;
+        updateStartBtn();
+        if(race)syncTimeline();
+      }
+      statusEl.textContent="書き出しが終わりました。";
+      saved=null;
+    }
+  };
+
+  const attach=()=>{
+    if(!window.GRSVideoExport)return;
+    const cfg={
+      button:btn,
+      adapter,
+      fileBase:"kakuzuke-derby",
+      scales:[1],          // 画質は描画解像度そのまま(高画質は有料化のときに検討)
+      fpsOptions:[EXPORT_FPS],
+      previewMark:false,   // 透かしはツール自身が描く
+      surveyId:"derby_v1", // 2問だけの短いアンケート
+      defaultWatermark:()=>isReal()?(isOn("showMark")?"on":"off"):null,
+      onNotReady:()=>{
+        statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
+      }
+    };
+    GRSVideoExport.attach(cfg);
+    // レースが終わったときに出す「この動画を保存」カード(shared/export-cta.js)
+    if(window.GRSExportCTA){
+      GRSExportCTA.init({cardHost:stageEl}).forEach(b=>GRSVideoExport.attach(Object.assign({},cfg,{button:b})));
+    }
+  };
+  if(window.GRSVideoExport)attach();
+  else document.addEventListener("DOMContentLoaded",attach,{once:true});
+})();
 </script>
 </body>
 </html>

@@ -18,10 +18,21 @@
  *       getStage()           描き写す要素（#chartArea）
  *       getSize()            { width, height } キャンバスの論理サイズ（px）
  *       getDurationMs()      アニメーションの長さ（最後の静止は含めない）
- *       beginExport()        再生を止め、書き出し用の状態にする（Promise 可）
+ *       beginExport(opts)    再生を止め、書き出し用の状態にする（Promise 可）。
+ *                            opts = { watermark, fps, size }
  *       renderAt(tMs, dtMs)  DOM を時刻 tMs の絵にする。dtMs は前フレームからの経過
  *       endExport()          元のプレビューに戻す
- *     }
+ *       paintFrame(ctx, w, h, opts)  （任意）canvas で描くツール用。今の絵を ctx に w×h で描く。
+ *                            これがあると DOM の描き写し（Painter）は使わない。
+ *                            opts.preview=true は設定画面の見本用（opts.watermark で透かしの有無）
+ *       ownWatermark         （任意）true ならツールが自分で透かしを描く。共通の透かしは重ねず、
+ *                            有無は beginExport(opts).watermark で渡す
+ *     },
+ *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [1, 1.5]）
+ *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
+ *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
+ *     surveyId: "derby_v1"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
+ *     defaultWatermark()     （任意）透かしの初期値 "on" / "off"。null なら前回の選択
  *   });
  *
  * ── 描き写せるもの ──────────────────────────────────────
@@ -801,7 +812,9 @@
     var pick = await pickConfig(opts.format, size.width, size.height, fps);
     if (!pick) throw new Error(opts.format === "mp4" ? "このブラウザでは MP4 を書き出せません" : "このブラウザでは WebM を書き出せません");
     await loadScript(opts.format === "mp4" ? VENDOR.mp4 : VENDOR.webm);
-    if (opts.watermark) { await loadLogo(); setMarkToneFrom(adapter.getStage()); }
+    var ownMark = !!adapter.ownWatermark;
+    var custom = typeof adapter.paintFrame === "function";
+    if (opts.watermark && !ownMark) { await loadLogo(); setMarkToneFrom(adapter.getStage()); }
     try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
 
     var target, muxer;
@@ -841,21 +854,25 @@
     var total = animFrames + holdFrames;
     var keyEvery = fps * 2;
 
-    await adapter.beginExport();
+    await adapter.beginExport({ watermark: !!opts.watermark, fps: fps, size: size });
     try {
-      var stage = adapter.getStage();
-      var painter = new Painter(ctx, stage, size.width);
+      var stage = custom ? null : adapter.getStage();
+      var painter = custom ? null : new Painter(ctx, stage, size.width);
       var started = performance.now();
       for (var i = 0; i < total; i++) {
         if (opts.signal && opts.signal.aborted) throw new DOMException("cancelled", "AbortError");
         if (encodeError) throw encodeError;
         // 最後の静止部分も毎フレーム描く（順位の入れ替わりが落ち着くまで動かすため）。
         // 透かしも止めずに動かし続ける（止まると切り取られやすい）
-        adapter.renderAt(Math.min(durationMs, i * frameMs), i === 0 ? 0 : frameMs);
-        var waiting = ensureImages(stage);
-        if (waiting) await waiting;
-        painter.paint();
-        if (opts.watermark) drawWatermark(ctx, size.width, size.height, i / fps);
+        await adapter.renderAt(Math.min(durationMs, i * frameMs), i === 0 ? 0 : frameMs);
+        if (custom) {
+          await adapter.paintFrame(ctx, size.width, size.height, {});
+        } else {
+          var waiting = ensureImages(stage);
+          if (waiting) await waiting;
+          painter.paint();
+        }
+        if (opts.watermark && !ownMark) drawWatermark(ctx, size.width, size.height, i / fps);
         var frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
         encoder.encode(frame, { keyFrame: i % keyEvery === 0 });
         frame.close();
@@ -893,7 +910,7 @@
       ".grsx-modal h3{margin:0;font-size:18px}" +
       ".grsx-x{flex:none;width:44px;height:44px;margin:0;padding:0;border:none;border-radius:8px;background:#e9ebf0;color:#333;font-size:24px;line-height:1;cursor:pointer}" +
       ".grsx-x:hover{background:#e6e8ee}" +
-      ".grsx-thumb[hidden]{display:none}.grsx-thumb{display:flex;justify-content:center;background:#e9ebf0;border-radius:8px;padding:10px;margin-bottom:14px}" +
+      ".grsx-thumb[hidden],.grsx-field[hidden]{display:none}.grsx-thumb{display:flex;justify-content:center;background:#e9ebf0;border-radius:8px;padding:10px;margin-bottom:14px}" +
       ".grsx-thumb canvas{max-width:100%;max-height:240px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.18)}" +
       ".grsx-field{display:grid;grid-template-columns:96px 1fr;gap:6px 12px;align-items:center;margin-bottom:10px}" +
       ".grsx-field>span{font-weight:700;font-size:13px}" +
@@ -993,7 +1010,19 @@
     // ── 設定画面 ──
     var size0 = adapter.getSize();
     function scaleLabel(s) { var o = outputSize(size0, s); return o.width + "×" + o.height; }
-    body.innerHTML =
+    var SCALE_NAMES = { "1": "標準", "1.5": "高画質", "2": "最高画質" };
+    var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [1, 1.5];
+    var fpsList = (cfg.fpsOptions && cfg.fpsOptions.length) ? cfg.fpsOptions : [30, 60];
+    var FPS_NAMES = { "30": "30fps（標準）", "60": "60fps（なめらか・ファイル大）" };
+    var scaleOptions = scales.map(function (s) {
+      return '<option value="' + s + '">' + (SCALE_NAMES[String(s)] || s + "倍") + "（" + scaleLabel(s) + "）</option>";
+    }).join("") +
+      // 最高画質は有料化（paywallEnabled）してから出す。画質を固定しているツールには出さない
+      (!cfg.scales && P && P.config.paywallEnabled ? '<option value="2">最高画質（' + scaleLabel(2) + "）" + (P.canUse("hd_max") ? "" : "・有料") + "</option>" : "");
+    var fpsOptions = fpsList.map(function (f) { return '<option value="' + f + '">' + (FPS_NAMES[String(f)] || f + "fps") + "</option>"; }).join("");
+    // LINE などのアプリ内ブラウザでは保存できないことが多いので、書き出す前に知らせる（shared/export-cta.js）
+    var inAppNote = (window.GRSExportCTA && window.GRSExportCTA.inAppDialogHtml) ? window.GRSExportCTA.inAppDialogHtml() : "";
+    body.innerHTML = inAppNote +
       '<div class="grsx-thumb"><canvas id="grsxThumb"></canvas></div>' +
       '<div class="grsx-field"><span>形式</span><div class="grsx-seg" data-name="format">' +
         '<label><input type="radio" name="grsxFormat" value="mp4"><b>MP4 <em class="grsx-tag">おすすめ</em></b></label>' +
@@ -1006,14 +1035,11 @@
           // 有料化前は「β版特典」として無料で消せることを控えめに伝える
           (P && !P.config.paywallEnabled ? '<em class="grsx-tag free">β版特典</em>' : tagHtml("no_watermark")) + "</b></label>" +
       "</div></div>" +
-      '<div class="grsx-field"><span>画質</span><select class="grsx-select" id="grsxScale">' +
-        '<option value="1">標準（' + scaleLabel(1) + "）</option>" +
-        '<option value="1.5">高画質（' + scaleLabel(1.5) + "）</option>" +
-        // 最高画質は有料化（paywallEnabled）してから出す
-        (P && P.config.paywallEnabled ? '<option value="2">最高画質（' + scaleLabel(2) + "）" + (P.canUse("hd_max") ? "" : "・有料") + "</option>" : "") +
+      '<div class="grsx-field"' + (scales.length < 2 && !(P && P.config.paywallEnabled && !cfg.scales) ? " hidden" : "") + '><span>画質</span><select class="grsx-select" id="grsxScale">' +
+        scaleOptions +
       "</select></div>" +
-      '<div class="grsx-field"><span>なめらかさ</span><select class="grsx-select" id="grsxFps">' +
-        '<option value="30">30fps（標準）</option><option value="60">60fps（なめらか・ファイル大）</option>' +
+      '<div class="grsx-field"' + (fpsList.length < 2 ? " hidden" : "") + '><span>なめらかさ</span><select class="grsx-select" id="grsxFps">' +
+        fpsOptions +
       "</select></div>" +
       '<div class="grsx-field"><span>最後に止める</span><select class="grsx-select" id="grsxHold">' +
         '<option value="0">止めない</option><option value="1">1秒</option><option value="2">2秒</option><option value="3">3秒</option><option value="5">5秒</option>' +
@@ -1036,11 +1062,15 @@
 
     // 形式は MP4 を最初に選ぶ（スマホで再生・写真アプリに保存できるため）。書き出せないブラウザだけ WebM にする
     radio("grsxFormat", "mp4");
-    radio("grsxMark", last.mark === "off" && (!P || P.canUse("no_watermark")) ? "off" : "on");
+    // ツール側に透かしの設定がある場合（格付けダービーのリアル競馬風）はそれに合わせる
+    var mark0 = (typeof cfg.defaultWatermark === "function" && cfg.defaultWatermark()) || last.mark;
+    radio("grsxMark", mark0 === "off" && (!P || P.canUse("no_watermark")) ? "off" : "on");
     var scaleSel = body.querySelector("#grsxScale");
-    scaleSel.value = String(last.scale || 1);
-    if (!scaleSel.value) scaleSel.value = "1";
-    body.querySelector("#grsxFps").value = String(last.fps || 30);
+    scaleSel.value = String(last.scale || scales[0]);
+    if (!scaleSel.value) scaleSel.value = String(scales[0]);
+    var fpsSel = body.querySelector("#grsxFps");
+    fpsSel.value = String(last.fps || fpsList[0]);
+    if (!fpsSel.value) fpsSel.value = String(fpsList[0]);
     body.querySelector("#grsxHold").value = String(last.hold != null ? last.hold : 2);
 
     function current() {
@@ -1065,6 +1095,15 @@
       thumb.width = tw;
       thumb.height = th;
       var tctx = thumb.getContext("2d");
+      if (typeof adapter.paintFrame === "function") {
+        try {
+          adapter.paintFrame(tctx, tw, th, { preview: true, watermark: c.mark === "on" });
+          if (c.mark === "on" && !adapter.ownWatermark) {
+            loadLogo().then(function () { if (closed) return; adapter.paintFrame(tctx, tw, th, { preview: true, watermark: true }); setMarkToneFrom(stage); drawWatermark(tctx, tw, th, 0); });
+          }
+        } catch (e) {}
+        return;
+      }
       var draw = function () {
         try {
           new Painter(tctx, stage, tw).paint();
@@ -1136,7 +1175,8 @@
       if (P) P.countExport();
       state.busy = true;
       abort = new AbortController();
-      var showSurvey = !!(P && P.survey.shouldShow());
+      var SV = P ? ((cfg.surveyId && P.surveys && P.surveys[cfg.surveyId]) || P.survey) : null;
+      var showSurvey = !!(SV && SV.shouldShow());
       body.innerHTML =
         '<div class="grsx-progress">' +
           '<div class="grsx-progress-text"><span id="grsxPhase">準備しています…</span><span id="grsxEta"></span></div>' +
@@ -1154,7 +1194,7 @@
       var surveyDone = new Promise(function (res) { surveyDoneResolve = res; });
       if (showSurvey) {
         surveyPending = true;
-        P.survey.render(body.querySelector("#grsxSurvey"), {
+        SV.render(body.querySelector("#grsxSurvey"), {
           features: cfg.surveyFeatures,
           context: { export_format: c.format, watermark: c.mark },
           onDone: function () { surveyPending = false; surveyDoneResolve(); }
@@ -1246,7 +1286,7 @@
 
   function attach(cfg) {
     if (!cfg || !cfg.button || !cfg.adapter) return;
-    try { attachPreviewMark(cfg.adapter.getStage()); } catch (e) {}
+    if (cfg.previewMark !== false) { try { attachPreviewMark(cfg.adapter.getStage()); } catch (e) {} }
     cfg.button.addEventListener("click", function () {
       if (state.busy) return;
       if (!cfg.adapter.isReady()) {

@@ -3983,6 +3983,15 @@ global.Real3D={
   seekSec(s){ this.seekFrame(s*FPS); },
 
   state(){ return {frame, totalFrames, duration:totalFrames/FPS, playing, ready:!!cfg}; },
+  /* 書き出しの解像度(setExportMode で使う値)。動画の書き出し画面が、
+     書き出し前に大きさを表示するために使う */
+  exportSize(){ const [w,h]=EXPORT_SIZES[view.aspect]||EXPORT_SIZES["16:9"]; return {width:w,height:h}; },
+  /* 書き出し用。指定フレームを描く(再生状態やイベントは触らない) */
+  renderAtFrame(f){
+    if(!cfg) return;
+    frame=clamp(Math.round(f),0,totalFrames);
+    renderFrame();
+  },
   courseInfo: courseInfoText,
   canvas(){ return renderer.domElement; },
   resize,

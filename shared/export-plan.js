@@ -22,6 +22,7 @@
  *     survey_view     アンケートを表示した（回答率の分母）
  *     survey_submit   回答した  survey_id / use_case / wanted_features / pay_model / survey_comment
  *     survey_dismiss  スキップした
+ *   格付けダービーは2問だけの短いアンケート（derby_v1）を使う。下の QUICK_SURVEYS を参照。
  *   値はすべて英語のコード（下の SURVEY の value）。カンマ区切りで複数選択を表す。
  */
 (function () {
@@ -312,6 +313,113 @@
     track("survey_view", { survey_id: SURVEY_ID });
   }
 
+  // ── 短いアンケート（derby_v1：格付けダービー用）─────────────────
+  // イベントで1回使う人が多いツールなので、2問をタップで答えるだけにする（自由記述なし）。
+  // 1問目は1つ選択、2問目（欲しい機能）は複数選択。2問とも選ぶと「送信する」が押せる。
+  // 複数選択の質問が無い場合は、全部選んだ時点で自動で送る。
+  //   survey_submit  survey_id=derby_v1 / use_case / wanted_features（複数はカンマ区切り）
+  // 表示のルールは pricing_v1 と同じ（回答したら出さない。スキップは3回書き出した後に1回だけ再表示）。
+  // 記録は pricing_v1 とは別に持つので、他のツールで答えた人にも1回は出る。
+  var QUICK_SURVEYS = {
+    derby_v1: {
+      head: "書き出しを待つあいだに、2問だけ教えてください",
+      questions: [
+        { key: "use_case", label: "何に使う動画ですか？", options: [
+          ["event_work", "忘年会・社内イベント"], ["party", "結婚式・パーティー"], ["school", "学校・子ども会"],
+          ["sns", "YouTube・SNS"], ["personal", "個人で楽しむ"], ["other", "その他"]
+        ] },
+        { key: "wanted_features", label: "欲しい機能は？（いくつでも）", multi: true, options: [
+          ["bgm", "BGM・実況の音声"], ["hd", "フルHDの高画質"], ["no_watermark", "透かしなし"],
+          ["photo", "3Dの馬に画像追加"], ["results", "結果発表の演出を増やす"], ["other", "その他"]
+        ] }
+      ]
+    }
+  };
+
+  function shouldShowFor(lsKey) {
+    var s = lsGet(lsKey);
+    if (!s) return true;
+    if (s.status === "answered") return false;
+    if ((s.dismissCount || 0) >= 2) return false;
+    var exportsNow = lsGet(LS_EXPORTS) || 0;
+    return exportsNow - (s.exportsAtDismiss || 0) >= 3;
+  }
+  function finishFor(lsKey, status) {
+    var s = lsGet(lsKey) || {};
+    if (status === "answered") { s.status = "answered"; s.answeredAt = Date.now(); }
+    else {
+      s.status = "dismissed";
+      s.dismissCount = (s.dismissCount || 0) + 1;
+      s.exportsAtDismiss = lsGet(LS_EXPORTS) || 0;
+    }
+    lsSet(lsKey, s);
+  }
+
+  function makeQuickSurvey(id) {
+    var def = QUICK_SURVEYS[id];
+    var lsKey = "grs_survey_" + id;
+    function render(container, opts) {
+      opts = opts || {};
+      ensureStyles();
+      var hasMulti = def.questions.some(function (q) { return q.multi; });
+      container.innerHTML =
+        '<div class="grsp-survey grsp-quick">' +
+          '<div class="grsp-survey-head"><b>' + esc(def.head) + '</b><span>' +
+            (hasMulti ? "選んで送信するだけです。" : "タップするだけで送信されます。") + "答えなくても書き出しは止まりません。</span></div>" +
+          def.questions.map(function (q) {
+            return '<fieldset class="grsp-q" data-q="' + q.key + '"><legend>' + esc(q.label) + '</legend><div class="grsp-chips">' +
+              q.options.map(function (o) {
+                return '<label class="grsp-chip"><input type="' + (q.multi ? "checkbox" : "radio") + '" name="grspq_' + q.key + '" value="' + esc(o[0]) + '"><span>' + esc(o[1]) + "</span></label>";
+              }).join("") + "</div></fieldset>";
+          }).join("") +
+          '<div class="grsp-actions"><button type="button" class="grsp-btn grsp-ghost grsp-skip" id="grspSkipBtn">今回はスキップ</button>' +
+            (hasMulti ? '<button type="button" class="grsp-btn grsp-primary grsp-submit" id="grspSubmitBtn" disabled>送信する</button>' : "") +
+          "</div>" +
+        "</div>";
+      var root = container.querySelector(".grsp-survey");
+      var submitBtn = root.querySelector(".grsp-submit");
+      var sent = false;
+      // 全問答えていれば { survey_id, 質問key: 値 } を返す（複数選択はカンマ区切り）。未回答があれば null
+      function collect() {
+        var p = { survey_id: id };
+        for (var i = 0; i < def.questions.length; i++) {
+          var q = def.questions[i];
+          var vals = Array.prototype.map.call(root.querySelectorAll('[data-q="' + q.key + '"] input:checked'), function (el) { return el.value; });
+          if (!vals.length) return null;
+          p[q.key] = vals.join(",");
+        }
+        return p;
+      }
+      function send(p) {
+        if (sent || !p) return;
+        sent = true;
+        var ctx = opts.context || {};
+        for (var k in ctx) if (p[k] === undefined) p[k] = ctx[k];
+        track("survey_submit", p);
+        root.innerHTML = '<p class="grsp-thanks">ご協力ありがとうございました！</p>';
+        finishFor(lsKey, "answered");
+        if (opts.onDone) opts.onDone("answered");
+      }
+      root.addEventListener("change", function () {
+        if (sent) return;
+        var p = collect();
+        if (submitBtn) submitBtn.disabled = !p;
+        else send(p);
+      });
+      if (submitBtn) submitBtn.addEventListener("click", function () { send(collect()); });
+      root.querySelector(".grsp-skip").addEventListener("click", function () {
+        track("survey_dismiss", { survey_id: id });
+        container.innerHTML = "";
+        finishFor(lsKey, "dismissed");
+        if (opts.onDone) opts.onDone("dismissed");
+      });
+      track("survey_view", { survey_id: id });
+    }
+    return { id: id, shouldShow: function () { return shouldShowFor(lsKey); }, render: render };
+  }
+  var SURVEYS = {};
+  for (var qid in QUICK_SURVEYS) SURVEYS[qid] = makeQuickSurvey(qid);
+
   // ── 見た目 ───────────────────────────────────────────
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -362,6 +470,7 @@
     activateLicense: activateLicense,
     countExport: countExport,
     survey: { id: SURVEY_ID, shouldShow: shouldShowSurvey, render: renderSurvey },
+    surveys: SURVEYS,
     esc: esc
   };
 })();

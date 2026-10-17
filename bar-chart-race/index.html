@@ -89,7 +89,7 @@
             "@type": "HowToStep",
             "position": 3,
             "name": "設定して再生・保存",
-            "text": "色・フォント・サイズなどを設定し、アニメーションを再生して保存します。"
+            "text": "色・フォント・サイズなどを設定してプレビューを再生し、「動画を保存」ボタンでMP4またはWebMの動画ファイルに書き出します。"
           }
         ]
       },
@@ -125,7 +125,15 @@
             "name": "作成したバーチャートレースは動画として保存・ダウンロードできますか。",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "はい、ツール内の「動画を書き出す」ボタンから、MP4またはWebM形式の動画ファイルとして保存できます。スマホのブラウザからも書き出せます。また、入力したデータや設定内容はブラウザに自動保存されるため、途中でページを閉じても次回アクセス時に続きから再開できます。"
+              "text": "はい、画面下の「動画を保存」ボタン（設定パネルの「動画を書き出す」からも可）から、MP4またはWebM形式の動画ファイルとして保存できます。スマホのブラウザからも書き出せます。また、入力したデータや設定内容はブラウザに自動保存されるため、途中でページを閉じても次回アクセス時に続きから再開できます。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "スマホで動画を保存できない場合は？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "LINE・Instagram・X（旧Twitter）などのアプリの中でページを開いていると、アプリ内のブラウザがダウンロードを止めるため、動画を保存できないことがあります。SafariやChromeで開き直してから作成・書き出しをしてください（LINEの場合は、ツール上部に出る「Safari・Chromeで開き直す」ボタンから開けます）。iPhoneでは形式にMP4を選ぶと、保存した動画を写真アプリに入れて再生できます。"
             }
           },
           {
@@ -731,7 +739,7 @@
           <div class="step">
             <span class="num">3</span>
             <h3>設定して再生・保存</h3>
-            <p>色やフォントを整えてアニメーションを再生。気に入ったら保存して完成です。</p>
+            <p>色やフォントを整えてアニメーションを再生。気に入ったら「動画を保存」でMP4／WebMの動画ファイルに書き出して完成です。</p>
           </div>
         </div>
         <a class="guide-link" href="../blog/how-to-make-bar-chart-race/">
@@ -761,7 +769,11 @@
           </details>
           <details class="faq-item">
             <summary class="faq-q">作成したバーチャートレースは動画として保存・ダウンロードできますか。</summary>
-            <div class="faq-a">はい、ツール内の「動画を書き出す」ボタンから、MP4またはWebM形式の動画ファイルとして保存できます。スマホのブラウザからも書き出せます。また、入力したデータや設定内容はブラウザに自動保存されるため、途中でページを閉じても次回アクセス時に続きから再開できます。</div>
+            <div class="faq-a">はい、画面下の「動画を保存」ボタン（設定パネルの「動画を書き出す」からも可）から、MP4またはWebM形式の動画ファイルとして保存できます。スマホのブラウザからも書き出せます。また、入力したデータや設定内容はブラウザに自動保存されるため、途中でページを閉じても次回アクセス時に続きから再開できます。</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">スマホで動画を保存できない場合は？</summary>
+            <div class="faq-a">LINE・Instagram・X（旧Twitter）などのアプリの中でページを開いていると、アプリ内のブラウザがダウンロードを止めるため、動画を保存できないことがあります。SafariやChromeで開き直してから作成・書き出しをしてください（LINEの場合は、ツール上部に出る「Safari・Chromeで開き直す」ボタンから開けます）。iPhoneでは形式にMP4を選ぶと、保存した動画を写真アプリに入れて再生できます。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">データがうまく反映されない場合はどうしたら良いですか。</summary>
@@ -783,6 +795,11 @@
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.10.17</span>
+              <span class="update-content">画面下のタイムラインに「動画を保存」ボタンを追加し、プレビューを最後まで再生すると保存を案内するようにしました。LINEなどアプリ内のブラウザで開いたときは、保存できないことを先にお知らせします。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.10.10</span>
