@@ -1,6 +1,14 @@
 # Rules
 - エディタはAntigravity IDEを使用しています。
 
+## Git・公開に関するルール【必須】
+- **コミット・pushは、ユーザーから明示的な指示があるまで行わない。** 修正が終わったら変更内容を報告し、指示を待つ。
+- **株価レース（`stock-race/` 配下、`stock_race_*` 関連）は、ユーザーの指示があるまで絶対に公開しない。**
+  - `stock-race/` をコミット・pushしない（git 管理に入れない）。
+  - `.assetsignore` の `stock-race/` 除外を外さない。
+  - メインサイト（トップ・LP・ブログ・sitemap.xml など）から株価レースへのリンクを張らない。
+  - `build/build.js` の株価レース再生成処理もコミットしない。
+
 ## SEO・パフォーマンスの最優先ルール
 **※対象：SEOページ（トップページやaboutページなど）のみ。ツールページ（bar-chart-race, regular-chart等）には本ルールは適用不要です。**
 
@@ -35,3 +43,10 @@
 - `shared/analytics.js` を変更したら、全ページの `?v=` を更新する（/shared/* は1年キャッシュのため）。
 - 動作確認: localhost で開くと送信せず console に `[grs-analytics] イベント名 {...}` が出るので、追加したイベントが出ることを確認する。
 - 詳細は analytics/README.md。
+
+## 確認用プレビュー（previewブランチ）のルール
+- 確認用のブランチは **`preview` の1本だけ** を使う。機能ごとに `preview/xxx` のようなブランチは作らない。
+- 確認URLは常に https://preview-chartrace.kohei-coffee-cake.workers.dev/ （Cloudflare Workers Builds のプレビュー。`noindex` ヘッダー付きで配信される）。
+- 確認したい変更ができたら「最新の main ＋ その変更」で `preview` を上書きして push する（preview は確認専用なので強制上書きしてよい。大事な変更を preview にだけ置かない）。
+- ユーザーが確認してOKを出したら main にコミット・push して公開する。
+- robots.txt は本番と共用なので、プレビュー用に書き換えない（本番が検索されなくなる）。
