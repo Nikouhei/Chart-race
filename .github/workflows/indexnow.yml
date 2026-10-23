@@ -5,8 +5,12 @@ on:
     branches:
       - main
     paths:
+      - "src/**"
+      - "public/**"
       - "**.html"
-      - "sitemap.xml"
+      - "astro.config.*"
+      - "build/postbuild.mjs"
+  workflow_dispatch:
 
 jobs:
   indexnow:
@@ -18,11 +22,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: npm
 
-      # デプロイ（Cloudflare Pages / Vercelなど）の反映を少し待つ
+      # sitemap.xml は公開サイトから取らず、ビルド結果（dist/sitemap.xml）を使う。
+      # GitHub Actions の IP からのアクセスは Cloudflare のボット対策で 403 になるため。
+      - name: Build site
+        run: |
+          npm ci
+          npm run build
+
+      # Cloudflare 側のデプロイ完了を待ってから通知する（検索エンジンがすぐ取りに来ても新しいページが返るように）
       - name: Wait for deployment
-        run: sleep 30
+        run: sleep 60
 
       - name: Submit to IndexNow
         run: node analytics/submit-indexnow.mjs

@@ -32,7 +32,11 @@ async function extractUrlsFromSitemap() {
   if (fs.existsSync(local)) {
     content = fs.readFileSync(local, "utf-8");
   } else {
-    const res = await fetch(`https://${HOST}/sitemap.xml`, { cache: "no-store" });
+    // 公開中の sitemap を取りに行く（GitHub Actions ではビルド済みの dist を使うので通常ここは通らない）
+    const res = await fetch(`https://${HOST}/sitemap.xml`, {
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; GraphRaceStudio-IndexNow/1.0)" },
+    });
     if (!res.ok) throw new Error(`sitemap.xml を取得できませんでした（HTTP ${res.status}）`);
     content = await res.text();
   }
@@ -102,8 +106,10 @@ async function submitIndexNow(urls) {
       console.log(`送信結果: HTTP ${status}`);
       if (bodyText) console.log(bodyText);
     }
+    if (status !== 200 && status !== 202) process.exitCode = 1;
   } catch (err) {
     console.error(`IndexNow 送信中にエラーが発生しました: ${err.message}`);
+    process.exitCode = 1;
   }
 }
 
