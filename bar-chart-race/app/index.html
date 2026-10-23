@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026102307" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026102401" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/registry.js?v=20261023"></script>
   <style>
@@ -1384,69 +1384,8 @@
         <div id="customColorList" class="individual-color-list"></div>
       </div>
       <div id="barColorCategoryPanel" class="color-mode-panel">
-        <p class="color-empty-note" style="margin:0 0 8px;">自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。凡例の表示は下の「カテゴリ」で設定できます。</p>
+        <p class="color-empty-note" style="margin:0 0 8px;">自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。凡例の表示は「凡例」で設定できます。</p>
         <div id="categoryColorList" class="individual-color-list"></div>
-      </div>
-    </div>
-
-    <div class="input-group">
-      <label>カテゴリ</label>
-      <p class="locked-note" id="categoryLockedNote"></p>
-      <div id="categoryLegendControls">
-        <div class="checkbox-group" style="margin-top:0;">
-          <input type="checkbox" id="showCategoryLegend">
-          <span>カテゴリの凡例を表示</span>
-          <span class="info-tip" id="categoryLegendInfo" tabindex="0" role="note" aria-label="カテゴリ凡例の使い方">i<span class="info-tip-text">
-            カテゴリごとの色と名前を、グラフの外側に一覧表示します。<br>
-            使うには <b>①「使う列」でカテゴリ列をON</b> ・ <b>②「グラフの色」の色の決め方を「カテゴリ」</b> ・ <b>③カテゴリ列にデータが入っている</b> の3つが必要です。<br>
-            色そのものは「グラフの色」で個別に変更できます。
-          </span></span>
-        </div>
-        <div class="setting-row">
-          <div class="setting-field">
-            <span>表示位置</span>
-            <select id="categoryLegendPosition">
-              <option value="top-right">右上</option>
-              <option value="top-left">左上</option>
-              <option value="bottom-right">右下</option>
-              <option value="bottom-left">左下</option>
-            </select>
-          </div>
-          <div class="setting-field">
-            <span>並び方向</span>
-            <select id="categoryLegendLayout">
-              <option value="horizontal">横並び</option>
-              <option value="vertical">縦並び</option>
-            </select>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-field">
-            <span>文字サイズ(%)</span>
-            <input type="number" id="categoryLegendSize" value="2.2" min="0.5" max="8" step="0.1">
-          </div>
-          <div class="setting-field">
-            <span>文字色</span>
-            <input type="color" id="categoryLegendColor" value="#222222">
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-field">
-            <span>色見本の形</span>
-            <select id="categoryLegendSwatch">
-              <option value="square">四角</option>
-              <option value="circle">丸</option>
-            </select>
-          </div>
-          <div class="setting-field">
-            <span>凡例の背景</span>
-            <select id="categoryLegendBg">
-              <option value="none">なし</option>
-              <option value="light">白（半透明）</option>
-              <option value="dark">黒（半透明）</option>
-            </select>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -1509,6 +1448,67 @@
       <div class="checkbox-group">
         <input type="checkbox" id="showRankingValueInsideBar" checked>
         <span>ランキング: バー内左端にデータ</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>凡例</label>
+      <p class="locked-note" id="categoryLockedNote"></p>
+      <div id="categoryLegendControls">
+        <div class="checkbox-group" style="margin-top:0;">
+          <input type="checkbox" id="showCategoryLegend">
+          <span>カテゴリの凡例を表示</span>
+          <span class="info-tip" id="categoryLegendInfo" tabindex="0" role="note" aria-label="カテゴリ凡例の使い方">i<span class="info-tip-text">
+            カテゴリごとの色と名前を、グラフの外側に一覧表示します。<br>
+            使うには <b>①「使う列」でカテゴリ列をON</b> ・ <b>②「グラフの色」の色の決め方を「カテゴリ」</b> ・ <b>③カテゴリ列にデータが入っている</b> の3つが必要です。<br>
+            色そのものは「グラフの色」で個別に変更できます。
+          </span></span>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>表示位置</span>
+            <select id="categoryLegendPosition">
+              <option value="top-right">右上</option>
+              <option value="top-left">左上</option>
+              <option value="bottom-right">右下</option>
+              <option value="bottom-left">左下</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <span>並び方向</span>
+            <select id="categoryLegendLayout">
+              <option value="horizontal">横並び</option>
+              <option value="vertical">縦並び</option>
+            </select>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>文字サイズ(%)</span>
+            <input type="number" id="categoryLegendSize" value="2.2" min="0.5" max="8" step="0.1">
+          </div>
+          <div class="setting-field">
+            <span>文字色</span>
+            <input type="color" id="categoryLegendColor" value="#222222">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-field">
+            <span>色見本の形</span>
+            <select id="categoryLegendSwatch">
+              <option value="square">四角</option>
+              <option value="circle">丸</option>
+            </select>
+          </div>
+          <div class="setting-field">
+            <span>凡例の背景</span>
+            <select id="categoryLegendBg">
+              <option value="none">なし</option>
+              <option value="light">白（半透明）</option>
+              <option value="dark">黒（半透明）</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -60,8 +60,17 @@ I18N.registerText('en', {
   'バーの色': 'Bar color',
   '自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。凡例の表示は下の「カテゴリ」で設定できます。':
     'Colors are assigned in order from the palette above. You can change each one. Set up the legend under “Category” below.',
+  '自動の色は上の「パターン」パレットから出現順に割り当てられます。個別に変更も可能です。凡例の表示は「凡例」で設定できます。':
+    'Colors are assigned in order from the palette above. You can change each one. Set up the legend under “Legend”.',
   'データを読み込むと、バーごとに色を指定できます。': 'Load data to set a color for each bar.',
   'カテゴリ列にデータを入れると、カテゴリごとに色を指定できます。': 'Add data to the category column to set a color per category.',
+
+  // ── 凡例（3ツール共通の「凡例」セクション）──
+  'カテゴリの凡例': 'Category legend',
+  '項目の凡例を表示': 'Show item legend',
+  '凡例に値を表示': 'Show values in legend',
+  '線の先端に項目名を表示': 'Show names at line ends',
+  '線の先端に値を表示': 'Show values at line ends',
 
   // ── カテゴリ（凡例）──
   'カテゴリの凡例を表示': 'Show category legend',
