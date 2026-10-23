@@ -3,14 +3,15 @@
  * 各ツール(アプリ)が <head> で読み込み、ツール間のデータ引き継ぎと切替に使う。
  * 将来ツールを増やす時は CHART_TOOLS に1エントリ足すだけでよい。
  *   - id:   ツール識別子（切替ドロップダウンの値と一致）
- *   - label: 切替ドロップダウンに表示する名称
+ *   - label: 切替ドロップダウンに表示する名称（日本語）
+ *   - i18nKey: 他の言語での名称の辞書キー（shared/i18n/<言語>/common.js）
  *   - path:  そのツールの app/ への相対パス（各アプリは /<tool>/app/ にある前提）
  *   - kind:  'animated' | 'static'（参考情報）
  */
 (function () {
   window.CHART_TOOLS = [
-    { id: 'bar-chart-race', label: 'バーチャートレース', path: '../../bar-chart-race/app/', kind: 'animated' },
-    { id: 'regular-chart',  label: '線グラフレース', path: '../../regular-chart/app/', kind: 'static' }
+    { id: 'bar-chart-race', label: 'バーチャートレース', i18nKey: 'tool.barChartRace.label', path: '../../bar-chart-race/app/', kind: 'animated' },
+    { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' }
   ];
 
   // 編集中プロジェクトの一時引き継ぎ枠。保存済み一覧(chartToolSavedProjects)とは別管理。
@@ -68,7 +69,8 @@
     } catch (e) {
       // localStorage が使えない/容量超過でも遷移自体は行う
     }
-    window.location.href = target.path;
+    // 表示言語（?lang=en など）を切替先にも引き継ぐ
+    window.location.href = (window.I18N && window.I18N.withLang) ? window.I18N.withLang(target.path) : target.path;
   };
 
   // 起動時に呼ぶ。引き継ぎ payload があれば返し、枠は消費(削除)する。無ければ null。
@@ -225,7 +227,8 @@
     if (!selectEl) return;
     selectEl.innerHTML = window.CHART_TOOLS.map(function (t) {
       var sel = t.id === currentId ? ' selected' : '';
-      return '<option value="' + t.id + '"' + sel + '>' + t.label + '</option>';
+      var label = (window.I18N && t.i18nKey) ? window.I18N.t(t.i18nKey, null, t.label) : t.label;
+      return '<option value="' + t.id + '"' + sel + '>' + label + '</option>';
     }).join('');
   };
 })();

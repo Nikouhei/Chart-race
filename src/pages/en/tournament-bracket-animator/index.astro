@@ -1,0 +1,53 @@
+---
+// トーナメント表 英語版LP（/en/tournament-bracket-animator/）
+import ToolLanding from '../../../components/en/ToolLanding.astro';
+const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in your browser'];
+---
+<ToolLanding
+  pageId="tournament"
+  jaFile="tournament-bracket-animator/index.html"
+  title="Animated Tournament Bracket Maker | Bracket Generator for 2–32 Players"
+  description="Make an animated tournament bracket in your browser. Enter 2–32 players, pick a layout and colors, and watch winners advance round by round. Great for esports, office tournaments and stream events."
+  appName="Tournament Bracket Animator"
+  badges={BADGES}
+  h1="Make an Animated<br>Tournament Bracket"
+  lead="Type in the players and get a clean single-elimination bracket in seconds. Press play and the winners advance round by round to the champion — or pick the winners yourself. Choose from horizontal, two-sided and vertical layouts."
+  appHref="/tournament-bracket-animator/app/?lang=en"
+  primaryCta="Make a bracket"
+  featureList={['2 to 32 players with automatic byes', 'Balanced, random or in-order seeding', 'Animated winner progression', 'Pick winners or enter scores', 'Horizontal, two-sided and vertical layouts', 'Player images']}
+  features={{
+    title: 'Features',
+    sub: 'From a list of names to an animated bracket in seconds.',
+    items: [
+      { icon: '🏆', title: '2 to 32 players', text: 'Choose the number of players and the matchups are generated for you — balanced, random or in order, with byes handled automatically.' },
+      { icon: '▶️', title: 'Animated progression', text: 'Press play to advance every round to the final, or step through one round at a time.' },
+      { img: '/shared/images/customize_graph.webp', title: 'Your style', text: 'Horizontal, two-sided or vertical layouts, card colors, fonts, connector styles and player images.' },
+      { img: '/shared/images/no_need_install.webp', title: 'Nothing to install', text: 'No app and no account. Your players and settings are saved in your browser.' },
+    ],
+  }}
+  useCases={{
+    title: 'What people make with it',
+    sub: 'Any time you need a bracket people actually want to watch.',
+    items: [
+      { tag: 'Esports · Clubs', title: 'Running a tournament', text: 'Build the bracket for a gaming, sports or club tournament and update the winners as matches finish.' },
+      { tag: 'Streams · Events', title: 'Audience events', text: 'Run viewer tournaments on stream or at office parties with an animated reveal of who advances.' },
+      { tag: 'Fun · Social', title: '“Best of” showdowns', text: 'Snacks, movies, characters — run a bracket to crown the favorite and share it on social media.' },
+    ],
+  }}
+  steps={{
+    title: 'How to make a tournament bracket',
+    sub: 'Three simple steps.',
+    items: [
+      { title: 'Enter the players', text: 'Choose the number of players (2–32) and type one name per line, or paste a whole list.' },
+      { title: 'Pick a layout and colors', text: 'Choose the seeding, layout, colors and fonts you like.' },
+      { title: 'Decide winners and play', text: 'Click a player to pick the winner, enter scores, or press play to let the bracket run itself.' },
+    ],
+  }}
+  faq={[
+    { q: 'Is it free to use? Can I use it commercially?', a: 'You can use it without an account, including for commercial events and videos. Please credit GraphRace Studio when you publish a video made with it.' },
+    { q: 'How many players are supported?', a: 'From 2 to 32. When the number isn’t a power of two, byes are added automatically.' },
+    { q: 'Can I decide the winners in advance?', a: 'Yes. Set “Winners” to “Pick manually” and use the 🏆 button on each player. Playback follows your picks, and the buttons are hidden while playing so they don’t appear in recordings.' },
+    { q: 'How do I save it as a video?', a: 'Play the bracket and record it with your device’s screen recorder (macOS: Shift+Cmd+5, Windows: Win+G, or the built-in recorder on your phone).' },
+    { q: 'Is my data uploaded anywhere?', a: 'No. Everything runs in your browser, and your players and settings are saved only on your device.' },
+  ]}
+/>

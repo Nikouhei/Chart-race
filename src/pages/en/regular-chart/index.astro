@@ -1,0 +1,55 @@
+---
+// 線グラフレース 英語版LP（/en/regular-chart/）
+import ToolLanding from '../../../components/en/ToolLanding.astro';
+const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in your browser'];
+---
+<ToolLanding
+  pageId="line-chart-race"
+  jaFile="regular-chart/index.html"
+  title="Line Chart Race Maker | Animated Line Chart Videos from CSV"
+  description="Turn CSV or Excel data into an animated line chart race video. Lines draw themselves over time with flags and live values at the tips. Customize everything and export MP4 or WebM in your browser."
+  appName="Line Chart Race Maker"
+  badges={BADGES}
+  h1="Make an Animated<br>Line Chart Race"
+  lead="Load a spreadsheet and watch each line draw itself through time, with a flag and the current value riding at the tip. Compare trends at a glance, then save the animation as an MP4 or WebM video — no software to install."
+  demo={{ src: '/regular-chart/line-chart-race-example-en-720x960.webm', title: 'Explain trends in a vertical video', text: 'Export a clean, animated line chart sized for phone screens. Perfect for explaining how numbers changed over time on Shorts, Reels and TikTok.' }}
+  appHref="/regular-chart/app/?lang=en"
+  sampleHref="/regular-chart/app/?lang=en&sample=1"
+  featureList={['CSV and Excel import', 'Flags and live values at line tips', 'Straight or curved lines, solid, dashed or dotted', 'Switch to bar chart race with the same data', 'MP4 / WebM export']}
+  features={{
+    title: 'Features',
+    sub: 'Clean, readable line animations from the data you already have.',
+    items: [
+      { img: '/shared/images/csv_excel.webp', title: 'CSV & Excel import', text: 'Upload your spreadsheet or type and paste data into the built-in table.' },
+      { img: '/shared/images/customize_graph.webp', title: 'Fully customizable', text: 'Tune colors, fonts, canvas size, line width, line style, labels and the legend.' },
+      { img: '/shared/images/graph_with_flags.webp', title: 'Flags and values at the tip', text: 'Each line ends with an icon (like a flag) and its latest value, so viewers always know which line is which.' },
+      { img: '/shared/images/switch_graphs.webp', title: 'Switch chart types', text: 'Jump to the bar chart race or pie chart race with one click — your data comes along.' },
+    ],
+  }}
+  useCases={{
+    title: 'What people make with it',
+    sub: 'Great whenever several values change over time.',
+    items: [
+      { tag: 'Business', title: 'Trend reports', text: 'Compare revenue, users or traffic across products or regions in a meeting or a deck.' },
+      { tag: 'Finance', title: 'Stock and market cap races', text: 'Show how several companies’ stock prices or market caps moved over the years.' },
+      { tag: 'Education · Media', title: 'Explaining public data', text: 'Population, temperature or GDP over decades — easier to follow as a moving chart.' },
+      { tag: 'Social media', title: 'Data storytelling', text: 'Turn interesting statistics into short, shareable videos for YouTube, TikTok or X.' },
+    ],
+  }}
+  steps={{
+    title: 'How to make a line chart race',
+    sub: 'Just three steps.',
+    items: [
+      { title: 'Prepare your data', text: 'Put item names in column A, an optional image URL in column B, and one column of values per year (or month) after that.' },
+      { title: 'Upload or paste it', text: 'Load a CSV or Excel file, or type and paste your data into the table in the tool.' },
+      { title: 'Style it and export', text: 'Adjust colors, line style and labels, preview the animation, then press “Save video” to export an MP4 or WebM file.' },
+    ],
+  }}
+  faq={[
+    { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account is needed, and you can use your videos commercially on YouTube, social media, in presentations and in class. Please credit GraphRace Studio in the video or its description.' },
+    { q: 'What data format do I need?', a: 'Item names in column A, an optional image URL in column B, then one column per period with the year or date in the first row. The sample shows the exact layout.' },
+    { q: 'Can I export it as a video?', a: 'Yes. Press “Save video” to export an MP4 or WebM file. MP4 plays on iPhone and Android.' },
+    { q: 'Can I show missing values as gaps?', a: 'Yes. Leave a cell empty and the line breaks there instead of dropping to zero.' },
+    { q: 'Is my data uploaded anywhere?', a: 'No. Everything runs in your browser and nothing is sent to a server.' },
+  ]}
+/>

@@ -1,0 +1,85 @@
+/* 英語版LPのよくある質問（FAQ）の見た目。日本語版LPにFAQが無いページ用の既定（バーチャートレースLPから流用） */
+.faq {
+  background: var(--panel-bg);
+  padding: 80px 0;
+  border-top: 1px solid var(--panel-border);
+}
+.faq .section-title {
+  margin-bottom: 48px;
+}
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.faq-item {
+  background: #fff;
+  border: 1px solid var(--panel-border-soft);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+.faq-item[open] {
+  border-color: var(--accent-light, #c7c2fa);
+}
+.faq-q {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-strong);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  position: relative;
+}
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+.faq-q::before {
+  content: "Q";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.faq-q::after {
+  content: "";
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  width: 10px;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238A94A6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  background-size: contain;
+  transition: transform 0.2s ease;
+}
+.faq-item[open] .faq-q::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+.faq-a {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  padding: 0 24px 24px 60px;
+  border-top: 1px solid var(--panel-border-soft);
+  padding-top: 16px;
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

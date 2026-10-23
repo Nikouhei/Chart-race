@@ -5,8 +5,9 @@
   "observability": {
     "enabled": true
   },
+  // 配信するのは npm run build の出力（dist/）。Cloudflare 側のビルドコマンドは npm run build
   "assets": {
-    "directory": "."
+    "directory": "./dist"
   },
   "compatibility_flags": [
     "nodejs_compat"

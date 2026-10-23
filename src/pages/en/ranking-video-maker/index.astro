@@ -1,0 +1,53 @@
+---
+// ランキング動画メーカー 英語版LP（/en/ranking-video-maker/）
+import ToolLanding from '../../../components/en/ToolLanding.astro';
+const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in your browser'];
+---
+<ToolLanding
+  pageId="ranking-video"
+  jaFile="ranking-video-maker/index.html"
+  title="Ranking Video Maker | Make Top 10 Countdown Videos Online"
+  description="Make a top 10 ranking video in your browser. Add a title, names, photos and descriptions, and cards slide in one by one from last place to #1. Sizes for YouTube, Shorts, Reels and feeds."
+  appName="Ranking Video Maker"
+  badges={BADGES}
+  h1="Make a Top 10<br>Ranking Video"
+  lead="Enter your ranking — names, photos and a short description — and get a slick countdown video where cards glide in one after another. Reveal from last place to #1 to build suspense, in landscape or vertical for Shorts and Reels."
+  appHref="/ranking-video-maker/app/?lang=en"
+  primaryCta="Make a ranking video"
+  featureList={['Rank, image, name and description on each card', 'Conveyor-style card animation', 'Reveal from last place or from #1', '16:9, 9:16 and 3:4 sizes', 'Color themes and fonts']}
+  features={{
+    title: 'Features',
+    sub: 'A polished countdown without video editing software.',
+    items: [
+      { icon: '🏅', title: 'Cards with photos', text: 'Each card shows the rank, a photo, a name and a description. Add, remove and reorder items in one click.' },
+      { icon: '🎞️', title: 'Smooth card animation', text: 'After the title, cards fade in from the right and keep gliding left like a digital signboard.' },
+      { icon: '📱', title: 'Sizes for every platform', text: '16:9 for YouTube, 9:16 for Shorts, Reels and TikTok, and 3:4 for feeds.' },
+      { img: '/shared/images/no_need_install.webp', title: 'Nothing to install', text: 'No app and no account — open the page and start right away.' },
+    ],
+  }}
+  useCases={{
+    title: 'What people make with it',
+    sub: 'Anything that works as a “top 10”.',
+    items: [
+      { tag: 'YouTube · TikTok', title: '“Top 10” videos', text: 'Favorite restaurants, games, songs or travel spots — turn your list into a short-form video.' },
+      { tag: 'Shops · Restaurants', title: 'Best-seller rankings', text: 'Show your most popular menu items or products with photos, signage style.' },
+      { tag: 'Events · Awards', title: 'Results reveals', text: 'Announce contest results or office awards from last place to #1 to build the excitement.' },
+    ],
+  }}
+  steps={{
+    title: 'How to make a ranking video',
+    sub: 'Three steps to your countdown.',
+    items: [
+      { title: 'Add your items', text: 'Enter a title, then a name and description for each rank. Upload a photo for each one if you like.' },
+      { title: 'Choose size and design', text: 'Pick 16:9, 9:16 or 3:4, then a color theme, font and background.' },
+      { title: 'Play and record', text: 'Press play to preview the animation and record it with your device’s screen recorder to save it as a video.' },
+    ],
+  }}
+  faq={[
+    { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account is needed, and you can use your videos commercially. Please credit GraphRace Studio in the video or its description.' },
+    { q: 'How do I save the ranking as a video?', a: 'Play it and record the screen with your device’s screen recorder (macOS: Shift+Cmd+5, Windows: Win+G, or the built-in recorder on iPhone and Android).' },
+    { q: 'What image formats can I use?', a: 'JPEG, PNG, WebP and GIF. Images are resized automatically. HEIC photos may not display in some browsers.' },
+    { q: 'How many items can I add?', a: 'Up to 50 items, so a top 10, top 20 or longer countdown all work.' },
+    { q: 'Are my photos uploaded anywhere?', a: 'No. Your photos and text stay in your browser and are never sent to a server.' },
+  ]}
+/>

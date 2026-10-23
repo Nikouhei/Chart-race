@@ -1,0 +1,55 @@
+---
+// バーチャートレース 英語版LP（/en/bar-chart-race/）。見た目は日本語版LPと同じ、文章は英語圏向け
+import ToolLanding from '../../../components/en/ToolLanding.astro';
+const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in your browser'];
+---
+<ToolLanding
+  pageId="bar-chart-race"
+  jaFile="bar-chart-race/index.html"
+  title="Bar Chart Race Maker | Create Animated Bar Chart Race Videos Online"
+  description="Make a bar chart race video from your CSV or Excel data, right in your browser. Customize colors, fonts and flags, then export MP4 or WebM — vertical sizes for Shorts and TikTok included."
+  appName="Bar Chart Race Maker"
+  badges={BADGES}
+  h1="Make a Bar Chart Race<br>Video Online"
+  lead="Upload a spreadsheet and watch your data come alive. Bars grow, overtake each other and race through time — perfect for showing how rankings change over the years. Everything runs in your browser, and you can save the result as an MP4 or WebM video."
+  demo={{ src: '/bar-chart-race/barchart-race-sample-en-720x960.webm', title: 'Vertical videos made for social media', text: 'Make the “racing bar chart” videos you see on YouTube Shorts, TikTok and Instagram Reels in minutes. Vertical sizes fit phone screens perfectly, and you can tune colors and speed to make it your own.' }}
+  appHref="/bar-chart-race/app/?lang=en"
+  sampleHref="/bar-chart-race/app/?lang=en&sample=1"
+  featureList={['CSV and Excel import', 'Edit data in a built-in table', 'Flags and icon images on bars', 'Category colors and legend', 'MP4 / WebM export', 'Landscape, square and vertical sizes']}
+  features={{
+    title: 'Features',
+    sub: 'All you need is a browser and your data.',
+    items: [
+      { img: '/shared/images/csv_excel.webp', title: 'CSV & Excel import', text: 'Upload your spreadsheet as is, or type and edit data in the built-in table — copy and paste from Excel or Google Sheets works too.' },
+      { img: '/shared/images/customize_graph.webp', title: 'Fully customizable', text: 'Adjust colors, fonts, canvas size, labels, number format and timing. Vertical 9:16 for Shorts, Reels and TikTok is supported.' },
+      { img: '/shared/images/feature_flag.webp', title: 'Flags and images', text: 'Add an image URL to show flags, logos or faces on each bar. Group items by category with automatic colors and a legend.' },
+      { img: '/shared/images/restore_browse.webp', title: 'Save and back up', text: 'Your work is saved in your browser automatically. Export a backup file to move it to another device.' },
+    ],
+  }}
+  useCases={{
+    title: 'What people make with it',
+    sub: 'Bar chart races turn dry numbers into a story people want to watch.',
+    items: [
+      { tag: 'YouTube · TikTok', title: 'Ranking videos', text: 'GDP by country, most-subscribed channels, best-selling games — the classic “who’s #1 over time” video.' },
+      { tag: 'Business', title: 'Presentations and reports', text: 'Show how market share, revenue or traffic shifted over time. A moving chart makes the trend impossible to miss.' },
+      { tag: 'Education', title: 'Teaching history and statistics', text: 'Population, emissions or Olympic medals over decades — students see the change instead of reading a table.' },
+    ],
+  }}
+  steps={{
+    title: 'How to make a bar chart race',
+    sub: 'Your first animated chart takes just a few minutes.',
+    items: [
+      { title: 'Prepare your data', text: 'Put item names in column A, an optional image URL in column B, and one column of values per year (or month) after that. You can also turn on a category column for automatic color groups.' },
+      { title: 'Upload or paste it', text: 'Load a CSV or Excel file, or type and paste your data straight into the table in the tool.' },
+      { title: 'Style it and export', text: 'Pick colors and fonts, press play to preview, then press “Save video” to export an MP4 or WebM file.' },
+    ],
+  }}
+  faq={[
+    { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account or sign-up is needed. You can use your videos on YouTube, TikTok and other social media, in presentations and in class materials, for commercial or non-commercial purposes. Please credit GraphRace Studio (the name or a link) in the video or its description.' },
+    { q: 'How should I format my CSV or Excel file?', a: 'Column A holds the item names (countries, brands, people…), column B an optional image URL, and every column after that holds the values for one period, with the year or date in the first row. Try the sample to see the exact layout.' },
+    { q: 'Can I download the bar chart race as a video?', a: 'Yes. Press “Save video” under the preview (or “Export video” in the settings panel) to export an MP4 or WebM file. MP4 plays on iPhone and Android. Your data and settings are also saved in your browser, so you can pick up where you left off.' },
+    { q: 'Does it work on phones?', a: 'Yes, it works in phone and tablet browsers such as Chrome and Safari, and you can make vertical 9:16 videos for Shorts and TikTok. If a video won’t save inside an app like Instagram or X, open the page in Safari or Chrome instead.' },
+    { q: 'Is my data uploaded to a server?', a: 'No. Your data is processed entirely in your browser and is never sent to our servers.' },
+    { q: 'My data doesn’t show up correctly. What should I check?', a: 'Make sure the file is CSV or .xlsx, the columns are in the right order, and the value columns contain only numbers (no currency symbols or text). Starting from the sample and replacing its data is the easiest way to avoid errors.' },
+  ]}
+/>

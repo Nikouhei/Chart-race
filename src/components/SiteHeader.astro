@@ -1,0 +1,47 @@
+---
+import { NAV_TOOLS } from '../i18n/routes.mjs';
+import { pathFor, homePath, t, includeDrafts } from '../i18n/utils.mjs';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
+interface Props { pageId: string; locale: string; activeId?: string }
+const { pageId, locale, activeId } = Astro.props;
+const drafts = includeDrafts();
+// その言語のページがあるツールだけメニューに出す
+const items = NAV_TOOLS
+  .map((n) => ({ ...n, href: pathFor(n.id, locale, { drafts }) }))
+  .filter((n) => n.href);
+---
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href={homePath(locale)} class="brand">
+      <picture>
+        <source srcset="/Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
+        <img src="/Logo/GraphRace_Studio_Logo_48.png" alt={t(locale, 'brand.logoAlt')} width="24" height="24" decoding="async">
+      </picture>
+      GraphRace Studio
+    </a>
+    {items.length > 0 && (
+      <nav class="site-nav" data-scroll="start" aria-label={t(locale, 'nav.ariaLabel')}>
+        {items.map((n) => (
+          <>{'\n        '}<a class:list={['nav-link', { 'is-active': n.id === activeId }]} href={n.href} aria-current={n.id === activeId ? 'page' : undefined}>{t(locale, n.key)}</a></>
+        ))}
+      </nav>
+    )}
+    <LanguageSwitcher pageId={pageId} locale={locale} />
+  </div>
+  <script is:inline>
+    (function () {
+      var nav = document.querySelector('.site-nav');
+      if (!nav) return;
+      function update() {
+        var max = nav.scrollWidth - nav.clientWidth;
+        if (max <= 4) { nav.removeAttribute('data-scroll'); return; }
+        var x = nav.scrollLeft;
+        nav.setAttribute('data-scroll', x <= 4 ? 'start' : (x >= max - 4 ? 'end' : 'middle'));
+      }
+      nav.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    })();
+  </script>
+</header>

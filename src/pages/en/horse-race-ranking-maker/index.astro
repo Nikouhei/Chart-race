@@ -1,0 +1,230 @@
+---
+/*
+ * 格付けダービー（英語版）— /en/horse-race-ranking-maker/
+ *   ・LP の文章は英語圏向けにこのファイルに直接書く（日本語版の直訳ではない）
+ *   ・ツール部分（見た目・設定パネル・スクリプト）は日本語版 horse-race-ranking-maker/index.html から
+ *     ビルドのたびに取り出して使う（build/legacy-tool.mjs）。ツールを直すときは日本語版だけ直せばよい
+ *   ・設定パネルの文言はビルド時に、動きの中で出る文言は実行時に shared/i18n/en/horse-race.js で英語になる
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import { horseRaceParts } from '../../../../build/legacy-tool.mjs';
+
+const locale = 'en';
+const { css, toolHtml, script } = horseRaceParts(locale);
+
+const title = 'Horse Race Ranking Video Maker | Ranking Derby (2D & 3D)';
+const description = 'Turn any ranking into a horse race video. Set the finishing order, hit start, and watch horses race to the result you chose — in 2D or realistic 3D. Export MP4 or WebM right in your browser.';
+
+const ldJson = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Ranking Derby — Horse Race Ranking Video Maker',
+      applicationCategory: 'MultimediaApplication',
+      operatingSystem: 'Web',
+      url: 'https://graphrace-studio.com/en/horse-race-ranking-maker/',
+      inLanguage: 'en',
+      description: 'A browser tool that turns a ranking into a horse-race-style video. Choose between a lightweight 2D race and a realistic 3D race with CG horses.',
+      featureList: [
+        'Up to 16 horses, finishing order set by drag and drop',
+        'Switch between a 2D race and a realistic 3D race',
+        'Horses and race settings are shared between both modes',
+        'Export as MP4 or WebM',
+        '16:9, 9:16, 3:4 and 1:1 aspect ratios',
+      ],
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+    {
+      '@type': 'HowTo',
+      name: 'How to make a horse race ranking video',
+      description: 'Make a horse race ranking video in three steps.',
+      step: [
+        { '@type': 'HowToStep', position: 1, name: 'Add your horses', text: 'Enter up to 16 names and drag them into the finishing order you want, from 1st at the top.' },
+        { '@type': 'HowToStep', position: 2, name: 'Set up the race', text: 'Choose 2D Race or 3D Real Race, then pick the race length or track, how dramatic the race should be, and the race name.' },
+        { '@type': 'HowToStep', position: 3, name: 'Run it and save the video', text: 'Press “Start race” to preview. When you like it, press “Save video” to export an MP4 or WebM file.' },
+      ],
+    },
+  ],
+};
+---
+<BaseLayout pageId="horse-race" title={title} description={description}>
+  <Fragment slot="head">
+    <!-- 動画書き出し・アンケート・保存への導線（日本語版と同じ部品） -->
+    <script is:inline src="/shared/export-plan.js?v=2026101703" defer></script>
+    <script is:inline src="/shared/video-export.js?v=2026101703" defer></script>
+    <script is:inline src="/shared/export-cta.js?v=2026101703" defer></script>
+    <!-- 表示言語（URL の /en/ から英語と判定） -->
+    <script is:inline src="/shared/i18n.js?v=2026102307" data-i18n-bundles="common,horse-race"></script>
+    <style is:inline set:html={css}></style>
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(ldJson)}></script>
+  </Fragment>
+
+  <SiteHeader pageId="horse-race" locale={locale} activeId="horse-race" />
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-badges">
+          <span class="badge">No install</span>
+          <span class="badge">No sign-up</span>
+          <span class="badge">Commercial use OK</span>
+          <span class="badge">Runs in your browser</span>
+          <span class="badge">2D &amp; 3D</span>
+        </div>
+        <h1>Horse Race Ranking<br>Video Maker</h1>
+        <p class="lead">Turn any ranking into a horse race. Set the finishing order, press start, and every race plays out differently — yet always ends exactly the way you chose. Pick a <strong>lightweight 2D race</strong> or a <strong>realistic 3D race</strong> with CG horses on a real-looking track, then save it as an MP4 or WebM video.</p>
+      </div>
+    </section>
+
+    <!-- ================= ツール本体（日本語版から自動で作る） ================= -->
+    <Fragment set:html={toolHtml} />
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">Features</h2>
+        <p class="section-sub">All you need is a browser. Name your horses, set the order, and they’re off.</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
+            <h3>You decide the winner</h3>
+            <p>Drag up to 16 horses into the finishing order. Give each one a name, a color and an icon image.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎥</div>
+            <h3>2D or realistic 3D</h3>
+            <p>Use the fast, light 2D race, or switch to 3D Real Race with CG horses and automatic camera work. Your horses and settings carry over, so you can compare both looks instantly.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🔀</div>
+            <h3>Control the drama</h3>
+            <p>Choose from calm to chaotic, and in 3D set each horse’s running style — from runaway leader to deep closer. The result never changes, so rerun it until the race looks just right.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">📣</div>
+            <h3>Commentary and a results board</h3>
+            <p>Live-style captions build the excitement, and a results board with your race name appears at the finish — complete with winning margins like nose, neck and lengths.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
+            <h3>Save it as a video</h3>
+            <p>Export the whole race, from the gate to the results board, as an MP4 or WebM file. Frames are rendered one by one, so the video stays smooth even on slower devices.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">⚡</div>
+            <h3>Nothing to install</h3>
+            <p>No app and no account. Open the page and start making race videos right away. Your data stays in your browser.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">Ways to use it</h2>
+        <p class="section-sub">Reveal a ranking as a race, and people watch to the very end.</p>
+        <div class="use-cases">
+          <div class="use-case-card">
+            <span class="tag">YouTube · TikTok</span>
+            <h3>Ranking videos</h3>
+            <p>Present “top 10” lists and poll results as a horse race. The build-up to the finish keeps viewers watching.</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">Parties · Events</span>
+            <h3>Award and results reveals</h3>
+            <p>Announce contest winners, office awards or giveaway results with a race that has everyone cheering.</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">Streams · Classrooms</span>
+            <h3>Quiz and game reveals</h3>
+            <p>Reveal answers or team scores as a race during a live stream, a class or a game night.</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">Fun · Social</span>
+            <h3>Fan battles and memes</h3>
+            <p>Pit favorite characters, friends or snacks against each other and share the result on social media.</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">Simulation</span>
+            <h3>Fantasy horse races</h3>
+            <p>Simulate races with made-up horses or “what if” matchups, and build the race you want to see.</p>
+          </div>
+          <div class="use-case-card">
+            <span class="tag">Racing fans</span>
+            <h3>Share your love of racing</h3>
+            <p>Create races with your own horse names and post them to racing communities.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">How to make a horse race ranking video</h2>
+        <p class="section-sub">Your first race video takes just a few minutes.</p>
+        <div class="steps">
+          <div class="step">
+            <span class="num">1</span>
+            <h3>Add your horses</h3>
+            <p>Enter up to 16 names and drag them into the finishing order you want — 1st place at the top.</p>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <h3>Set up the race</h3>
+            <p>Choose 2D Race or 3D Real Race, then pick the race length or track, how dramatic it should be, and the race name.</p>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <h3>Run it and save</h3>
+            <p>Press “Start race” to preview. When you like it, press “Save video” to export an MP4 or WebM file.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>Ready? Let’s race.</h2>
+        <a class="btn-primary" href="#tool">Make a race video now</a>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap">
+        <h2 class="section-title">FAQ</h2>
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary class="faq-q">Can I use the videos on YouTube or for commercial projects?</summary>
+            <div class="faq-a">Yes. You can post your videos on YouTube, TikTok and other social media, and use them commercially. You don’t need to ask, but please credit GraphRace Studio (the tool name or URL) in the video or its description.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">How do I save the race as a video?</summary>
+            <div class="faq-a">Press “Save video” (or “Save this video” when the race ends), choose a format and export. The video covers everything from the start to the results board. MP4 plays on iPhone and Android, and no screen recorder is needed.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">What’s the difference between 2D Race and 3D Real Race?</summary>
+            <div class="faq-a">2D Race is a lightweight illustrated race that opens instantly. 3D Real Race has CG horses on a realistic track with automatic camera work. Your horses (names, order, post positions, colors, running styles) and the race name, countdown and results settings are shared, so you can switch any time. Icon images can’t be placed on 3D horses, so they’re only used in 2D Race.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">3D Real Race takes a while to load.</summary>
+            <div class="faq-a">3D mode loads about 4 MB of horse models the first time, which can take a few seconds. After that it opens from your browser’s cache. The 3D data only loads when you choose 3D Real Race, so 2D Race stays fast.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Does it work on phones?</summary>
+            <div class="faq-a">Yes, it works in phone and tablet browsers. If a video won’t save inside an app such as Instagram or X, open the page in Safari or Chrome and try again. On iPhone, choose MP4 to save the video to your Photos.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">Is my data uploaded anywhere?</summary>
+            <div class="faq-a">No. The race and the video are created entirely in your browser. Your settings are saved only on your device.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter locale={locale} crumbs={[{ name: 'Home', href: '/en/' }, { name: 'Ranking Derby' }]} />
+
+  <script is:inline set:html={script}></script>
+</BaseLayout>

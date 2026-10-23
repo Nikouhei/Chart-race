@@ -1,0 +1,58 @@
+---
+// Privacy Policy（英語）— /en/privacy.html。日本語版 src/pages/privacy.astro の英訳。
+// ※日本語版と内容をそろえること。有料化（タスク8）のときに日英とも更新する
+import LegalPage from '../../components/en/LegalPage.astro';
+const link = 'color: var(--accent); text-decoration: underline;';
+---
+<LegalPage
+  pageId="privacy"
+  title="Privacy Policy | GraphRace Studio"
+  description="How GraphRace Studio handles your data: everything runs in your browser and nothing you load is uploaded. Also covers analytics, cookies and advertising."
+  heading="Privacy Policy"
+>
+  <section>
+    <p>This tool (the “Service”) respects the privacy of your personal information and data, and works to manage data safely.</p>
+    <p style="font-size: 13px; color: var(--text-muted);">This is an English translation of the Japanese privacy policy. If there is any difference between the two, the <a href="/privacy.html" style="color: var(--accent);">Japanese version</a> prevails.</p>
+  </section>
+
+  <section>
+    <h2>Your data stays with you</h2>
+    <p>The Service is designed with privacy and safety in mind.</p>
+
+    <h3>Nothing is sent to external servers</h3>
+    <p>Files you load and the data behind the charts you create are never uploaded to an external server. All processing happens inside your browser on your own device, so your data is not exposed over the internet.</p>
+
+    <h3>Your data is kept only in your browser</h3>
+    <p>Data is stored only in your own browser’s storage (such as LocalStorage). No third party, including the developer, can access it.</p>
+
+    <h3>Trusted libraries</h3>
+    <p>We use widely used, standard libraries such as D3.js for drawing charts and SheetJS for reading Excel files. These also run only in your browser.</p>
+  </section>
+
+  <section>
+    <h2>Analytics and cookies</h2>
+    <p>To understand how the Service is used and to improve it, we may use cookies and analytics tools such as Google Analytics.</p>
+    <p>Data collected: traffic data (such as time of access, pages viewed and browser information) is collected anonymously. This data does not identify you personally.</p>
+    <p>Turning off cookies: you can refuse cookies in your browser settings.</p>
+  </section>
+
+  <section>
+    <h2>Advertising (Google AdSense)</h2>
+    <p>The Service uses Google AdSense, an advertising service provided by Google, a third-party vendor.</p>
+    <p>Third-party vendors, including Google, use cookies to serve ads based on your past visits to this Service and other websites.</p>
+    <p>You can turn off personalized advertising in <a href="https://adssettings.google.com/authenticated" target="_blank" rel="noopener noreferrer" style={link}>Google Ads Settings</a>. You can also opt out of third-party vendors’ use of cookies for personalized advertising at <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" style={link}>www.aboutads.info</a>.</p>
+    <p>For details on how Google uses cookies in advertising, see <a href="https://policies.google.com/technologies/ads?hl=en" target="_blank" rel="noopener noreferrer" style={link}>Google’s advertising policies</a>.</p>
+  </section>
+
+  <section>
+    <h2>Personal information in inquiries</h2>
+    <p>When you contact us through our contact form, you may provide personal information such as your name or email address.</p>
+    <p>Purpose: we use it only to reply to your inquiry and to contact you about improving the Service.</p>
+    <p>Sharing with third parties: except as required by law, we will not disclose or provide your personal information to third parties without your consent.</p>
+  </section>
+
+  <section>
+    <h2>Changes to this policy</h2>
+    <p>We may update this privacy policy as needed. Changes take effect when they are posted on this site.</p>
+  </section>
+</LegalPage>

@@ -10,11 +10,11 @@
 
     // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
     if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
-      gtag('config', 'G-NS736Y3MY9');
+      gtag('config', 'G-NS736Y3MY9', { site_language: (/[?&]lang=(en)\b/.exec(location.search) || [])[1] || document.documentElement.lang || 'ja' });
     }
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
-  <script src="../../shared/analytics.js?v=20261006" defer></script>
+  <script src="../../shared/analytics.js?v=20261023" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,6 +27,8 @@
 
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
   <link rel="stylesheet" href="../../shared/tokens.css">
+  <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
+  <script src="../../shared/i18n.js?v=2026102307" data-i18n-bundles="common,tournament"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -607,7 +609,7 @@
 
   <div class="control-panel">
     <div class="panel-header">
-      <a href="../../" class="brand">
+      <a href="../../" class="brand" data-i18n-home>
         <picture>
           <source srcset="../../Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
           <img src="../../Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
@@ -934,7 +936,18 @@
 
 <script>
 (function(){
-  const SURNAMES = ['田中','佐藤','山本','鈴木','高橋','渡辺','加藤','中村','小林','吉田','山田','松本','井上','木村','林','斎藤','清水','森','池田','橋本','阿部','石川','山口','中島','前田','藤田','岡田','後藤','村上','近藤','石井','松田'];
+  // 英語表示（?lang=en）: スクリプトが画面の文言・初期値を読む前に訳しておく
+  if (window.I18N && !window.I18N.isDefault() && window.I18N.translateTree) window.I18N.translateTree(document.body);
+  // 英語表示では英語の既定名（shared/i18n/en/tournament.js の GRS_TOURNAMENT_NAMES）を使う
+  const SURNAMES_JA = ['田中','佐藤','山本','鈴木','高橋','渡辺','加藤','中村','小林','吉田','山田','松本','井上','木村','林','斎藤','清水','森','池田','橋本','阿部','石川','山口','中島','前田','藤田','岡田','後藤','村上','近藤','石井','松田'];
+  // 英語表示（?lang=en）の既定名
+  const NAMES_EN = ['Alex','Ben','Chloe','David','Emma','Finn','Grace','Henry','Isla','Jack','Kate','Leo','Mia','Noah','Olivia','Paul','Quinn','Ruby','Sam','Tom','Uma','Victor','Wendy','Xavier','Yuki','Zoe','Aaron','Bella','Caleb','Daisy','Ethan','Fiona'];
+  const IS_EN = !!(window.I18N && !window.I18N.isDefault());
+  const SURNAMES = IS_EN ? NAMES_EN : SURNAMES_JA;
+  // 設定は日本語版と英語版で共通に保存される。既定のままの名前だけ、開いた言語の既定名に入れ替える
+  function localizeDefaultNames(text) {
+    return String(text).split('\n').map((n, i) => (n === SURNAMES_JA[i] || n === NAMES_EN[i]) ? SURNAMES[i] : n).join('\n');
+  }
   let entryCount = 8, bracketSize = 8, layout = 'ts', currentRound = 0, bracket = [], playing = false, paused = false, speed = 3;
   const CARD_WIDTH_DEFAULT = 150, CARD_WIDTH_MAX = 900, SLOT_MINH_MAX = 400;
   let cardWidth = CARD_WIDTH_DEFAULT;
@@ -2414,7 +2427,7 @@
     let s = null;
     try { s = JSON.parse(localStorage.getItem(STATE_KEY)); } catch (_) {}
     if (!s || typeof s !== 'object' || typeof s.entries !== 'string' || !s.entries.trim()) return false;
-    input.value = s.entries;
+    input.value = localizeDefaultNames(s.entries);
     // 参加人数（既存ハンドラが名前行の補充・ブラケット再構築まで行う）
     const n = Math.max(2, Math.min(32, Math.round(+s.entryCount || 8)));
     $('entryCountInput').value = n;

@@ -1,0 +1,33 @@
+---
+// About（英語）— /en/about.html。日本語版 src/pages/about.astro の内容に合わせている
+// お問い合わせフォーム（Googleフォーム）は日本語のまま。英語での問い合わせも受け付ける旨を添えている
+import LegalPage from '../../components/en/LegalPage.astro';
+---
+<LegalPage
+  pageId="about"
+  title="About | GraphRace Studio"
+  description="The story behind GraphRace Studio, a set of browser tools for animated charts and ranking videos, and who runs it."
+  heading="About GraphRace Studio"
+>
+  <section>
+    <h2>Why we built it</h2>
+    <p>GraphRace Studio is made by a data analyst who works with data every day. Data is more than a collection of numbers — when it’s visualized well, it becomes a powerful way to discover new things and tell stories.</p>
+    <p>But presenting data in a way that is both beautiful and easy to understand usually takes special skills and a lot of time. We started this project to make it easy for anyone to visualize data and share it on YouTube, social media and beyond.</p>
+    <p>Our goal is to help more people enjoy and share what makes data interesting, and to spark more conversations through data.</p>
+  </section>
+
+  <section>
+    <h2>Who runs it</h2>
+    <p>GraphRace Studio is developed and run by an individual data analyst, not a company.</p>
+    <p>Type: independent developer<br>Background: data analyst (data analysis and data visualization)</p>
+    <p>As a small independent project, we can move quickly and add improvements based on your feedback.</p>
+  </section>
+
+  <section class="contact-form-container" style="padding: 24px 16px; overflow: hidden;">
+    <h3 style="text-align: center; margin-bottom: 12px;">Feedback &amp; contact</h3>
+    <p style="text-align: center; margin-bottom: 24px;">The form below is in Japanese, but messages in English are welcome.</p>
+    <div style="width: 100%; max-width: 640px; margin: 0 auto; overflow: hidden;">
+      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSchxKUs_LAC1PG0gRVSdovzT-1VDAX2cd88yZemmdu4O6HUYQ/viewform?embedded=true" title="Contact form" width="100%" height="980" frameborder="0" marginheight="0" marginwidth="0" style="width: 100%; border: none; display: block;">Loading…</iframe>
+    </div>
+  </section>
+</LegalPage>

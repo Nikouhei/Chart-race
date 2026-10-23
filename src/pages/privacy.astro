@@ -1,55 +1,24 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+---
+// プライバシーポリシー｜GraphRace Studio（日本語）。旧 privacy.html から移したもの（見た目・文章は同じ）。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
-    // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
-    if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
-      gtag('config', 'G-NS736Y3MY9');
-    }
-  </script>
-  <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
-  <script src="shared/analytics.js?v=20261006" defer></script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>プライバシーポリシー｜GraphRace Studio</title>
-  <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
-  <script src="shared/origin-guard.js" defer></script>
-  <link rel="canonical" href="https://graphrace-studio.com/privacy.html">
-  <meta name="theme-color" content="#6E62F0">
-  <!-- Open Graph -->
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="GraphRace Studio">
-  <meta property="og:title" content="プライバシーポリシー｜GraphRace Studio">
-  <meta property="og:description" content="データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。">
-  <meta property="og:url" content="https://graphrace-studio.com/privacy.html">
-  <meta property="og:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="プライバシーポリシー｜GraphRace Studio">
-  <meta name="twitter:description" content="データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。">
-  <meta name="twitter:image" content="https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg">
-  <meta name="description" content="データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。">
-  <link rel="icon" href="Logo/GraphRace_Studio_Logo.png" type="image/png">
-
-  <!-- Google AdSense -->
-  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
-
-  <!-- 共有デザイントークン -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap">
-  </noscript>
-  <link rel="stylesheet" href="shared/tokens.css">
-
-  <style>
+const locale = 'ja';
+---
+<BaseLayout
+  pageId="privacy"
+  title={"プライバシーポリシー｜GraphRace Studio"}
+  description={"データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。"}
+  ogTitle={"プライバシーポリシー｜GraphRace Studio"}
+  ogDescription={"データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。"}
+  twitterTitle={"プライバシーポリシー｜GraphRace Studio"}
+  twitterDescription={"データビジュアライゼーションツール「GraphRace Studio」のプライバシーポリシーとデータの安全性について説明します。"}
+  ogType={"article"}
+  ogImage={"https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg"}
+>
+  <Fragment slot="head">
+  <style is:inline>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -196,27 +165,9 @@
     .site-footer nav a:hover { color: var(--text-main); }
 
   </style>
-</head>
-<body>
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a href="./" class="brand">
-        <picture>
-          <source srcset="Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
-          <img src="Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
-        </picture>
-        GraphRace Studio
-      </a>
-      <nav class="site-nav">
-        <a class="nav-link" href="bar-chart-race/">バーチャートレース</a>
-        <a class="nav-link" href="regular-chart/">線グラフレース</a>
-        <a class="nav-link" href="tournament-bracket-animator/">トーナメント表</a>
-        <a class="nav-link" href="ranking-video-maker/">ランキング動画</a>
-        <a class="nav-link" href="horse-race-ranking-maker/">格付けダービー</a>
-        <a class="nav-link" href="amidakuji-maker/">あみだくじ</a>
-      </nav>
-    </div>
-  </header>
+  </Fragment>
+
+  <SiteHeader pageId="privacy" locale={locale} />
 
   <main class="wrap">
     <h1 class="page-title">プライバシーポリシー</h1>
@@ -269,31 +220,5 @@
     </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap" style="padding-bottom: 16px; border-bottom: 1px solid var(--panel-border-soft); margin-bottom: 16px;">
-      <nav class="breadcrumb" aria-label="パンくずリスト" style="width: 100%;">
-        <ol itemscope itemtype="https://schema.org/BreadcrumbList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--text-muted);">
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center;">
-            <a itemprop="item" href="./" style="color: var(--text-muted); text-decoration: none; transition: color 0.2s ease;"><span itemprop="name">ホーム</span></a>
-            <meta itemprop="position" content="1" />
-          </li>
-          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" style="display: flex; align-items: center; color: var(--text-muted);">
-            <span style="margin: 0 8px; font-size: 10px;">&gt;</span>
-            <span itemprop="name" style="color: var(--text-main);">プライバシーポリシー</span>
-            <meta itemprop="position" content="2" />
-          </li>
-        </ol>
-      </nav>
-    </div>
-    <div class="wrap">
-      <span>© GraphRace Studio — データビジュアライゼーションツール</span>
-      <nav>
-        <a href="blog/">ブログ</a>
-        <a href="about.html">このツールについて</a>
-        <a href="terms.html">利用規約</a>
-        <a href="privacy.html">プライバシーポリシー</a>
-      </nav>
-    </div>
-  </footer>
-</body>
-</html>
+  <SiteFooter locale={locale} crumbs={[{ name: "ホーム", href: "/" }, { name: "プライバシーポリシー" }]} tagline="データビジュアライゼーションツール" />
+</BaseLayout>

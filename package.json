@@ -2,13 +2,18 @@
   "name": "chart-tool-build",
   "private": true,
   "version": "1.0.0",
-  "description": "GraphRace Studio デプロイ用ビルド（Terserミニファイ＋初期化系関数の部分難読化）",
+  "description": "GraphRace Studio サイト（Astro ＋ 既存の静的HTML）",
   "scripts": {
-    "build": "node build/build.js",
+    "dev": "astro dev",
+    "build": "astro build && node build/postbuild.mjs",
+    "build:preview": "INCLUDE_DRAFTS=1 astro build && INCLUDE_DRAFTS=1 node build/postbuild.mjs",
+    "preview": "npx --yes wrangler dev --port 8788",
+    "build:minify": "node build/build.js",
     "indexnow": "node analytics/submit-indexnow.mjs"
   },
   "devDependencies": {
     "acorn": "^8.14.0",
+    "astro": "^7.4.2",
     "javascript-obfuscator": "^5.7.0",
     "terser": "^5.51.2"
   }

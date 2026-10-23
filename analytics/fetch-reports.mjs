@@ -274,6 +274,7 @@ async function gsc(token, siteUrl, { start, end, dimensions, rowLimit = 1000 }) 
 const TOOLS = [
   [/^\/bar-chart-race(\/|$)/, "bar_chart_race"],
   [/^\/regular-chart(\/|$)/, "line_chart_race"],
+  [/^\/pie-chart-race(\/|$)/, "pie_chart_race"],
   [/^\/stock-race\/app-bar(\/|$)/, "stock_race_bar"],
   [/^\/stock-race(\/|$)/, "stock_race_line"],
   [/^\/horse-race-ranking-maker(\/|$)/, "horse_race"],
@@ -283,7 +284,7 @@ const TOOLS = [
 ];
 const SINGLE_PAGE_TOOLS = new Set(["horse_race", "amidakuji"]);
 const TOOL_LABEL = {
-  bar_chart_race: "バーチャートレース", line_chart_race: "線グラフレース", stock_race_line: "株価レース(線)",
+  bar_chart_race: "バーチャートレース", line_chart_race: "線グラフレース", pie_chart_race: "円グラフレース", stock_race_line: "株価レース(線)",
   stock_race_bar: "株価レース(バー)", horse_race: "競馬風ランキング", ranking_video: "ランキング発表動画",
   tournament_bracket: "トーナメント表", amidakuji: "あみだくじ",
 };
@@ -336,6 +337,8 @@ const CUSTOM_DIMENSIONS = [
   // 有料化アンケート（shared/export-plan.js）
   ["survey_id", "アンケートID"], ["use_case", "用途"], ["wanted_features", "欲しい機能"],
   ["pay_model", "希望の払い方"], ["survey_comment", "アンケート自由記述"],
+  // 多言語化（表示言語）。英語版の公開時に --setup-dimensions で登録する
+  ["site_language", "表示言語"],
 ];
 const CUSTOM_METRICS = [["seconds_since_open", "ツールを開いてからの秒数", "SECONDS"], ["seconds_to_engage", "最初の操作までの秒数", "SECONDS"]];
 

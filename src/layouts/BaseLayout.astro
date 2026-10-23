@@ -1,0 +1,102 @@
+---
+/*
+ * 全SEOページ共通のレイアウト
+ *   ・<html lang>、canonical（自分自身）、hreflang（公開済みの他言語版があるときだけ）、og:locale
+ *   ・GA4、無断複製検知、フォント、デザイントークン
+ * ページ固有の <style> や構造化データは slot="head" で渡す。
+ */
+import Analytics from '../components/Analytics.astro';
+import chromeCss from '../styles/site-chrome.css?raw';
+import { LOCALES, SITE_URL, DEFAULT_LOCALE } from '../i18n/config.mjs';
+import { getPage, isDraft, hreflangLinks, publishedAlternates } from '../i18n/utils.mjs';
+
+interface Props {
+  pageId: string;
+  title: string;
+  description: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  ogType?: string;
+  ogImage?: string;
+  robots?: string;
+}
+
+const {
+  pageId, title, description,
+  ogTitle = title, ogDescription = description,
+  twitterTitle = ogTitle, twitterDescription = ogDescription,
+  ogType = 'website',
+  ogImage = `${SITE_URL}/Logo/GraphRace_Studio_Logo.jpg`,
+} = Astro.props;
+
+const locale = Astro.currentLocale || DEFAULT_LOCALE;
+const loc = LOCALES[locale];
+const page = getPage(pageId);
+if (!page || !page.paths[locale]) {
+  throw new Error(`src/i18n/routes.mjs に pageId="${pageId}" の ${locale} 版がありません`);
+}
+const selfPath = page.paths[locale];
+if (Astro.url.pathname.replace(/index\.html$/, '') !== selfPath.replace(/index\.html$/, '')) {
+  throw new Error(`routes.mjs の ${pageId}.${locale}（${selfPath}）と実際のURL（${Astro.url.pathname}）が違います`);
+}
+const canonical = SITE_URL + selfPath;
+const draft = isDraft(page, locale);
+const robots = draft ? 'noindex, nofollow' : Astro.props.robots;
+const alternates = draft ? [] : hreflangLinks(pageId);
+const altOgLocales = draft ? [] : publishedAlternates(pageId).filter((a) => a.locale !== locale).map((a) => LOCALES[a.locale].ogLocale);
+const fontFamily = locale === 'ja'
+  ? 'family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700'
+  : 'family=Inter:wght@400;700';
+const fontHref = `https://fonts.googleapis.com/css2?${fontFamily}&display=swap`;
+---
+<!DOCTYPE html>
+<html lang={loc.htmlLang}>
+<head>
+  <Analytics />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  {robots && <meta name="robots" content={robots}>}
+  <!-- 無断複製サイト検知（許可ドメイン以外でのみ案内帯を表示） -->
+  <script is:inline src="/shared/origin-guard.js" defer></script>
+  <link rel="canonical" href={canonical}>
+  {alternates.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href}>)}
+  <meta name="theme-color" content="#6E62F0">
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType}>
+  <meta property="og:site_name" content="GraphRace Studio">
+  <meta property="og:title" content={ogTitle}>
+  <meta property="og:description" content={ogDescription}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={ogImage}>
+  <meta property="og:locale" content={loc.ogLocale}>
+  {altOgLocales.map((l) => <meta property="og:locale:alternate" content={l}>)}
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={twitterTitle}>
+  <meta name="twitter:description" content={twitterDescription}>
+  <meta name="twitter:image" content={ogImage}>
+  <meta name="description" content={description}>
+  <link rel="icon" href="/Logo/GraphRace_Studio_Logo.png" type="image/png">
+
+  <!-- Google AdSense -->
+  <meta name="google-adsense-account" content="ca-pub-7525273601757171">
+
+  <!-- 共有デザイントークン -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href={fontHref} media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href={fontHref}>
+  </noscript>
+  <link rel="stylesheet" href="/shared/tokens.css">
+  <!-- 共通の外枠（ヘッダー・フッター）。ページ固有の <style> で上書きできるよう先に置く -->
+  <style is:inline set:html={chromeCss}></style>
+  <slot name="head" />
+</head>
+<body>
+  <slot />
+</body>
+</html>

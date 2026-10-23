@@ -1,0 +1,681 @@
+---
+// トップページ（英語）— /en/
+// 見た目は日本語トップと共通（src/styles/home.css）。文章は英語圏向けに書いている。
+// 英語版があるツールだけを載せる（ブログ・あみだくじは英語版なし）
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import homeCss from '../../styles/home.css?raw';
+import { pathFor, includeDrafts } from '../../i18n/utils.mjs';
+
+const locale = 'en';
+const drafts = includeDrafts();
+const title = 'GraphRace Studio | Bar Chart Race, Line Chart Race & Ranking Video Maker';
+const description = 'Free browser tools to turn data and rankings into animated videos: bar chart races, line chart races, horse race ranking videos, animated tournament brackets and top 10 countdowns. No install, no sign-up.';
+
+const TOOLS = [
+  { id: 'bar-chart-race', icon: '📊', badge: 'Time series', name: 'Bar Chart Race Maker', text: 'Watch bars overtake each other as your data moves through time. The classic format for ranking videos on YouTube and TikTok.', tags: ['CSV / Excel', 'Flags & icons', 'MP4 / WebM'] },
+  { id: 'line-chart-race', icon: '📈', badge: 'Line chart', name: 'Line Chart Race Maker', text: 'Lines draw themselves over time with flags and live values at the tips — ideal for comparing trends in reports and explainers.', tags: ['CSV / Excel', 'Custom styles', 'MP4 / WebM'] },
+  { id: 'horse-race', icon: '🏇', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
+  { id: 'tournament', icon: '🏆', badge: 'Bracket', name: 'Tournament Bracket Animator', text: 'Animated single-elimination brackets for 2–32 players. Let winners advance automatically or pick them yourself.', tags: ['2–32 players', '4 layouts', 'Player images'] },
+  { id: 'ranking-video', icon: '🏅', badge: 'Countdown', name: 'Ranking Video Maker', text: 'Top 10 countdowns with photos and descriptions. Cards glide in one by one from last place to #1.', tags: ['Photos', '16:9 / 9:16 / 3:4', 'Color themes'] },
+].map((t) => ({ ...t, href: pathFor(t.id, 'en', { drafts }) })).filter((t) => t.href);
+
+const FAQ = [
+  { q: 'Is it free? Can I use it commercially?', a: 'Yes, you can use the tools without an account, including for YouTube videos, social media posts and business presentations. When you publish something made with GraphRace Studio, please credit us (for example “Created by GraphRace Studio” or a link).' },
+  { q: 'What video formats can I export?', a: 'Bar Chart Race, Line Chart Race and Ranking Derby export MP4 or WebM directly. MP4 plays on iPhone and Android. For the tournament bracket and ranking video, record the screen while it plays.' },
+  { q: 'Is my data uploaded anywhere?', a: 'No. All processing happens in your browser. Your data and images are never sent to our servers, and your work is saved only on your device.' },
+  { q: 'Can I use it on my phone?', a: 'Yes, all tools work in phone and tablet browsers, and you can make vertical 9:16 videos for Shorts, Reels and TikTok.' },
+  { q: 'Can I post the videos on YouTube Shorts or TikTok?', a: 'Of course. Please include a credit to GraphRace Studio in the video or its description.' },
+];
+---
+<BaseLayout pageId="home" title={title} description={description}>
+  <Fragment slot="head">
+    <style is:inline set:html={homeCss}></style>
+    <style is:inline>
+      /* デモのゴール板（日本語トップと共通の CSS では「ゴール」） */
+      .derby-goal::before { content: 'GOAL'; }
+    </style>
+  </Fragment>
+
+  <SiteHeader pageId="home" locale={locale} />
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-flex">
+          <div class="hero-text">
+            <div class="hero-badges">
+              <span class="badge">No install</span>
+              <span class="badge">No sign-up</span>
+              <span class="badge">Commercial use OK</span>
+              <span class="badge">Data stays in your browser</span>
+            </div>
+            <h1>Turn data and rankings<br>into animated videos</h1>
+            <p class="lead">Make bar chart races, line chart races, horse race ranking videos, animated tournament brackets and top 10 countdowns — all in your browser. Paste your data, press play, and export a video ready for YouTube, TikTok or your next presentation.</p>
+          </div>
+
+          <!-- 動くデモ（日本語トップのデモを英語にしたもの） -->
+          <div class="hero-visual">
+            <div class="demo-tabs">
+              <button class="demo-tab-btn is-active" data-tab="tab-barchart">📊 Bar chart</button>
+              <button class="demo-tab-btn" data-tab="tab-bracket">🏆 Bracket</button>
+              <button class="demo-tab-btn" data-tab="tab-derby">🏇 Derby</button>
+              <button class="demo-tab-btn" data-tab="tab-ranking">🏅 Top 5</button>
+            </div>
+
+            <!-- Tab 1: バーチャートレース -->
+            <div id="tab-barchart" class="demo-tab-content is-active">
+              <div class="demo-header">
+                <span class="demo-title">📊 Smartphone market share (demo)</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight:700;">PREVIEW</span>
+              </div>
+              <div class="demo-barchart-stage">
+                <div id="demo-container" class="demo-bar-list"></div>
+                <div id="demo-year" class="demo-year-badge">2020</div>
+              </div>
+            </div>
+
+            <!-- Tab 2: トーナメント表 -->
+            <div id="tab-bracket" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏆 GraphRace Cup 2026</span>
+                <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">Round 2 in progress</span>
+              </div>
+              <div class="bracket-stage">
+                <div class="bracket-grid">
+                  <!-- 2回戦（8チーム） -->
+                  <div class="bracket-col">
+                    <div class="bracket-round-label">Round 2</div>
+                    <div class="bracket-col-body" id="bround-1"></div>
+                  </div>
+                  <!-- 準決勝（4チーム） -->
+                  <div class="bracket-col">
+                    <div class="bracket-round-label">Semifinal</div>
+                    <div class="bracket-col-body" id="bround-2"></div>
+                  </div>
+                  <!-- 決勝（2チーム） -->
+                  <div class="bracket-col">
+                    <div class="bracket-round-label">Final</div>
+                    <div class="bracket-col-body" id="bround-3"></div>
+                  </div>
+                </div>
+                <div class="bracket-champion" id="bracket-champion">👑 Champion: Thunder</div>
+              </div>
+            </div>
+
+            <!-- Tab 3: 格付けダービー -->
+            <div id="tab-derby" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏇 Ranking Derby G1</span>
+                <span id="derby-status" style="font-size: 11px; color: #c9a227; font-weight:800;">Pre-race</span>
+              </div>
+              <div class="derby-stage">
+                <div class="derby-stands"></div>
+                <div class="derby-rail"></div>
+                <div class="derby-turf-stripes"></div>
+                <div class="derby-goal" id="derby-goal"></div>
+                <div id="derby-runners"></div>
+                <div class="derby-topbar">
+                  <span>The GraphRace Stakes</span>
+                  <span class="derby-topbar-sub" id="derby-topbar-sub">Turf 1600m · 5 runners</span>
+                </div>
+                <div class="derby-caption" id="derby-caption">They’re about to start!</div>
+                <div class="derby-board" id="derby-board"></div>
+              </div>
+            </div>
+
+            <!-- Tab 4: ランキング動画 -->
+            <div id="tab-ranking" class="demo-tab-content">
+              <div class="demo-header">
+                <span class="demo-title">🏅 Top 5 Ramen Dishes</span>
+                <span id="ranking-counter" style="font-size: 11px; color: var(--accent); font-weight:700;">▶ PLAYING</span>
+              </div>
+              <div class="ranking-stage">
+                <div id="ranking-track" class="ranking-track"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="border-top: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">Tools</h2>
+        <p class="section-sub">Pick the format that fits your story.</p>
+        <div class="tools-grid">
+          {TOOLS.map((t) => (
+            <div class="tool-card">
+              <div class="card-top">
+                <div class="tool-card-header">
+                  <div class="icon">{t.icon}</div>
+                  <span class="tool-category-badge">{t.badge}</span>
+                </div>
+                <h4>{t.name}</h4>
+                <p>{t.text}</p>
+                <div class="tool-tags">
+                  {t.tags.map((g) => <span class="tool-tag">{g}</span>)}
+                </div>
+              </div>
+              <a class="btn-tool" href={t.href}>Open the tool</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section style="border-top: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">Made to grab attention</h2>
+        <p class="section-sub">Numbers, rankings and matchups become something people want to watch.</p>
+        <div class="use-cases-grid">
+          <div class="use-case-card">
+            <div class="icon-wrapper">📱</div>
+            <h3>Short-form videos</h3>
+            <p>Eye-catching rankings and races for YouTube Shorts, TikTok and Instagram Reels.</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">🎮</div>
+            <h3>Tournaments and live streams</h3>
+            <p>Animated brackets and race reveals for esports, game streams and community events.</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">💼</div>
+            <h3>Presentations and reports</h3>
+            <p>Show how revenue or market share changed over time with a chart that moves.</p>
+          </div>
+          <div class="use-case-card">
+            <div class="icon-wrapper">🎓</div>
+            <h3>Education and explainers</h3>
+            <p>Bring population, economic or historical data to life for classes and articles.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="background: var(--panel-surface); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">Private by design</h2>
+        <p class="section-sub">Built to keep your data safe and the tools fast.</p>
+        <div class="features">
+          <div class="feature-card">
+            <div class="ico">🔒</div>
+            <h3>Nothing leaves your device</h3>
+            <p>All processing happens in your browser. Your data is never uploaded to a server.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico">💾</div>
+            <h3>Saved in your browser</h3>
+            <p>Your work is stored locally on your device, so you can come back to it later.</p>
+          </div>
+          <div class="feature-card">
+            <div class="ico">🛡️</div>
+            <h3>Trusted technology</h3>
+            <p>Built on widely used open web standards and libraries such as D3.js and the Canvas API.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="border-bottom: 1px solid var(--panel-border);">
+      <div class="wrap">
+        <h2 class="section-title">FAQ</h2>
+        <div class="faq-list">
+          {FAQ.map((f) => (
+            <details class="faq-item">
+              <summary><h3>{f.q}</h3></summary>
+              <div class="faq-content">{f.a}</div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter locale={locale} />
+
+  <!-- 動くデモの制御（日本語トップと同じ動き。表示文字だけ英語） -->
+  <script is:inline>
+    // タブ切り替えと各デモのコントロール
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabBtns = document.querySelectorAll('.demo-tab-btn');
+      const tabContents = document.querySelectorAll('.demo-tab-content');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-tab');
+          tabBtns.forEach(b => b.classList.remove('is-active'));
+          tabContents.forEach(c => c.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const targetContent = document.getElementById(targetId);
+          if (targetContent) targetContent.classList.add('is-active');
+
+          if (targetId === 'tab-bracket') triggerBracketDemo();
+          if (targetId === 'tab-derby') triggerDerbyDemo();
+          if (targetId === 'tab-ranking') triggerRankingDemo();
+        });
+      });
+
+      // 1. バーチャートレースデモ
+      (function() {
+        const items = [
+          { id: 'apple', label: 'Apple', icon: '🍎', color: 'linear-gradient(90deg, #ff7675, #d63031)', value: 85, target: 85 },
+          { id: 'samsung', label: 'Samsung', icon: '📱', color: 'linear-gradient(90deg, #74b9ff, #0984e3)', value: 68, target: 68 },
+          { id: 'xiaomi', label: 'Xiaomi', icon: '🔴', color: 'linear-gradient(90deg, #fab1a0, #e17055)', value: 48, target: 48 },
+          { id: 'oppo', label: 'OPPO', icon: '🟢', color: 'linear-gradient(90deg, #55efc4, #00b894)', value: 32, target: 32 }
+        ];
+
+        const demoContainer = document.getElementById('demo-container');
+        const demoYear = document.getElementById('demo-year');
+        if (!demoContainer || !demoYear) return;
+
+        items.forEach((item, idx) => {
+          const el = document.createElement('div');
+          el.className = 'demo-bar-item';
+          el.id = `demo-item-${item.id}`;
+          el.setAttribute('data-rank', idx + 1);
+          el.style.transform = `translateY(${idx * 44}px)`;
+          el.innerHTML = `
+            <span class="demo-rank-num">${idx + 1}</span>
+            <span class="demo-bar-icon">${item.icon}</span>
+            <span class="demo-label">${item.label}</span>
+            <div class="demo-track">
+              <div class="demo-bar-fill" style="width: 0%; background: ${item.color};"></div>
+            </div>
+            <span class="demo-value">0%</span>
+          `;
+          demoContainer.appendChild(el);
+        });
+
+        let year = 2020;
+        
+        function updateDemo() {
+          year += 1;
+          if (year > 2025) {
+            year = 2020;
+            items[0].target = 85;
+            items[1].target = 68;
+            items[2].target = 48;
+            items[3].target = 32;
+          } else {
+            items.forEach(item => {
+              const diff = Math.floor(Math.random() * 30) - 12;
+              item.target = Math.max(15, Math.min(95, item.target + diff));
+            });
+          }
+
+          demoYear.textContent = String(year);
+          items.forEach(item => { item.value = item.target; });
+
+          const sorted = [...items].sort((a, b) => b.value - a.value);
+
+          items.forEach(item => {
+            const el = document.getElementById(`demo-item-${item.id}`);
+            if (el) {
+              const index = sorted.findIndex(s => s.id === item.id);
+              el.setAttribute('data-rank', index + 1);
+              el.style.transform = `translateY(${index * 44}px)`;
+              
+              const rankNum = el.querySelector('.demo-rank-num');
+              if (rankNum) rankNum.textContent = index + 1;
+
+              const fill = el.querySelector('.demo-bar-fill');
+              if (fill) fill.style.width = `${item.value}%`;
+              
+              const valEl = el.querySelector('.demo-value');
+              if (valEl) valEl.textContent = `${Math.round(item.value)}%`;
+            }
+          });
+        }
+
+        setTimeout(updateDemo, 100);
+        setInterval(updateDemo, 1800);
+      })();
+
+      // 2. トーナメント表デモ
+      let bracketTimeout = null;
+      // 2回戦（8チーム）→ 準決勝 → 決勝。各試合は [上, 下] で winner は 0 or 1
+      const BRACKET_ROUNDS = [
+        [
+          { teams: ['⚡ Thunder', '🔥 Blaze'], scores: [2, 1], winner: 0 },
+          { teams: ['❄️ Frost', '🌪 Gale'], scores: [3, 0], winner: 0 },
+          { teams: ['🌟 Gold', '🖤 Shadow'], scores: [1, 2], winner: 1 },
+          { teams: ['🍀 Clover', '🌌 Galaxy'], scores: [0, 1], winner: 1 }
+        ],
+        [
+          { teams: ['⚡ Thunder', '❄️ Frost'], scores: [2, 1], winner: 0 },
+          { teams: ['🖤 Shadow', '🌌 Galaxy'], scores: [0, 1], winner: 1 }
+        ],
+        [
+          { teams: ['⚡ Thunder', '🌌 Galaxy'], scores: [3, 2], winner: 0 }
+        ]
+      ];
+      const BRACKET_ROUND_NAMES = ['Round 2', 'Semifinal', 'Final'];
+
+      function buildBracketRound(containerId, matchCount) {
+        const el = document.getElementById(containerId);
+        if (!el) return [];
+        el.innerHTML = '';
+        const slots = [];
+        for (let m = 0; m < matchCount; m++) {
+          const match = document.createElement('div');
+          match.className = 'bracket-match';
+          for (let i = 0; i < 2; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'bracket-slot is-empty';
+            slot.innerHTML = '<span class="bracket-name">TBD</span><span class="bracket-score"></span>';
+            match.appendChild(slot);
+            slots.push(slot);
+          }
+          el.appendChild(match);
+        }
+        return slots;
+      }
+
+      function fillBracketSlot(slot, name, score) {
+        if (!slot) return;
+        slot.classList.remove('is-empty', 'is-winner', 'is-champion');
+        slot.querySelector('.bracket-name').textContent = name;
+        slot.querySelector('.bracket-score').textContent = score === null ? '-' : score;
+      }
+
+      function triggerBracketDemo() {
+        if (bracketTimeout) clearTimeout(bracketTimeout);
+
+        const statusEl = document.getElementById('bracket-status');
+        const championEl = document.getElementById('bracket-champion');
+        const rounds = [
+          buildBracketRound('bround-1', 4),
+          buildBracketRound('bround-2', 2),
+          buildBracketRound('bround-3', 1)
+        ];
+
+        if (championEl) championEl.classList.remove('is-visible');
+        if (statusEl) statusEl.textContent = 'Round 2 in progress';
+
+        // 2回戦は最初から出そろっている（スコアは未確定）
+        BRACKET_ROUNDS[0].forEach((match, m) => {
+          fillBracketSlot(rounds[0][m * 2], match.teams[0], null);
+          fillBracketSlot(rounds[0][m * 2 + 1], match.teams[1], null);
+        });
+
+        // ラウンドを1つずつ決着させる
+        function playRound(r) {
+          const matches = BRACKET_ROUNDS[r];
+          matches.forEach((match, m) => {
+            const a = rounds[r][m * 2];
+            const b = rounds[r][m * 2 + 1];
+            fillBracketSlot(a, match.teams[0], match.scores[0]);
+            fillBracketSlot(b, match.teams[1], match.scores[1]);
+            (match.winner === 0 ? a : b).classList.add('is-winner');
+          });
+
+          const next = BRACKET_ROUNDS[r + 1];
+          if (next) {
+            if (statusEl) statusEl.textContent = BRACKET_ROUND_NAMES[r] + ' done → ' + BRACKET_ROUND_NAMES[r + 1];
+            next.forEach((match, m) => {
+              fillBracketSlot(rounds[r + 1][m * 2], match.teams[0], null);
+              fillBracketSlot(rounds[r + 1][m * 2 + 1], match.teams[1], null);
+            });
+            bracketTimeout = setTimeout(() => {
+              if (statusEl) statusEl.textContent = BRACKET_ROUND_NAMES[r + 1] + ' in progress';
+              bracketTimeout = setTimeout(() => playRound(r + 1), 1000);
+            }, 900);
+          } else {
+            const finalMatch = matches[0];
+            const championSlot = rounds[r][finalMatch.winner];
+            championSlot.classList.add('is-champion');
+            const championName = finalMatch.teams[finalMatch.winner];
+            if (statusEl) statusEl.textContent = '👑 Champion decided!';
+            if (championEl) {
+              championEl.textContent = '👑 Champion: ' + championName;
+              championEl.classList.add('is-visible');
+            }
+            bracketTimeout = setTimeout(triggerBracketDemo, 3500);
+          }
+        }
+
+        bracketTimeout = setTimeout(() => playRound(0), 1200);
+      }
+
+      // 3. 格付けダービーデモ（馬が左→右に走る）
+      let derbyRAF = null;
+      let derbyTimeout = null;
+      // 枠番・馬名・脚質は実ツールの入力項目に合わせた並び
+      const DERBY_HORSES = [
+        { gate: 1, name: 'Thunder', color: '#ffffff', numColor: '#000', style: 'nige' },
+        { gate: 2, name: 'Phantom', color: '#1c1c1c', numColor: '#fff', style: 'senko' },
+        { gate: 3, name: 'Blaze', color: '#e74c3c', numColor: '#fff', style: 'sashi' },
+        { gate: 4, name: 'Comet', color: '#2980b9', numColor: '#fff', style: 'oikomi' },
+        { gate: 5, name: 'Horizon', color: '#f1c40f', numColor: '#000', style: 'senko' }
+      ];
+      // 実況テロップ（実ツールの commentary() と同じ文面パターン）
+      function derbyCommentary(p, lead, second) {
+        if (p < 0.05) return 'And they’re off!';
+        if (p < 0.3) return `${lead} takes the lead! ${second} follows!`;
+        if (p < 0.55) return `${lead} is setting the pace!`;
+        if (p < 0.8) return `Around the final turn — ${lead} in front!`;
+        if (p < 0.97) return `Down the stretch! Is it ${lead}? ${second} closing in!`;
+        return 'Neck and neck at the wire!!';
+      }
+
+      function triggerDerbyDemo() {
+        if (derbyRAF) cancelAnimationFrame(derbyRAF);
+        if (derbyTimeout) clearTimeout(derbyTimeout);
+
+        const stage = document.querySelector('.derby-stage');
+        const runnersEl = document.getElementById('derby-runners');
+        const statusEl = document.getElementById('derby-status');
+        const captionEl = document.getElementById('derby-caption');
+        const boardEl = document.getElementById('derby-board');
+        const goalEl = document.getElementById('derby-goal');
+        if (!stage || !runnersEl) return;
+
+        const n = DERBY_HORSES.length;
+        const startPct = 4;    // 発走地点（stage幅に対する%）
+        const goalPct = 86;    // ゴール板の位置
+        if (goalEl) goalEl.style.left = goalPct + '%';
+
+        // 馬を配置（奥のレーンほど小さく＝実ツールの遠近と同じ）
+        runnersEl.innerHTML = '';
+        const horses = DERBY_HORSES.map((h, i) => {
+          const el = document.createElement('div');
+          el.className = 'derby-runner';
+          const depth = (i + 0.5) / n;
+          el.style.top = (46 + depth * 32) + '%';
+          el.style.left = startPct + '%';
+          el.style.transform = 'scale(' + (0.88 + depth * 0.16).toFixed(3) + ')';
+          el.innerHTML =
+            '<span class="derby-runner-name"></span>' +
+            '<span class="derby-runner-body">' +
+              '<span class="derby-runner-num"></span>' +
+              '<span class="derby-runner-emoji">🏇</span>' +
+            '</span>';
+          el.querySelector('.derby-runner-name').textContent = h.name;
+          const num = el.querySelector('.derby-runner-num');
+          num.textContent = h.gate;
+          num.style.background = h.color;
+          num.style.color = h.numColor;
+          runnersEl.appendChild(el);
+          return { def: h, el: el, pos: 0, finished: false, time: 0 };
+        });
+
+        if (boardEl) { boardEl.classList.remove('is-visible'); boardEl.innerHTML = ''; }
+        if (statusEl) { statusEl.textContent = 'Pre-race'; statusEl.style.color = '#c9a227'; }
+        if (captionEl) { captionEl.style.display = ''; captionEl.textContent = 'They’re about to start!'; }
+
+        derbyTimeout = setTimeout(() => {
+          if (statusEl) { statusEl.textContent = 'Off!'; statusEl.style.color = '#8ef0a8'; }
+
+          const results = [];
+          let lastTime = performance.now();
+          let elapsed = 0;
+
+          function step(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+            elapsed += dt;
+            let allDone = true;
+
+            horses.forEach(h => {
+              if (h.finished) return;
+              allDone = false;
+              // 脚質で速度の出方を変える（逃げは前半、追込は後半に伸びる）
+              const p = h.pos;
+              let v = 20 + Math.random() * 8;
+              if (h.def.style === 'nige') v += 14 * (1 - p);
+              else if (h.def.style === 'senko') v += 9;
+              else if (h.def.style === 'sashi') v += 16 * p;
+              else v += 22 * p * p;
+              h.pos = Math.min(1, h.pos + (v / 100) * dt);
+              h.el.style.left = (startPct + h.pos * (goalPct - startPct)) + '%';
+
+              if (h.pos >= 1) {
+                h.finished = true;
+                h.time = elapsed;
+                results.push(h);
+              }
+            });
+
+            // 先頭・2番手から実況テロップを更新
+            const sorted = [...horses].sort((a, b) => b.pos - a.pos);
+            if (captionEl) {
+              captionEl.textContent = derbyCommentary(sorted[0].pos, sorted[0].def.name, sorted[1].def.name);
+            }
+
+            if (allDone) {
+              if (statusEl) { statusEl.textContent = '👑 ' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
+              if (captionEl) captionEl.style.display = 'none';
+              // 結果掲示板（実ツールの「― 結果発表 ―」と同じ体裁）
+              if (boardEl) {
+                const base = 94.2;
+                boardEl.innerHTML = '<div class="derby-board-title">— Results —</div>' +
+                  results.map((h, i) => {
+                    const t = base + i * 0.3 + h.def.gate * 0.05;
+                    const time = '1:' + t.toFixed(1);
+                    return '<div class="derby-board-row">' +
+                      '<span class="derby-board-rank">' + ['1st','2nd','3rd','4th','5th'][i] + '</span>' +
+                      '<span>' + h.def.name + '</span>' +
+                      '<span class="derby-board-time">' + time + '</span>' +
+                      '</div>';
+                  }).join('');
+                boardEl.classList.add('is-visible');
+              }
+              derbyTimeout = setTimeout(triggerDerbyDemo, 3500);
+              return;
+            }
+
+            derbyRAF = requestAnimationFrame(step);
+          }
+          derbyRAF = requestAnimationFrame(step);
+        }, 800);
+      }
+
+      // 4. ランキング動画デモ（カードが右→左にベルトコンベア式で流れる）
+      let rankingRAF = null;
+      function triggerRankingDemo() {
+        if (rankingRAF) cancelAnimationFrame(rankingRAF);
+
+        const trackEl = document.getElementById('ranking-track');
+        if (!trackEl) return;
+
+        const items = [
+          { rank: '#5', emoji: '🍛', name: 'Curry Udon', desc: 'Japanese dashi meets real spice' },
+          { rank: '#4', emoji: '🥟', name: 'Handmade Gyoza', desc: 'Wrappers made from scratch, super juicy' },
+          { rank: '#3', emoji: '🌶️', name: 'Spicy Miso Ramen', desc: 'Addictive spice and a rich, savory soup' },
+          { rank: '#2', emoji: '🥢', name: 'Seafood Tsukemen', desc: 'Rich pork broth with a hint of yuzu' },
+          { rank: '#1', emoji: '🍜', name: 'Rich Shoyu Ramen', desc: 'Secret deep soy tare and thick house noodles — the clear #1!' }
+        ];
+
+        const stageEl = trackEl.parentElement;
+        const stageWidth = stageEl ? stageEl.clientWidth : 400;
+        // 実ツール準拠：幅に応じた表示枠数からカード幅を算出（16:9相当＝4枠）
+        const slots = 4;
+        const gap = Math.max(4, Math.round(stageWidth * 0.008));
+        const slotW = Math.round((stageWidth - gap * (slots + 1)) / slots);
+        trackEl.style.setProperty('--slot-w', slotW + 'px');
+        trackEl.style.setProperty('--slot-gap', gap + 'px');
+        trackEl.style.paddingLeft = gap + 'px';
+        trackEl.style.paddingRight = gap + 'px';
+
+        // カードをJS生成
+        trackEl.innerHTML = '';
+        trackEl.style.transform = 'translateX(0px)';
+
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'rv-card';
+          card.innerHTML = `
+            <div class="rv-rank">${item.rank}</div>
+            <div class="rv-img">${item.emoji}</div>
+            <div class="rv-name">${item.name}</div>
+            <div class="rv-desc">${item.desc}</div>
+          `;
+          trackEl.appendChild(card);
+        });
+
+        // 第5位のカードが右端から流れ込んで開始 → 最後のカードが右端に揃う位置で停止
+        let offset = -stageWidth;
+        const maxOffset = Math.max(0, trackEl.scrollWidth - stageWidth);
+        const speed = stageWidth * 0.10; // px per second
+        let lastTime = performance.now();
+        const fadeZone = stageWidth * 0.22;
+        const cards = Array.from(trackEl.querySelectorAll('.rv-card'));
+
+        function applyFrame() {
+          trackEl.style.transform = `translateX(${-offset}px)`;
+          cards.forEach(card => {
+            const left = card.offsetLeft - offset;
+            if (left >= stageWidth) {
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(10px)';
+              return;
+            }
+            const p = Math.min(1, Math.max(0, (stageWidth - left) / fadeZone));
+            card.style.opacity = String(p);
+            card.style.transform = p < 1 ? `translateY(${Math.round((1 - p) * 10)}px)` : '';
+          });
+        }
+
+        applyFrame();
+
+        function step(now) {
+          const dt = Math.min((now - lastTime) / 1000, 0.1);
+          lastTime = now;
+          offset += speed * dt;
+
+          if (offset >= maxOffset) {
+            offset = maxOffset;
+            applyFrame();
+            // 終端で静止 → ループ再生
+            setTimeout(triggerRankingDemo, 1800);
+            return;
+          }
+          applyFrame();
+          rankingRAF = requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame((now) => {
+          lastTime = now;
+          rankingRAF = requestAnimationFrame(step);
+        });
+      }
+
+      // 初回自動実行
+      triggerBracketDemo();
+
+      // 更新履歴の「さらに表示」
+      const btnMore = document.getElementById('btn-show-more');
+      if (btnMore) {
+        btnMore.addEventListener('click', () => {
+          const hiddenItems = document.querySelectorAll('.update-list .update-item.is-hidden');
+          hiddenItems.forEach(item => {
+            item.classList.remove('is-hidden');
+          });
+          btnMore.style.display = 'none';
+        });
+      }
+    });
+  </script>
+</BaseLayout>

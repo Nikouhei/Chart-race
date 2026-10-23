@@ -1,0 +1,144 @@
+/*
+ * サイト共通の外枠（ヘッダー・フッター・基本の余白）
+ * 旧トップページの <style> から切り出したもの。Astro に移したページはすべてこれを使う。
+ * （移行直後のページには同じ指定が各ページの <style> にも残っているが、内容は同じなので問題ない）
+ */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background: var(--app-bg);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+/* ヘッダ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--panel-border);
+  box-shadow: 0 2px 8px rgba(16, 18, 22, 0.02);
+  transition: background 0.3s ease;
+}
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-strong);
+  letter-spacing: 0.2px;
+  text-decoration: none;
+}
+.brand img {
+  height: 24px;
+  width: auto;
+  display: block;
+}
+.brand .dot { color: var(--accent); }
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: color .2s ease, background-color .2s ease;
+}
+.nav-link:hover {
+  color: var(--accent);
+  background-color: var(--accent-soft);
+}
+.nav-link.is-active {
+  color: var(--accent-strong);
+  background-color: var(--accent-soft);
+}
+
+@media (max-width: 768px) {
+  .site-header-inner {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .site-nav {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 16px;
+    /* 端をフェードさせて「まだ続きがある」ことを示す */
+    -webkit-mask-image: var(--nav-fade, none);
+    mask-image: var(--nav-fade, none);
+  }
+  .site-nav[data-scroll="start"] {
+    --nav-fade: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
+  .site-nav[data-scroll="middle"] {
+    --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+  }
+  .site-nav[data-scroll="end"] {
+    --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 100%);
+  }
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-link { scroll-snap-align: start; }
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+}
+
+/* フッタ */
+footer.site-footer {
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel-surface);
+  margin-top: 56px;
+}
+.site-footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+.site-footer nav a { color: var(--text-muted); text-decoration: none; margin-left: 18px; }
+.site-footer nav a:hover { color: var(--text-main); }
+
+/* 言語切替ボタンがあるときは、メニューが2行に折り返さないよう少し詰める */
+.site-header-inner:has(.lang-switch) .nav-link { white-space: nowrap; padding: 8px 12px; }
+@media (min-width: 769px) and (max-width: 1040px) {
+  .site-header-inner:has(.lang-switch) .site-nav {
+    min-width: 0; overflow-x: auto; scrollbar-width: none;
+    -webkit-mask-image: var(--nav-fade, none); mask-image: var(--nav-fade, none);
+  }
+  .site-header-inner:has(.lang-switch) .site-nav::-webkit-scrollbar { display: none; }
+  .site-header-inner:has(.lang-switch) .site-nav[data-scroll="start"] { --nav-fade: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%); }
+  .site-header-inner:has(.lang-switch) .site-nav[data-scroll="middle"] { --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%); }
+  .site-header-inner:has(.lang-switch) .site-nav[data-scroll="end"] { --nav-fade: linear-gradient(to right, transparent 0, #000 28px, #000 100%); }
+  .site-header-inner:has(.lang-switch) .brand { flex-shrink: 0; margin-right: 12px; }
+}

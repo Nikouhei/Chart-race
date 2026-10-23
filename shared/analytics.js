@@ -45,6 +45,7 @@
   var TOOLS = [
     [/^\/bar-chart-race(\/|$)/, "bar_chart_race"],
     [/^\/regular-chart(\/|$)/, "line_chart_race"],
+    [/^\/pie-chart-race(\/|$)/, "pie_chart_race"],
     [/^\/stock-race\/app-bar(\/|$)/, "stock_race_bar"],
     [/^\/stock-race(\/|$)/, "stock_race_line"],
     [/^\/horse-race-ranking-maker(\/|$)/, "horse_race"],
@@ -70,13 +71,28 @@
     return { tool: tool, type: type };
   }
 
-  var PAGE = classify(location.pathname);
+  // 表示言語。SEOページは URL の先頭（/en/ など。無ければ日本語）、ツール画面は ?lang=（shared/i18n.js）
+  var LANG_PREFIX = /^\/([a-z]{2})(?=\/)/;
+  function siteLanguage() {
+    if (window.I18N && window.I18N.getLocale && !LANG_PREFIX.test(location.pathname)) return window.I18N.getLocale();
+    var m = location.pathname.match(LANG_PREFIX);
+    return m ? m[1] : "ja";
+  }
+  // 言語の接頭辞を外してから分類する（/en/bar-chart-race/ も bar_chart_race の LP として数える）
+  function stripLang(pathname) {
+    var m = pathname.match(LANG_PREFIX);
+    if (!m) return pathname;
+    var rest = pathname.slice(m[0].length);
+    return rest || "/";
+  }
+
+  var PAGE = classify(stripLang(location.pathname));
   var IS_TOOL_SCREEN = PAGE.type === "app" || PAGE.type === "tool_page";
   var OPENED_AT = Date.now();
 
   // ── 送信 ──────────────────────────────────────────────
   function track(name, params) {
-    var p = { tool_name: PAGE.tool || "none", page_type: PAGE.type };
+    var p = { tool_name: PAGE.tool || "none", page_type: PAGE.type, site_language: siteLanguage() };
     if (params) for (var k in params) if (params[k] !== undefined && params[k] !== null && params[k] !== "") p[k] = params[k];
     if (DEBUG && IS_PROD) p.debug_mode = true;
     if (!IS_PROD || DEBUG) { try { console.log("[grs-analytics]", name, p); } catch (e) {} }
@@ -209,7 +225,7 @@
       var url;
       try { url = new URL(a.href, location.href); } catch (e) { return; }
       if (url.origin !== location.origin) return;
-      var dest = classify(url.pathname);
+      var dest = classify(stripLang(url.pathname));
       if (!dest.tool) return;
       if (url.pathname === location.pathname) return;
       // ツール間の切替（app → 別app）も、LP→app の遷移もここで拾える

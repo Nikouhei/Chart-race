@@ -10,11 +10,11 @@
 
     // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
     if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
-      gtag('config', 'G-NS736Y3MY9');
+      gtag('config', 'G-NS736Y3MY9', { site_language: (/[?&]lang=(en)\b/.exec(location.search) || [])[1] || document.documentElement.lang || 'ja' });
     }
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
-  <script src="../../shared/analytics.js?v=20261006" defer></script>
+  <script src="../../shared/analytics.js?v=20261023" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026101703" defer></script>
   <script src="../../shared/video-export.js?v=2026101703" defer></script>
@@ -52,9 +52,9 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js"></script>
+  <script src="../../shared/i18n.js?v=2026102307" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/registry.js"></script>
+  <script src="../../shared/registry.js?v=20261023"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
     
@@ -1117,7 +1117,7 @@
         border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.18); padding: 8px;
       }
       body.desktop-data-active #chartAreaWrapper::before {
-        content: "プレビュー";
+        content: var(--grs-preview-label, "プレビュー"); /* 英語表示では shared/i18n/en/chart-race.js が差し替える */
         position: absolute; left: 12px; top: 6px;
         font-size: 11px; color: #9ca3af; font-weight: 600; z-index: 1;
       }
@@ -1248,7 +1248,7 @@
 
   <div class="control-panel">
     <div class="panel-header">
-      <a href="/" class="brand">
+      <a href="/" class="brand" data-i18n-home>
         <picture>
           <source srcset="/Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
           <img src="/Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
@@ -2407,6 +2407,12 @@
         customBarColors: { ...customBarColors },
         customCategoryColors: { ...customCategoryColors }
       };
+    }
+
+    // ランキング表示の順位（日本語「1位」／英語「#1」）。グラフ内は自動翻訳の対象外なのでここで訳す
+    function rankLabel(n) {
+      const ja = `${n}位`;
+      return (window.I18N && window.I18N.translate) ? window.I18N.translate(ja) : ja;
     }
 
     function formatSavedAt(value) {
@@ -4293,7 +4299,7 @@
     }
 
     function getDisplayNameForMetrics(item, index, layout) {
-      if (layout.chartStyle === 'ranking') return `${item.rank ?? index + 1}位`;
+      if (layout.chartStyle === 'ranking') return rankLabel(item.rank ?? index + 1);
       return item.name;
     }
 
@@ -4851,7 +4857,7 @@
         .style("fill", labelSettings.nameColor)
         .style("display", shouldShowNameLabels ? "block" : "none")
         .text((d, index) => layout.chartStyle === 'ranking'
-          ? `${d.rank ?? index + 1}位`
+          ? rankLabel(d.rank ?? index + 1)
           : fitBarName(d.name, effectiveLabelFontSize, frameMetrics.nameLabelMaxTextWidth));
       transition(rowsUpdate.select(".name-label")).attr("x", nameLabelX);
 
@@ -5270,14 +5276,18 @@
     const sampleId = new URLSearchParams(location.search).get('sample');
     if (sampleId) {
       (async () => {
-        const file = (sampleId === '1') ? 'sample.json' : `${sampleId.replace(/[^a-zA-Z0-9_-]/g, '')}.json`;
+        // 英語表示（?lang=en）なら英語版のサンプル（sample-en.json）を使う
+        const lang = (window.I18N && !window.I18N.isDefault()) ? window.I18N.getLocale() : '';
+        const baseName = (sampleId === '1') ? 'sample' : sampleId.replace(/[^a-zA-Z0-9_-]/g, '');
+        const file = `${baseName}${lang ? '-' + lang : ''}.json`;
         try {
           const res = await fetch(`../samples/${file}`, { cache: 'no-cache' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           loadProjectPayload(validateProjectPayload(await res.json()));
           switchPanelTab('settingsTab');
           // URLから sample を除去（リロード時の再読込＝編集消失を防止）
-          history.replaceState(null, '', location.pathname);
+          // ?lang= は残す（表示言語を保つ）
+          history.replaceState(null, '', location.pathname + (lang ? `?lang=${lang}` : ''));
         } catch (err) {
           // サンプル読込失敗時は通常起動にフォールバック（空のツールとして使える）
         }

@@ -1,0 +1,30 @@
+---
+/*
+ * 英語版の法務・サイト情報ページの共通の型（/en/about.html・/en/terms.html・/en/privacy.html）
+ * 見た目は日本語版（src/pages/about.astro）と同じ CSS を使う。本文はスロットで渡す。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../SiteHeader.astro';
+import SiteFooter from '../SiteFooter.astro';
+import { legacyCss } from '../../../build/legacy-tool.mjs';
+
+interface Props { pageId: string; title: string; description: string; heading: string }
+const { pageId, title, description, heading } = Astro.props;
+const css = legacyCss('about.html');
+---
+<BaseLayout pageId={pageId} title={title} description={description}>
+  <Fragment slot="head">
+    <style is:inline set:html={css}></style>
+  </Fragment>
+
+  <SiteHeader pageId={pageId} locale="en" />
+
+  <main class="wrap">
+    <h1 class="page-title">{heading}</h1>
+    <div class="content-block">
+      <slot />
+    </div>
+  </main>
+
+  <SiteFooter locale="en" crumbs={[{ name: 'Home', href: '/en/' }, { name: heading }]} tagline="Data visualization tools" />
+</BaseLayout>

@@ -10,11 +10,11 @@
 
     // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・*.pages.dev のプレビューは除外）
     if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
-      gtag('config', 'G-NS736Y3MY9');
+      gtag('config', 'G-NS736Y3MY9', { site_language: (/[?&]lang=(en)\b/.exec(location.search) || [])[1] || document.documentElement.lang || 'ja' });
     }
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
-  <script src="../../shared/analytics.js?v=20261006" defer></script>
+  <script src="../../shared/analytics.js?v=20261023" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,9 @@
   <link rel="stylesheet" href="../../shared/tokens.css">
 
   <!-- ツール共通レジストリ（下書き自動保存に使用） -->
-  <script src="../../shared/registry.js"></script>
+  <script src="../../shared/registry.js?v=20261023"></script>
+  <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
+  <script src="../../shared/i18n.js?v=2026102307" data-i18n-bundles="common,ranking-video"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -361,7 +363,7 @@
 
   <div class="control-panel">
     <div class="panel-header">
-      <a href="../../" class="brand">
+      <a href="../../" class="brand" data-i18n-home>
         <picture>
           <source srcset="../../Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
           <img src="../../Logo/GraphRace_Studio_Logo_48.png" alt="GraphRace Studio ロゴ" width="24" height="24" decoding="async">
@@ -382,7 +384,7 @@
         <div class="accordion-content">
           <div class="field">
             <span class="field-label">タイトル（動画の冒頭に表示）</span>
-            <input type="text" id="titleInput" class="app-input" maxlength="40" placeholder="例：好きなラーメンランキングTOP5" value="好きなラーメンランキングTOP5">
+            <input type="text" id="titleInput" class="app-input" maxlength="40" placeholder="例：好きなラーメンランキングTOP5" value="好きなラーメンランキングTOP5" data-i18n-value>
           </div>
           <div class="field">
             <span class="field-label">サブタイトル（任意）</span>
@@ -514,6 +516,8 @@
 
 <script>
 (function(){
+  // 英語表示（?lang=en）: スクリプトが画面の文言・初期値を読む前に訳しておく
+  if (window.I18N && !window.I18N.isDefault() && window.I18N.translateTree) window.I18N.translateTree(document.body);
   const TOOL_ID = 'ranking-video-maker';
   const $ = (id) => document.getElementById(id);
   const wrap = $('rv-wrap'), canvasEl = $('rv-canvas'), trackEl = $('rv-track');
@@ -524,7 +528,9 @@
   const IMG_MAX_EDGE = 512; // アップロード画像の縮小上限（localStorage容量対策）
 
   // --- 状態 ---
-  let items = [
+  // 英語表示では英語のサンプル（shared/i18n/en/ranking-video.js の GRS_RANKING_SAMPLE）を使う
+  const SAMPLE_EN = (window.I18N && !window.I18N.isDefault() && window.GRS_RANKING_SAMPLE) ? window.GRS_RANKING_SAMPLE : null;
+  let items = SAMPLE_EN ? SAMPLE_EN.map(x => ({ ...x })) : [
     { name: '中華そば しんいち', desc: '鶏と煮干しのダブルスープ。朝7時から行列ができる王道の一杯。', img: '../中華そば しんいち.jpeg' },
     { name: '麺屋 こがね',       desc: '濃厚豚骨魚介つけ麺の名店。自家製の極太麺は小麦の香りが強い。', img: '../麺屋 こがね.jpeg' },
     { name: 'らぁめん 灯火',     desc: '淡麗塩の最高峰。貝出汁の透き通ったスープに手揉み細麺。', img: '../らぁめん 灯火.jpeg' },

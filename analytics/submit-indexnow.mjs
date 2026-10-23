@@ -24,12 +24,18 @@ const KEY = "97ed0c8df726b2d26ba752cd9f45f2d5";
 const KEY_LOCATION = `https://${HOST}/${KEY}.txt`;
 const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
 
-function extractUrlsFromSitemap() {
-  const sitemapPath = path.join(ROOT, "sitemap.xml");
-  if (!fs.existsSync(sitemapPath)) {
-    throw new Error("sitemap.xml が見つかりません。先に generate-sitemap.js を実行してください。");
+// sitemap.xml はビルド時に作られる（build/postbuild.mjs）。
+// ローカルでビルド済みなら dist/sitemap.xml、無ければ（GitHub Actions など）公開中のものを読む。
+async function extractUrlsFromSitemap() {
+  const local = path.join(ROOT, "dist", "sitemap.xml");
+  let content;
+  if (fs.existsSync(local)) {
+    content = fs.readFileSync(local, "utf-8");
+  } else {
+    const res = await fetch(`https://${HOST}/sitemap.xml`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`sitemap.xml を取得できませんでした（HTTP ${res.status}）`);
+    content = await res.text();
   }
-  const content = fs.readFileSync(sitemapPath, "utf-8");
   const matches = [...content.matchAll(/<loc>([^<]+)<\/loc>/g)];
   return matches.map((m) => m[1].trim());
 }
@@ -109,7 +115,7 @@ if (args.length > 0) {
   targetUrls = args;
 } else {
   try {
-    targetUrls = extractUrlsFromSitemap();
+    targetUrls = await extractUrlsFromSitemap();
   } catch (e) {
     console.error(e.message);
     process.exit(1);

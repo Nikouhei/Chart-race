@@ -1,0 +1,19 @@
+---
+// GA4 のタグと行動計測スクリプト。全ページ共通。
+// site_language（表示言語）は page_view と、shared/analytics.js が送る全イベントに付く。
+const ANALYTICS_VERSION = '20261023'; // shared/analytics.js を変えたら、既存ページの ?v= と一緒に更新
+---
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NS736Y3MY9"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // 本番ドメイン（graphrace-studio.com）でのみ計測する（localhost・プレビューは除外）
+  if (/(^|\.)graphrace-studio\.com$/.test(window.location.hostname)) {
+    gtag('config', 'G-NS736Y3MY9', { site_language: (/[?&]lang=(en)\b/.exec(location.search) || [])[1] || document.documentElement.lang || 'ja' });
+  }
+</script>
+<!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
+<script is:inline src={`/shared/analytics.js?v=${ANALYTICS_VERSION}`} defer></script>

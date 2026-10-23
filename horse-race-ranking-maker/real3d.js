@@ -22,6 +22,8 @@
    ===================================================================== */
 (function(global){
 "use strict";
+/* 表示言語（英語版では辞書で訳す。キャンバスに描く文字だけ）。日本語のときは何もしない */
+const _t=s=>(global.I18N&&!global.I18N.isDefault())?global.I18N.translate(s):s;
 
 const FPS = 30;
 /* ゲート待機: カウントダウン無しなら 0.3秒でスタート。
@@ -2708,14 +2710,14 @@ function buildResultsBoard(){
   c.fillStyle="#e3b34c";
   c.font="bold 56px 'Hiragino Kaku Gothic ProN', sans-serif";
   c.textAlign="center";
-  c.fillText(board.title||"結果発表", W/2, 76, W-200);
+  c.fillText(board.title||_t("結果発表"), W/2, 76, W-200);
   c.textAlign="left";
   // 着差カラムの見出し (JRA式は数字だけになるため単位の手掛かりを残す)
   if(showMargin){
     c.textAlign="right";
     c.fillStyle="rgba(160,178,168,0.7)";
     c.font="bold 22px 'Hiragino Kaku Gothic ProN', sans-serif";
-    c.fillText("着差", W-52, 84);
+    c.fillText(_t("着差"), W-52, 84);
     c.textAlign="left";
   }
   const medal={1:"#e8c24a",2:"#c9ced4",3:"#c78a4e"};
@@ -2754,7 +2756,7 @@ function buildResultsBoard(){
       c.textAlign="right";
       c.fillStyle=isTop?"rgba(227,179,76,0.95)":"rgba(160,178,168,0.9)";
       c.font=`bold ${isTop?36:26}px 'Hiragino Kaku Gothic ProN', sans-serif`;
-      c.fillText(r.margin, W-52, cy+(isTop?13:9));
+      c.fillText(_t(r.margin), W-52, cy+(isTop?13:9));
       c.textAlign="left";
     }
     // 区切り線
@@ -3307,7 +3309,7 @@ function applySettings(input){
     /* 結果発表の見せ方。競馬風と同じ設定を受け取る。
        アイコン画像だけは3Dの馬に貼れないので、こちらには渡ってこない */
     board: {
-      title : (src.board&&src.board.title) || "結果発表",
+      title : (src.board&&src.board.title) || _t("結果発表"),
       color : !src.board || src.board.color !==false,
       margin: !src.board || src.board.margin!==false,
     },
@@ -3315,7 +3317,7 @@ function applySettings(input){
   };
   cfg.duration += gateSecOf();
   src.horses.slice(0,cfg.n).forEach((h,i)=>{
-    cfg.names.push(h.name || `${i+1}番`);
+    cfg.names.push(h.name || _t(`${i+1}番`));
     cfg.order.push(i+1); // 配列の並び = 最終着順 (先頭が1着)
     // 馬番: ゲート位置と表示番号。着順とは独立 (指定がなければ並び順)
     cfg.gates.push(+h.gate || (i+1));

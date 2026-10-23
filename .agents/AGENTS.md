@@ -8,6 +8,36 @@
   - `.assetsignore` の `stock-race/` 除外を外さない。
   - メインサイト（トップ・LP・ブログ・sitemap.xml など）から株価レースへのリンクを張らない。
   - `build/build.js` の株価レース再生成処理もコミットしない。
+  - `stock-race/` は `build/legacy-files.mjs` でも配信対象から外しており、`dist/` に入るとビルドが失敗するようにしてある。この除外も外さない。
+
+## サイト構成と多言語化（2026-10 から Astro へ段階移行中）
+- **SEOページ（トップ・LP・ブログ・法務）は Astro（`src/pages/`）へ1ページずつ移している。** 移行済みのページは `src/pages/` 側を編集する（直下の同名HTMLは使われない。ビルド時に「Astro 版を優先」と表示される）。
+  - 移行済み: トップ（`src/pages/index.astro`）、ツールLP5つ（`src/pages/bar-chart-race/` `regular-chart/` `tournament-bracket-animator/` `ranking-video-maker/` `horse-race-ranking-maker/` の `index.astro`）、法務（`src/pages/about.astro` `terms.astro` `privacy.astro`）。旧 HTML は削除済み
+  - 未移行: ブログ、あみだくじ（どちらも英語版は作らない）
+  - 英語の法務ページ（`src/pages/en/about.astro` など）は日本語版の英訳。日本語版を変えたら英語版もそろえる
+  - **`.astro` のページを直すときの注意**: `<script>`・`<style>` には必ず `is:inline` を付ける（付けないと Astro が書き換えて動きが変わる）。本文（タグの外）に `{` `}` をそのまま書かない（Astro の式として扱われる。必要なら `{'{'}` のように書く）。中の相対パスは使わず `/shared/...` のような絶対パスで書く。
+  - 英語版を作らないもの: ブログ、あみだくじ（2026-10 決定）
+- まだ移していない既存HTML・ツール画面（`/xxx/app/`）・画像は直下のまま。ビルド時に `build/postbuild.mjs` が `dist/` にコピーする。除外ルールは `.assetsignore` と `build/legacy-files.mjs`。
+- ビルド: `npm run build`（= `astro build` ＋ `build/postbuild.mjs`）。配信するのは `dist/`。下書きも見たいときは `npm run build:preview`、開発中は `npm run dev`。
+- URL: 日本語はルートのまま、英語は `/en/`（他の言語も `/xx/`）。ブラウザ言語やIPでの自動リダイレクトはしない。
+- **言語ごとのURLの対応関係は `src/i18n/routes.mjs` に書く。** hreflang・canonical・言語切替・sitemap はここから自動で作られる。
+  - 英語版を作ったら `paths` に `en` を足し、確認が済むまで `drafts: ['en']` にしておく（本番ビルドでは出力されない。preview ブランチでは noindex で出る）。
+  - 新しい言語は `src/i18n/config.mjs` と `src/i18n/ui.mjs`、`shared/i18n.js` の `SUPPORTED` に足す。
+- ヘッダー・フッター・言語切替などの共通文言は `src/i18n/ui.mjs`。ページ本文は辞書にせず、言語ごとのページファイルに直接書く（英語版は翻訳ではなく英語圏の検索意図に合わせて書く）。
+- `sitemap.xml` はビルド時に自動生成（直下の `sitemap.xml` と `generate-sitemap.js` は旧方式で、もう使っていない）。
+- **ツール画面（`/xxx/app/`）は URL を言語で分けず、`?lang=en` で表示を切り替える**（`shared/i18n.js`）。
+  - 文言は HTML・JS に日本語のまま書く。英語は「日本語の文言 → 英語」の文言辞書で自動的に置き換わる（画面の文字・placeholder・title・aria-label・後から JS で入る文字・alert/confirm/prompt）。
+  - 辞書: `shared/i18n/en/common.js`（共通部品：書き出し・購入案内・アンケート等）、`shared/i18n/en/chart-race.js`（バーチャート・線グラフ・円グラフの画面）。ツールごとに増やす。
+  - 読み込み: `<script src=".../shared/i18n.js?v=..." data-i18n-bundles="common,chart-race">`（日本語表示のときは辞書を読み込まない）。
+  - **日本語の文言を変えたり足したりしたら、英語辞書にも同じ文言を足す。** 数字などが入る文は `registerPatterns` に正規表現で書く。直し忘れても日本語のまま出るだけで壊れない。localhost で `?lang=en` を開くと、訳のない日本語が console に `[i18n] 訳がない文言` として出る。
+  - グラフ・表の中身などユーザーのデータは訳さない（`I18N.skip('#chartArea, ...')`）。グラフ内にツールが自分で描く文字（例: 順位「1位」）は `I18N.translate('1位')` を通す。
+  - CSS の `content` で出す文字は CSS 変数にして、辞書ファイルで差し替える。
+  - 英語表示のサンプルデータは `samples/sample-en.json`（`?sample=1&lang=en`）。
+  - **格付けダービーの英語版（`/en/horse-race-ranking-maker/`）は、LP の文章だけ `src/pages/en/horse-race-ranking-maker/index.astro` に英語で書き、ツール部分（見た目・設定パネル・スクリプト）はビルドのたびに日本語版 `src/pages/horse-race-ranking-maker/index.astro` から自動で取り出す**（`build/legacy-tool.mjs`）。ツールを直すときは日本語版だけ直し、新しい日本語の文言は `shared/i18n/en/horse-race.js` に足す（訳がないとビルド時に `[i18n] … 訳がない文言` と出る）。キャンバスに描く文字は `_t()` を通す。
+  - 英語LPからツールへのリンクには必ず `?lang=en` を付ける。ツール間の移動では自動で引き継ぐ（`shared/registry.js`）。
+- 課金判定は言語に依存させない（プラン表は全言語共通）。
+- GA4: 全イベントと page_view に `site_language`（表示言語）が付く。言語切替ボタンは `language_switch`（パラメータなし。2言語なので行き先はページの言語から分かる）。
+- `shared/` 以下のファイルを変えたら、読み込んでいる全ページの `?v=` を更新する（1年キャッシュのため）。
 
 ## SEO・パフォーマンスの最優先ルール
 **※対象：SEOページ（トップページやaboutページなど）のみ。ツールページ（bar-chart-race, regular-chart等）には本ルールは適用不要です。**

@@ -1,0 +1,200 @@
+---
+/*
+ * 英語版ツールLPの共通の型（/en/<ツール>/）
+ *   見た目は日本語版LPの <style> をそのまま使う（同じクラス名で組む）。
+ *   文章は各ページ（src/pages/en/<ツール>/index.astro）に英語で書いて渡す。
+ *   構造化データ（SoftwareApplication・HowTo・FAQPage）もここで作る。
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../SiteHeader.astro';
+import SiteFooter from '../SiteFooter.astro';
+import { legacyCss } from '../../../build/legacy-tool.mjs';
+import faqCss from '../../styles/en-faq.css?raw';
+import { SITE_URL } from '../../i18n/config.mjs';
+import { getPage } from '../../i18n/utils.mjs';
+
+interface Item { title: string; text: string; icon?: string; img?: string; tag?: string }
+interface Props {
+  pageId: string;
+  jaFile: string;          // 見た目を借りる日本語版LP（例: 'bar-chart-race/index.html'）
+  title: string;
+  description: string;
+  appName: string;         // 構造化データ・パンくずの名前
+  badges: string[];
+  h1: string;              // <br> を使ってよい
+  lead: string;
+  appHref: string;
+  sampleHref?: string;
+  primaryCta?: string;
+  demo?: { src: string; title: string; text: string };  // 紹介動画（縦型 webm）
+  features: { title: string; sub: string; items: Item[] };
+  useCases: { title: string; sub: string; items: Item[] };
+  steps: { title: string; sub: string; items: Item[] };
+  faq: { q: string; a: string }[];
+  featureList: string[];
+}
+const p = Astro.props;
+const locale = 'en';
+const css = legacyCss(p.jaFile);
+const url = SITE_URL + getPage(p.pageId).paths.en;
+const strip = (s: string) => s.replace(/<[^>]+>/g, '');
+const ldJson = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication', name: p.appName, applicationCategory: 'MultimediaApplication',
+      operatingSystem: 'Web', url, inLanguage: 'en', description: p.description, featureList: p.featureList,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
+    {
+      '@type': 'HowTo', name: p.steps.title, description: p.steps.sub,
+      step: p.steps.items.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.title, text: strip(s.text) })),
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: p.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: strip(f.a) } })),
+    },
+  ],
+};
+const cta = p.primaryCta || 'Start creating';
+---
+<BaseLayout pageId={p.pageId} title={p.title} description={p.description}>
+  <Fragment slot="head">
+    <!-- 日本語版LPにFAQが無いページ用の既定。日本語版のCSSがあればそちらが後から上書きする -->
+    <style is:inline set:html={faqCss}></style>
+    <style is:inline set:html={css}></style>
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(ldJson)}></script>
+  </Fragment>
+
+  <SiteHeader pageId={p.pageId} locale={locale} activeId={p.pageId} />
+
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-badges">
+          {p.badges.map((b) => <span class="badge">{b}</span>)}
+        </div>
+        <h1 set:html={p.h1} />
+        <p class="lead" set:html={p.lead} />
+        <div class="hero-cta">
+          <a class="btn-primary" href={p.appHref}>{cta}</a>
+          {p.sampleHref && <a class="btn-secondary" href={p.sampleHref}>Try a sample</a>}
+        </div>
+        <span class="sub-note">No install, no sign-up — runs in your browser.</span>
+      </div>
+    </section>
+
+    {p.demo && (
+      <section>
+        <div class="wrap">
+          <div class="demo-split">
+            <div class="demo-split-video">
+              <video id="promo-video" preload="none" muted loop playsinline width="100%" height="auto">
+                <source data-src={p.demo.src} type="video/webm">
+              </video>
+            </div>
+            <div class="demo-split-text">
+              <h2>{p.demo.title}</h2>
+              <p set:html={p.demo.text} />
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">{p.features.title}</h2>
+        <p class="section-sub">{p.features.sub}</p>
+        <div class="features">
+          {p.features.items.map((f) => (
+            <div class="feature-card">
+              <div class="ico">
+                {f.img
+                  ? <img src={f.img} alt={f.title} width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;" />
+                  : <span style="font-size:48px; line-height:64px;">{f.icon}</span>}
+              </div>
+              <h3>{f.title}</h3>
+              <p set:html={f.text} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">{p.useCases.title}</h2>
+        <p class="section-sub">{p.useCases.sub}</p>
+        <div class="use-cases">
+          {p.useCases.items.map((u) => (
+            <div class="use-case-card">
+              {u.tag && <span class="tag">{u.tag}</span>}
+              <h3>{u.title}</h3>
+              <p set:html={u.text} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="section-title">{p.steps.title}</h2>
+        <p class="section-sub">{p.steps.sub}</p>
+        <div class="steps">
+          {p.steps.items.map((s, i) => (
+            <div class="step">
+              <span class="num">{i + 1}</span>
+              <h3>{s.title}</h3>
+              <p set:html={s.text} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap">
+        <h2 class="section-title">FAQ</h2>
+        <div class="faq-list">
+          {p.faq.map((f) => (
+            <details class="faq-item">
+              <summary class="faq-q">{f.q}</summary>
+              <div class="faq-a" set:html={f.a} />
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>Ready to try it?</h2>
+        <a class="btn-primary" href={p.appHref}>{cta}</a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter locale={locale} crumbs={[{ name: 'Home', href: '/en/' }, { name: p.appName }]} />
+
+  {p.demo && (
+    <script is:inline>
+      // 紹介動画は画面に近づいてから読み込む（ページ表示を速く保つ）
+      document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('promo-video');
+        if (!video) return;
+        const start = () => {
+          video.querySelectorAll('source[data-src]').forEach((s) => { s.src = s.dataset.src; s.removeAttribute('data-src'); });
+          video.load();
+          video.play().catch(() => {});
+        };
+        if (!('IntersectionObserver' in window)) return start();
+        const io = new IntersectionObserver((entries) => {
+          if (entries.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
+        }, { rootMargin: '100px' });
+        io.observe(video);
+      });
+    </script>
+  )}
+</BaseLayout>
