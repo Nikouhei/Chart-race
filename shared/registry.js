@@ -11,7 +11,8 @@
 (function () {
   window.CHART_TOOLS = [
     { id: 'bar-chart-race', label: 'バーチャートレース', i18nKey: 'tool.barChartRace.label', path: '../../bar-chart-race/app/', kind: 'animated' },
-    { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' }
+    { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' },
+    { id: 'pie-chart-race', label: '円グラフレース', i18nKey: 'tool.pieChartRace.label', path: '../../pie-chart-race/app/', kind: 'animated' }
   ];
 
   // 編集中プロジェクトの一時引き継ぎ枠。保存済み一覧(chartToolSavedProjects)とは別管理。

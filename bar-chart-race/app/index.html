@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026102401" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026102502" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/registry.js?v=20261023"></script>
   <style>
@@ -311,6 +311,39 @@
     .category-legend.active { display: flex; }
     .category-legend .legend-item { display: inline-flex; align-items: center; gap: 5px; }
     .category-legend .legend-swatch { width: 0.85em; height: 0.85em; border-radius: 0.2em; flex: none; }
+    /* 表示する要素（項目名・値・画像）のON/OFFボタン。中身はチェックボックス */
+    .element-toggle-field { margin: 2px 0 12px; }
+    .element-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    .element-toggle {
+      position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-height: 36px; padding: 0 14px; box-sizing: border-box;
+      border: 1px solid var(--btn-border, #D7DAE0); border-radius: 999px;
+      background: var(--input-bg, #fff); color: var(--text-main, #3C4149);
+      font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer; user-select: none;
+      /* パネルの見出し用 label の装飾（大文字化・字間・下余白）を打ち消す */
+      text-transform: none; letter-spacing: normal; margin: 0; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color .15s, border-color .15s, color .15s;
+    }
+    .element-toggle input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .element-toggle::before {
+      content: ""; flex: none; width: 14px; height: 14px; box-sizing: border-box;
+      border: 1.5px solid var(--text-muted, #8A8F98); border-radius: 4px;
+    }
+    .element-toggle:hover { border-color: var(--accent, #6E62F0); }
+    .element-toggle:has(input:checked) { background: var(--accent-soft, rgba(110,98,240,0.10)); border-color: var(--accent, #6E62F0); color: var(--accent-strong, #5B4FE0); }
+    .element-toggle:has(input:checked)::before {
+      border-color: var(--accent, #6E62F0);
+      background: var(--accent, #6E62F0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat;
+    }
+    .element-toggle:has(input:focus-visible) { outline: 2px solid var(--accent, #6E62F0); outline-offset: 2px; }
+    .element-toggle:has(input:disabled) { opacity: 0.4; cursor: not-allowed; }
+    .element-toggle:has(input:disabled) input { cursor: not-allowed; }
+    .element-toggle:has(input:disabled):hover { border-color: var(--btn-border, #D7DAE0); }
+    @media (max-width: 900px) {
+      /* スマホ: 指で押しやすい高さにして、3つを横幅いっぱいに等分する */
+      .element-toggle { flex: 1 1 auto; min-height: 44px; padding: 0 12px; font-size: 14px; }
+    }
     /* 凡例の表示位置（top/bottom は %、left/right は 2% で本文と揃える） */
     .category-legend[data-pos="top-left"] { top: 4%; bottom: auto; left: 2%; right: auto; justify-content: flex-start; }
     .category-legend[data-pos="bottom-right"] { top: auto; bottom: 4%; left: auto; right: 2%; justify-content: flex-end; }
@@ -1413,6 +1446,14 @@
           <input type="color" id="sourceColor" value="#666666">
         </div>
       </div>
+      <div class="element-toggle-field">
+        <span class="setting-caption">グラフ内に表示</span>
+        <div class="element-toggles" role="group" aria-label="グラフ内に表示">
+          <label class="element-toggle"><input type="checkbox" id="showNameLabels" checked><span>項目名</span></label>
+          <label class="element-toggle"><input type="checkbox" id="showValueLabels" checked><span>値</span></label>
+          <label class="element-toggle"><input type="checkbox" id="barShowImages" checked data-image-toggle><span>画像</span></label>
+        </div>
+      </div>
       <div class="setting-row">
         <div class="setting-field">
           <span>文字サイズ(px)</span>
@@ -1423,10 +1464,6 @@
           <input type="color" id="nameLabelColor" value="#333333">
         </div>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="showNameLabels" checked>
-        <span>項目名を表示</span>
-      </div>
       <div class="setting-row" style="margin-top:12px;">
         <div class="setting-field">
           <span>値の色</span>
@@ -1436,10 +1473,6 @@
           <span>値の余白(px)</span>
           <input type="number" id="valueLabelSpace" value="15" min="-80" max="200" step="0.5">
         </div>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="showValueLabels" checked>
-        <span>値を表示</span>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="showRankingItemAfterBar" checked>
@@ -1960,7 +1993,8 @@
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax',
       'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize',
-      'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg'
+      'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg',
+      'barShowImages'
     ];
     const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2',
       categoryLegendPosition: 'top-right', categoryLegendLayout: 'horizontal', categoryLegendColor: '#222222', categoryLegendSwatch: 'square', categoryLegendBg: 'none' };
@@ -2195,6 +2229,7 @@
       });
       syncBarSettingsControls();
       updateBarColorControls();
+      syncImageToggleAvailability();
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     }
 
@@ -2772,6 +2807,8 @@
         marginRight: Number.isFinite(marginRightValue) ? marginRightValue : 8,
         sizing,
         shape: document.getElementById('imageShape').value || 'rectangle',
+        // 「グラフ内に表示」の画像ボタン
+        show: document.getElementById('barShowImages')?.checked !== false,
         preserveAspectRatio: sizing === 'stretch' ? 'none' : `xMidYMid ${sizing === 'fit' ? 'meet' : 'slice'}`
       };
     }
@@ -4628,9 +4665,20 @@
       }
     }
 
+    // 「表示する要素」の画像ボタンは、データタブで画像列を使うときだけ押せる
+    function syncImageToggleAvailability() {
+      const enabled = document.getElementById('useImageColumn')?.checked !== false;
+      document.querySelectorAll('input[data-image-toggle]').forEach(input => {
+        input.disabled = !enabled;
+        const chip = input.closest('.element-toggle');
+        if (chip) chip.title = enabled ? '' : '「データ」タブの「画像列を使う」をONにすると選べます';
+      });
+    }
+
     // カテゴリ/画像列チェックの変更: 列役割・年列・エディタ・プレビューをまとめて更新
     function onColumnRoleSettingChange() {
       stopPlayback();
+      syncImageToggleAvailability();
       updateDataFormatHint();
       updateBarColorControls();
       years = getYearColumns();
@@ -4837,7 +4885,7 @@
         .attr("preserveAspectRatio", imageSettings.preserveAspectRatio)
         .attr("href", d => d.imageUrl || "")
         .style("clip-path", imageSettings.shape === 'circle' ? "circle(50%)" : "inset(0% round 4px)")
-        .style("display", d => d.imageUrl ? "block" : "none");
+        .style("display", d => d.imageUrl && imageSettings.show ? "block" : "none");
       transition(rowsUpdate.select(".flag"))
         .attr("y", d => {
           const renderedHeight = imageSettings.shape === 'circle'
@@ -5253,6 +5301,7 @@
     defaultProjectSettings = getProjectSettingsSnapshot();
     previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     renderStorageList();
+    syncImageToggleAvailability();
     renderDataEditor();
     updateProjectActionButtons();
 
@@ -5834,6 +5883,7 @@
       const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
     });
+    document.getElementById('barShowImages').addEventListener('change', () => refreshCurrentPreview({ reset: true }));
     ['imageMarginRight', 'imageSizing', 'imageShape'].forEach(id => {
       const eventName = id === 'imageMarginRight' ? 'input' : 'change';
       document.getElementById(id).addEventListener(eventName, () => refreshCurrentPreview({ reset: true }));
