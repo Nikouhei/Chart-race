@@ -92,7 +92,7 @@
   }
 
   function askTransparent() {
-    var msg = '透過での書き出しは、有料機能として準備中です。\n使ってみたいですか？（OKを押すと「使いたい」として送信されます）';
+    var msg = '透過での書き出しは準備中です。\n使ってみたいですか？（OKを押すと「使いたい」として送信されます）';
     if (window.confirm(msg)) {
       if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'transparentWant', button_label: '透過を使いたい' });
       window.alert('ありがとうございます！今後の開発の参考にします。');
