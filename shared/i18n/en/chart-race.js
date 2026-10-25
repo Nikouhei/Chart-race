@@ -65,6 +65,14 @@ I18N.registerText('en', {
   'データを読み込むと、バーごとに色を指定できます。': 'Load data to set a color for each bar.',
   'カテゴリ列にデータを入れると、カテゴリごとに色を指定できます。': 'Add data to the category column to set a color per category.',
 
+  // ── 表示する要素（項目名・値・画像のON/OFFボタン。3ツール共通）──
+  'グラフ内に表示': 'Show in chart',
+  '凡例に表示': 'Show in legend',
+  '線の先端に表示': 'Show at line ends',
+  '値の形式': 'Value format',
+  '何も選ばれていないため、凡例は表示されません。': 'Nothing is selected, so the legend is hidden.',
+  '「データ」タブの「画像列を使う」をONにすると選べます': 'Turn on “Use image column” in the Data tab to enable this.',
+
   // ── 凡例（3ツール共通の「凡例」セクション）──
   'カテゴリの凡例': 'Category legend',
   '項目の凡例を表示': 'Show item legend',

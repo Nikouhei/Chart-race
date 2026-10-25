@@ -18,6 +18,7 @@
   - **`.astro` のページを直すときの注意**: `<script>`・`<style>` には必ず `is:inline` を付ける（付けないと Astro が書き換えて動きが変わる）。本文（タグの外）に `{` `}` をそのまま書かない（Astro の式として扱われる。必要なら `{'{'}` のように書く）。中の相対パスは使わず `/shared/...` のような絶対パスで書く。
   - 英語版を作らないもの: ブログ、あみだくじ（2026-10 決定）
 - まだ移していない既存HTML・ツール画面（`/xxx/app/`）・画像は直下のまま。ビルド時に `build/postbuild.mjs` が `dist/` にコピーする。除外ルールは `.assetsignore` と `build/legacy-files.mjs`。
+- **開発中（未公開）のツール**は `build/legacy-files.mjs` の `DRAFT_DIRS` に入れ、`shared/registry.js` では `draft: true` を付ける。本番（main）のビルドには入らず、preview ブランチ・`npm run build:preview`・`npm run dev` でだけ見られる。いま該当: 円グラフレース（`pie-chart-race/`）。公開するときは両方から外す。
 - ビルド: `npm run build`（= `astro build` ＋ `build/postbuild.mjs`）。配信するのは `dist/`。下書きも見たいときは `npm run build:preview`、開発中は `npm run dev`。
 - URL: 日本語はルートのまま、英語は `/en/`（他の言語も `/xx/`）。ブラウザ言語やIPでの自動リダイレクトはしない。
 - **言語ごとのURLの対応関係は `src/i18n/routes.mjs` に書く。** hreflang・canonical・言語切替・sitemap はここから自動で作られる。

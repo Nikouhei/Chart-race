@@ -28,6 +28,21 @@ const NEVER_DIRS = new Set([
   'src', 'public', 'dist', 'build', 'node_modules', '.astro',
   '.git', '.github', '.agents', '.claude', '.vscode', 'First Coding', 'analytics',
 ]);
+// 開発中（未公開）のツール。本番（main）のビルドからは外し、preview ブランチ・
+// INCLUDE_DRAFTS=1・開発サーバーでだけ配信する。公開するときはここから消す。
+export const DRAFT_DIRS = new Set([
+  'pie-chart-race', // 円グラフレース
+]);
+
+// 判定は src/i18n/utils.mjs の includeDrafts と同じ（main 以外のブランチ・開発中は下書きも出す）
+export function includeDraftDirs(env = process.env) {
+  if (env.INCLUDE_DRAFTS === '1') return true;
+  if (env.INCLUDE_DRAFTS === '0') return false;
+  const branch = env.WORKERS_CI_BRANCH || env.CF_PAGES_BRANCH || '';
+  if (branch && branch !== 'main') return true;
+  return env.NODE_ENV === 'development';
+}
+
 const NEVER_FILES = new Set([
   'astro.config.mjs', 'package.json', 'package-lock.json', 'tsconfig.json',
   'wrangler.jsonc', 'vercel.json', '.assetsignore', '.gitignore', '.node-version', '.npmrc',
@@ -61,6 +76,7 @@ export function isServableLegacy(rel) {
   const parts = rel.split('/').filter(Boolean);
   if (!parts.length) return false;
   const base = parts[parts.length - 1];
+  if (parts.length > 1 && DRAFT_DIRS.has(parts[0]) && !includeDraftDirs()) return false;
   for (const d of parts.slice(0, -1)) {
     if (NEVER_DIRS.has(d)) return false;
     if (IGNORE.dirs.some((re) => re.test(d))) return false;
@@ -77,6 +93,7 @@ export function listLegacyFiles(dir = ROOT, out = []) {
     const rel = path.relative(ROOT, abs).split(path.sep).join('/');
     if (entry.isDirectory()) {
       if (NEVER_DIRS.has(entry.name)) continue;
+      if (dir === ROOT && DRAFT_DIRS.has(entry.name) && !includeDraftDirs()) continue;
       if (IGNORE.dirs.some((re) => re.test(entry.name))) continue;
       listLegacyFiles(abs, out);
     } else if (entry.isFile() && isServableLegacy(rel)) {

@@ -7,12 +7,18 @@
  *   - i18nKey: 他の言語での名称の辞書キー（shared/i18n/<言語>/common.js）
  *   - path:  そのツールの app/ への相対パス（各アプリは /<tool>/app/ にある前提）
  *   - kind:  'animated' | 'static'（参考情報）
+ *   - draft: true なら開発中（本番ドメインでは切替先に出さない。build/legacy-files.mjs の DRAFT_DIRS にも入れる）
  */
 (function () {
   window.CHART_TOOLS = [
     { id: 'bar-chart-race', label: 'バーチャートレース', i18nKey: 'tool.barChartRace.label', path: '../../bar-chart-race/app/', kind: 'animated' },
-    { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' }
+    { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' },
+    { id: 'pie-chart-race', label: '円グラフレース', i18nKey: 'tool.pieChartRace.label', path: '../../pie-chart-race/app/', kind: 'animated', draft: true }
   ];
+  // draft: true のツールは開発中。本番ドメインでは切替先に出さない（preview・localhost では出す）
+  if (/(^|\.)graphrace-studio\.com$/.test(location.hostname)) {
+    window.CHART_TOOLS = window.CHART_TOOLS.filter(function (t) { return !t.draft; });
+  }
 
   // 編集中プロジェクトの一時引き継ぎ枠。保存済み一覧(chartToolSavedProjects)とは別管理。
   var ACTIVE_KEY = 'chartToolActiveProject';
