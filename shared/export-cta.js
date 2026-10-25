@@ -31,7 +31,7 @@
   if (window.GRSExportCTA) return;
 
   var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
-  var card = null, tlBtn = null, closedByUser = false;
+  var card = null, tlBtn = null, cardShown = false;
 
   function ensureStyles() {
     if (document.getElementById("grs-export-cta-style")) return;
@@ -105,7 +105,7 @@
       '<button type="button" id="endExportBtn">' + ICON + "<span>この動画を保存</span></button>";
     host.appendChild(card);
     var endBtn = card.querySelector("#endExportBtn");
-    card.querySelector("#endExportClose").addEventListener("click", function () { closedByUser = true; hideEnd(); });
+    card.querySelector("#endExportClose").addEventListener("click", hideEnd);
     endBtn.addEventListener("click", hideEnd);
 
     if (startBtn) {
@@ -119,7 +119,7 @@
     return tlBtn ? [tlBtn, endBtn] : [endBtn];
   }
 
-  // 再生完了時。×で閉じた人には、そのページを開いている間は出さない（ボタンの強調だけ）
+  // 再生完了時に呼ぶ。カードは1回だけ、2回目以降はボタンの強調だけ
   function showEnd() {
     if (!card || (tlBtn && tlBtn.disabled)) return;
     if (window.GRSVideoExport && window.GRSVideoExport.busy) return;
@@ -128,7 +128,10 @@
       void tlBtn.offsetWidth; // アニメーションをやり直す
       tlBtn.classList.add("is-attn");
     }
-    if (closedByUser) return;
+    // カードはページを開いているあいだ最初の1回だけ。何度も再生して調整する人の邪魔にならないよう、
+    // 2回目以降はタイムラインの保存ボタンを光らせるだけにする（2026-10 のデータでカードは閉じられることが多かった）
+    if (cardShown) return;
+    cardShown = true;
     card.hidden = false;
     requestAnimationFrame(function () { if (card) card.classList.add("is-in"); });
   }
