@@ -54,6 +54,7 @@
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
   <script src="../../shared/i18n.js?v=2026102401" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
+  <script src="../../shared/background-mode.js?v=2026102501" defer></script>
   <script src="../../shared/registry.js?v=20261023"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -1318,22 +1319,21 @@
         </div>
       </div>
       <div class="setting-row">
-        <div class="setting-field">
-          <span>背景色</span>
-          <input type="color" id="layoutBackgroundColor" value="#ffffff">
-        </div>
-        <div class="setting-field">
-          <span>背景画像</span>
-          <input type="file" id="backgroundImageFile" class="compact-file-input" accept="image/*">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>背景</span>
+          <div class="grs-bg-mode" role="group" aria-label="背景">
+            <button type="button" id="bgWhite" data-bg-mode="white">白</button>
+            <button type="button" id="bgBlack" data-bg-mode="black">黒</button>
+            <button type="button" id="bgTransparent" data-bg-mode="transparent" data-track="upgrade_click" data-track-id="transparentExport">透過<small>有料予定</small></button>
+          </div>
         </div>
       </div>
-      <div class="checkbox-group">
+      <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している（背景画像は廃止） -->
+      <div hidden>
+        <input type="color" id="layoutBackgroundColor" value="#ffffff">
+        <input type="file" id="backgroundImageFile" accept="image/*">
         <input type="checkbox" id="enableBackgroundColor" checked>
-        <span>背景色を使う</span>
-      </div>
-      <div class="checkbox-group">
         <input type="checkbox" id="enableBackgroundImage">
-        <span>背景画像を使う</span>
       </div>
     </div>
 
@@ -2837,7 +2837,7 @@
         textColor: document.getElementById('layoutTextColor').value || '#222222',
         useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
         backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
-        useBackgroundImage: document.getElementById('enableBackgroundImage').checked
+        useBackgroundImage: false // 背景画像は廃止（2026-10）
       };
     }
 

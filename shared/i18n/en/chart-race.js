@@ -30,6 +30,13 @@ I18N.registerText('en', {
   '背景画像': 'Background image',
   '背景色を使う': 'Use background color',
   '背景画像を使う': 'Use background image',
+  '背景': 'Background',
+  '白': 'White',
+  '黒': 'Black',
+  '透過': 'Transparent',
+  '有料予定': 'Paid (planned)',
+  '透過での書き出しは、有料機能として準備中です。\n使ってみたいですか？（OKを押すと「使いたい」として送信されます）': 'Transparent export is being prepared as a paid feature.\nWould you like to use it? (Press OK to let us know.)',
+  'ありがとうございます！今後の開発の参考にします。': 'Thank you! We’ll use this to guide development.',
 
   // ── グラフ ──
   'グラフ': 'Chart',
