@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026102401" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026102502" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026102502" defer></script>
   <script src="../../shared/registry.js?v=20261023"></script>
@@ -321,6 +321,39 @@
     .category-legend.active { display: flex; }
     .category-legend .legend-item { display: inline-flex; align-items: center; gap: 5px; }
     .category-legend .legend-swatch { width: 0.85em; height: 0.85em; border-radius: 0.2em; flex: none; }
+    /* 表示する要素（項目名・値・画像）のON/OFFボタン。中身はチェックボックス */
+    .element-toggle-field { margin: 2px 0 12px; }
+    .element-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    .element-toggle {
+      position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-height: 36px; padding: 0 14px; box-sizing: border-box;
+      border: 1px solid var(--btn-border, #D7DAE0); border-radius: 999px;
+      background: var(--input-bg, #fff); color: var(--text-main, #3C4149);
+      font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer; user-select: none;
+      /* パネルの見出し用 label の装飾（大文字化・字間・下余白）を打ち消す */
+      text-transform: none; letter-spacing: normal; margin: 0; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color .15s, border-color .15s, color .15s;
+    }
+    .element-toggle input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .element-toggle::before {
+      content: ""; flex: none; width: 14px; height: 14px; box-sizing: border-box;
+      border: 1.5px solid var(--text-muted, #8A8F98); border-radius: 4px;
+    }
+    .element-toggle:hover { border-color: var(--accent, #6E62F0); }
+    .element-toggle:has(input:checked) { background: var(--accent-soft, rgba(110,98,240,0.10)); border-color: var(--accent, #6E62F0); color: var(--accent-strong, #5B4FE0); }
+    .element-toggle:has(input:checked)::before {
+      border-color: var(--accent, #6E62F0);
+      background: var(--accent, #6E62F0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 11px no-repeat;
+    }
+    .element-toggle:has(input:focus-visible) { outline: 2px solid var(--accent, #6E62F0); outline-offset: 2px; }
+    .element-toggle:has(input:disabled) { opacity: 0.4; cursor: not-allowed; }
+    .element-toggle:has(input:disabled) input { cursor: not-allowed; }
+    .element-toggle:has(input:disabled):hover { border-color: var(--btn-border, #D7DAE0); }
+    @media (max-width: 900px) {
+      /* スマホ: 指で押しやすい高さにして、3つを横幅いっぱいに等分する */
+      .element-toggle { flex: 1 1 auto; min-height: 44px; padding: 0 12px; font-size: 14px; }
+    }
     /* 凡例の表示位置（top/bottom は %、left/right は 2% で本文と揃える） */
     .category-legend[data-pos="top-left"] { top: 4%; bottom: auto; left: 2%; right: auto; justify-content: flex-start; }
     .category-legend[data-pos="bottom-right"] { top: auto; bottom: 4%; left: auto; right: 2%; justify-content: flex-end; }
@@ -1419,15 +1452,15 @@
           <input type="color" id="sourceColor" value="#666666">
         </div>
       </div>
-      <div class="checkbox-group" style="margin-top:0;">
-        <input type="checkbox" id="lineTipNames" checked>
-        <span>線の先端に項目名を表示</span>
+      <div class="element-toggle-field">
+        <span class="setting-caption">線の先端に表示</span>
+        <div class="element-toggles" role="group" aria-label="線の先端に表示">
+          <label class="element-toggle"><input type="checkbox" id="lineTipNames" checked><span>項目名</span></label>
+          <label class="element-toggle"><input type="checkbox" id="lineTipValues" checked><span>値</span></label>
+          <label class="element-toggle"><input type="checkbox" id="lineTipImages" checked data-image-toggle><span>画像</span></label>
+        </div>
       </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="lineTipValues" checked>
-        <span>線の先端に値を表示</span>
-      </div>
-      <!-- 保存データ・ツール間の引き継ぎ用。線の先端のチェックと「凡例」の設定から自動で決まる -->
+      <!-- ツール間の引き継ぎ・旧形式の保存データ用。線の先端・凡例のボタンから自動で決まる -->
       <div style="display:none;">
         <select id="seriesLabelMode"><option value="label" selected>label</option><option value="legend">legend</option><option value="both">both</option><option value="none">none</option></select>
         <select id="valueLabelMode"><option value="label" selected>label</option><option value="legend">legend</option><option value="both">both</option><option value="none">none</option></select>
@@ -1471,9 +1504,16 @@
         <input type="checkbox" id="lineShowLegend">
         <span>項目の凡例を表示</span>
       </div>
-      <div class="checkbox-group" id="lineLegendValuesRow">
-        <input type="checkbox" id="lineLegendValues">
-        <span>凡例に値を表示</span>
+      <div id="lineLegendValuesRow">
+      <div class="element-toggle-field" style="margin-top:10px;">
+        <span class="setting-caption">凡例に表示</span>
+        <div class="element-toggles" role="group" aria-label="凡例に表示">
+          <label class="element-toggle"><input type="checkbox" id="lineLegendNames" checked><span>項目名</span></label>
+          <label class="element-toggle"><input type="checkbox" id="lineLegendValues"><span>値</span></label>
+          <label class="element-toggle"><input type="checkbox" id="lineLegendImages" data-image-toggle><span>画像</span></label>
+        </div>
+        <p class="color-empty-note" id="lineLegendEmptyNote" style="margin:6px 0 0; display:none;">何も選ばれていないため、凡例は表示されません。</p>
+      </div>
       </div>
       <div class="setting-row" id="legendPositionRow" style="margin-top:12px; display:none;">
         <div class="setting-field" style="flex:1 1 100%;">
@@ -2066,7 +2106,8 @@
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax', 'showYGridLines',
       'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize',
-      'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg'
+      'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg',
+      'lineTipNames', 'lineTipValues', 'lineTipImages', 'lineShowLegend', 'lineLegendNames', 'lineLegendValues', 'lineLegendImages'
     ];
     const COLUMN_ROLE_DEFAULTS = { useCategoryColumn: false, useImageColumn: true, showCategoryLegend: false, categoryLegendSize: '2.2',
       categoryLegendPosition: 'top-right', categoryLegendLayout: 'horizontal', categoryLegendColor: '#222222', categoryLegendSwatch: 'square', categoryLegendBg: 'none' };
@@ -2306,6 +2347,10 @@
       updateBarColorControls();
       syncAxisFixedMaxVisibility();
       migrateSeriesLabelSettings(settings);
+      // ボタンの設定がある保存データはボタンを正とし、無い（旧形式・他ツールからの引き継ぎ）ならセレクトから読み替える
+      if (Object.prototype.hasOwnProperty.call(settings, 'lineShowLegend')) applyLabelModesFromUI();
+      else deriveLabelButtonsFromModes();
+      syncImageToggleAvailability();
       syncSeriesLabelControls();
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
     }
@@ -2882,6 +2927,11 @@
         showValues: seriesLabelModeShowsTip(getValueLabelMode()),
         legendNames: seriesLabelModeShowsLegend(getSeriesLabelMode()),
         legendValues: seriesLabelModeShowsLegend(getValueLabelMode()),
+        // 画像（データの画像列）を線の先端・凡例に出すか
+        tipImages: getTipImagesEnabled(),
+        legendImages: (document.getElementById('lineShowLegend')?.checked ?? false)
+          && document.getElementById('lineLegendImages')?.checked === true,
+        legendOn: document.getElementById('lineShowLegend')?.checked ?? false,
         legendPosition: document.getElementById('legendPosition')?.value === 'bottom' ? 'bottom' : 'top',
         useLineColor: document.getElementById('labelUseLineColor')?.checked !== false,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
@@ -4461,7 +4511,8 @@
         dash: document.getElementById('lineDash')?.value || 'solid',
         labelMode: getSeriesLabelMode(),
         // 線の先端ラベル（国旗・名前・値）は、項目名か値のどちらかを出すときだけ描く
-        showEndLabel: seriesLabelModeShowsTip(getSeriesLabelMode())
+        showEndImage: getTipImagesEnabled(),
+        showEndLabel: getTipImagesEnabled() || seriesLabelModeShowsTip(getSeriesLabelMode())
           || seriesLabelModeShowsTip(getValueLabelMode()),
         xLabelMax: Number.isFinite(xLabelMaxValue) && xLabelMaxValue > 0 ? xLabelMaxValue : 3
       };
@@ -4482,32 +4533,43 @@
     }
     function seriesLabelModeShowsTip(mode) { return mode === 'label' || mode === 'both'; }
     function seriesLabelModeShowsLegend(mode) { return mode === 'legend' || mode === 'both'; }
+    function getTipImagesEnabled() { return document.getElementById('lineTipImages')?.checked !== false; }
 
     // 線の先端・凡例のチェックから、保存用の「項目名の表示」「値の表示」（隠しセレクト）を決める
     function applyLabelModesFromUI() {
       const tipNames = document.getElementById('lineTipNames')?.checked ?? true;
       const tipValues = document.getElementById('lineTipValues')?.checked ?? true;
       const legend = document.getElementById('lineShowLegend')?.checked ?? false;
+      const legendNames = legend && (document.getElementById('lineLegendNames')?.checked ?? true);
       const legendValues = legend && (document.getElementById('lineLegendValues')?.checked ?? false);
-      document.getElementById('seriesLabelMode').value = tipNames ? (legend ? 'both' : 'label') : (legend ? 'legend' : 'none');
+      document.getElementById('seriesLabelMode').value = tipNames ? (legendNames ? 'both' : 'label') : (legendNames ? 'legend' : 'none');
       document.getElementById('valueLabelMode').value = tipValues ? (legendValues ? 'both' : 'label') : (legendValues ? 'legend' : 'none');
+    }
+
+    // 旧形式の保存データ・他ツールからの引き継ぎ（セレクトだけがある）→ 画面のボタン
+    function deriveLabelButtonsFromModes() {
+      const mode = getSeriesLabelMode();
+      const valueMode = getValueLabelMode();
+      const setChecked = (id, on) => { const el = document.getElementById(id); if (el) el.checked = on; };
+      const legendOn = seriesLabelModeShowsLegend(mode) || seriesLabelModeShowsLegend(valueMode);
+      setChecked('lineTipNames', seriesLabelModeShowsTip(mode));
+      setChecked('lineTipValues', seriesLabelModeShowsTip(valueMode));
+      setChecked('lineShowLegend', legendOn);
+      // 凡例OFFのときは、凡例のボタンは前の選択のまま（ONに戻したときに復元）
+      if (legendOn) {
+        setChecked('lineLegendNames', seriesLabelModeShowsLegend(mode));
+        setChecked('lineLegendValues', seriesLabelModeShowsLegend(valueMode));
+      }
     }
 
     // 選択に応じて設定欄を出し分け、保存互換用の隠しチェックを同期する
     function syncSeriesLabelControls() {
       const mode = getSeriesLabelMode();
       const valueMode = getValueLabelMode();
-      // 隠しセレクト（保存データの値）→ 画面のチェック
-      const setChecked = (id, on) => { const el = document.getElementById(id); if (el) el.checked = on; };
-      const legendOn = seriesLabelModeShowsLegend(mode) || seriesLabelModeShowsLegend(valueMode);
-      setChecked('lineTipNames', seriesLabelModeShowsTip(mode));
-      setChecked('lineTipValues', seriesLabelModeShowsTip(valueMode));
-      setChecked('lineShowLegend', legendOn);
-      // 凡例OFFの間は「凡例に値を表示」の選択を覚えておく（ONに戻したときに復元）
-      if (legendOn) setChecked('lineLegendValues', seriesLabelModeShowsLegend(valueMode));
       const showTipName = seriesLabelModeShowsTip(mode);
       const showTipValue = seriesLabelModeShowsTip(valueMode);
-      const anyLegend = seriesLabelModeShowsLegend(mode) || seriesLabelModeShowsLegend(valueMode);
+      // 凡例の設定欄は「項目の凡例を表示」がONなら出す（項目名・値をOFFにして画像だけでも凡例は出る）
+      const anyLegend = document.getElementById('lineShowLegend')?.checked ?? (seriesLabelModeShowsLegend(mode) || seriesLabelModeShowsLegend(valueMode));
       const anyValue = valueMode !== 'none';
       const useLineColor = document.getElementById('labelUseLineColor')?.checked !== false;
       const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
@@ -4518,13 +4580,17 @@
       const valueCb = document.getElementById('showValueLabels');
       if (valueCb) valueCb.checked = valueMode !== 'none';
       const endCb = document.getElementById('showEndLabel');
-      if (endCb) endCb.checked = showTipName || showTipValue;
+      if (endCb) endCb.checked = showTipName || showTipValue || getTipImagesEnabled();
       show('endLabelFontRow', showTipName || showTipValue);
       const nameColorField = document.getElementById('nameLabelColorField');
       if (nameColorField) nameColorField.style.visibility = (showTipName && !useLineColor) ? '' : 'hidden';
       show('legendPositionRow', anyLegend);
       show('legendSettingsRow', anyLegend);
       show('lineLegendValuesRow', anyLegend);
+      // 凡例に出す要素が1つも無いときは凡例を描かないので、その旨を出す
+      const legendEmpty = ['lineLegendNames', 'lineLegendValues', 'lineLegendImages']
+        .every(id => !document.getElementById(id)?.checked);
+      show('lineLegendEmptyNote', anyLegend && legendEmpty);
       show('valueStyleRow', anyValue);
       const valueColorField = document.getElementById('valueLabelColorField');
       if (valueColorField) valueColorField.style.visibility = useLineColor ? 'hidden' : '';
@@ -4576,6 +4642,7 @@
       const showNames = labelSettings.legendNames !== false;
       const showValues = Boolean(labelSettings.legendValues);
       const swatchW = Math.round(fontSize * 1.4);
+      const imgSize = labelSettings.legendImages && series.some(s => s.imageUrl) ? Math.round(fontSize * 1.3) : 0;
       const gapInner = Math.round(fontSize * 0.45);
       const gapItem = Math.round(fontSize * 1.2);
       const rowH = Math.round(fontSize * 1.6);
@@ -4602,7 +4669,7 @@
       let rowWidth = 0;
       series.forEach(s => {
         const nameWidth = showNames ? ctx.measureText(s.name).width : 0;
-        const itemWidth = swatchW + gapInner + nameWidth + valueGap + valueWidth;
+        const itemWidth = swatchW + gapInner + (imgSize ? imgSize + gapInner : 0) + nameWidth + valueGap + valueWidth;
         if (row.length && rowWidth + gapItem + itemWidth > maxRowWidth) {
           rows.push({ items: row, width: rowWidth });
           row = [];
@@ -4614,7 +4681,7 @@
       if (row.length) rows.push({ items: row, width: rowWidth });
 
       return {
-        rows, fontSize, swatchW, gapInner, gapItem, rowH,
+        rows, fontSize, swatchW, gapInner, gapItem, rowH, imgSize,
         showNames, showValues, valueWidth, valueGap,
         top: height * 0.10,
         height: rows.length * rowH,
@@ -4655,7 +4722,7 @@
 
         // 描画側の配置に合わせる: 画像ありは 12 + 画像幅 + 8、なしは「–」の後ろ 22px から文字が始まる
         const imgSize = Math.max(12, fontSize * 1.7);
-        const hasImage = series.some(s => s.imageUrl);
+        const hasImage = labelSettings.tipImages && series.some(s => s.imageUrl);
         const textStart = hasImage ? 12 + imgSize + 8 : 22;
         return Math.max(70, Math.ceil(textStart + widest + 16));
       } catch (err) {
@@ -4759,10 +4826,13 @@
       // 末端ラベルが無いときは、線の太さぶん＋見た目の余白だけ残してグラフを横いっぱいに使う
       const lineWidthForPad = getLineSettings().width;
       const plainRightPad = Math.max(16, width * 0.04, lineWidthForPad * 2);
-      const legendLayout = (labelSettings.legendNames || labelSettings.legendValues)
+      // 項目名・値・画像のどれも選ばれていない（画像だけ選んで画像が無い場合も）ときは、凡例そのものを出さない
+      const legendLayout = labelSettings.legendOn && (labelSettings.legendNames || labelSettings.legendValues
+        || (labelSettings.legendImages && series.some(s => s.imageUrl)))
         ? layoutSeriesLegend(series, width, height, labelSettings, { min: minValue, max: maxValue })
         : null;
-      const hasEndLabel = labelSettings.showNames || labelSettings.showValues;
+      const hasEndLabel = labelSettings.showNames || labelSettings.showValues
+        || (labelSettings.tipImages && series.some(s => s.imageUrl));
       const baseTop = height * 0.10;
       // X軸の日付ラベルは -35° に傾けて右端揃えで描くので、最も長いラベルの実寸から
       // 下（傾いた分の高さ）と左（1つ目のラベルが左にはみ出す分）の余白を確保する
@@ -5008,9 +5078,20 @@
       }
     }
 
+    // 「表示する要素」の画像ボタンは、データタブで画像列を使うときだけ押せる
+    function syncImageToggleAvailability() {
+      const enabled = document.getElementById('useImageColumn')?.checked !== false;
+      document.querySelectorAll('input[data-image-toggle]').forEach(input => {
+        input.disabled = !enabled;
+        const chip = input.closest('.element-toggle');
+        if (chip) chip.title = enabled ? '' : '「データ」タブの「画像列を使う」をONにすると選べます';
+      });
+    }
+
     // カテゴリ/画像列チェックの変更: 列役割・年列・エディタ・プレビューをまとめて更新
     function onColumnRoleSettingChange() {
       stopPlayback();
+      syncImageToggleAvailability();
       updateDataFormatHint();
       updateBarColorControls();
       years = getYearColumns();
@@ -5324,7 +5405,7 @@
           .attr("transform", `translate(${xPx(tip.idx)},${yScale(tip.value)})`);
 
         let textX = 22;
-        if (s.imageUrl) {
+        if (s.imageUrl && lineSettings.showEndImage) {
           endGroup.append("image")
             .attr("href", s.imageUrl)
             .attr("x", 12)
@@ -5384,7 +5465,20 @@
               .attr("stroke", color)
               .attr("stroke-width", swatchStroke)
               .attr("stroke-linecap", "round");
-            const textX = x + lg.swatchW + lg.gapInner;
+            let textX = x + lg.swatchW + lg.gapInner;
+            if (lg.imgSize) {
+              if (s?.imageUrl) {
+                legendGroup.append("image")
+                  .attr("href", s.imageUrl)
+                  .attr("x", textX)
+                  .attr("y", y - lg.imgSize / 2)
+                  .attr("width", lg.imgSize)
+                  .attr("height", lg.imgSize)
+                  .attr("preserveAspectRatio", imageSettings.preserveAspectRatio)
+                  .style("clip-path", imageSettings.shape === 'circle' ? "circle(50%)" : "inset(0% round 3px)");
+              }
+              textX += lg.imgSize + lg.gapInner;
+            }
             if (lg.showNames) {
               legendGroup.append("text")
                 .attr("x", textX)
@@ -6332,7 +6426,7 @@
       document.getElementById(id).addEventListener(eventName, () => applyTimeCounterSettings());
     });
     // 「項目名の表示」「値を表示」の変更で設定欄を出し分ける（再描画より先に同期する）
-    ['lineTipNames', 'lineTipValues', 'lineShowLegend', 'lineLegendValues'].forEach(id => {
+    ['lineTipNames', 'lineTipValues', 'lineTipImages', 'lineShowLegend', 'lineLegendNames', 'lineLegendValues', 'lineLegendImages'].forEach(id => {
       document.getElementById(id)?.addEventListener('change', () => {
         applyLabelModesFromUI();
         syncSeriesLabelControls();
@@ -6346,6 +6440,7 @@
       if (id !== 'seriesLabelMode') el.addEventListener('change', () => onLayoutSettingChange(id));
     });
     syncSeriesLabelControls();
+    syncImageToggleAvailability();
     document.getElementById('autoHeight').addEventListener('change', () => onLayoutSettingChange('autoHeight'));
     ['titleInput', 'sourceInput'].forEach(id => {
       document.getElementById(id).addEventListener('input', syncOverlayText);
