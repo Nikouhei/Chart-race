@@ -1,5 +1,13 @@
 ---
-import { NAV_TOOLS } from '../i18n/routes.mjs';
+/*
+ * サイト共通ヘッダー
+ *   PC   : ロゴ ｜ ツール▾（メガメニュー）｜ ブログ ……… 言語
+ *   スマホ: ロゴ ……… 言語 ☰（全ツールをカテゴリ別に並べたドロワー）
+ * メニューの中身は src/i18n/routes.mjs の NAV_CATEGORIES / NAV_TOOLS から作る。
+ * リンクはすべてビルド時に HTML として出力する（JS は開閉だけ。クローラーは開かなくても辿れる）。
+ * 見た目は src/styles/gnav.css。未移行の既存HTML（ブログ・あみだくじ）にも build/postbuild.mjs が同じものを差し込む。
+ */
+import { NAV_TOOLS, NAV_CATEGORIES } from '../i18n/routes.mjs';
 import { pathFor, homePath, t, includeDrafts } from '../i18n/utils.mjs';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 
@@ -10,9 +18,15 @@ const drafts = includeDrafts();
 const items = NAV_TOOLS
   .map((n) => ({ ...n, href: pathFor(n.id, locale, { drafts }) }))
   .filter((n) => n.href);
+const groups = NAV_CATEGORIES
+  .map((c) => ({ ...c, items: items.filter((n) => n.cat === c.id) }))
+  .filter((c) => c.items.length);
+const blogHref = pathFor('blog', locale, { drafts });
+const toolActive = items.some((n) => n.id === activeId);
+const allToolsHref = homePath(locale) + '#tools';
 ---
-<header class="site-header">
-  <div class="site-header-inner">
+<header class="site-header gnav" data-gnav>
+  <div class="site-header-inner gnav-bar">
     <a href={homePath(locale)} class="brand">
       <picture>
         <source srcset="/Logo/GraphRace_Studio_Logo_48.webp" type="image/webp">
@@ -20,28 +34,78 @@ const items = NAV_TOOLS
       </picture>
       GraphRace Studio
     </a>
-    {items.length > 0 && (
-      <nav class="site-nav" data-scroll="start" aria-label={t(locale, 'nav.ariaLabel')}>
-        {items.map((n) => (
-          <>{'\n        '}<a class:list={['nav-link', { 'is-active': n.id === activeId }]} href={n.href} aria-current={n.id === activeId ? 'page' : undefined}>{t(locale, n.key)}</a></>
-        ))}
+    {groups.length > 0 && (
+      <nav class="gnav-nav" aria-label={t(locale, 'nav.ariaLabel')}>
+        <button type="button" class:list={['gnav-link', 'gnav-trigger', { 'is-active': toolActive }]} aria-expanded="false" aria-controls="gnav-panel" data-gnav-toggle>
+          {t(locale, 'nav.tools')}
+          <svg class="gnav-chev" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+        </button>
+        {blogHref && <a class:list={['gnav-link', { 'is-active': activeId === 'blog' }]} href={blogHref}>{t(locale, 'nav.blog')}</a>}
       </nav>
     )}
     <LanguageSwitcher pageId={pageId} locale={locale} />
+    {groups.length > 0 && (
+      <button type="button" class="gnav-burger" aria-expanded="false" aria-controls="gnav-panel" aria-label={t(locale, 'nav.menu')} data-label-open={t(locale, 'nav.menu')} data-label-close={t(locale, 'nav.close')} data-gnav-toggle>
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path class="gnav-i-open" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/><path class="gnav-i-close" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    )}
   </div>
+  {groups.length > 0 && (
+    <div id="gnav-panel" class="gnav-panel">
+      <div class="gnav-panel-inner">
+        <div class="gnav-cols">
+          {groups.map((g) => (
+            <div class="gnav-group">
+              <p class="gnav-cat">{t(locale, g.key)}</p>
+              <ul>
+                {g.items.map((n) => (
+                  <li>
+                    <a class:list={['gnav-item', { 'is-active': n.id === activeId }]} href={n.href} aria-current={n.id === activeId ? 'page' : undefined}>
+                      <span class="gnav-ic" aria-hidden="true">{n.icon}</span>
+                      <span class="gnav-txt"><b>{t(locale, n.key)}</b><small>{t(locale, n.desc)}</small></span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div class="gnav-foot">
+          <a class="gnav-all" href={allToolsHref}>{t(locale, 'nav.allTools')} →</a>
+          {blogHref && <a class="gnav-sp-only gnav-plain" href={blogHref}>{t(locale, 'nav.blog')}</a>}
+        </div>
+      </div>
+    </div>
+  )}
   <script is:inline>
     (function () {
-      var nav = document.querySelector('.site-nav');
-      if (!nav) return;
-      function update() {
-        var max = nav.scrollWidth - nav.clientWidth;
-        if (max <= 4) { nav.removeAttribute('data-scroll'); return; }
-        var x = nav.scrollLeft;
-        nav.setAttribute('data-scroll', x <= 4 ? 'start' : (x >= max - 4 ? 'end' : 'middle'));
+      var root = document.querySelector('[data-gnav]');
+      var panel = root && document.getElementById('gnav-panel');
+      if (!panel) return;
+      var btns = root.querySelectorAll('[data-gnav-toggle]');
+      var burger = root.querySelector('.gnav-burger');
+      var mq = window.matchMedia('(max-width: 768px)');
+      function set(open) {
+        root.classList.toggle('is-open', open);
+        for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (burger) burger.setAttribute('aria-label', burger.getAttribute(open ? 'data-label-close' : 'data-label-open'));
+        if (open) {
+          root.style.setProperty('--gnav-top', root.getBoundingClientRect().bottom + 'px');
+          // GA4: メニューを開いたとき（閉じるときは送らない。PC/スマホの別は GA4 のデバイスで分かる）。中のリンクは tool_link_click で自動計測
+          if (window.grsTrack) window.grsTrack('nav_menu_open');
+        }
+        document.documentElement.classList.toggle('gnav-lock', open && mq.matches);
       }
-      nav.addEventListener('scroll', update, { passive: true });
-      window.addEventListener('resize', update);
-      update();
+      for (var i = 0; i < btns.length; i++) btns[i].addEventListener('click', function (e) {
+        e.stopPropagation();
+        set(!root.classList.contains('is-open'));
+      });
+      panel.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
+      document.addEventListener('click', function (e) { if (!root.contains(e.target)) set(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && root.classList.contains('is-open')) { set(false); (mq.matches ? burger : btns[0]).focus(); }
+      });
+      (mq.addEventListener ? mq.addEventListener('change', function () { set(false); }) : mq.addListener(function () { set(false); }));
     })();
   </script>
 </header>

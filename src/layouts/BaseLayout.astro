@@ -7,6 +7,7 @@
  */
 import Analytics from '../components/Analytics.astro';
 import chromeCss from '../styles/site-chrome.css?raw';
+import gnavCss from '../styles/gnav.css?raw';
 import { LOCALES, SITE_URL, DEFAULT_LOCALE } from '../i18n/config.mjs';
 import { getPage, isDraft, hreflangLinks, publishedAlternates } from '../i18n/utils.mjs';
 
@@ -93,7 +94,7 @@ const fontHref = `https://fonts.googleapis.com/css2?${fontFamily}&display=swap`;
   </noscript>
   <link rel="stylesheet" href="/shared/tokens.css">
   <!-- 共通の外枠（ヘッダー・フッター）。ページ固有の <style> で上書きできるよう先に置く -->
-  <style is:inline set:html={chromeCss}></style>
+  <style is:inline set:html={chromeCss + gnavCss}></style>
   <slot name="head" />
 </head>
 <body>

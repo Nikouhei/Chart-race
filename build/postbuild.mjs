@@ -5,6 +5,7 @@
  *   1. 下書きページ（routes.mjs の drafts）を本番ビルドから外す
  *   2. まだ Astro に移していない既存ファイルを dist にコピー（Astro が出力したものが優先）
  *   3. 既存HTMLのうち、他言語版が公開済みのページに hreflang を差し込む
+ *   3b. 既存HTML（ブログ・あみだくじ）のヘッダーを、Astro の共通ヘッダー（SiteHeader）に置き換える
  *   4. sitemap.xml を作る（言語の対応関係 xhtml:link 入り）
  *   5. 株価レースが出力に紛れ込んでいないか確認（あればビルド失敗）
  */
@@ -96,6 +97,48 @@ for (const rel of legacyHtml) {
   }
   fs.writeFileSync(file, html);
   log(`hreflang を追加: ${rel}`);
+}
+
+// 3b. 既存HTMLのヘッダーを共通ヘッダーに置き換え ---------------------------------
+//   トップ（dist/index.html）に出力された SiteHeader と、そのCSS（gnav.css・言語切替）をそのまま使う。
+//   ツールが増えてもここは触らなくてよい（routes.mjs の NAV_TOOLS を足せば全ページに反映される）。
+{
+  const home = fs.readFileSync(path.join(DIST, 'index.html'), 'utf-8');
+  const headerHtml = (home.match(/<header class="site-header gnav"[\s\S]*?<\/header>/) || [])[0];
+  const gnavCss = fs.readFileSync(path.join(ROOT, 'src/styles/gnav.css'), 'utf-8');
+  const langCss = [...home.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).find((c) => c.includes('.lang-switch[data-astro-cid')) || '';
+  if (!headerHtml) {
+    console.error('[postbuild] dist/index.html に共通ヘッダーが見つかりません（SiteHeader.astro を確認）');
+    process.exit(1);
+  }
+  // 現在地の印を外したひな形
+  const base = headerHtml
+    .replace(/ is-active/g, '')
+    .replace(/ aria-current="page"/g, '');
+  let replaced = 0;
+  for (const rel of legacyHtml) {
+    if (/(^|\/)app(-[a-z]+)?\//.test(rel)) continue; // ツール画面は対象外
+    const file = path.join(DIST, rel);
+    let html = fs.readFileSync(file, 'utf-8');
+    if (!/<header class="site-header">/.test(html)) continue;
+    const urlPath = '/' + rel.replace(/index\.html$/, '');
+    let h = base;
+    // 現在地: ブログ配下ならブログ、ツールのページならそのツール
+    const mark = (href) => {
+      h = h.replace(new RegExp(`class="gnav-item" href="${href}"`), `class="gnav-item is-active" href="${href}" aria-current="page"`);
+      return h !== base;
+    };
+    if (urlPath.startsWith('/blog/')) {
+      h = h.replace('class="gnav-link" href="/blog/"', 'class="gnav-link is-active" href="/blog/"');
+    } else if (mark(urlPath)) {
+      h = h.replace('class="gnav-link gnav-trigger"', 'class="gnav-link gnav-trigger is-active"');
+    }
+    html = html.replace(/<header class="site-header">[\s\S]*?<\/header>/, () => h);
+    html = html.replace(/<\/head>/i, () => `<style>${gnavCss}${langCss}</style>\n</head>`);
+    fs.writeFileSync(file, html);
+    replaced++;
+  }
+  log(`既存HTMLのヘッダーを共通ヘッダーに置き換え: ${replaced} 件`);
 }
 
 // 4. sitemap.xml ------------------------------------------------------------

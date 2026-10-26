@@ -30,14 +30,22 @@ export const PAGES = [
   { id: 'privacy', paths: { ja: '/privacy.html', en: '/en/privacy.html' } },
 ];
 
-// ヘッダーのツールメニュー（並び順もこの通り）
+// ヘッダーのツールメニュー（カテゴリごと。並び順もこの通り）
+//   PC はメガメニュー、スマホはハンバーガーのドロワーに、カテゴリ見出し付きで出る。
+//   新しいツールは PAGES に足したうえで、ここに1行足すだけ（下書きの言語は自動で隠れる）。
+//   cat: NAV_CATEGORIES の id / key: ツール名 / desc: 一行説明（どちらも ui.mjs）/ icon: 絵文字
+export const NAV_CATEGORIES = [
+  { id: 'graph', key: 'nav.cat.graph' },
+  { id: 'ranking', key: 'nav.cat.ranking' },
+  { id: 'other', key: 'nav.cat.other' },
+];
 export const NAV_TOOLS = [
-  { id: 'bar-chart-race', key: 'nav.barChartRace' },
-  { id: 'line-chart-race', key: 'nav.lineChartRace' },
-  { id: 'tournament', key: 'nav.tournament' },
-  { id: 'ranking-video', key: 'nav.rankingVideo' },
-  { id: 'horse-race', key: 'nav.horseRace' },
-  { id: 'amidakuji', key: 'nav.amidakuji' },
+  { id: 'bar-chart-race', cat: 'graph', icon: '📊', key: 'nav.barChartRace', desc: 'nav.desc.barChartRace' },
+  { id: 'line-chart-race', cat: 'graph', icon: '📈', key: 'nav.lineChartRace', desc: 'nav.desc.lineChartRace' },
+  { id: 'tournament', cat: 'ranking', icon: '🏆', key: 'nav.tournament', desc: 'nav.desc.tournament' },
+  { id: 'ranking-video', cat: 'ranking', icon: '🥇', key: 'nav.rankingVideo', desc: 'nav.desc.rankingVideo' },
+  { id: 'horse-race', cat: 'ranking', icon: '🏇', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
+  { id: 'amidakuji', cat: 'other', icon: '🎲', key: 'nav.amidakuji', desc: 'nav.desc.amidakuji' },
 ];
 
 // フッターのリンク

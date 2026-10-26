@@ -24,6 +24,7 @@
 - **言語ごとのURLの対応関係は `src/i18n/routes.mjs` に書く。** hreflang・canonical・言語切替・sitemap はここから自動で作られる。
   - 英語版を作ったら `paths` に `en` を足し、確認が済むまで `drafts: ['en']` にしておく（本番ビルドでは出力されない。preview ブランチでは noindex で出る）。
   - 新しい言語は `src/i18n/config.mjs` と `src/i18n/ui.mjs`、`shared/i18n.js` の `SUPPORTED` に足す。
+- **ヘッダーのメニュー**（PC はメガメニュー、スマホはハンバーガー）は `src/i18n/routes.mjs` の `NAV_CATEGORIES` / `NAV_TOOLS` から作る。新しいツールは `PAGES` と `NAV_TOOLS` に1行ずつ足し、ツール名・一行説明を `ui.mjs` に日英で足す。部品は `src/components/SiteHeader.astro`、見た目は `src/styles/gnav.css`。未移行の既存HTML（ブログ・あみだくじ）のヘッダーはビルド時に `build/postbuild.mjs` が同じものに置き換える（直下のHTMLのヘッダーを手で直す必要はない）。GA4: メニューを開くと `nav_menu_open`。
 - ヘッダー・フッター・言語切替などの共通文言は `src/i18n/ui.mjs`。ページ本文は辞書にせず、言語ごとのページファイルに直接書く（英語版は翻訳ではなく英語圏の検索意図に合わせて書く）。
 - `sitemap.xml` はビルド時に自動生成（直下の `sitemap.xml` と `generate-sitemap.js` は旧方式で、もう使っていない）。
 - **ツール画面（`/xxx/app/`）は URL を言語で分けず、`?lang=en` で表示を切り替える**（`shared/i18n.js`）。

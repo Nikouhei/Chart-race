@@ -1,0 +1,93 @@
+/*
+ * サイト共通ヘッダーのナビ（src/components/SiteHeader.astro）
+ * 既存ページの <style> に残っている古い .site-header-inner 等の指定に負けないよう、
+ * .site-header.gnav から書いている。未移行の既存HTMLにも postbuild でこのまま差し込む。
+ */
+.site-header.gnav { position: sticky; top: 0; }
+.site-header.gnav .gnav-bar {
+  display: flex; flex-direction: row; align-items: center; justify-content: flex-start;
+  gap: 4px; padding: 12px 24px; max-width: 1040px; margin: 0 auto; min-height: 60px;
+}
+.site-header.gnav .brand { flex-shrink: 0; margin-right: 16px; }
+.site-header.gnav .gnav-nav { display: flex; align-items: center; gap: 4px; margin-right: auto; }
+.site-header.gnav .gnav-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  font: inherit; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap;
+  color: var(--text-muted); text-decoration: none; background: none; border: 0; cursor: pointer;
+  padding: 8px 14px; border-radius: 20px;
+  transition: color .2s ease, background-color .2s ease;
+}
+.site-header.gnav .gnav-link:hover,
+.site-header.gnav .gnav-trigger[aria-expanded="true"] { color: var(--accent); background-color: var(--accent-soft); }
+.site-header.gnav .gnav-link.is-active { color: var(--accent-strong); }
+.site-header.gnav .gnav-chev { transition: transform .15s ease; }
+.site-header.gnav .gnav-trigger[aria-expanded="true"] .gnav-chev { transform: rotate(180deg); }
+.site-header.gnav .lang-switch { position: relative; top: auto; right: auto; margin: 0 0 0 8px; }
+
+.site-header.gnav .gnav-burger {
+  display: none; flex-shrink: 0; margin-left: 4px; padding: 8px; border: 0; border-radius: 10px;
+  background: none; color: var(--text-strong); cursor: pointer;
+}
+.site-header.gnav .gnav-burger:hover { background: var(--accent-soft); }
+.site-header.gnav .gnav-burger svg { display: block; }
+.site-header.gnav .gnav-i-close { display: none; }
+.site-header.gnav.is-open .gnav-i-open { display: none; }
+.site-header.gnav.is-open .gnav-i-close { display: inline; }
+
+/* メガメニュー（PC） */
+.site-header.gnav .gnav-panel {
+  display: none; position: absolute; left: 0; right: 0; top: 100%;
+  background: #fff; border-bottom: 1px solid var(--panel-border);
+  box-shadow: 0 18px 40px rgba(16, 18, 22, 0.10);
+}
+.site-header.gnav.is-open .gnav-panel { display: block; }
+.site-header.gnav .gnav-panel-inner { max-width: 1040px; margin: 0 auto; padding: 20px 24px 22px; }
+.site-header.gnav .gnav-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 24px; }
+.site-header.gnav .gnav-cat {
+  margin: 0 0 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--text-muted);
+}
+.site-header.gnav .gnav-group ul { list-style: none; margin: 0; padding: 0; }
+.site-header.gnav .gnav-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 12px;
+  color: var(--text-main); text-decoration: none; transition: background-color .15s ease;
+}
+.site-header.gnav .gnav-item:hover { background: var(--accent-soft); }
+.site-header.gnav .gnav-item.is-active b { color: var(--accent-strong); }
+.site-header.gnav .gnav-ic {
+  flex: none; width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft);
+  display: grid; place-items: center; font-size: 18px; line-height: 1;
+}
+.site-header.gnav .gnav-txt b { display: block; font-size: 14px; line-height: 1.5; color: var(--text-strong); }
+.site-header.gnav .gnav-txt small { display: block; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+.site-header.gnav .gnav-foot {
+  display: flex; align-items: center; gap: 16px; margin-top: 12px; padding: 12px 10px 0;
+  border-top: 1px solid var(--panel-border); font-size: 13px;
+}
+.site-header.gnav .gnav-all { color: var(--accent-strong); font-weight: 700; text-decoration: none; }
+.site-header.gnav .gnav-all:hover { text-decoration: underline; }
+.site-header.gnav .gnav-sp-only { display: none; }
+
+/* ドロワー（スマホ） */
+@media (max-width: 768px) {
+  .site-header.gnav .gnav-bar { padding: 10px 12px 10px 16px; min-height: 56px; }
+  .site-header.gnav .gnav-nav { display: none; }
+  .site-header.gnav .lang-switch { margin-left: auto; }
+  .site-header.gnav .gnav-burger { display: inline-flex; }
+  .site-header.gnav .gnav-panel {
+    position: fixed; top: var(--gnav-top, 56px); bottom: 0; overflow-y: auto;
+    overscroll-behavior: contain; box-shadow: none; border-top: 1px solid var(--panel-border);
+  }
+  .site-header.gnav .gnav-panel-inner { padding: 8px 12px 32px; }
+  .site-header.gnav .gnav-cols { grid-template-columns: 1fr; gap: 4px; }
+  .site-header.gnav .gnav-cat { margin: 14px 0 4px 10px; }
+  .site-header.gnav .gnav-foot { flex-direction: column; align-items: stretch; gap: 0; padding: 0; margin-top: 16px; }
+  .site-header.gnav .gnav-foot a { display: block; padding: 14px 10px; }
+  .site-header.gnav .gnav-sp-only { display: block; border-top: 1px solid var(--panel-border); }
+  .site-header.gnav .gnav-plain { color: var(--text-strong); font-weight: 700; font-size: 15px; text-decoration: none; }
+  /* backdrop-filter があると position: fixed がヘッダー基準になるので、開いている間だけ外す */
+  .site-header.gnav.is-open { backdrop-filter: none; -webkit-backdrop-filter: none; background: #fff; }
+  html.gnav-lock, html.gnav-lock body { overflow: hidden; }
+}
+@media (min-width: 769px) and (max-width: 900px) {
+  .site-header.gnav .gnav-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
