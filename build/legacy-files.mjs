@@ -26,8 +26,18 @@ export const ROOT = findRoot();
 const NEVER_DIRS = new Set([
   'stock-race', // 未公開。公開の指示があるまで絶対に出さない
   'src', 'public', 'dist', 'build', 'node_modules', '.astro',
-  '.git', '.github', '.agents', '.claude', '.vscode', 'First Coding', 'analytics',
+  '.git', '.github', '.agents', '.claude', '.vscode', '.idea', '.wrangler', 'First Coding', 'analytics',
 ]);
+
+// 秘密情報・ローカル設定になりがちなファイル名（どの階層にあっても配信しない）
+const SECRET_FILE_PATTERNS = [
+  /service-account.*\.json$/i, /\.local\.json$/i, /\.(pem|key|p12|pfx)$/i, /credentials?.*\.json$/i,
+];
+
+// ドットで始まるファイル・フォルダ（.env・.dev.vars・.wrangler など）は原則配信しない。
+// 例外として出してよいものだけここに書く
+const DOT_ALLOW = new Set(['.well-known']);
+const isHiddenName = (name) => name.startsWith('.') && !DOT_ALLOW.has(name);
 // 開発中（未公開）のツール。本番（main）のビルドからは外し、preview ブランチ・
 // INCLUDE_DRAFTS=1・開発サーバーでだけ配信する。公開するときはここから消す。
 export const DRAFT_DIRS = new Set([
@@ -78,10 +88,12 @@ export function isServableLegacy(rel) {
   const base = parts[parts.length - 1];
   if (parts.length > 1 && DRAFT_DIRS.has(parts[0]) && !includeDraftDirs()) return false;
   for (const d of parts.slice(0, -1)) {
-    if (NEVER_DIRS.has(d)) return false;
+    if (NEVER_DIRS.has(d) || isHiddenName(d)) return false;
     if (IGNORE.dirs.some((re) => re.test(d))) return false;
   }
   if (parts.length === 1 && NEVER_FILES.has(base)) return false;
+  if (isHiddenName(base)) return false;
+  if (SECRET_FILE_PATTERNS.some((re) => re.test(base))) return false;
   if (IGNORE.files.some((re) => re.test(base))) return false;
   return true;
 }
@@ -92,7 +104,7 @@ export function listLegacyFiles(dir = ROOT, out = []) {
     const abs = path.join(dir, entry.name);
     const rel = path.relative(ROOT, abs).split(path.sep).join('/');
     if (entry.isDirectory()) {
-      if (NEVER_DIRS.has(entry.name)) continue;
+      if (NEVER_DIRS.has(entry.name) || isHiddenName(entry.name)) continue;
       if (dir === ROOT && DRAFT_DIRS.has(entry.name) && !includeDraftDirs()) continue;
       if (IGNORE.dirs.some((re) => re.test(entry.name))) continue;
       listLegacyFiles(abs, out);

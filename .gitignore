@@ -18,3 +18,8 @@ analytics/config.local.json
 
 # Astro の作業用キャッシュ
 .astro/
+
+# Wrangler のローカル状態・秘密情報（公開・コミットしない）
+.wrangler/
+.env*
+.dev.vars

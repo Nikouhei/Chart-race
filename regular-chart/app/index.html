@@ -54,7 +54,7 @@
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
   <script src="../../shared/i18n.js?v=2026102502" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/background-mode.js?v=2026102502" defer></script>
+  <script src="../../shared/background-mode.js?v=2026102601" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -1361,12 +1361,10 @@
           </div>
         </div>
       </div>
-      <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している（背景画像は廃止） -->
+      <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している -->
       <div hidden>
         <input type="color" id="layoutBackgroundColor" value="#ffffff">
-        <input type="file" id="backgroundImageFile" accept="image/*">
         <input type="checkbox" id="enableBackgroundColor" checked>
-        <input type="checkbox" id="enableBackgroundImage">
       </div>
     </div>
 
@@ -2075,7 +2073,6 @@
     let columnWidths = [];
     let resizingColumn = null;
     let contextMenuTarget = null;
-    let backgroundImageDataUrl = '';
     let customBarColors = {};
     let customCategoryColors = {};
     let previousBarColorMode = 'pattern';
@@ -2095,7 +2092,7 @@
     const BLANK_COLUMN_PREFIX = '__blank_column_';
     const PROJECT_SETTING_IDS = [
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
-      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage',
+      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
@@ -2547,11 +2544,8 @@
 
     function resetStyleSettingsToDefault() {
       if (defaultProjectSettings) applyProjectSettings(defaultProjectSettings);
-      backgroundImageDataUrl = '';
       customBarColors = {};
       customCategoryColors = {};
-      const backgroundFile = document.getElementById('backgroundImageFile');
-      if (backgroundFile) backgroundFile.value = '';
       previousBarColorMode = document.getElementById('barColorMode')?.value || 'pattern';
       applyLayoutAppearance();
       syncOverlayText();
@@ -2567,7 +2561,6 @@
         data: cloneDataState(),
         columnWidths: [...columnWidths],
         settings: getProjectSettingsSnapshot(),
-        backgroundImageDataUrl,
         customBarColors: { ...customBarColors },
         customCategoryColors: { ...customCategoryColors }
       };
@@ -2709,7 +2702,6 @@
       });
       applyProjectSettings(project.settings || {});
       updateDataFormatHint();
-      backgroundImageDataUrl = project.backgroundImageDataUrl || '';
       customBarColors = { ...(project.customBarColors || {}) };
       customCategoryColors = { ...(project.customCategoryColors || {}) };
       csvData = project.data.rows.map(row => ({ ...row }));
@@ -2881,8 +2873,7 @@
         font: document.getElementById('mainFont').value || "'Helvetica Neue', Arial, sans-serif",
         textColor: document.getElementById('layoutTextColor').value || '#222222',
         useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
-        backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
-        useBackgroundImage: false // 背景画像は廃止（2026-10）
+        backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff'
       };
     }
 
@@ -2895,7 +2886,7 @@
       chart.style.fontFamily = settings.font;
       chart.style.color = settings.textColor;
       chart.style.backgroundColor = settings.useBackgroundColor ? settings.backgroundColor : 'transparent';
-      chart.style.backgroundImage = settings.useBackgroundImage && backgroundImageDataUrl ? `url("${backgroundImageDataUrl}")` : 'none';
+      chart.style.backgroundImage = 'none';
       chart.style.backgroundSize = 'cover';
       chart.style.backgroundPosition = 'center';
       chart.style.backgroundRepeat = 'no-repeat';
@@ -6380,26 +6371,12 @@
       document.getElementById('aspectRatioPreset').value = 'custom';
       onLayoutSettingChange('canvasHeight');
     });
-    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'enableBackgroundImage'].forEach(id => {
-      const eventName = ['mainFont', 'enableBackgroundColor', 'enableBackgroundImage'].includes(id) ? 'change' : 'input';
+    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor'].forEach(id => {
+      const eventName = ['mainFont', 'enableBackgroundColor'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => {
         applyLayoutAppearance();
         refreshCurrentPreview({ reset: true });
       });
-    });
-    document.getElementById('backgroundImageFile').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) {
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = event => {
-        backgroundImageDataUrl = event.target.result;
-        document.getElementById('enableBackgroundImage').checked = true;
-        applyLayoutAppearance();
-        refreshCurrentPreview({ reset: true });
-      };
-      reader.readAsDataURL(file);
     });
     ['topN', 'barSpacing', 'labelFontSize', 'nameLabelColor', 'valueLabelColor', 'valueLabelSpace', 'legendFontSize', 'legendColor'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => onLayoutSettingChange(id));

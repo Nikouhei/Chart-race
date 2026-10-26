@@ -219,10 +219,21 @@ fs.writeFileSync(path.join(DIST, 'sitemap.xml'), xml);
 log(`sitemap.xml: ${entries.length} URL`);
 
 // 5. 公開してはいけないものの最終確認 -------------------------------------------
-const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', '.git', '.agents', '.claude'];
+const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', 'build', 'First Coding', '.git', '.github', '.agents', '.claude', '.wrangler'];
 const leaked = forbidden.filter((d) => fs.existsSync(path.join(DIST, d)));
+// dist 全体を見て、ドット始まりのファイル・フォルダや秘密情報らしいファイル名が無いか確認する
+// （.gitkeep は public/ の空フォルダ用、.well-known は将来の正規の公開用なので許可）
+const DOT_OK = new Set(['.gitkeep', '.well-known']);
+const SECRET_RE = /(^\.env|^\.dev\.vars$|service-account.*\.json$|\.local\.json$|\.(pem|key|p12|pfx)$|credentials?.*\.json$)/i;
+(function scan(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const rel = path.relative(DIST, path.join(dir, entry.name)).split(path.sep).join('/');
+    if ((entry.name.startsWith('.') && !DOT_OK.has(entry.name)) || SECRET_RE.test(entry.name)) leaked.push(rel);
+    else if (entry.isDirectory()) scan(path.join(dir, entry.name));
+  }
+})(DIST);
 if (leaked.length) {
-  console.error('[postbuild] 公開してはいけないフォルダが dist に入っています: ' + leaked.join(', '));
+  console.error('[postbuild] 公開してはいけないものが dist に入っています: ' + leaked.join(', '));
   process.exit(1);
 }
 log('完了');

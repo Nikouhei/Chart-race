@@ -17,3 +17,9 @@ node_modules/
 analytics/
 # 株価レース（未公開の検証用）。誤ってデプロイしないよう除外
 stock-race/
+# Wrangler のローカル状態・秘密情報
+.wrangler/
+.env*
+.dev.vars
+*service-account*.json
+*.local.json

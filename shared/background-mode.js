@@ -105,10 +105,6 @@
     st.textContent = STYLE;
     document.head.appendChild(st);
 
-    // 背景画像は廃止：古い保存データで有効になっていても使わない
-    var useImg = $('enableBackgroundImage');
-    if (useImg && useImg.checked) { useImg.checked = false; fire(useImg); }
-
     document.querySelectorAll('.grs-bg-mode [data-bg-mode]').forEach(function (b) {
       b.addEventListener('click', function () {
         var mode = b.getAttribute('data-bg-mode');
@@ -121,8 +117,6 @@
     // 保存したプロジェクトの読み込みなどで背景色が変わったときもボタンの表示を合わせる
     setInterval(function () {
       syncButtons();
-      var img = $('enableBackgroundImage');
-      if (img && img.checked) { img.checked = false; fire(img); }
     }, 1000);
   }
 
