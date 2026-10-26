@@ -1,0 +1,55 @@
+---
+// 円グラフレース 英語版LP（/en/pie-chart-race/）
+import ToolLanding from '../../../components/en/ToolLanding.astro';
+const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in your browser'];
+---
+<ToolLanding
+  pageId="pie-chart-race"
+  jaFile="pie-chart-race/index.html"
+  title="Pie Chart Race Maker | Animated Pie & Donut Chart Videos from CSV"
+  description="Make an animated pie chart or donut chart that changes year by year. Upload CSV or Excel, watch the market shares shift, then export the pie chart race as an MP4 or WebM video — free, in your browser."
+  appName="Pie Chart Race Maker"
+  badges={BADGES}
+  h1="Make an Animated<br>Pie Chart Race"
+  lead="Load a spreadsheet and watch the slices of a pie or donut chart grow and shrink through time. Show how market shares, budgets or energy mixes changed at a glance, then save it as an MP4 or WebM video — no software to install."
+  demo={{ src: '/pie-chart-race/pie-chart-race-example-en-720x960.webm', title: 'Show how shares change over time', text: 'The example shows the world’s electricity generation by source from 2000 to 2025 (data: Ember, Energy Institute). Watch solar and wind slowly take their slice — a change that is much easier to feel in motion than in a table. Works for vertical social videos and widescreen slides alike.' }}
+  appHref="/pie-chart-race/app/?lang=en"
+  sampleHref="/pie-chart-race/app/?lang=en&sample=1"
+  featureList={['CSV and Excel import', 'Percentages calculated automatically', 'Pie or donut chart', 'Group small slices into “Other”', 'Switch to bar or line chart race with the same data', 'MP4 / WebM export']}
+  features={{
+    title: 'Features',
+    sub: 'Enter raw numbers — the percentages and the animation are done for you.',
+    items: [
+      { img: '/shared/images/csv_excel.webp', title: 'CSV & Excel import', text: 'Upload your spreadsheet or paste data into the built-in table. Shares are calculated from each period’s total, so raw values like sales or TWh work as-is.' },
+      { img: '/shared/images/customize_graph.webp', title: 'Pie or donut', text: 'Choose a filled pie or a donut with the year or total in the center. Tune colors, labels, legend, start angle and more.' },
+      { img: '/shared/images/graph_with_flags.webp', title: 'Tidy “Other” slice', text: 'Set how many slices to show and the rest is grouped into “Other”. Sort by size to show slices overtaking each other.' },
+      { img: '/shared/images/switch_graphs.webp', title: 'Switch chart types', text: 'Jump to the bar chart race or line chart race with one click — your data comes along.' },
+    ],
+  }}
+  useCases={{
+    title: 'What people make with it',
+    sub: 'Great whenever the parts of a whole change over time.',
+    items: [
+      { tag: 'Business', title: 'Market share over time', text: 'Show how your brand and competitors split a market, or how revenue by product or region shifted.' },
+      { tag: 'Energy · Environment', title: 'Energy mix', text: 'Explain how coal, gas, nuclear and renewables changed their share of electricity generation.' },
+      { tag: 'Social media', title: 'Tech share battles', text: 'Smartphone OS, browser or social network shares — turned into short, shareable vertical videos.' },
+      { tag: 'Education · Research', title: 'Population and industry structure', text: 'Age groups, employment by sector and other public statistics, explained as a moving chart.' },
+    ],
+  }}
+  steps={{
+    title: 'How to make a pie chart race',
+    sub: 'Just three steps.',
+    items: [
+      { title: 'Prepare your data', text: 'Put item names in column A, an optional image URL in column B, and one column of values per year (or month) after that. No need to calculate percentages.' },
+      { title: 'Upload or paste it', text: 'Load a CSV or Excel file, or type and paste your data into the table in the tool.' },
+      { title: 'Style it and export', text: 'Pick pie or donut, adjust colors and labels, preview the animation, then press “Save video” to export an MP4 or WebM file.' },
+    ],
+  }}
+  faq={[
+    { q: 'Do I have to calculate the percentages myself?', a: 'No. Enter raw values such as sales or generation, and the tool calculates each item’s share of the period total. Data that is already in percent works too. Labels can show the percentage, the value, or both.' },
+    { q: 'Won’t it get cluttered with many items?', a: 'Set the number of slices to show and the smaller items are grouped into “Other”, with a name and color you can change. Labels can also be placed outside the slices with leader lines.' },
+    { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account is needed, and you can use your videos commercially on YouTube, social media, in presentations and in class. Please credit GraphRace Studio in the video or its description.' },
+    { q: 'Can I export it as a video?', a: 'Yes. Press “Save video” to export an MP4 or WebM file. MP4 plays on iPhone and Android.' },
+    { q: 'Is my data uploaded anywhere?', a: 'No. Everything runs in your browser and nothing is sent to a server.' },
+  ]}
+/>

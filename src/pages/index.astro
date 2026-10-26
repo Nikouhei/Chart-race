@@ -11,8 +11,8 @@ const locale = 'ja';
 <BaseLayout
   pageId="home"
   title="GraphRace Studio｜無料・動くグラフ＆ランキング動画作成ツール"
-  description="動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。"
-  twitterDescription="動くバーチャートレース、線グラフ、トーナメント表、競馬風レース、ランキング動画、あみだくじを無料でブラウザ作成。"
+  description="動くバーチャートレース、線グラフレース、円グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。"
+  twitterDescription="動くバーチャートレース、線グラフ、円グラフ、トーナメント表、競馬風レース、ランキング動画、あみだくじを無料でブラウザ作成。"
 >
   <Fragment slot="head">
   <style is:inline set:html={homeCss}></style>
@@ -28,7 +28,7 @@ const locale = 'ja';
         "url": "https://graphrace-studio.com/",
         "name": "GraphRace Studio",
         "alternateName": ["グラフレーススタジオ"],
-        "description": "動くバーチャートレース、線グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
+        "description": "動くバーチャートレース、線グラフレース、円グラフレース、トーナメント表アニメーション、格付けダービー（競馬風・3Dリアル競馬風）、カード型ランキング動画、あみだくじを無料で作成。インストール不要・すべてブラウザ上で安全に動作します。",
         "publisher": {
           "@id": "https://graphrace-studio.com/#organization"
         }
@@ -154,7 +154,7 @@ const locale = 'ja';
     <!-- ツール選択セクション -->
     <section id="tools" style="border-top: 1px solid var(--panel-border);">
       <div class="wrap">
-        <h2 class="section-title">全6種類の演出ツール</h2>
+        <h2 class="section-title">全7種類の演出ツール</h2>
         <p class="section-sub">用途やコンテンツに合わせて、お好みのツールをブラウザで選択・ご利用いただけます。</p>
         
         <div class="tools-grid">
@@ -192,6 +192,24 @@ const locale = 'ja';
               </div>
             </div>
             <a class="btn-tool" href="regular-chart/">ツールを使う</a>
+          </div>
+
+          <!-- 3. 円グラフレース作成ツール -->
+          <div class="tool-card">
+            <div class="card-top">
+              <div class="tool-card-header">
+                <div class="icon">🥧</div>
+                <span class="tool-category-badge">円グラフ</span>
+              </div>
+              <h4>円グラフレース作成ツール</h4>
+              <p>年ごとに割合が変わっていく円グラフ・ドーナツグラフの動画を作成します。市場シェアや電源構成、売上構成比の移り変わりを伝えるのに最適です。</p>
+              <div class="tool-tags">
+                <span class="tool-tag">CSV / Excel対応</span>
+                <span class="tool-tag">円・ドーナツ切替</span>
+                <span class="tool-tag">割合を自動計算</span>
+              </div>
+            </div>
+            <a class="btn-tool" href="pie-chart-race/">ツールを使う</a>
           </div>
 
           <!-- 3. ランキング動画メーカー -->
@@ -342,7 +360,7 @@ const locale = 'ja';
           <details class="faq-item">
             <summary><h3>どのような形式（MP4/WebM等）で動画を保存できますか？</h3></summary>
             <div class="faq-content">
-              ツールによって異なります。バーチャートレースと線グラフレースは、画面下の「動画を保存」ボタンからMP4またはWebMの動画ファイルとして書き出せます。プレビューと同じ動きを1コマずつ動画にするので、画面録画のようなカクつきや余計な映り込みはありません。格付けダービーも「動画を保存」から、レースをMP4またはWebMの動画ファイルとして書き出せます。あみだくじメーカーは結果をPNG画像で保存できます。ランキング動画メーカーとトーナメント表アニメーターは、再生中の画面をパソコンやスマホの画面録画機能で保存してください。
+              ツールによって異なります。バーチャートレース・線グラフレース・円グラフレースは、画面下の「動画を保存」ボタンからMP4またはWebMの動画ファイルとして書き出せます。プレビューと同じ動きを1コマずつ動画にするので、画面録画のようなカクつきや余計な映り込みはありません。格付けダービーも「動画を保存」から、レースをMP4またはWebMの動画ファイルとして書き出せます。あみだくじメーカーは結果をPNG画像で保存できます。ランキング動画メーカーとトーナメント表アニメーターは、再生中の画面をパソコンやスマホの画面録画機能で保存してください。
             </div>
           </details>
           <details class="faq-item">
@@ -379,6 +397,11 @@ const locale = 'ja';
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.10.26</span>
+              <span class="update-content">円グラフレース作成ツールを公開しました。年ごとに割合が変わる円グラフ・ドーナツグラフの動画を、MP4／WebMで保存できます。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.10.24</span>

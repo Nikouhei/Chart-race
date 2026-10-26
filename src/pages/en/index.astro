@@ -11,11 +11,12 @@ import { pathFor, includeDrafts } from '../../i18n/utils.mjs';
 const locale = 'en';
 const drafts = includeDrafts();
 const title = 'GraphRace Studio | Bar Chart Race, Line Chart Race & Ranking Video Maker';
-const description = 'Free browser tools to turn data and rankings into animated videos: bar chart races, line chart races, horse race ranking videos, animated tournament brackets and top 10 countdowns. No install, no sign-up.';
+const description = 'Free browser tools to turn data and rankings into animated videos: bar chart races, line chart races, pie chart races, horse race ranking videos, animated tournament brackets and top 10 countdowns. No install, no sign-up.';
 
 const TOOLS = [
   { id: 'bar-chart-race', icon: '📊', badge: 'Time series', name: 'Bar Chart Race Maker', text: 'Watch bars overtake each other as your data moves through time. The classic format for ranking videos on YouTube and TikTok.', tags: ['CSV / Excel', 'Flags & icons', 'MP4 / WebM'] },
   { id: 'line-chart-race', icon: '📈', badge: 'Line chart', name: 'Line Chart Race Maker', text: 'Lines draw themselves over time with flags and live values at the tips — ideal for comparing trends in reports and explainers.', tags: ['CSV / Excel', 'Custom styles', 'MP4 / WebM'] },
+  { id: 'pie-chart-race', icon: '🥧', badge: 'Pie chart', name: 'Pie Chart Race Maker', text: 'Pie and donut charts whose slices grow and shrink over time — perfect for market shares, budgets and energy mixes.', tags: ['CSV / Excel', 'Pie or donut', 'MP4 / WebM'] },
   { id: 'horse-race', icon: '🏇', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
   { id: 'tournament', icon: '🏆', badge: 'Bracket', name: 'Tournament Bracket Animator', text: 'Animated single-elimination brackets for 2–32 players. Let winners advance automatically or pick them yourself.', tags: ['2–32 players', '4 layouts', 'Player images'] },
   { id: 'ranking-video', icon: '🏅', badge: 'Countdown', name: 'Ranking Video Maker', text: 'Top 10 countdowns with photos and descriptions. Cards glide in one by one from last place to #1.', tags: ['Photos', '16:9 / 9:16 / 3:4', 'Color themes'] },
@@ -23,7 +24,7 @@ const TOOLS = [
 
 const FAQ = [
   { q: 'Is it free? Can I use it commercially?', a: 'Yes, you can use the tools without an account, including for YouTube videos, social media posts and business presentations. When you publish something made with GraphRace Studio, please credit us (for example “Created by GraphRace Studio” or a link).' },
-  { q: 'What video formats can I export?', a: 'Bar Chart Race, Line Chart Race and Ranking Derby export MP4 or WebM directly. MP4 plays on iPhone and Android. For the tournament bracket and ranking video, record the screen while it plays.' },
+  { q: 'What video formats can I export?', a: 'Bar Chart Race, Line Chart Race, Pie Chart Race and Ranking Derby export MP4 or WebM directly. MP4 plays on iPhone and Android. For the tournament bracket and ranking video, record the screen while it plays.' },
   { q: 'Is my data uploaded anywhere?', a: 'No. All processing happens in your browser. Your data and images are never sent to our servers, and your work is saved only on your device.' },
   { q: 'Can I use it on my phone?', a: 'Yes, all tools work in phone and tablet browsers, and you can make vertical 9:16 videos for Shorts, Reels and TikTok.' },
   { q: 'Can I post the videos on YouTube Shorts or TikTok?', a: 'Of course. Please include a credit to GraphRace Studio in the video or its description.' },

@@ -13,7 +13,7 @@
   window.CHART_TOOLS = [
     { id: 'bar-chart-race', label: 'バーチャートレース', i18nKey: 'tool.barChartRace.label', path: '../../bar-chart-race/app/', kind: 'animated' },
     { id: 'regular-chart',  label: '線グラフレース', i18nKey: 'tool.lineChartRace.label', path: '../../regular-chart/app/', kind: 'static' },
-    { id: 'pie-chart-race', label: '円グラフレース', i18nKey: 'tool.pieChartRace.label', path: '../../pie-chart-race/app/', kind: 'animated', draft: true }
+    { id: 'pie-chart-race', label: '円グラフレース', i18nKey: 'tool.pieChartRace.label', path: '../../pie-chart-race/app/', kind: 'animated' }
   ];
   // draft: true のツールは開発中。本番ドメインでは切替先に出さない（preview・localhost では出す）
   if (/(^|\.)graphrace-studio\.com$/.test(location.hostname)) {

@@ -31,7 +31,7 @@ const NEVER_DIRS = new Set([
 // 開発中（未公開）のツール。本番（main）のビルドからは外し、preview ブランチ・
 // INCLUDE_DRAFTS=1・開発サーバーでだけ配信する。公開するときはここから消す。
 export const DRAFT_DIRS = new Set([
-  'pie-chart-race', // 円グラフレース
+  // 例: 'xxx-tool', // 開発中のツール
 ]);
 
 // 判定は src/i18n/utils.mjs の includeDrafts と同じ（main 以外のブランチ・開発中は下書きも出す）

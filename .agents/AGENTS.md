@@ -12,13 +12,13 @@
 
 ## サイト構成と多言語化（2026-10 から Astro へ段階移行中）
 - **SEOページ（トップ・LP・ブログ・法務）は Astro（`src/pages/`）へ1ページずつ移している。** 移行済みのページは `src/pages/` 側を編集する（直下の同名HTMLは使われない。ビルド時に「Astro 版を優先」と表示される）。
-  - 移行済み: トップ（`src/pages/index.astro`）、ツールLP5つ（`src/pages/bar-chart-race/` `regular-chart/` `tournament-bracket-animator/` `ranking-video-maker/` `horse-race-ranking-maker/` の `index.astro`）、法務（`src/pages/about.astro` `terms.astro` `privacy.astro`）。旧 HTML は削除済み
+  - 移行済み: トップ（`src/pages/index.astro`）、ツールLP6つ（`src/pages/bar-chart-race/` `regular-chart/` `pie-chart-race/` `tournament-bracket-animator/` `ranking-video-maker/` `horse-race-ranking-maker/` の `index.astro`）、法務（`src/pages/about.astro` `terms.astro` `privacy.astro`）。旧 HTML は削除済み
   - 未移行: ブログ、あみだくじ（どちらも英語版は作らない）
   - 英語の法務ページ（`src/pages/en/about.astro` など）は日本語版の英訳。日本語版を変えたら英語版もそろえる
   - **`.astro` のページを直すときの注意**: `<script>`・`<style>` には必ず `is:inline` を付ける（付けないと Astro が書き換えて動きが変わる）。本文（タグの外）に `{` `}` をそのまま書かない（Astro の式として扱われる。必要なら `{'{'}` のように書く）。中の相対パスは使わず `/shared/...` のような絶対パスで書く。
   - 英語版を作らないもの: ブログ、あみだくじ（2026-10 決定）
 - まだ移していない既存HTML・ツール画面（`/xxx/app/`）・画像は直下のまま。ビルド時に `build/postbuild.mjs` が `dist/` にコピーする。除外ルールは `.assetsignore` と `build/legacy-files.mjs`。
-- **開発中（未公開）のツール**は `build/legacy-files.mjs` の `DRAFT_DIRS` に入れ、`shared/registry.js` では `draft: true` を付ける。本番（main）のビルドには入らず、preview ブランチ・`npm run build:preview`・`npm run dev` でだけ見られる。いま該当: 円グラフレース（`pie-chart-race/`）。公開するときは両方から外す。
+- **開発中（未公開）のツール**は `build/legacy-files.mjs` の `DRAFT_DIRS` に入れ、`shared/registry.js` では `draft: true` を付ける。本番（main）のビルドには入らず、preview ブランチ・`npm run build:preview`・`npm run dev` でだけ見られる。いま該当: なし（円グラフレースは 2026-10 に公開済み）。公開するときは両方から外す。
 - ビルド: `npm run build`（= `astro build` ＋ `build/postbuild.mjs`）。配信するのは `dist/`。下書きも見たいときは `npm run build:preview`、開発中は `npm run dev`。
 - URL: 日本語はルートのまま、英語は `/en/`（他の言語も `/xx/`）。ブラウザ言語やIPでの自動リダイレクトはしない。
 - **言語ごとのURLの対応関係は `src/i18n/routes.mjs` に書く。** hreflang・canonical・言語切替・sitemap はここから自動で作られる。

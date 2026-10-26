@@ -18,6 +18,7 @@ export const PAGES = [
   // ツールの LP
   { id: 'bar-chart-race', paths: { ja: '/bar-chart-race/', en: '/en/bar-chart-race/' } },
   { id: 'line-chart-race', paths: { ja: '/regular-chart/', en: '/en/regular-chart/' } },
+  { id: 'pie-chart-race', paths: { ja: '/pie-chart-race/', en: '/en/pie-chart-race/' } },
   { id: 'tournament', paths: { ja: '/tournament-bracket-animator/', en: '/en/tournament-bracket-animator/' } },
   { id: 'ranking-video', paths: { ja: '/ranking-video-maker/', en: '/en/ranking-video-maker/' } },
   { id: 'horse-race', paths: { ja: '/horse-race-ranking-maker/', en: '/en/horse-race-ranking-maker/' } },
@@ -42,6 +43,7 @@ export const NAV_CATEGORIES = [
 export const NAV_TOOLS = [
   { id: 'bar-chart-race', cat: 'graph', icon: '📊', key: 'nav.barChartRace', desc: 'nav.desc.barChartRace' },
   { id: 'line-chart-race', cat: 'graph', icon: '📈', key: 'nav.lineChartRace', desc: 'nav.desc.lineChartRace' },
+  { id: 'pie-chart-race', cat: 'graph', icon: '🥧', key: 'nav.pieChartRace', desc: 'nav.desc.pieChartRace' },
   { id: 'tournament', cat: 'ranking', icon: '🏆', key: 'nav.tournament', desc: 'nav.desc.tournament' },
   { id: 'ranking-video', cat: 'ranking', icon: '🥇', key: 'nav.rankingVideo', desc: 'nav.desc.rankingVideo' },
   { id: 'horse-race', cat: 'ranking', icon: '🏇', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
