@@ -208,6 +208,10 @@ async function processHtml(relPath, html) {
   return out;
 }
 
+// 配信してよいかの判定は本番ビルド（build/legacy-files.mjs）と同じものを使う。
+// これが無いと .env・.github/・src/・stock-race/ などまで dist/ に入ってしまう
+let isServableLegacy = null;
+
 async function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -219,6 +223,7 @@ async function walk(dir) {
     if (shouldIgnoreFile(entry.name)) continue;
     const abs = path.join(dir, entry.name);
     const rel = path.relative(ROOT, abs).split(path.sep).join("/");
+    if (!isServableLegacy(rel)) continue;
     const outAbs = path.join(OUT, rel);
     fs.mkdirSync(path.dirname(outAbs), { recursive: true });
 
@@ -241,6 +246,7 @@ async function walk(dir) {
 (async () => {
   if (fs.existsSync(OUT)) fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
+  ({ isServableLegacy } = await import("./legacy-files.mjs"));
   await walk(ROOT);
 
   console.log("=== ビルド完了 ===");

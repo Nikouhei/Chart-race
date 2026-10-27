@@ -32,6 +32,8 @@ const NEVER_DIRS = new Set([
 // 秘密情報・ローカル設定になりがちなファイル名（どの階層にあっても配信しない）
 const SECRET_FILE_PATTERNS = [
   /service-account.*\.json$/i, /\.local\.json$/i, /\.(pem|key|p12|pfx)$/i, /credentials?.*\.json$/i,
+  /\.(sql|sqlite3?|db|dump|bak)$/i, /^secrets?([._-].*)?\.(json|ya?ml|txt|toml)$/i, /^tokens?\.json$/i,
+  /^id_(rsa|dsa|ecdsa|ed25519)/i, /\.(env|kdbx|keystore|jks|ppk|asc|gpg)$/i, /^\.?npmrc$/i, /^\.?htpasswd$/i,
 ];
 
 // ドットで始まるファイル・フォルダ（.env・.dev.vars・.wrangler など）は原則配信しない。

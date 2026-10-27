@@ -224,7 +224,7 @@ const leaked = forbidden.filter((d) => fs.existsSync(path.join(DIST, d)));
 // dist 全体を見て、ドット始まりのファイル・フォルダや秘密情報らしいファイル名が無いか確認する
 // （.gitkeep は public/ の空フォルダ用、.well-known は将来の正規の公開用なので許可）
 const DOT_OK = new Set(['.gitkeep', '.well-known']);
-const SECRET_RE = /(^\.env|^\.dev\.vars$|service-account.*\.json$|\.local\.json$|\.(pem|key|p12|pfx)$|credentials?.*\.json$)/i;
+const SECRET_RE = /(^\.env|^\.dev\.vars$|service-account.*\.json$|\.local\.json$|\.(pem|key|p12|pfx)$|credentials?.*\.json$|\.(sql|sqlite3?|db|dump|bak)$|^secrets?([._-].*)?\.(json|ya?ml|txt|toml)$|^tokens?\.json$|^id_(rsa|dsa|ecdsa|ed25519)|\.(env|kdbx|keystore|jks|ppk|asc|gpg)$|^\.?npmrc$|^\.?htpasswd$)/i;
 (function scan(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const rel = path.relative(DIST, path.join(dir, entry.name)).split(path.sep).join('/');

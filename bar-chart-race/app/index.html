@@ -42,7 +42,7 @@
   <meta name="twitter:image" content="https://graphrace-studio.com/bar-chart-race/ogp.png">
   <!-- favicon -->
   <link rel="icon" href="/Logo/GraphRace_Studio_Logo.png?v=1" type="image/png">
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="../../shared/vendor/d3-7.9.0.min.js"></script>
   <!-- 共有デザイントークン（単一の真実）。<style> より前に読み込み :root を定義 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2559,6 +2559,17 @@
       return project;
     }
 
+    // 読み込んだプロジェクトの色は「色として正しい値」だけ使う（style 属性に入るので、ほかの CSS を混ぜ込めないようにする）
+    function pickValidColors(map) {
+      const out = {};
+      if (!map || typeof map !== 'object') return out;
+      Object.keys(map).forEach(key => {
+        const value = map[key];
+        if (typeof value === 'string' && CSS.supports('color', value)) out[key] = value;
+      });
+      return out;
+    }
+
     function loadProjectPayload(project) {
       validateProjectPayload(project);
       stopPlayback();
@@ -2573,8 +2584,8 @@
       });
       applyProjectSettings(project.settings || {});
       updateDataFormatHint();
-      customBarColors = { ...(project.customBarColors || {}) };
-      customCategoryColors = { ...(project.customCategoryColors || {}) };
+      customBarColors = pickValidColors(project.customBarColors);
+      customCategoryColors = pickValidColors(project.customCategoryColors);
       csvData = project.data.rows.map(row => ({ ...row }));
       csvData.columns = [...project.data.columns];
       columnWidths = Array.isArray(project.columnWidths) ? [...project.columnWidths] : csvData.columns.map(() => DEFAULT_COLUMN_WIDTH);
