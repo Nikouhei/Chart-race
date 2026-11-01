@@ -3409,7 +3409,7 @@ function applySettings(input){
 }
 
 /* ---------- 出走前シーン (ファンファーレ＋出馬表) ----------
-   カメラ: ゲートの正面やや上から、内の馬→外の馬へゆっくり横に流す。
+   カメラ: ゲートの前・斜め上から、内の馬→外の馬へゆっくり横に流す。
    出馬表: ホストの paint() で書き出し解像度のキャンバスに描き、全画面の板で重ねる */
 function applyIntroCamera(states){
   let lo=Infinity, hi=-Infinity;
@@ -3418,8 +3418,10 @@ function applyIntroCamera(states){
   const lane=hi+(lo-hi)*u;                       // 内(+)から外へ
   const sp=course.sample(0, lane);
   const n=normalOf(sp.tan);                      // 内向き
-  const look=new THREE.Vector3(sp.pos.x, 1.35, sp.pos.z);
-  const D=10, SIDE=-2.5, H=2.8;                  // 10m前・外へ2.5m・高さ2.8m
+  /* ゲートの前・斜め上から見下ろす。馬房の上は開いているので、
+     扉の奥の馬の頭と背中、前面の馬番プレートが一緒に映る */
+  const D=3.2, SIDE=-1, H=4.4, LH=0.5;   // 3.2m前・外へ1m・高さ4.4m、足元近くを注視
+  const look=new THREE.Vector3(sp.pos.x, LH, sp.pos.z);
   cam.fov=CAM_FOV; cam.aspect=currentAspect(); cam.updateProjectionMatrix();
   cam.position.set(sp.pos.x+sp.tan.x*D+n.x*SIDE, H, sp.pos.z+sp.tan.z*D+n.z*SIDE);
   cam.lookAt(look);

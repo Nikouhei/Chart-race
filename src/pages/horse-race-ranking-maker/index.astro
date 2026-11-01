@@ -996,26 +996,17 @@ const locale = 'ja';
               </select>
             </div>
             <div class="field">
-              <label>カウントダウン<span class="info-tip" tabindex="0" role="button" aria-label="カウントダウンについて">i<span class="info-bubble">スタート前に3秒のカウントダウンを入れます。<p>なしにすると、いきなり走り出します。</p></span></span></label>
+              <label>スタート前の演出<span class="info-tip" tabindex="0" role="button" aria-label="スタート前の演出について">i<span class="info-bubble"><b>カウントダウン</b>スタート前に3・2・1を出します<b>ファンファーレ</b>ファンファーレが流れ、そのあいだ画面にレース名と出馬表（馬番順）が出ます<p>なしにすると、いきなり走り出します。</p></span></span></label>
               <select id="countdown">
-                <option value="on" selected>あり</option>
-                <option value="off">なし</option>
+                <option value="off">なし（すぐスタート）</option>
+                <option value="on" selected>カウントダウン（3秒）</option>
+                <option value="fanfare">ファンファーレ</option>
               </select>
             </div>
-            <div class="field mode-real">
-              <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
-              <input type="number" id="seed" value="1" min="0" max="99999" step="1">
-            </div>
-            <p class="hint mode-real" id="courseInfo"></p>
-          </details>
-
-          <details class="panel" style="margin-top:14px" open>
-            <summary>サウンド</summary>
-            <div class="field">
-              <label>ファンファーレ<span class="info-tip" tabindex="0" role="button" aria-label="ファンファーレについて">i<span class="info-bubble">スタート前にファンファーレが流れ、そのあいだ画面にレース名と出馬表（馬番順）が出ます。<p>「なし」にすると、今までどおりすぐスタートします。</p></span></span></label>
+            <div class="field" id="fanfareField" hidden>
+              <label>ファンファーレの種類</label>
               <div class="sound-row">
                 <select id="fanfare">
-                  <option value="none">なし（すぐスタート）</option>
                   <option value="grade-1" selected>重賞風 1</option>
                   <option value="grade-2">重賞風 2</option>
                   <option value="grade-3">重賞風 3</option>
@@ -1030,6 +1021,15 @@ const locale = 'ja';
                 <button type="button" class="btn-listen" id="fanfareListen" data-track="sound_preview" title="ファンファーレを試聴">▶ 試聴</button>
               </div>
             </div>
+            <div class="field mode-real">
+              <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
+              <input type="number" id="seed" value="1" min="0" max="99999" step="1">
+            </div>
+            <p class="hint mode-real" id="courseInfo"></p>
+          </details>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>サウンド</summary>
             <div class="field">
               <label>歓声・蹄の音</label>
               <select id="sfx">
@@ -1866,7 +1866,7 @@ loadState();
     const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
     // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
     // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
-    const keep=(id==="volume"||id==="sfx"||id==="fanfare");
+    const keep=(id==="volume"||id==="sfx"||id==="fanfare"||id==="countdown");
     el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
   // アイコンサイズの表示(%)はドラッグ中もリアルタイムに更新する
@@ -2144,7 +2144,7 @@ function buildRace(){
   /* スタート前: 出走前シーン(ファンファーレ＋出馬表) → カウントダウン(3秒) → スタート。
      t<0 がスタート前。cd=カウントダウンの秒数、introSec=出走前シーンの秒数 */
   const cd=cfg.countdown?3:0;
-  const introSec=introSecFor(cfg.countdown);
+  const introSec=introSecFor();
   const t0=-(cd+introSec);
   return{horses,dur,drama,
     t:t0,t0,vt:0,cd,introSec,introCard:null,endT:Math.max(...horses.map(h=>h.finishT)),
@@ -2563,18 +2563,19 @@ const FANFARES={
   "normal-1":9.43,"normal-2":9.12,"normal-3":8.62,
   "bugle-1":9.17,"bugle-2":8.75,"bugle-3":9.22,"bugle-4":9.69,
 };
-const FANFARE_TAIL_CD=0.5;   // ファンファーレのあと、カウントダウンに入るまでの間
-const FANFARE_TAIL=1.3;      // カウントダウンなしのとき、ゲートが開くまでの静けさ
+const FANFARE_TAIL=1.3;      // ファンファーレが終わってからゲートが開くまでの静けさ
 const CLASSIC_BOARD_HOLD=2.5; // 競馬風: 全馬ゴール後に結果掲示板を映す秒数(書き出し)
+/* スタート前の演出は「なし / カウントダウン / ファンファーレ」から1つ(#countdown)。
+   ファンファーレとカウントダウンは重ねない */
 function fanfareId(){
+  if(document.getElementById("countdown").value!=="fanfare")return null;
   const v=document.getElementById("fanfare").value;
   return FANFARES[v]?v:null;
 }
-/* 出走前シーンの秒数。ファンファーレなしなら0(今までどおりすぐスタート) */
-function introSecFor(countdownOn){
+/* 出走前シーンの秒数。ファンファーレでなければ0 */
+function introSecFor(){
   const id=fanfareId();
-  if(!id)return 0;
-  return FANFARES[id]+(countdownOn?FANFARE_TAIL_CD:FANFARE_TAIL);
+  return id?FANFARES[id]+FANFARE_TAIL:0;
 }
 function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("volume").value||0)/100)); }
 function sfxOn(){ return document.getElementById("sfx").value==="on"; }
@@ -2598,14 +2599,16 @@ function paintIntroCard(g,w,h){
   const bh=titleH+headH+rows*rowH+36*k;
   const bx=(w-bw)/2, by=(h-bh)/2;
   g.save();
-  g.fillStyle="rgba(4,10,6,.45)";g.fillRect(0,0,w,h);
-  g.fillStyle="rgba(8,20,12,.9)";
+  // 背景(レースの映像)は暗くしない。板も半透明にして、後ろの馬が透けて見えるようにする
+  g.fillStyle="rgba(8,20,12,.5)";
   roundRect(g,bx,by,bw,bh,14*k);g.fill();
   g.strokeStyle="#c9a227";g.lineWidth=3*k;
   roundRect(g,bx,by,bw,bh,14*k);g.stroke();
   // レース名(ユーザーが入れた文字なので訳さない)
   const title=document.getElementById("raceName").value||_t("ランキング杯");
   g.textAlign="center";g.textBaseline="middle";
+  // 板が透けるぶん、文字には影を付けて読みやすくする
+  g.shadowColor="rgba(0,0,0,.85)";g.shadowBlur=6*k;g.shadowOffsetY=1.5*k;
   let fs=42*k;g.font=font(fs);
   while(fs>18*k&&g.measureText(title).width>bw-50*k){fs-=2*k;g.font=font(fs);}
   g.fillStyle="#fff";g.fillText(title,w/2,by+titleH*0.62);
@@ -2630,7 +2633,7 @@ function paintIntroCard(g,w,h){
     while(nf>12*k&&g.measureText(e.name).width>maxW){nf-=1;g.font=font(nf);}
     g.fillText(e.name,x0+bs+14*k,y+1);
     if(r<rows-1&&rowH>24*k){
-      g.strokeStyle="rgba(255,255,255,.08)";g.lineWidth=1;
+      g.strokeStyle="rgba(255,255,255,.14)";g.lineWidth=1;
       g.beginPath();g.moveTo(x0,y+rowH/2);g.lineTo(x0+colW,y+rowH/2);g.stroke();
     }
   });
@@ -2824,22 +2827,26 @@ const Sound=(()=>{
   const fanEl=document.getElementById("fanfare"), listenBtn=document.getElementById("fanfareListen");
   const syncVol=()=>{volVal.textContent=volEl.value+"%";Sound.setVolume();};
   volEl.addEventListener("input",syncVol);syncVol();
+  const cdEl=document.getElementById("countdown"), fanField=document.getElementById("fanfareField");
   const syncFan=()=>{
-    listenBtn.disabled=!fanfareId();
+    fanField.hidden=cdEl.value!=="fanfare";   // 種類はファンファーレを選んだときだけ出す
     listenBtn.setAttribute("data-track-sound",fanEl.value);
   };
-  fanEl.addEventListener("change",()=>{
+  const retime=()=>{
     syncFan();Sound.prefetch();
     realDirty=true;   // 3Dは次の再生で組み直す(展開はシードで決まるので同じになる)
     if(race){
       // 競馬風: 展開はそのままに、スタート前の長さだけ付け替えて測り直す
-      race.introSec=introSecFor(race.cd>0);
+      race.cd=cdEl.value==="on"?3:0;
+      race.introSec=introSecFor();
       race.t0=-(race.cd+race.introSec);
       race.introCard=null;
       measureClassic(race);
       updateStartBtn();
     }
-  });
+  };
+  fanEl.addEventListener("change",retime);
+  cdEl.addEventListener("change",retime);
   document.getElementById("sfx").addEventListener("change",()=>Sound.prefetch());
   syncFan();
   listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn));
@@ -3082,7 +3089,7 @@ function buildRealInput(){
     coatMode:document.getElementById("palette").value,
     countdown:document.getElementById("countdown").value==="on",
     // 出走前シーン(ファンファーレ＋出馬表)。板の描き方は競馬風と共通
-    intro:(()=>{const sec=introSecFor(document.getElementById("countdown").value==="on");
+    intro:(()=>{const sec=introSecFor();
       return sec>0?{sec,paint:paintIntroCard}:null;})(),
     /* 結果発表の見せ方は競馬風と共通。raceConfig() と同じ値を渡すので、
        どちらのツールでも同じ掲示板の設定が効く。
@@ -3364,7 +3371,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート
-      // 音の設定。ファンファーレの種類(none=なし)。歓声なしは -nosfx、音量0は mute
+      // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute
       trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
       defaultWatermark:()=>isReal()?(isOn("showMark")?"on":"off"):null,
       onNotReady:()=>{
