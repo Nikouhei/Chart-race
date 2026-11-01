@@ -135,10 +135,6 @@ I18N.registerText('en', {
   '画面表示': 'Display',
   'コースマップ': 'Track map',
   '隊列パネル': 'Position panel',
-  '透かし（ロゴ）': 'Watermark (logo)',
-  '透かしについて': 'About the watermark',
-  '画面を流れる「GraphRace Studio」のロゴです。': 'The “GraphRace Studio” logo that scrolls across the screen.',
-  'いまは無料で消せますが、今後は有料プラン限定になる予定です。': 'You can remove it for free for now; later this will be a paid feature.',
   '表示した内容はそのまま動画にも記録されます。カメラワークは自動です。': 'Everything shown here is included in the video. Camera work is automatic.',
 
   // ── 結果発表 ──

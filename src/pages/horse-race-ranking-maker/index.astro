@@ -1061,13 +1061,6 @@ const locale = 'ja';
                 <option value="off">表示しない</option>
               </select>
             </div>
-            <div class="field">
-              <label>透かし（ロゴ）<span class="info-tip" tabindex="0" role="button" aria-label="透かしについて">i<span class="info-bubble">画面を流れる「GraphRace Studio」のロゴです。<p>いまは無料で消せますが、今後は有料プラン限定になる予定です。</p></span></span></label>
-              <select id="showMark">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
             <p class="hint">表示した内容はそのまま動画にも記録されます。カメラワークは自動です。</p>
           </details>
 
@@ -1655,7 +1648,7 @@ const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存�
 const SETTING_GROUPS={
   common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","sfx","volume"],
   classic:["duration","drama","captions","iconSize"],
-  real   :["coursePreset","handed","algo","seed","palette","showMap","showField","showMark"],
+  real   :["coursePreset","handed","algo","seed","palette","showMap","showField"],
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
 let stateLoaded=false;    // 復元完了前の保存を抑止
@@ -1878,7 +1871,7 @@ loadState();
     syncIconSizeLabel();
   }
   // 見た目だけの設定はレースを組み直さず即座に反映する
-  ["showMap","showField","showMark"].forEach(id=>{
+  ["showMap","showField"].forEach(id=>{
     document.getElementById(id).addEventListener("change",()=>{
       if(toolMode==="real"&&real3dReady)
         Real3D.setView(realViewConfig());
@@ -3104,13 +3097,15 @@ function buildRealInput(){
     },
   };
 }
-/* 見せ方だけの設定。透かしは将来「有料ユーザーのみ・都度課金」にする予定なので、
-   ここ一箇所で決まるようにしてある。権利が無い人には常に true を返せばよい */
+/* 見せ方だけの設定。
+   透かしの有無は書き出し画面だけで選ぶので、プレビューでは常に出す
+   (競馬風の流れる透かしと同じ扱い)。将来「有料ユーザーのみ・都度課金」に
+   するときも、ここ一箇所を見ればよい */
 function realViewConfig(){
   return {
     showMap  : isOn("showMap"),
     showField: isOn("showField"),
-    showMark : isOn("showMark"),
+    showMark : true,
   };
 }
 function applyRealRace(){
@@ -3376,7 +3371,6 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       surveyId:"derby_v1", // 2問だけの短いアンケート
       // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute
       trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
-      defaultWatermark:()=>isReal()?(isOn("showMark")?"on":"off"):null,
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
       }
