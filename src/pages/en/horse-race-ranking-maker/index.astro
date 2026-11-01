@@ -10,8 +10,11 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
 import { horseRaceParts } from '../../../../build/legacy-tool.mjs';
+import { includeDrafts } from '../../../i18n/utils.mjs';
 
 const locale = 'en';
+// 音まわりを出すかどうか。日本語版と同じ判定（ツールのスクリプトがこのメタを読む）
+const soundReady = includeDrafts();
 const { css, toolHtml, script } = horseRaceParts(locale);
 
 const title = 'Horse Race Ranking Video Maker | Ranking Derby (2D & 3D)';
@@ -58,6 +61,7 @@ const ldJson = {
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
     <!-- 表示言語（URL の /en/ から英語と判定） -->
     <script is:inline src="/shared/i18n.js?v=2026110101" data-i18n-bundles="common,horse-race"></script>
+    <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
     <style is:inline set:html={css}></style>
     <script type="application/ld+json" is:inline set:html={JSON.stringify(ldJson)}></script>
   </Fragment>

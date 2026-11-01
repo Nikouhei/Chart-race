@@ -131,6 +131,10 @@ I18N.registerText('en', {
   '同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。': 'Change the number to get a different race with the same finishing order.',
   '同じ数字なら、何度でも同じレースが再現されます。': 'The same number always replays the same race.',
 
+  // ── 準備中（音まわりは有料プランの公開に合わせて出す）──
+  '（準備中）': ' (coming soon)',
+  'ファンファーレと歓声は、有料プランの公開に合わせて使えるようになります。': 'Fanfares and crowd sound arrive with the paid plan.',
+
   // ── 画面表示 ──
   '画面表示': 'Display',
   'コースマップ': 'Track map',
