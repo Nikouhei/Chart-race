@@ -1974,18 +1974,22 @@ function gateMeshTexture(){
   return _meshTex;
 }
 
-/* 前扉。緑の枠に横桟が入った作り。
+/* 前扉。実物は緑の枠に黒いクッションを張った板で、上端に銀色の桟が通る。
    単色の板にすると、閉じているあいだゲートの前面が緑一色の壁に見える */
 let _doorTex=null;
 function gateDoorTexture(){
   if(_doorTex) return _doorTex;
-  const W=64,H=96;
+  const W=64,H=72;
   const cv=document.createElement("canvas"); cv.width=W; cv.height=H;
   const c=cv.getContext("2d");
-  c.fillStyle="#2f5d3a"; c.fillRect(0,0,W,H);            // 枠
-  c.fillStyle="#24462c"; c.fillRect(6,6,W-12,H-12);      // 奥まった面
-  c.fillStyle="#3c7449";                                  // 横桟
-  for(let k=0;k<4;k++) c.fillRect(6, 12+k*20, W-12, 9);
+  c.fillStyle="#2f5d3a"; c.fillRect(0,0,W,H);            // 緑の枠
+  c.fillStyle="#2b3035"; c.fillRect(5,11,W-10,H-16);     // 黒いクッション張り
+  /* クッションの縦の縫い目。入れないと黒い板が貼ってあるだけに見える */
+  c.strokeStyle="#3d444b"; c.lineWidth=2;
+  for(let k=1;k<4;k++){ const x=5+(W-10)*k/4;
+    c.beginPath(); c.moveTo(x,13); c.lineTo(x,H-7); c.stroke(); }
+  c.fillStyle="#b9bfc5"; c.fillRect(0,0,W,9);            // 上端の銀の桟
+  c.fillStyle="#8d949b"; c.fillRect(0,9,W,2);
   _doorTex=new THREE.CanvasTexture(cv);
   _doorTex.anisotropy=Math.min(4, renderer.capabilities.getMaxAnisotropy());
   return _doorTex;
@@ -2377,7 +2381,9 @@ function buildCourse(){
        馬体の前後は -0.88〜1.49 なので、扉より前に出ないところまで前へ出してある */
     const ZF=1.55, ZB=-1.95;            // 馬房の前端 / 後端 (局所z)
     const HP=2.05;                      // 仕切りの高さ
-    /* 緑の上桟。扉の上端(1.98)との間を空けないと、扉と梁が同じ緑で
+    const PAD_T=1.15;                   // 仕切りのクッション張りの上端
+    const DOOR_H=1.34, DOOR_Y=0.92;     // 前扉の高さ / 中心の高さ (上端 1.59m)
+    /* 緑の上桟。扉の上端(1.59)との間を空けないと、扉と梁が同じ緑で
        つながって見え、トラスが消える */
     const YT=2.62;
 
@@ -2396,7 +2402,10 @@ function buildCourse(){
     // ---- 馬房の仕切り (金網) ----
     for(let i=0;i<=nHorses;i++){
       const x=(i-nHorses/2)*laneW;
-      pushPanelX(gN, x, 0.35, HP, ZB, ZF, (ZF-ZB)/MESH_M, (HP-0.35)/MESH_M);
+      /* 実物の仕切りは下半分が黒いクッション張りで、金網はその上だけ。
+         全面を金網にすると、横から見たとき馬体がすべて網越しになる */
+      pushPanelX(gN, x, PAD_T, HP, ZB, ZF, (ZF-ZB)/MESH_M, (HP-PAD_T)/MESH_M);
+      pushBox(gD, 0.07, PAD_T-0.35, ZF-ZB, x, (0.35+PAD_T)/2, (ZF+ZB)/2);
       // 網の四周の枠と、前端の白い柱
       pushBar(gS, x,0.35,ZB, x,0.35,ZF, 0.05);
       pushBar(gS, x,HP,  ZB, x,HP,  ZF, 0.05);
@@ -2407,19 +2416,29 @@ function buildCourse(){
     /* ---- 前扉 (観音開き。個別に回すので1枚ずつ Mesh のまま) ----
        材質とジオメトリは全扉で使い回す。1枚ずつ作ると32個増える */
     const doorMat=new THREE.MeshLambertMaterial({map:gateDoorTexture()});
-    const doorGeo=new THREE.BoxGeometry(laneW/2-0.04,1.72,0.07);
+    /* 【扉は馬の肩までの高さ】実物の前扉は上端が 1.5〜1.6m しかなく、
+       頭と首は扉の上に出ている。2m近い扉にすると顔が完全に隠れてしまい、
+       ファンファーレで正面から寄ったときに緑の壁が並ぶだけになる */
+    const doorGeo=new THREE.BoxGeometry(laneW/2-0.04,DOOR_H,0.07);
     for(let i=0;i<nHorses;i++){
       // ゲート局所+X は左回りで内側・右回りで外側。1番房を必ず最内へ置く
       const cx=course.hand*((nHorses-1)/2-i)*laneW;
       for(const s of [-1,1]){
         const hinge=new THREE.Group();
-        hinge.position.set(cx+s*laneW/2, 1.12, ZF+0.10);
+        hinge.position.set(cx+s*laneW/2, DOOR_Y, ZF+0.10);
         const door=new THREE.Mesh(doorGeo,doorMat);
         door.position.x=-s*(laneW/4-0.02); // ヒンジから内側へ
         hinge.add(door);
         gate.add(hinge);
         gateDoors.push({hinge, dir:s});
       }
+    }
+
+    /* ---- 扉の上を通る銀の横桟 ----
+       扉を低くしたぶん前面が開くので、ここに桟がないと枠が締まらない */
+    {
+      const yR=DOOR_Y+DOOR_H/2+0.04;
+      pushBar(gS, -W/2-0.1,yR,ZF+0.10, W/2+0.1,yR,ZF+0.10, 0.07);
     }
 
     // ---- 前面の緑のトラス梁 ----
@@ -3415,14 +3434,32 @@ function applyIntroCamera(states){
   let lo=Infinity, hi=-Infinity;
   for(const s of states){ lo=Math.min(lo,s.lane); hi=Math.max(hi,s.lane); }
   const u=smoothstep(0, Math.max(1,introFrames), frame);
-  const lane=hi+(lo-hi)*u;                       // 内(+)から外へ
+  /* 両端は少し内側で折り返す。端の馬にぴったり合わせると、
+     画面の半分が馬房の外の芝で埋まってしまう */
+  const inset=Math.min(1.6, (hi-lo)/2);
+  const a=hi-inset, b=lo+inset;
+  const lane=a+(b-a)*u;                          // 内(+)から外へ
   const sp=course.sample(0, lane);
   const n=normalOf(sp.tan);                      // 内向き
-  /* ゲートの前・斜め上から見下ろす。馬房の上は開いているので、
-     扉の奥の馬の頭と背中、前面の馬番プレートが一緒に映る */
-  const D=3.2, SIDE=-1, H=4.4, LH=0.5;   // 3.2m前・外へ1m・高さ4.4m、足元近くを注視
-  const look=new THREE.Vector3(sp.pos.x, LH, sp.pos.z);
-  cam.fov=CAM_FOV; cam.aspect=currentAspect(); cam.updateProjectionMatrix();
+  /* 【馬の目線の高さから正面で捉える】
+     以前は 3.2m前・高さ4.4m から見下ろしていて、映るのは梁と馬番プレートと
+     馬の背中だけだった。扉の上に出ている頭を見せたいので、
+     馬の頭と同じくらいの高さまでカメラを下ろし、距離をとって寄りを弱める */
+  const D=10.5, SIDE=-0.6, H=2.3, LZ=1.4;
+  const HEAD_Y=1.85, HEAD_Z=1.2;        // ゲート内の馬の顔の高さ・前後位置
+  const dzL=D-LZ, dzH=D-HEAD_Z;
+  /* 画角は「馬房を横に何m分映すか」で決める。縦画角を固定にすると、
+     9:16 では馬房が1つ2つしか入らず、何の絵なのか分からなくなる */
+  const asp=currentAspect();
+  const fov=clamp(2*Math.atan((4.0/dzL)/asp)*180/Math.PI, 24, 42);
+  /* 顔の列は画面の中央より上(中央から0.52)に置く。
+     中央には出馬表の板が重なるので、そこへ顔が来ると隠れてしまう。
+     上げすぎると梁の上の空が余るので、梁がぎりぎり入るあたりに取る */
+  const half=Math.tan(fov*Math.PI/360);
+  const thAxis=Math.atan((HEAD_Y-H)/dzH)-Math.atan(0.52*half);
+  const look=new THREE.Vector3(sp.pos.x+sp.tan.x*LZ, H+dzL*Math.tan(thAxis),
+                               sp.pos.z+sp.tan.z*LZ);
+  cam.fov=fov; cam.aspect=asp; cam.updateProjectionMatrix();
   cam.position.set(sp.pos.x+sp.tan.x*D+n.x*SIDE, H, sp.pos.z+sp.tan.z*D+n.z*SIDE);
   cam.lookAt(look);
 }

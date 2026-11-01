@@ -2582,8 +2582,10 @@ function sfxOn(){ return document.getElementById("sfx").value==="on"; }
 function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
 
 /* ---- 出馬表(出走前シーンの板) ----
-   競馬風と3Dで共通。並びは着順ではなく馬番順(結果がばれないように) */
-function paintIntroCard(g,w,h){
+   競馬風と3Dで共通。並びは着順ではなく馬番順(結果がばれないように)。
+   place="bottom" で下寄せ。リアル競馬風はゲートの正面から馬の顔を映すので、
+   板を中央に置くと顔の列にちょうど重なってしまう */
+function paintIntroCard(g,w,h,place){
   const k=Math.min(w,h)/720;
   const font=(px)=>`bold ${Math.round(px)}px 'Hiragino Kaku Gothic ProN',sans-serif`;
   const list=entries.map((e,i)=>({gate:+e.gate||(i+1),name:e.name||nameFor(i),color:e.color||"#888"}))
@@ -2597,7 +2599,8 @@ function paintIntroCard(g,w,h){
   const colW=cols===2?Math.min(w*0.42,470*k):Math.min(w*0.84,520*k);
   const bw=colW*cols+(cols===2?30*k:0)+60*k;
   const bh=titleH+headH+rows*rowH+36*k;
-  const bx=(w-bw)/2, by=(h-bh)/2;
+  const bx=(w-bw)/2;
+  const by=place==="bottom" ? Math.max((h-bh)/2, h-bh-36*k) : (h-bh)/2;
   g.save();
   // 背景(レースの映像)は暗くしない。板も半透明にして、後ろの馬が透けて見えるようにする
   g.fillStyle="rgba(8,20,12,.5)";
@@ -3090,7 +3093,7 @@ function buildRealInput(){
     countdown:document.getElementById("countdown").value==="on",
     // 出走前シーン(ファンファーレ＋出馬表)。板の描き方は競馬風と共通
     intro:(()=>{const sec=introSecFor();
-      return sec>0?{sec,paint:paintIntroCard}:null;})(),
+      return sec>0?{sec,paint:(g,w,h)=>paintIntroCard(g,w,h,"bottom")}:null;})(),
     /* 結果発表の見せ方は競馬風と共通。raceConfig() と同じ値を渡すので、
        どちらのツールでも同じ掲示板の設定が効く。
        アイコン画像(boardImage)だけは3Dの馬に貼れないため渡さない */
