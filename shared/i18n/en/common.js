@@ -66,6 +66,7 @@ I18N.registerText('en', {
   '書き出しを中止しました。': 'Export stopped.',
   '設定に戻る': 'Back to settings',
   '書き出しが完了しました': 'Export complete',
+  'このブラウザは音声の書き出しに対応していないため、音なしで保存しました。音を入れるにはパソコンの Chrome または Edge をお使いください。': 'This browser can’t export audio, so the video was saved without sound. To include sound, use Chrome or Edge on a computer.',
   'もう一度保存': 'Save again',
   'ライブラリを読み込めませんでした': 'Couldn’t load a required library',
   'プレビューが画面に表示されていないため書き出せません': 'Can’t export because the preview isn’t visible on screen',

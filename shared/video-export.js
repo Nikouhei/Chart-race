@@ -27,12 +27,17 @@
  *                            opts.preview=true は設定画面の見本用（opts.watermark で透かしの有無）
  *       ownWatermark         （任意）true ならツールが自分で透かしを描く。共通の透かしは重ねず、
  *                            有無は beginExport(opts).watermark で渡す
+ *       getAudio(sec, rate)  （任意）動画に入れる音。長さ sec 秒・サンプルレート rate の
+ *                            AudioBuffer（Promise 可）を返す。null なら音なし。
+ *                            MP4 は AAC（無理なら Opus）、WebM は Opus でエンコードする。
+ *                            ブラウザが音声のエンコードに対応していなければ、音なしで書き出す
  *     },
  *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [1, 1.5]）
  *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
  *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
  *     surveyId: "derby_v1"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
  *     defaultWatermark()     （任意）透かしの初期値 "on" / "off"。null なら前回の選択
+ *     trackParams()          （任意）書き出すボタンの計測に足すパラメータ { 名前: 値 }
  *   });
  *
  * ── 描き写せるもの ──────────────────────────────────────
@@ -801,6 +806,59 @@
     return supportCache[key];
   }
 
+  // ── 音声 ─────────────────────────────────────────────
+  var AUDIO_RATE = 48000;   // Opus は 48kHz が前提。AAC も 48kHz で揃える
+  var AUDIO_CODECS = {
+    mp4: [["mp4a.40.2", "aac"], ["opus", "opus"]],
+    webm: [["opus", "opus"]]
+  };
+  async function pickAudioConfig(format) {
+    if (typeof AudioEncoder === "undefined" || typeof AudioData === "undefined") return null;
+    var list = AUDIO_CODECS[format] || [];
+    for (var i = 0; i < list.length; i++) {
+      var cfg = { codec: list[i][0], sampleRate: AUDIO_RATE, numberOfChannels: 2, bitrate: 160000 };
+      try {
+        var r = await AudioEncoder.isConfigSupported(cfg);
+        if (r && r.supported) return { config: cfg, muxCodec: list[i][1] };
+      } catch (e) {}
+    }
+    return null;
+  }
+  /* ツールが作った音（AudioBuffer）を先にすべてエンコードしておく。
+     映像より先に終わらせ、映像のチャンクが出てくるたびに同じ時刻までの音を muxer に渡す */
+  async function encodeAudio(adapter, format, sec) {
+    if (typeof adapter.getAudio !== "function") return null;
+    var pick = await pickAudioConfig(format);
+    if (!pick) return { skipped: true };
+    var buf = await adapter.getAudio(sec, AUDIO_RATE);
+    if (!buf) return null;
+    var chunks = [], err = null;
+    var enc = new AudioEncoder({
+      output: function (chunk, meta) { chunks.push({ chunk: chunk, meta: meta }); },
+      error: function (e) { err = e; }
+    });
+    enc.configure(pick.config);
+    var ch = Math.min(2, buf.numberOfChannels);
+    var L = buf.getChannelData(0), R = buf.getChannelData(ch > 1 ? 1 : 0);
+    var STEP = 4800;   // 0.1秒ずつ
+    for (var off = 0; off < buf.length; off += STEP) {
+      var n = Math.min(STEP, buf.length - off);
+      var data = new Float32Array(n * 2);
+      data.set(L.subarray(off, off + n), 0);
+      data.set(R.subarray(off, off + n), n);
+      var ad = new AudioData({ format: "f32-planar", sampleRate: buf.sampleRate, numberOfFrames: n,
+        numberOfChannels: 2, timestamp: Math.round(off * 1e6 / buf.sampleRate), data: data });
+      enc.encode(ad);
+      ad.close();
+      if (err) throw err;
+      if (enc.encodeQueueSize > 20) await new Promise(function (res) { enc.addEventListener("dequeue", res, { once: true }); });
+    }
+    await enc.flush();
+    try { enc.close(); } catch (e) {}
+    if (err) throw err;
+    return { muxCodec: pick.muxCodec, chunks: chunks };
+  }
+
   /*
    * 1本書き出す。opts: { adapter, format, watermark, scale, fps, holdSec, onProgress, signal }
    * 戻り値: { blob, fileExt, frames, failedImages }
@@ -817,12 +875,31 @@
     if (opts.watermark && !ownMark) { await loadLogo(); setMarkToneFrom(adapter.getStage()); }
     try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
 
+    var durationMs = Math.max(0, adapter.getDurationMs());
+    var frameMs = 1000 / fps;
+    var animFrames = Math.max(1, Math.ceil(durationMs / frameMs) + 1);
+    var holdFrames = Math.round((opts.holdSec || 0) * fps);
+    var total = animFrames + holdFrames;
+    var keyEvery = fps * 2;
+
+    // 音は映像の総尺ぶん。作れなかった・ブラウザが対応していないときは音なしで続ける
+    var audio = null, audioSkipped = false;
+    try {
+      audio = await encodeAudio(adapter, opts.format, total / fps);
+      if (audio && audio.skipped) { audio = null; audioSkipped = true; }
+    } catch (e) {
+      try { console.warn("[video-export] 音声を入れられませんでした", e); } catch (e2) {}
+      audio = null; audioSkipped = true;
+    }
+    var audioMux = audio ? { codec: audio.muxCodec, numberOfChannels: 2, sampleRate: AUDIO_RATE } : undefined;
+
     var target, muxer;
     if (opts.format === "mp4") {
       target = new window.Mp4Muxer.ArrayBufferTarget();
       muxer = new window.Mp4Muxer.Muxer({
         target: target,
         video: { codec: pick.muxCodec, width: size.width, height: size.height, frameRate: fps },
+        audio: audioMux,
         fastStart: "in-memory",
         firstTimestampBehavior: "offset"
       });
@@ -831,13 +908,23 @@
       muxer = new window.WebMMuxer.Muxer({
         target: target,
         video: { codec: pick.muxCodec, width: size.width, height: size.height, frameRate: fps },
+        audio: audioMux ? { codec: "A_OPUS", numberOfChannels: 2, sampleRate: AUDIO_RATE } : undefined,
         firstTimestampBehavior: "offset"
       });
+    }
+    // 音のチャンクは、映像のチャンクと同じ時刻まで追いつくように少しずつ渡す
+    var audioIdx = 0;
+    function feedAudio(untilUs) {
+      if (!audio) return;
+      while (audioIdx < audio.chunks.length && audio.chunks[audioIdx].chunk.timestamp <= untilUs) {
+        var a = audio.chunks[audioIdx++];
+        muxer.addAudioChunk(a.chunk, a.meta);
+      }
     }
 
     var encodeError = null;
     var encoder = new VideoEncoder({
-      output: function (chunk, meta) { muxer.addVideoChunk(chunk, meta); },
+      output: function (chunk, meta) { feedAudio(chunk.timestamp); muxer.addVideoChunk(chunk, meta); },
       error: function (e) { encodeError = e; }
     });
     encoder.configure(pick.config);
@@ -846,13 +933,6 @@
     canvas.width = size.width;
     canvas.height = size.height;
     var ctx = canvas.getContext("2d", { alpha: false });
-
-    var durationMs = Math.max(0, adapter.getDurationMs());
-    var frameMs = 1000 / fps;
-    var animFrames = Math.max(1, Math.ceil(durationMs / frameMs) + 1);
-    var holdFrames = Math.round((opts.holdSec || 0) * fps);
-    var total = animFrames + holdFrames;
-    var keyEvery = fps * 2;
 
     await adapter.beginExport({ watermark: !!opts.watermark, fps: fps, size: size });
     try {
@@ -887,13 +967,14 @@
       }
       await encoder.flush();
       if (encodeError) throw encodeError;
+      feedAudio(Infinity);
       muxer.finalize();
     } finally {
       try { if (encoder.state !== "closed") encoder.close(); } catch (e) {}
       try { await adapter.endExport(); } catch (e) {}
     }
     var mime = opts.format === "mp4" ? "video/mp4" : "video/webm";
-    return { blob: new Blob([target.buffer], { type: mime }), fileExt: opts.format, frames: total, failedImages: failedImageCount(), size: size };
+    return { blob: new Blob([target.buffer], { type: mime }), fileExt: opts.format, frames: total, failedImages: failedImageCount(), size: size, audioSkipped: audioSkipped };
   }
 
   // ════════════════════════════════════════════════════════
@@ -1128,6 +1209,10 @@
       startBtn.setAttribute("data-track-watermark", c.mark);
       startBtn.setAttribute("data-track-export-scale", c.scale + "x");
       startBtn.setAttribute("data-track-export-fps", String(c.fps));
+      if (typeof cfg.trackParams === "function") {
+        var tp = cfg.trackParams() || {};
+        Object.keys(tp).forEach(function (k) { startBtn.setAttribute("data-track-" + k.replace(/_/g, "-"), String(tp[k])); });
+      }
       var token = ++supportToken;
       formatSupported(c.format, out).then(function (ok) {
         if (token !== supportToken || closed) return;
@@ -1267,6 +1352,7 @@
       runBox.innerHTML =
         '<p class="grsx-done">書き出しが完了しました</p>' +
         '<p class="grsx-note">' + esc(fileName) + "（" + esc(fmtMB(result.blob.size)) + "・" + result.size.width + "×" + result.size.height + "）を保存しました。</p>" +
+        (result.audioSkipped ? '<p class="grsx-warn">このブラウザは音声の書き出しに対応していないため、音なしで保存しました。音を入れるにはパソコンの Chrome または Edge をお使いください。</p>' : "") +
         (result.failedImages ? '<p class="grsx-warn">画像 ' + result.failedImages + " 件は、画像のあるサイトが読み出しを許可していないため動画に入れられませんでした。画像をアップロードするか、別の画像URLに替えてください。</p>" : "") +
         '<div class="grsx-actions"><button type="button" class="grsx-btn grsx-ghost" id="grsxResaveBtn">もう一度保存</button>' +
         '<button type="button" class="grsx-btn grsx-primary" id="grsxCloseBtn">閉じる</button></div>';

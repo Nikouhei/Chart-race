@@ -23,9 +23,9 @@ const locale = 'ja';
 >
   <Fragment slot="head">
     <script is:inline src="/shared/export-plan.js?v=2026101703" defer></script>
-    <script is:inline src="/shared/video-export.js?v=2026101703" defer></script>
+    <script is:inline src="/shared/video-export.js?v=2026110101" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026102502" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026110101" data-i18n-bundles="common,horse-race"></script>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
     :root {
@@ -716,6 +716,14 @@ const locale = 'ja';
       background:var(--ink);color:#f2ecd9;
     }
     .umarace .btn:disabled{opacity:.45;cursor:not-allowed}
+    /* サウンド: ファンファーレの選択と試聴ボタンを1行に */
+    .umarace .sound-row{display:flex;gap:6px;align-items:stretch}
+    .umarace .sound-row select{flex:1;min-width:0}
+    .umarace .btn-listen{
+      flex:none;padding:0 12px;border:1px solid var(--line);border-radius:6px;
+      background:#fff;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+    }
+    .umarace .btn-listen.playing{background:var(--ink);color:#f2ecd9;border-color:var(--ink)}
     .umarace .field{margin-bottom:12px}
     /* 出走馬リストの直前に置く設定。縦を食わないようラベルと入力を1行に並べる */
     .umarace .field-inline{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -999,6 +1007,42 @@ const locale = 'ja';
               <input type="number" id="seed" value="1" min="0" max="99999" step="1">
             </div>
             <p class="hint mode-real" id="courseInfo"></p>
+          </details>
+
+          <details class="panel" style="margin-top:14px" open>
+            <summary>サウンド</summary>
+            <div class="field">
+              <label>ファンファーレ<span class="info-tip" tabindex="0" role="button" aria-label="ファンファーレについて">i<span class="info-bubble">スタート前にファンファーレが流れ、そのあいだ画面にレース名と出馬表（馬番順）が出ます。<p>「なし」にすると、今までどおりすぐスタートします。</p></span></span></label>
+              <div class="sound-row">
+                <select id="fanfare">
+                  <option value="none">なし（すぐスタート）</option>
+                  <option value="grade-1" selected>重賞風 1</option>
+                  <option value="grade-2">重賞風 2</option>
+                  <option value="grade-3">重賞風 3</option>
+                  <option value="normal-1">一般戦風 1</option>
+                  <option value="normal-2">一般戦風 2</option>
+                  <option value="normal-3">一般戦風 3</option>
+                  <option value="bugle-1">ラッパ 1</option>
+                  <option value="bugle-2">ラッパ 2</option>
+                  <option value="bugle-3">ラッパ 3</option>
+                  <option value="bugle-4">ラッパ 4</option>
+                </select>
+                <button type="button" class="btn-listen" id="fanfareListen" data-track="sound_preview" title="ファンファーレを試聴">▶ 試聴</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>歓声・蹄の音</label>
+              <select id="sfx">
+                <option value="on" selected>入れる</option>
+                <option value="off">入れない</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>音量</label>
+              <input type="range" id="volume" min="0" max="100" step="5" value="80">
+              <div class="timeline-time" id="volumeValue">80%</div>
+            </div>
+            <p class="hint">音はプレビューでも流れ、保存する動画にも入ります。</p>
           </details>
 
           <details class="panel mode-real" style="margin-top:14px" open>
@@ -1609,7 +1653,7 @@ const clockNow=()=>exportActive?exportClockMs:performance.now();
 const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
-  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin"],
+  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","sfx","volume"],
   classic:["duration","drama","captions","iconSize"],
   real   :["coursePreset","handed","algo","seed","palette","showMap","showField","showMark"],
 };
@@ -1634,11 +1678,15 @@ function applyGroup(ids,values){
     if(el.tagName==="SELECT"&&el.selectedIndex===-1)el.selectedIndex=0; // 不正値はデフォルトへ
   }
 }
-function saveState(){
+/* keepRace=true は音量など、レースの中身に関係しない設定。組み直すと競馬風では
+   展開が変わってしまう(プレビューと違うレースが書き出される)ので、印を付けない */
+function saveState(keepRace){
   if(!stateLoaded)return;
-  // 設定が動いた = リアル競馬風は次の開始でレースを組み直す
-  realDirty=true;
-  classicDirty=true;   // 競馬風も、書き出し時は今の設定でレースを組み直す
+  if(keepRace!==true){
+    // 設定が動いた = リアル競馬風は次の開始でレースを組み直す
+    realDirty=true;
+    classicDirty=true;   // 競馬風も、書き出し時は今の設定でレースを組み直す
+  }
   const state={
     version:2,
     mode:toolMode,
@@ -1726,10 +1774,14 @@ function loadState(){
     applyGroup(SETTING_GROUPS.common,saved);
     applyGroup(SETTING_GROUPS.classic,saved);
     applyGroup(SETTING_GROUPS.real,saved);
+    // ファンファーレを入れる前に保存したデータには値がない → 言語の既定にする
+    if(saved.fanfare==null)document.getElementById("fanfare").value=IS_I18N?"bugle-1":"grade-1";
     localizeUntouchedDefaults();
     render();
   }else{
     for(let i=0;i<10;i++)addEntry();   // 初期の出走馬は10頭
+    // 英語圏の中継はラッパの招集合図がなじみ深いので、英語版の既定はラッパにする
+    document.getElementById("fanfare").value=IS_I18N?"bugle-1":"grade-1";
   }
   stateLoaded=true;
   saveState();
@@ -1812,7 +1864,10 @@ loadState();
     const el=document.getElementById(id);
     if(!el||id==="aspect")return;
     const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
-    el.addEventListener(isText?"input":"change",saveState);
+    // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
+    // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
+    const keep=(id==="volume"||id==="sfx"||id==="fanfare");
+    el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
   // アイコンサイズの表示(%)はドラッグ中もリアルタイムに更新する
   const iconSizeEl=document.getElementById("iconSize");
@@ -2086,9 +2141,13 @@ function buildRace(){
       events,lag,imgCache
     };
   });
-  const t0=cfg.countdown?-3:0;
+  /* スタート前: 出走前シーン(ファンファーレ＋出馬表) → カウントダウン(3秒) → スタート。
+     t<0 がスタート前。cd=カウントダウンの秒数、introSec=出走前シーンの秒数 */
+  const cd=cfg.countdown?3:0;
+  const introSec=introSecFor(cfg.countdown);
+  const t0=-(cd+introSec);
   return{horses,dur,drama,
-    t:t0,t0,endT:Math.max(...horses.map(h=>h.finishT)),
+    t:t0,t0,vt:0,cd,introSec,introCard:null,endT:Math.max(...horses.map(h=>h.finishT)),
     done:false,goalOrder:[],slowmo:1,
     captions:cfg.captions,
     iconScale:(cfg.iconSize||100)/100,
@@ -2098,8 +2157,9 @@ function buildRace(){
 
 function stepRace(dt){
   const R=race;
+  R.vt+=dt;        // 動画の経過時間(スローでも等速)。音の再生位置に使う
   R.t+=dt*R.slowmo;
-  if(R.t<0)return; // カウントダウン中
+  if(R.t<0)return; // スタート前(出走前シーン・カウントダウン)
   const t=R.t;
   let prevPos=Infinity; // 一つ上位(rank-1)の馬の現在位置。終盤の順序ロックに使用
   for(const h of R.horses){
@@ -2270,6 +2330,8 @@ function loop(ts){
   if(race&&!race.done&&!paused)stepRace(dt);
   draw(paused?0:dt); // 一時停止中はカメラ・脚・透かしも完全に静止させる
   if(race&&!timelineDragging)syncTimeline();
+  if(toolMode==="classic")
+    Sound.sync({marks:race&&race.marks,running:!!race&&!race.done&&!paused,sec:race?race.vt:0,ended:!!race&&race.done});
 }
 // シーク時も再生時と同じ式でカメラを積分する(draw内から切り出し)
 function updateCam(R,dt){
@@ -2369,8 +2431,8 @@ function draw(dt){
   ctx.fillText(wmText,wmX,H-12);
   ctx.restore();
   }
-  // 実況テロップ(設定で非表示にできる)
-  if(R&&!R.done&&R.captions){
+  // 実況テロップ(設定で非表示にできる)。出走前シーンのあいだは出馬表を見せるので出さない
+  if(R&&!R.done&&R.captions&&R.t>=-R.cd){
     const msg=_t(commentary(R));
     ctx.font="bold 26px 'Hiragino Kaku Gothic ProN',sans-serif";
     const w=ctx.measureText(msg).width;
@@ -2378,8 +2440,21 @@ function draw(dt){
     roundRect(ctx,W/2-w/2-18,H-64,w+36,44,8);ctx.fill();
     ctx.fillStyle="#fff";ctx.textAlign="center";ctx.fillText(msg,W/2,H-33);
   }
+  // 出走前シーン: レース名と出馬表。頭0.6秒で出て、最後の0.5秒で消える
+  if(R&&R.introSec>0&&R.t<-R.cd){
+    if(!R.introCard||R.introCard.width!==W||R.introCard.height!==H){
+      const c=document.createElement("canvas");c.width=W;c.height=H;
+      paintIntroCard(c.getContext("2d"),W,H);
+      R.introCard=c;
+    }
+    const u=R.t-R.t0, left=-R.cd-R.t;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,Math.min(1,u/0.6,left/0.5));
+    ctx.drawImage(R.introCard,0,0);
+    ctx.restore();
+  }
   // カウントダウン
-  if(R&&R.t<0){
+  if(R&&R.t<0&&R.t>=-R.cd){
     ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(0,0,W,H);
     ctx.font="bold 130px sans-serif";ctx.textAlign="center";
     ctx.fillStyle="#fff";
@@ -2474,10 +2549,337 @@ function drawResults(R){
   ctx.restore();
 }
 
+/* ================= サウンド(ファンファーレ・歓声・蹄の音) =================
+   音は「動画の時刻表(marks)」から1本の音声に組み立てる(OfflineAudioContext)。
+   プレビューはその音声を再生位置に合わせて流し、書き出しは同じ音声を動画に入れる。
+   そのため、どちらでも同じ音が同じタイミングで鳴る。
+   marks = { intro:出馬表の終わり, start:ゲートが開く, firstGoal:1着の入線,
+             allGoal:最後の馬の入線, slowA/slowB:ゴール前スロー, total:動画の長さ } [秒] */
+const SOUND_BASE="assets/audio/";
+/* ファンファーレの長さ[秒]。出走前シーンの長さをこれで決める(レースを組む時点で
+   音声を読み込み終えている必要がないよう、ファイルの実測値を持っておく) */
+const FANFARES={
+  "grade-1":14.21,"grade-2":13.92,"grade-3":12.59,
+  "normal-1":9.43,"normal-2":9.12,"normal-3":8.62,
+  "bugle-1":9.17,"bugle-2":8.75,"bugle-3":9.22,"bugle-4":9.69,
+};
+const FANFARE_TAIL_CD=0.5;   // ファンファーレのあと、カウントダウンに入るまでの間
+const FANFARE_TAIL=1.3;      // カウントダウンなしのとき、ゲートが開くまでの静けさ
+const CLASSIC_BOARD_HOLD=2.5; // 競馬風: 全馬ゴール後に結果掲示板を映す秒数(書き出し)
+function fanfareId(){
+  const v=document.getElementById("fanfare").value;
+  return FANFARES[v]?v:null;
+}
+/* 出走前シーンの秒数。ファンファーレなしなら0(今までどおりすぐスタート) */
+function introSecFor(countdownOn){
+  const id=fanfareId();
+  if(!id)return 0;
+  return FANFARES[id]+(countdownOn?FANFARE_TAIL_CD:FANFARE_TAIL);
+}
+function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("volume").value||0)/100)); }
+function sfxOn(){ return document.getElementById("sfx").value==="on"; }
+function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
+
+/* ---- 出馬表(出走前シーンの板) ----
+   競馬風と3Dで共通。並びは着順ではなく馬番順(結果がばれないように) */
+function paintIntroCard(g,w,h){
+  const k=Math.min(w,h)/720;
+  const font=(px)=>`bold ${Math.round(px)}px 'Hiragino Kaku Gothic ProN',sans-serif`;
+  const list=entries.map((e,i)=>({gate:+e.gate||(i+1),name:e.name||nameFor(i),color:e.color||"#888"}))
+    .sort((a,b)=>a.gate-b.gate);
+  const n=list.length;
+  const cols=(n>8&&w>=h)?2:1;
+  const rows=Math.ceil(n/cols);
+  const titleH=78*k, headH=40*k;
+  const maxRowH=46*k;
+  const rowH=Math.min(maxRowH,(h*0.86-titleH-headH-40*k)/rows);
+  const colW=cols===2?Math.min(w*0.42,470*k):Math.min(w*0.84,520*k);
+  const bw=colW*cols+(cols===2?30*k:0)+60*k;
+  const bh=titleH+headH+rows*rowH+36*k;
+  const bx=(w-bw)/2, by=(h-bh)/2;
+  g.save();
+  g.fillStyle="rgba(4,10,6,.45)";g.fillRect(0,0,w,h);
+  g.fillStyle="rgba(8,20,12,.9)";
+  roundRect(g,bx,by,bw,bh,14*k);g.fill();
+  g.strokeStyle="#c9a227";g.lineWidth=3*k;
+  roundRect(g,bx,by,bw,bh,14*k);g.stroke();
+  // レース名(ユーザーが入れた文字なので訳さない)
+  const title=document.getElementById("raceName").value||_t("ランキング杯");
+  g.textAlign="center";g.textBaseline="middle";
+  let fs=42*k;g.font=font(fs);
+  while(fs>18*k&&g.measureText(title).width>bw-50*k){fs-=2*k;g.font=font(fs);}
+  g.fillStyle="#fff";g.fillText(title,w/2,by+titleH*0.62);
+  g.font=font(20*k);g.fillStyle="#c9a227";
+  g.fillText(`― ${_t("出馬表")} ―`,w/2,by+titleH+headH*0.35);
+  // 各馬: 馬番(馬体色の札)＋馬名
+  const top=by+titleH+headH;
+  list.forEach((e,i)=>{
+    const c=cols===2?Math.floor(i/rows):0, r=cols===2?i%rows:i;
+    const x0=bx+30*k+c*(colW+30*k), y=top+r*rowH+rowH/2;
+    const bs=Math.min(rowH*0.78,34*k);
+    g.fillStyle=e.color;
+    roundRect(g,x0,y-bs/2,bs,bs,5*k);g.fill();
+    const hex=e.color.replace("#","");
+    const lum=(parseInt(hex.slice(0,2),16)*299+parseInt(hex.slice(2,4),16)*587+parseInt(hex.slice(4,6),16)*114)/1000;
+    g.fillStyle=lum>150?"#111":"#fff";
+    g.font=font(bs*0.56);g.textAlign="center";
+    g.fillText(String(e.gate),x0+bs/2,y+1);
+    g.textAlign="left";g.fillStyle="#fff";
+    let nf=Math.min(26*k,rowH*0.6);g.font=font(nf);
+    const maxW=colW-bs-18*k;
+    while(nf>12*k&&g.measureText(e.name).width>maxW){nf-=1;g.font=font(nf);}
+    g.fillText(e.name,x0+bs+14*k,y+1);
+    if(r<rows-1&&rowH>24*k){
+      g.strokeStyle="rgba(255,255,255,.08)";g.lineWidth=1;
+      g.beginPath();g.moveTo(x0,y+rowH/2);g.lineTo(x0+colW,y+rowH/2);g.stroke();
+    }
+  });
+  g.restore();
+}
+
+const Sound=(()=>{
+  const RATE=48000;
+  const files={};          // 名前 → Promise<AudioBuffer>
+  let decoder=null;        // デコード専用。ユーザー操作の前でも使える
+  let ac=null, master=null;
+  const live={src:null,t0:0,buf:null,key:null,building:null,buildingKey:null,failedKey:null};
+  let listen=null;         // 試聴中の音
+
+  function load(name){
+    if(!files[name]){
+      files[name]=fetch(SOUND_BASE+name+".mp3")
+        .then(r=>{if(!r.ok)throw new Error(name+": "+r.status);return r.arrayBuffer();})
+        .then(ab=>{
+          if(!decoder)decoder=new OfflineAudioContext(2,1,RATE);
+          return decoder.decodeAudioData(ab);
+        })
+        .catch(e=>{delete files[name];throw e;});
+    }
+    return files[name];
+  }
+  function liveCtx(){
+    if(!ac){
+      const C=window.AudioContext||window.webkitAudioContext;
+      if(!C)return null;
+      ac=new C();
+      master=ac.createGain();master.connect(ac.destination);
+    }
+    master.gain.value=soundVolume();
+    if(ac.state==="suspended")ac.resume().catch(()=>{});
+    return ac;
+  }
+  /* 今の設定で要る音を先に読んでおく(ツールに触れたときに呼ぶ) */
+  function prefetch(){
+    const f=fanfareId();
+    if(f)load("fanfare-"+f).catch(()=>{});
+    if(sfxOn())["crowd-ambient-loop","gate","hooves-loop","crowd-rise","crowd-finish"].forEach(n=>load(n).catch(()=>{}));
+  }
+
+  /* つなぎ目が鳴らないよう、ループ素材は端を少し重ねて並べる */
+  function loopTo(oc,buf,from,to,dest){
+    const XF=0.35,L=buf.duration;
+    let t=from,first=true;
+    while(t<to-0.05){
+      const end=Math.min(to,t+L);
+      const s=oc.createBufferSource();s.buffer=buf;
+      const g=oc.createGain();s.connect(g);g.connect(dest);
+      g.gain.setValueAtTime(first?1:0,t);
+      if(!first)g.gain.linearRampToValueAtTime(1,t+XF);
+      g.gain.setValueAtTime(1,Math.max(t+XF,end-XF));
+      g.gain.linearRampToValueAtTime(0,end);
+      s.start(t);s.stop(end+0.02);
+      if(end>=to)break;
+      first=false;t=end-XF;
+    }
+  }
+  function one(oc,buf,at,dest,gain,offset){
+    if(at<0){offset=(offset||0)-at;at=0;}
+    if(offset>=buf.duration)return null;
+    const s=oc.createBufferSource();s.buffer=buf;
+    const g=oc.createGain();g.gain.value=gain;
+    s.connect(g);g.connect(dest);s.start(at,offset||0);
+    return g;
+  }
+  /* 時刻表から1本の音声を作る。vol は書き出し用(プレビューは再生側の音量で鳴らす) */
+  async function mix(m,opt){
+    const f=opt.fanfare, sfx=opt.sfx;
+    const need={};
+    if(f&&m.intro>0)need.fan=load("fanfare-"+f);
+    if(sfx){
+      need.amb=load("crowd-ambient-loop");need.gate=load("gate");need.hoof=load("hooves-loop");
+      need.rise=load("crowd-rise");need.fin=load("crowd-finish");
+    }
+    const B={};
+    for(const k in need)B[k]=await need[k];
+    const T=Math.max(0.5,m.total);
+    const oc=new OfflineAudioContext(2,Math.ceil(T*RATE),RATE);
+    const out=oc.createGain();out.connect(oc.destination);
+    const vol=opt.vol==null?1:opt.vol;
+    out.gain.setValueAtTime(vol,0);
+    out.gain.setValueAtTime(vol,Math.max(0,T-0.8));
+    out.gain.linearRampToValueAtTime(0,T);   // 最後は静かに終わる
+    if(B.fan)one(oc,B.fan,0.15,out,1.0);
+    if(sfx){
+      const S=m.start, G=m.firstGoal!=null?m.firstGoal:S+10, A=m.allGoal!=null?m.allGoal:G+1;
+      // スタンドのざわめき: ファンファーレ中は控えめ、レースが進むほど大きく
+      const amb=oc.createGain();amb.connect(out);
+      amb.gain.setValueAtTime(m.intro>0?0.22:0.32,0);
+      amb.gain.setValueAtTime(m.intro>0?0.22:0.32,Math.max(0,S-1));
+      amb.gain.linearRampToValueAtTime(0.42,S+0.3);
+      amb.gain.linearRampToValueAtTime(0.55,Math.max(S+0.4,G-1));
+      amb.gain.linearRampToValueAtTime(0.4,G+4);
+      loopTo(oc,B.amb,0,T,amb);
+      // ゲートが開く音
+      one(oc,B.gate,S-0.12,out,0.9);
+      // 蹄の音: ゴール前スローのあいだは低くこもらせる
+      const lp=oc.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(16000,0);
+      const hoof=oc.createGain();lp.connect(hoof);hoof.connect(out);
+      hoof.gain.setValueAtTime(0,0);
+      hoof.gain.setValueAtTime(0,S);
+      hoof.gain.linearRampToValueAtTime(0.75,S+0.5);
+      hoof.gain.setValueAtTime(0.75,Math.max(S+0.5,G-3));
+      hoof.gain.linearRampToValueAtTime(0.9,Math.max(S+0.6,G-0.5));
+      hoof.gain.setValueAtTime(0.9,Math.max(S+0.7,A));
+      hoof.gain.linearRampToValueAtTime(0,Math.max(S+0.8,A)+1.5);
+      if(m.slowA!=null&&m.slowB!=null&&m.slowB>m.slowA){
+        lp.frequency.setValueAtTime(16000,m.slowA);
+        lp.frequency.exponentialRampToValueAtTime(700,m.slowA+0.4);
+        lp.frequency.setValueAtTime(700,Math.max(m.slowA+0.4,m.slowB));
+        lp.frequency.exponentialRampToValueAtTime(16000,Math.max(m.slowA+0.5,m.slowB+0.5));
+      }
+      loopTo(oc,B.hoof,Math.max(0,S-0.05),Math.min(T,Math.max(S+0.8,A)+1.6),lp);
+      // 直線での盛り上がり: 素材の終わり(ピーク)が1着の入線に来るように置く
+      const riseAt=G-B.rise.duration+0.4;
+      const from=Math.max(S+1,riseAt);
+      const rg=one(oc,B.rise,from,out,0.85,from-riseAt);
+      if(rg){
+        // 素材の途中から入るとき(短いレース)は、いきなり大きくならないようにふわっと入れる
+        if(from>riseAt+0.1){rg.gain.setValueAtTime(0,from);rg.gain.linearRampToValueAtTime(0.85,Math.min(G,from+1.5));}
+        rg.gain.setValueAtTime(0.85,G);rg.gain.linearRampToValueAtTime(0,G+0.6);
+      }
+      // 入線の大歓声
+      one(oc,B.fin,G-0.05,out,1.0);
+    }
+    return oc.startRendering();
+  }
+  function keyOf(m){
+    const r=x=>x==null?null:Math.round(x*100)/100;
+    return JSON.stringify([r(m.intro),r(m.start),r(m.firstGoal),r(m.allGoal),r(m.slowA),r(m.slowB),r(m.total),fanfareId(),sfxOn()]);
+  }
+  function stop(){
+    if(live.src){try{live.src.stop();}catch(_){} live.src.disconnect();live.src=null;}
+  }
+  function ensureMix(m){
+    const key=keyOf(m);
+    if(live.key===key&&live.buf)return live.buf;
+    if(live.failedKey===key)return null;   // 読み込めなかった設定は、設定が変わるまで再挑戦しない
+    if(live.buildingKey!==key){
+      live.buildingKey=key;
+      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1}).then(b=>{
+        if(live.buildingKey===key){live.buf=b;live.key=key;}
+      }).catch(e=>{console.warn("[格付けダービー] 音を用意できませんでした",e);
+        if(live.buildingKey===key){live.buildingKey=null;live.failedKey=key;}});
+      if(live.key!==key)live.buf=null;
+    }
+    return null;
+  }
+  /* プレビューの再生位置に音を合わせる。毎フレーム呼ばれる。
+     running=動画が進んでいる / ended=最後まで再生した(余韻はそのまま流す) */
+  function sync(o){
+    if(!o.marks||!soundActive()){stop();return;}
+    if(!o.running){ if(!o.ended)stop(); return; }
+    const c=liveCtx(); if(!c)return;
+    const buf=ensureMix(o.marks);
+    if(!buf){stop();return;}
+    const pos=c.currentTime-live.t0;
+    if(live.src&&live.src.buffer===buf&&Math.abs(pos-o.sec)<0.15)return;
+    stop();
+    if(o.sec>=buf.duration)return;
+    const s=c.createBufferSource();s.buffer=buf;s.connect(master);
+    s.start(0,Math.max(0,o.sec));
+    live.src=s;live.t0=c.currentTime-o.sec;
+  }
+  function setVolume(){ if(master)master.gain.value=soundVolume(); }
+  /* ファンファーレの試聴。もう一度押すと止まる */
+  async function toggleListen(btn){
+    if(listen){try{listen.stop();}catch(_){} listen=null;btn.classList.remove("playing");btn.textContent="▶ 試聴";return;}
+    const f=fanfareId(); if(!f)return;
+    const c=liveCtx(); if(!c)return;
+    btn.classList.add("playing");btn.textContent="■ 停止";
+    try{
+      const buf=await load("fanfare-"+f);
+      if(!btn.classList.contains("playing"))return;
+      const s=c.createBufferSource();s.buffer=buf;s.connect(master);s.start();
+      listen=s;
+      s.onended=()=>{if(listen===s){listen=null;btn.classList.remove("playing");btn.textContent="▶ 試聴";}};
+    }catch(e){
+      btn.classList.remove("playing");btn.textContent="▶ 試聴";
+      statusEl.textContent="音を読み込めませんでした。通信環境をご確認ください。";
+    }
+  }
+  return {load,prefetch,mix,sync,stop,setVolume,toggleListen,RATE};
+})();
+{
+  const volEl=document.getElementById("volume"), volVal=document.getElementById("volumeValue");
+  const fanEl=document.getElementById("fanfare"), listenBtn=document.getElementById("fanfareListen");
+  const syncVol=()=>{volVal.textContent=volEl.value+"%";Sound.setVolume();};
+  volEl.addEventListener("input",syncVol);syncVol();
+  const syncFan=()=>{
+    listenBtn.disabled=!fanfareId();
+    listenBtn.setAttribute("data-track-sound",fanEl.value);
+  };
+  fanEl.addEventListener("change",()=>{
+    syncFan();Sound.prefetch();
+    realDirty=true;   // 3Dは次の再生で組み直す(展開はシードで決まるので同じになる)
+    if(race){
+      // 競馬風: 展開はそのままに、スタート前の長さだけ付け替えて測り直す
+      race.introSec=introSecFor(race.cd>0);
+      race.t0=-(race.cd+race.introSec);
+      race.introCard=null;
+      measureClassic(race);
+      updateStartBtn();
+    }
+  });
+  document.getElementById("sfx").addEventListener("change",()=>Sound.prefetch());
+  syncFan();
+  listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn));
+  // ツールに触れたら、今の設定で鳴らす音を先に読み込んでおく(初期表示は軽いまま)
+  document.getElementById("tool").addEventListener("pointerdown",()=>Sound.prefetch(),{once:true});
+}
+/* 競馬風: レースを頭から最後まで流して、音の時刻表と書き出しの尺を測る。
+   乱数は buildRace() の時点で決まっているので、何度流しても同じになる */
+function measureClassic(R){
+  const prevT=R.t;
+  R.t=R.t0;R.vt=0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+  for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
+  const dt=1/30;let sec=0;
+  const m={intro:R.introSec,start:-R.t0,firstGoal:null,allGoal:null,slowA:null,slowB:null,total:0};
+  R.seeking=true;
+  while(!R.done&&sec<600){
+    stepRace(dt);sec+=dt;
+    if(m.slowA==null&&R.slowmo<0.999)m.slowA=sec;
+    if(m.firstGoal==null&&R.goalOrder.length)m.firstGoal=sec;
+    if(m.slowA!=null&&m.slowB==null&&R.goalOrder.length&&R.slowmo>=0.999)m.slowB=sec;
+  }
+  R.seeking=false;
+  m.allGoal=sec;
+  if(m.slowA!=null&&m.slowB==null)m.slowB=sec;
+  m.total=sec+CLASSIC_BOARD_HOLD;
+  R.exportSec=sec;
+  R.marks=m;
+  seekTo(prevT);
+  if(R.t<=R.t0+1e-9){
+    R.t=R.t0;R.vt=0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+    for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
+  }
+  return m;
+}
+
 /* ================= 開始・録画 ================= */
 function startRace(){
   if(entries.length<2){statusEl.textContent="出走馬は2頭以上必要です。";return null;}
   race=buildRace();
+  measureClassic(race);   // 音の時刻表を先に作っておく
   classicDirty=false;
   paused=false;
   timeline.disabled=false;
@@ -2532,7 +2934,7 @@ function seekTo(targetT){
   if(!R)return;
   if(exportActive)return;
   R.seeking=true;
-  R.t=R.t0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+  R.t=R.t0;R.vt=0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
   for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
   const dt=1/60;
   // 終端シーク時はゴール判定を確実に越えるまで少し余分に進める(掲示板表示のため)
@@ -2618,7 +3020,7 @@ const REAL3D_SCRIPTS=[
   "vendor/three.r128.min.js",
   "vendor/GLTFLoader.js",
   "vendor/SkeletonUtils.js",
-  "real3d.js?v=2026102302",
+  "real3d.js?v=2026110101",
 ];
 const loading3d=document.getElementById("loading3d");
 const loading3dText=document.getElementById("loading3dText");
@@ -2679,6 +3081,9 @@ function buildRealInput(){
     seed:+document.getElementById("seed").value|0,
     coatMode:document.getElementById("palette").value,
     countdown:document.getElementById("countdown").value==="on",
+    // 出走前シーン(ファンファーレ＋出馬表)。板の描き方は競馬風と共通
+    intro:(()=>{const sec=introSecFor(document.getElementById("countdown").value==="on");
+      return sec>0?{sec,paint:paintIntroCard}:null;})(),
     /* 結果発表の見せ方は競馬風と共通。raceConfig() と同じ値を渡すので、
        どちらのツールでも同じ掲示板の設定が効く。
        アイコン画像(boardImage)だけは3Dの馬に貼れないため渡さない */
@@ -2711,14 +3116,21 @@ function bindReal3DEvents(){
       timeline.value=Math.round((f.frame/Math.max(1,f.totalFrames))*1000);
     }
     timelineTime.textContent=`${f.sec.toFixed(1)}s / ${f.duration.toFixed(1)}s`;
+    syncRealSound();
   });
-  Real3D.on("playing",()=>{ if(toolMode==="real")updateStartBtnReal(); });
+  Real3D.on("playing",()=>{ if(toolMode==="real"){updateStartBtnReal();syncRealSound();} });
   Real3D.on("ended",()=>{
     if(toolMode!=="real")return;
     updateStartBtnReal();
     if(window.GRSExportCTA)GRSExportCTA.showEnd();
     statusEl.textContent="ゴール！シードを変えると展開が変わります。";
   });
+}
+function syncRealSound(){
+  if(toolMode!=="real"||exportActive)return;
+  const s=Real3D.state();
+  Sound.sync({marks:s.ready?Real3D.audioMarks():null,running:s.playing,sec:s.frame/Real3D.FPS,
+    ended:s.ready&&s.frame>=s.totalFrames});
 }
 function updateStartBtnReal(){
   const s=real3dReady?Real3D.state():{playing:false,frame:0,totalFrames:0,ready:false};
@@ -2762,6 +3174,7 @@ async function switchMode(next){
   // 切り替え前に、今動いているほうを止める
   if(prev==="classic"){paused=true;}
   else if(real3dReady){Real3D.pause();}
+  Sound.stop();
 
   toolMode=next;
   document.getElementById("tool").dataset.toolMode=next;
@@ -2827,13 +3240,13 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
    透かしはツール自身のもの(競馬風=流れる文字、リアル=ロゴ)を使い、有無は書き出し画面の選択に従う。 */
 (function setupVideoExport(){
   const EXPORT_FPS=30;
-  const BOARD_HOLD_SEC=2.5;
+  const BOARD_HOLD_SEC=CLASSIC_BOARD_HOLD;
   const btn=document.getElementById("exportVideoBtn");
   const isReal=()=>toolMode==="real";
   let saved=null;
 
   function resetClassic(R){
-    R.t=R.t0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
+    R.t=R.t0;R.vt=0;R.goalOrder=[];R.slowmo=1;R.done=false;R.doneAt=null;R.cam=null;
     for(const h of R.horses){h.pos=0;h.v=0;delete h.goalTime;}
   }
   /* 競馬風のレースを用意して、頭から最後まで走らせたときの実時間[秒]を返す。
@@ -2845,17 +3258,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       timeline.disabled=false;updateStartBtn();
     }
     const R=race;
-    if(R.exportSec==null){
-      const prevT=R.t;
-      resetClassic(R);
-      const dt=1/EXPORT_FPS;let sec=0;
-      R.seeking=true;
-      while(!R.done&&sec<600){stepRace(dt);sec+=dt;}
-      R.seeking=false;
-      R.exportSec=sec;
-      seekTo(prevT);
-      if(R.t<=R.t0+1e-9)resetClassic(R);
-    }
+    if(R.exportSec==null)measureClassic(R);
     return R.exportSec;
   }
   function ensureReal(){
@@ -2869,6 +3272,16 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
     isReady(){ return isReal()?real3dReady:entries.length>=2; },
     getStage(){ return isReal()?Real3D.canvas():cv; },
     getSize(){ return isReal()?Real3D.exportSize():{width:cv.width,height:cv.height}; },
+    /* 動画に入れる音。プレビューと同じ時刻表から作る(長さだけ書き出しの尺に合わせる) */
+    async getAudio(sec){
+      if(!soundActive())return null;
+      let m;
+      if(isReal()){ensureReal();m=Real3D.audioMarks();}
+      else{prepareClassic();m=race.marks;}
+      if(!m)return null;
+      Sound.stop();
+      return Sound.mix(Object.assign({},m,{total:sec}),{fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume()});
+    },
     getDurationMs(){
       if(isReal()){const s=ensureReal();return Math.max(0,s.totalFrames-1)/Real3D.FPS*1000;}
       return (prepareClassic()+BOARD_HOLD_SEC)*1000;
@@ -2951,6 +3364,8 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート
+      // 音の設定。ファンファーレの種類(none=なし)。歓声なしは -nosfx、音量0は mute
+      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
       defaultWatermark:()=>isReal()?(isOn("showMark")?"on":"off"):null,
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";

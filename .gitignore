@@ -23,3 +23,6 @@ analytics/config.local.json
 .wrangler/
 .env*
 .dev.vars
+
+# 音声素材の作業フォルダ（Mac で生成・選定した元ファイル。配信用は horse-race-ranking-maker/assets/audio/）
+horse-race-ranking-maker/競馬風音声/

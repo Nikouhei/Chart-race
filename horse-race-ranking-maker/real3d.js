@@ -30,6 +30,9 @@ const FPS = 30;
    カウントダウン有効時は 3秒(3→2→1)がそのまま待機時間になる */
 const GATE_SEC = 0.3, RESULT_SEC = 2, COUNTDOWN_SEC = 3;
 function gateSecOf(){ return (cfg && cfg.countdown) ? COUNTDOWN_SEC : GATE_SEC; }
+/* 出走前シーン(ファンファーレ＋出馬表)の秒数。ホストが input.intro で渡す。
+   ゲート待機のさらに前に置くので、カウントダウンやゲートの開く時刻はその分だけ後ろへずれる */
+function introSecOf(){ return (cfg && cfg.intro) ? cfg.intro.sec : 0; }
 
 function clamp(v,a,b){return Math.min(b,Math.max(a,isNaN(v)?a:v));}
 
@@ -2648,7 +2651,7 @@ function buildCourse(){
 
 /* ---------- 状態と再生制御 (フレーム番号駆動) ---------- */
 let frame=0, playing=false, totalFrames=0;
-let raceFrames=0, resultsStartFrame=0;
+let raceFrames=0, resultsStartFrame=0, introFrames=0;
 let gateFrames=0, gateDoors=[], gateGroup=null;
 let timeWarp=null;
 /* 脚を回すための時計[秒]。実時間ではなく「レース時刻」で測る (GLBHorse の説明を参照)。
@@ -3306,6 +3309,9 @@ function applySettings(input){
     // 毛色の決め方。real=4テクスチャから選ぶ / color=芦毛テクスチャに着色
     coatMode: src.coatMode==="color" ? "color" : "real",
     countdown: !!src.countdown,   // gateSecOf() が見る。総尺が変わるのでcfg側に持つ
+    /* 出走前シーン。{ sec, paint(ctx,w,h) }。paint は出馬表の板を描く関数で、
+       文言や並べ方はホスト(競馬風と共通)が持つ。無ければ従来どおりすぐゲート待機 */
+    intro: (src.intro && src.intro.sec>0) ? { sec:+src.intro.sec, paint:src.intro.paint } : null,
     /* 結果発表の見せ方。競馬風と同じ設定を受け取る。
        アイコン画像だけは3Dの馬に貼れないので、こちらには渡ってこない */
     board: {
@@ -3315,7 +3321,7 @@ function applySettings(input){
     },
     names: [], order: [], colors: [], styles: [], gates: []
   };
-  cfg.duration += gateSecOf();
+  cfg.duration += gateSecOf() + introSecOf();
   src.horses.slice(0,cfg.n).forEach((h,i)=>{
     cfg.names.push(h.name || _t(`${i+1}番`));
     cfg.order.push(i+1); // 配列の並び = 最終着順 (先頭が1着)
@@ -3347,7 +3353,9 @@ function applySettings(input){
      積み上げ、総尺は最後に確定させる。着差が大きい回はそのぶん動画が伸びる
      (実際の中継も後続がゴールするまで映すので、挙動としても自然) */
   const resultSec=RESULT_SEC, gateSec=gateSecOf();
-  gateFrames=Math.round(gateSec*FPS);
+  introFrames=Math.round(introSecOf()*FPS);
+  gateFrames=introFrames+Math.round(gateSec*FPS);
+  introShown=null;   // 出馬表の板は設定ごとに描き直す
   raceFrames=Math.round((cfg.raceLen/cfg.speed)*FPS); // t∈[0,1] にあてるフレーム数
 
   /* --- ゴール瞬間のスローモーション (タイムリマップ) ---
@@ -3398,6 +3406,68 @@ function applySettings(input){
   frame=0; playing=false;
   emit("playing",false);
   renderFrame();
+}
+
+/* ---------- 出走前シーン (ファンファーレ＋出馬表) ----------
+   カメラ: ゲートの正面やや上から、内の馬→外の馬へゆっくり横に流す。
+   出馬表: ホストの paint() で書き出し解像度のキャンバスに描き、全画面の板で重ねる */
+function applyIntroCamera(states){
+  let lo=Infinity, hi=-Infinity;
+  for(const s of states){ lo=Math.min(lo,s.lane); hi=Math.max(hi,s.lane); }
+  const u=smoothstep(0, Math.max(1,introFrames), frame);
+  const lane=hi+(lo-hi)*u;                       // 内(+)から外へ
+  const sp=course.sample(0, lane);
+  const n=normalOf(sp.tan);                      // 内向き
+  const look=new THREE.Vector3(sp.pos.x, 1.35, sp.pos.z);
+  const D=10, SIDE=-2.5, H=2.8;                  // 10m前・外へ2.5m・高さ2.8m
+  cam.fov=CAM_FOV; cam.aspect=currentAspect(); cam.updateProjectionMatrix();
+  cam.position.set(sp.pos.x+sp.tan.x*D+n.x*SIDE, H, sp.pos.z+sp.tan.z*D+n.z*SIDE);
+  cam.lookAt(look);
+}
+let introPlane=null, introCanvas=null, introTex=null, introShown=null;
+function updateIntroCard(){
+  const on = cfg && cfg.intro && typeof cfg.intro.paint==="function" && frame < introFrames;
+  if(!on){ if(introPlane) introPlane.visible=false; return; }
+  const [w,h]=EXPORT_SIZES[view.aspect]||EXPORT_SIZES["16:9"];
+  const key=view.aspect;
+  if(introShown!==key){
+    if(!introCanvas) introCanvas=document.createElement("canvas");
+    introCanvas.width=w; introCanvas.height=h;
+    const g=introCanvas.getContext("2d");
+    g.clearRect(0,0,w,h);
+    try{ cfg.intro.paint(g,w,h); }catch(e){ console.warn("[real3d] 出馬表を描けませんでした",e); }
+    if(!introTex){
+      introTex=new THREE.CanvasTexture(introCanvas);
+      introPlane=new THREE.Mesh(new THREE.PlaneGeometry(2,2),
+        new THREE.MeshBasicMaterial({map:introTex,transparent:true,depthTest:false}));
+      introPlane.renderOrder=5;
+      ovScene.add(introPlane);
+    }
+    introTex.needsUpdate=true;
+    introShown=key;
+  }
+  // 頭0.6秒で出て、最後の0.5秒で消える
+  const a=Math.min(smoothstep(0, FPS*0.6, frame), 1-smoothstep(introFrames-FPS*0.5, introFrames, frame));
+  introPlane.material.opacity=a;
+  introPlane.visible=a>0;
+}
+
+/* 音を付けるための時刻表[秒]。ホストがこれを見て効果音・歓声を並べる。
+   すべてフレーム番号から決まるので、プレビューと書き出しで同じになる */
+function audioMarks(){
+  if(!cfg) return null;
+  const goal0=gateFrames+frameOfRaceT(0.96);                 // 1着が決勝線を越える
+  const lastGap=plan.cumMeters[cfg.n-1]/cfg.raceLen;
+  const goalAll=gateFrames+frameOfRaceT(0.96*(1+lastGap));
+  return {
+    intro: introFrames/FPS,
+    start: gateFrames/FPS,
+    firstGoal: goal0/FPS,
+    allGoal: goalAll/FPS,
+    slowA: timeWarp ? (gateFrames+timeWarp.fA)/FPS : null,
+    slowB: timeWarp ? (gateFrames+timeWarp.fB)/FPS : null,
+    total: totalFrames/FPS,
+  };
 }
 
 function renderFrame(){
@@ -3576,7 +3646,11 @@ function renderFrame(){
     window.__keibaDebug.lx=vSample.pos.x; window.__keibaDebug.lz=vSample.pos.z;
     window.__keibaDebug.allFin = minP>=1;
     window.__keibaDebug.beforeLine = leaderP<1; }
-  const label=applyCamera(ctx, tBase);
+  let label=applyCamera(ctx, tBase);
+  /* 出走前は出馬表の板が名前を見せるので、馬の頭上の名札は隠す
+     (ゲートの正面に寄るので、名札が板の上に大きく重なってしまう) */
+  setNameSpritesVisible(frame >= introFrames);
+  if(frame < introFrames){ applyIntroCamera(states); label="出走前"; }
   emit("shot",label);
 
   /* 影のシャドウカメラを隊列に追従させる。
@@ -3713,7 +3787,7 @@ function renderFrame(){
 
   /* --- スタートのカウントダウン --- */
   if(cdPlane) cdPlane.visible=false;
-  if(cfg.countdown && frame < gateFrames){
+  if(cfg.countdown && frame < gateFrames && frame >= introFrames){
     const remain=(gateFrames-frame)/FPS;              // 残り秒
     const n=Math.max(1, Math.min(COUNTDOWN_SEC, Math.ceil(remain)));
     showCountdown(n, Math.min(1, Math.max(0, n-remain)));  // その数字が出てからの経過(0..1)
@@ -3721,7 +3795,11 @@ function renderFrame(){
 
   /* --- コース俯瞰図 (左下) ---
      先頭の進行度で軌跡と現在地を更新する。結果発表が出たら引っ込める */
-  if(mapGeom && view.showMap){
+  /* --- 出走前シーンの出馬表 ---
+     ファンファーレの間だけ出す。俯瞰図と隊列パネルはレースが始まってから */
+  const inIntro = frame < introFrames;
+  updateIntroCard();
+  if(mapGeom && view.showMap && !inIntro){
     drawMiniMap(leaderP);
     const a=currentAspect();
     let hN=0.42, wN=hN*mapAspect/a;
@@ -3736,7 +3814,7 @@ function renderFrame(){
   }
 
   /* --- 隊列パネル (中央下) --- */
-  if(states && states.length && view.showField){
+  if(states && states.length && view.showField && !inIntro){
     drawFieldPanel(states, leaderP, (leaderP-minP)*cfg.raceLen);
     /* 幅を基準に置く。縦長のアスペクトでは横がはみ出すので、
        その場合だけ幅で頭打ちにして全体を縮める (結果発表の板と同じ扱い) */
@@ -3995,6 +4073,7 @@ global.Real3D={
     renderFrame();
   },
   courseInfo: courseInfoText,
+  audioMarks,
   canvas(){ return renderer.domElement; },
   resize,
 

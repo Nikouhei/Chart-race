@@ -332,6 +332,8 @@ const CUSTOM_DIMENSIONS = [
   ["error_message", "エラー内容"], ["error_source", "エラー発生ファイル"], ["error_line", "エラー行番号"],
   // 動画書き出し（shared/video-export.js）
   ["watermark", "透かし"], ["export_scale", "書き出し画質"], ["export_fps", "書き出しfps"],
+  // 格付けダービーの音の設定（export_start / sound_preview）。ファンファーレの種類・none・-nosfx・mute
+  ["sound", "サウンド設定"],
   // 有料化の判定・購入案内（shared/export-plan.js）
   ["plan_feature", "有料機能"], ["upgrade_from", "購入案内の表示元"], ["license_result", "ライセンス確認結果"],
   // 有料化アンケート（shared/export-plan.js）
