@@ -1881,8 +1881,9 @@ function lockSoundUI(){
   if(panel){
     const sum=panel.querySelector("summary");
     if(sum)sum.textContent+=soon;
+    // 音が鳴らないので「音はプレビューでも流れ…」の説明は出さない
     const hint=panel.querySelector(".hint");
-    if(hint)hint.textContent=_t("ファンファーレと歓声は、有料プランの公開に合わせて使えるようになります。");
+    if(hint)hint.hidden=true;
   }
   const listen=document.getElementById("fanfareListen");
   if(listen)listen.disabled=true;

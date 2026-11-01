@@ -133,7 +133,6 @@ I18N.registerText('en', {
 
   // ── 準備中（音まわりは有料プランの公開に合わせて出す）──
   '（準備中）': ' (coming soon)',
-  'ファンファーレと歓声は、有料プランの公開に合わせて使えるようになります。': 'Fanfares and crowd sound arrive with the paid plan.',
 
   // ── 画面表示 ──
   '画面表示': 'Display',
