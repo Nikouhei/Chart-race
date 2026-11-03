@@ -461,7 +461,7 @@ const soundReady = includeDrafts();
     /* ツール切替。2つのエンジンは見た目も重さも別物なので、
        見出しの中の一番目に付く場所に置いて今どちらなのかを常に示す */
     .tool-switch{
-      margin-left:auto;display:flex;gap:4px;padding:4px;
+      display:flex;gap:4px;padding:4px;
       background:rgba(0,0,0,.35);border:1px solid #2c4033;border-radius:999px;
     }
     .tool-switch button{
@@ -479,8 +479,51 @@ const soundReady = includeDrafts();
       background:rgba(255,255,255,.16);color:inherit;
     }
     .tool-switch button[aria-selected="true"] .tag3d{background:rgba(0,0,0,.22)}
+    /* 初回案内の位置の基準。案内がツール本体の上に乗るよう重ね順も上げる */
+    .tool-switch-wrap{margin-left:auto;position:relative;z-index:70}
+    /* 初回訪問者にだけ出す案内。タブの真下に出し、三角で「リアル競馬風」を指す。
+       三角の横位置は訳文でタブ幅が変わるので、JSが --arrow-right に実測値を入れる */
+    .umarace .mode-hint{
+      position:absolute;top:calc(100% + 10px);right:0;
+      width:min(288px,calc(100vw - 28px));padding:11px 30px 12px 13px;
+      background:#2e2a20;color:#f0ead2;border:1px solid var(--gold);border-radius:8px;
+      font-size:11.5px;font-weight:400;letter-spacing:.02em;line-height:1.7;
+      text-align:left;white-space:normal;overflow-wrap:anywhere;
+      box-shadow:0 8px 22px rgba(0,0,0,.45);
+      animation:modeHintIn .28s ease-out both;
+    }
+    .umarace .mode-hint[hidden]{display:none}
+    .umarace .mode-hint::before{
+      content:"";position:absolute;top:-5px;right:var(--arrow-right,62px);margin-right:-4px;
+      width:8px;height:8px;background:#2e2a20;
+      border-left:1px solid var(--gold);border-top:1px solid var(--gold);
+      transform:rotate(45deg);
+    }
+    .umarace .mode-hint b{display:block;margin:0 0 4px;color:var(--gold);font-weight:700;font-size:12px}
+    .umarace .mode-hint p{margin:0}
+    .umarace .mode-hint-close{
+      position:absolute;top:4px;right:4px;width:22px;height:22px;
+      display:flex;align-items:center;justify-content:center;
+      border:none;background:none;cursor:pointer;
+      color:#f0ead2;opacity:.6;font-size:15px;line-height:1;border-radius:5px;
+    }
+    .umarace .mode-hint-close:hover{opacity:1;background:rgba(255,255,255,.1)}
+    .umarace .mode-hint-close:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+    @keyframes modeHintIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+    /* 案内が出ているあいだは、指している「リアル競馬風」側も光らせる */
+    .umarace .mode-hint-on #tabReal{color:#f2ecd9;box-shadow:0 0 0 2px var(--gold);
+      animation:modeHintPulse 1.9s ease-in-out 3}
+    @keyframes modeHintPulse{
+      0%,100%{box-shadow:0 0 0 2px var(--gold)}
+      50%{box-shadow:0 0 0 5px rgba(201,162,39,.3)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .umarace .mode-hint{animation:none}
+      .umarace .mode-hint-on #tabReal{animation:none}
+    }
     @media(max-width:600px){
-      .tool-switch{margin-left:0;width:100%}
+      .tool-switch-wrap{margin-left:0;width:100%}
+      .tool-switch{width:100%}
       .tool-switch button{flex:1;justify-content:center;padding:9px 8px}
     }
     /* モード別の出し分け。DOMは常に両方あり、表示だけ切り替える */
@@ -896,9 +939,19 @@ const soundReady = includeDrafts();
       <div class="umarace-head">
         <h2>格付け<span>ダービー</span></h2>
         <p id="toolTagline">順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー</p>
-        <div class="tool-switch" role="tablist" aria-label="ツールの切り替え">
-          <button type="button" role="tab" id="tabClassic" data-mode="classic" aria-selected="true">競馬風</button>
-          <button type="button" role="tab" id="tabReal" data-mode="real" aria-selected="false">リアル競馬風<span class="tag3d">3D</span></button>
+        <!-- 切り替えタブ。初回案内をこの真下に出すので、位置の基準になる箱で包む -->
+        <div class="tool-switch-wrap" id="toolSwitchWrap">
+          <div class="tool-switch" role="tablist" aria-label="ツールの切り替え">
+            <button type="button" role="tab" id="tabClassic" data-mode="classic" aria-selected="true">競馬風</button>
+            <button type="button" role="tab" id="tabReal" data-mode="real" aria-selected="false">リアル競馬風<span class="tag3d">3D</span></button>
+          </div>
+          <!-- 初回訪問のときだけ出す案内。3Dは押されるまで読み込まれないので、
+               存在に気づかないまま帰ってしまう人が出る。role=status で読み上げにも乗せる -->
+          <div class="mode-hint" id="modeHint" role="status" hidden>
+            <b>3Dの馬が走るモードもあります</b>
+            <p>いま開いているのは、すぐ使える軽い「競馬風」です。こちらに切り替えると、実際の競馬場のようなコースをCGの馬が走ります。</p>
+            <button type="button" class="mode-hint-close" id="modeHintClose" aria-label="このお知らせを閉じる">×</button>
+          </div>
         </div>
       </div>
       <div class="umarace-grid">
@@ -1665,6 +1718,7 @@ const SETTING_GROUPS={
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
 let stateLoaded=false;    // 復元完了前の保存を抑止
+let firstVisit=false;     // 保存データが無かった = このブラウザでは初めて開いた
 /* DOMの入力欄に紐づかない覚え書き。
    いまは「そのモードでしか選べないアスペクト比」を記憶するのに使っている */
 let extras={aspectMemo:{}};
@@ -1785,6 +1839,7 @@ function loadState(){
     localizeUntouchedDefaults();
     render();
   }else{
+    firstVisit=true;
     for(let i=0;i<10;i++)addEntry();   // 初期の出走馬は10頭
     // 英語圏の中継はラッパの招集合図がなじみ深いので、英語版の既定はラッパにする
     document.getElementById("fanfare").value=IS_I18N?"bugle-1":"grade-1";
@@ -2619,68 +2674,314 @@ function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("
 function sfxOn(){ return SOUND_READY && document.getElementById("sfx").value==="on"; }
 function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
 
-/* ---- 出馬表(出走前シーンの板) ----
-   競馬風と3Dで共通。並びは着順ではなく馬番順(結果がばれないように)。
+/* ---- 出走前シーンの装飾画像 ----
+   タイトルの上に載せる冠飾りは Canvas では出せない質感なので画像で持つ。
+   動画書き出しは new VideoFrame(canvas) でキャンバスを直接読むため、別オリジンの
+   画像を1枚でも描くとキャンバスが汚染されて書き出しごと失敗する。
+   必ず同じサイトの assets/ から読むこと(外部URL・CDNは不可) */
+const DECOR_SRC={
+  crest:"assets/decor/crest.webp",
+};
+const decorImgs={};
+let decorLoading=null;
+/* 読めた画像だけ返す。まだ/読めなければ null で、呼び出し側が Canvas 描画に下げる */
+function decorImg(key){
+  const im=decorImgs[key];
+  return (im&&im.complete&&im.naturalWidth)?im:null;
+}
+/* ファンファーレを選んでいるときだけ要る絵なので、音の先読みと同じ時機に呼ぶ */
+function prefetchDecor(){
+  if(decorLoading)return decorLoading;
+  decorLoading=Promise.all(Object.keys(DECOR_SRC).map(key=>new Promise(res=>{
+    const im=new Image();
+    im.onload=()=>{decorImgs[key]=im;res();};
+    im.onerror=()=>res();            // 1枚落ちても残りは使う
+    im.src=DECOR_SRC[key];
+  }))).then(()=>{
+    /* 板は1回描いて使い回すので、後から絵が届いたぶんは描き直させる。
+       競馬風は R.introCard、リアル競馬風は real3d.js 側のテクスチャ */
+    if(race)race.introCard=null;
+    if(real3dReady&&window.Real3D&&Real3D.invalidateIntro)Real3D.invalidateIntro();
+  });
+  return decorLoading;
+}
+
+/* ---- 金のメタリック。上が光って中央で濃く落ち、下でまた明るくなる ----
+   JRAの重賞タイトルロゴの金はどれもこの折り返しを持っている */
+function goldGrad(g,y0,y1){
+  const gr=g.createLinearGradient(0,y0,0,y1);
+  gr.addColorStop(0.00,"#fffdf0");
+  gr.addColorStop(0.16,"#f8e7ad");
+  gr.addColorStop(0.40,"#e0b954");
+  gr.addColorStop(0.50,"#9d6c16");   // 中央の濃い折り返し
+  gr.addColorStop(0.58,"#d8a93c");
+  gr.addColorStop(0.80,"#faeec1");
+  gr.addColorStop(1.00,"#bb8a22");
+  return gr;
+}
+/* 細い金。帯や罫線のように面積が小さいところ用(文字と同じ段数だと潰れる) */
+function goldLine(g,y0,y1){
+  const gr=g.createLinearGradient(0,y0,0,y1);
+  gr.addColorStop(0,"#f3dc93");gr.addColorStop(.5,"#c9a227");gr.addColorStop(1,"#8a6414");
+  return gr;
+}
+
+/* ---- 多重縁取りの金文字 ----
+   外側から 墨 → 濃金 → 明金 の順に細くしながら重ね、最後に金グラデで塗る。
+   書体を太くするのではなく縁取りで太らせるので、フォントを足さずに重さが出る */
+function goldText(g,text,x,y,fs,font){
+  g.save();
+  g.font=font(fs);
+  g.textAlign="center";g.textBaseline="middle";
+  g.lineJoin="round";g.miterLimit=2;
+  const strokes=[[fs*0.23,"#140d03"],[fs*0.145,"#5b3d0b"],[fs*0.060,"#f6e3a4"]];
+  // 影は一番外の縁にだけ乗せる(全部に乗せると輪郭がにじむ)
+  g.shadowColor="rgba(0,0,0,.8)";g.shadowBlur=fs*0.26;g.shadowOffsetY=fs*0.07;
+  for(let i=0;i<strokes.length;i++){
+    g.lineWidth=strokes[i][0];g.strokeStyle=strokes[i][1];
+    g.strokeText(text,x,y);
+    if(i===0){g.shadowColor="transparent";g.shadowBlur=0;g.shadowOffsetY=0;}
+  }
+  g.fillStyle=goldGrad(g,y-fs*0.64,y+fs*0.64);
+  g.fillText(text,x,y);
+  // 上半分だけに白をうっすら重ねて、金属のハイライトにする
+  g.save();
+  g.beginPath();g.rect(x-fs*12,y-fs*0.70,fs*24,fs*0.46);g.clip();
+  const hi=g.createLinearGradient(0,y-fs*0.70,0,y-fs*0.24);
+  hi.addColorStop(0,"rgba(255,255,255,.62)");hi.addColorStop(1,"rgba(255,255,255,0)");
+  g.fillStyle=hi;g.fillText(text,x,y);
+  g.restore();
+  g.restore();
+}
+
+/* ---- 月桂樹の枝 ----
+   dir=-1 で左、1 で右。タイトルの脇に沿って立ち上がる枝に、
+   先の尖った葉を交互に付ける。画像を足さない(= 読み込みを増やさない)ための
+   Canvas 描画で、幅 r・高さ 2r ほどの範囲に収まる */
+function laurel(g,cx,cy,r,dir){
+  // 枝は内側の下から外へふくらみ、内側の上へ戻る二次曲線
+  const P0=[r*0.10, r*0.90], P1=[r*1.05, r*0.02], P2=[r*0.16,-r*0.92];
+  const at=t=>{
+    const u=1-t;
+    return [u*u*P0[0]+2*u*t*P1[0]+t*t*P2[0], u*u*P0[1]+2*u*t*P1[1]+t*t*P2[1]];
+  };
+  const tangent=t=>{
+    const x=2*(1-t)*(P1[0]-P0[0])+2*t*(P2[0]-P1[0]);
+    const y=2*(1-t)*(P1[1]-P0[1])+2*t*(P2[1]-P1[1]);
+    return Math.atan2(y,x);
+  };
+  /* 先の尖った葉。両端が尖った木の葉形を原点から len だけ伸ばす */
+  const leaf=(len,wid)=>{
+    g.beginPath();
+    g.moveTo(0,0);
+    g.quadraticCurveTo(len*0.40,-wid,len,0);
+    g.quadraticCurveTo(len*0.40, wid,0,0);
+    g.closePath();
+  };
+  g.save();
+  g.translate(cx,cy);g.scale(dir,1);
+  // 枝
+  g.save();
+  g.shadowColor="rgba(0,0,0,.5)";g.shadowBlur=r*0.09;g.shadowOffsetY=r*0.025;
+  g.beginPath();
+  g.moveTo(P0[0],P0[1]);g.quadraticCurveTo(P1[0],P1[1],P2[0],P2[1]);
+  g.strokeStyle="#a87c1c";g.lineWidth=Math.max(1.1,r*0.055);g.lineCap="round";g.stroke();
+  g.restore();
+  // 葉。枝の接線に対して外向きに開く角度で、上へ行くほど小さくする
+  const N=11;
+  for(let i=0;i<N;i++){
+    const t=0.05+0.92*(i/(N-1));
+    const [px,py]=at(t);
+    const ang=tangent(t);
+    const side=i%2?1:-1;                 // 枝の外側と内側に交互に出す
+    const len=r*(0.72-0.30*t)*(side>0?1:0.84);
+    const wid=len*0.34;
+    g.save();
+    g.translate(px,py);
+    g.rotate(ang+side*0.62);
+    const lg=g.createLinearGradient(0,-wid,len*0.5,wid);
+    lg.addColorStop(0,"#fff6d4");lg.addColorStop(.45,"#dcae3d");lg.addColorStop(1,"#7e5309");
+    g.fillStyle=lg;
+    leaf(len,wid);g.fill();
+    g.strokeStyle="rgba(52,32,3,.45)";g.lineWidth=Math.max(.7,r*0.012);g.stroke();
+    // 葉脈
+    g.beginPath();g.moveTo(len*0.08,0);g.lineTo(len*0.88,0);
+    g.strokeStyle="rgba(255,246,212,.45)";g.lineWidth=Math.max(.6,r*0.008);g.stroke();
+    g.restore();
+  }
+  // 根元の実
+  const [bx,by]=at(0.02);
+  g.beginPath();g.arc(bx,by,r*0.055,0,Math.PI*2);
+  g.fillStyle="#f3dc93";g.fill();
+  g.restore();
+}
+
+/* ---- 「出馬表」の細い金帯 ---- */
+function goldRibbon(g,cx,y,halfW,fs,label,font){
+  g.save();
+  g.strokeStyle=goldLine(g,y-1,y+1);
+  g.lineWidth=Math.max(1,fs*0.07);
+  g.font=font(fs);g.textAlign="center";g.textBaseline="middle";
+  const tw=g.measureText(label).width, gap=tw/2+fs*0.95;
+  for(const s of [-1,1]){
+    g.beginPath();
+    g.moveTo(cx+s*gap,y);g.lineTo(cx+s*halfW,y);g.stroke();
+    // 線の端の小さなひし形
+    const d=fs*0.22, dx=cx+s*halfW;
+    g.beginPath();g.moveTo(dx,y-d);g.lineTo(dx+s*d,y);g.lineTo(dx,y+d);g.lineTo(dx-s*d,y);
+    g.closePath();g.fillStyle=goldLine(g,y-d,y+d);g.fill();
+  }
+  g.shadowColor="rgba(0,0,0,.7)";g.shadowBlur=fs*0.3;
+  g.lineJoin="round";g.lineWidth=fs*0.22;g.strokeStyle="#140d03";
+  g.strokeText(label,cx,y);
+  g.shadowColor="transparent";g.shadowBlur=0;
+  g.fillStyle=goldGrad(g,y-fs*0.6,y+fs*0.6);
+  g.fillText(label,cx,y);
+  g.restore();
+}
+
+/* ---- 四隅の飾り ---- */
+function cornerMark(g,x,y,s,sx,sy){
+  g.save();
+  g.translate(x,y);g.scale(sx,sy);
+  g.strokeStyle=goldLine(g,0,s);g.lineWidth=Math.max(1,s*0.10);g.lineCap="round";
+  g.beginPath();g.moveTo(0,s);g.lineTo(0,s*0.3);g.quadraticCurveTo(0,0,s*0.3,0);g.lineTo(s,0);
+  g.stroke();
+  g.restore();
+}
+
+/* =====================================================================
+   出馬表の板
+   並びは着順ではなく馬番順(結果がばれないように)。
    place="bottom" で下寄せ。リアル競馬風はゲートの正面から馬の顔を映すので、
-   板を中央に置くと顔の列にちょうど重なってしまう */
+   板を中央に置くと顔の列にちょうど重なってしまう
+   ===================================================================== */
 function paintIntroCard(g,w,h,place){
   const k=Math.min(w,h)/720;
-  const font=(px)=>`bold ${Math.round(px)}px 'Hiragino Kaku Gothic ProN',sans-serif`;
+  const font=(px)=>`bold ${Math.round(px)}px 'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif`;
   const list=entries.map((e,i)=>({gate:+e.gate||(i+1),name:e.name||nameFor(i),color:e.color||"#888"}))
     .sort((a,b)=>a.gate-b.gate);
   const n=list.length;
   const cols=(n>8&&w>=h)?2:1;
   const rows=Math.ceil(n/cols);
-  const titleH=78*k, headH=40*k;
+  const titleH=104*k, gap=16*k, headH=42*k;
+  const crestImg=decorImg("crest");       // 冠飾り。読めていなければ月桂樹の線画に下げる
+
+  /* レース名と装飾は板の外(上)に置く。参考にしたJRAの重賞タイトルも、
+     ロゴは中継映像の上に直接浮いていて枠には入っていない。
+     板の幅に縛られないので、長いレース名でも縮まずに済む。
+     装飾の大きさはタイトルに合わせるので、先に文字の大きさを決める */
+  const title=document.getElementById("raceName").value||_t("ランキング杯");
+  /* 冠飾りは横2.9:縦1。幅を広げると高さも増えて出馬表の行を押しつぶすので、
+     高さを画面の28%までに抑え、その範囲に入る幅を上限にする。
+     文字はリボンの平らな部分(画像の幅のおよそ7割)までしか大きくしない */
+  const crestAR=crestImg?crestImg.height/crestImg.width:0;
+  const crestMaxW=crestImg?Math.min(w*(w<h?0.96:0.86),h*0.28/crestAR):0;
+  const lw=crestImg?0:titleH*0.52;        // 下げたときの月桂樹の幅
+  const maxTitleW=crestImg?crestMaxW*0.74:w*0.90-(lw+14*k)*2;
+  let fs=54*k;
+  g.font=font(fs);
+  while(fs>18*k&&g.measureText(title).width>maxTitleW){fs-=2*k;g.font=font(fs);}
+  const tw=g.measureText(title).width;
+
+  /* タイトルの幅から冠飾りの大きさを逆算すると、短い名前でも間延びしない */
+  const crestW=crestImg?Math.max(w*0.34,Math.min(tw/0.68,crestMaxW)):0;
+  const crestH=crestW*crestAR;
+  const crestDrop=crestH*0.26;            // リボンをタイトルに重ねる量
+  const headBlockH=(crestImg?crestH-crestDrop:0)+titleH;
+
   const maxRowH=46*k;
-  const rowH=Math.min(maxRowH,(h*0.86-titleH-headH-40*k)/rows);
+  const rowH=Math.min(maxRowH,(h*0.90-headBlockH-gap-headH-30*k)/rows);
   const colW=cols===2?Math.min(w*0.42,470*k):Math.min(w*0.84,520*k);
   const bw=colW*cols+(cols===2?30*k:0)+60*k;
-  const bh=titleH+headH+rows*rowH+36*k;
+  const bh=headH+rows*rowH+30*k;
   const bx=(w-bw)/2;
-  const by=place==="bottom" ? Math.max((h-bh)/2, h-bh-36*k) : (h-bh)/2;
+  // 装飾・タイトル・板はひとまとまりとして置く(下寄せもこのまとまりごと動かす)
+  const totalH=headBlockH+gap+bh;
+  const topY=place==="bottom" ? Math.max((h-totalH)/2, h-totalH-26*k) : (h-totalH)/2;
+  const by=topY+headBlockH+gap;
+  const ty=topY+(crestImg?crestH-crestDrop:0)+titleH*0.54;   // タイトルの中心
+
   g.save();
-  // 背景(レースの映像)は暗くしない。板も半透明にして、後ろの馬が透けて見えるようにする
-  g.fillStyle="rgba(8,20,12,.5)";
+  /* 背景(レースの映像)は暗くしない。板も半透明にして、後ろの馬が透けて見えるようにする。
+     上を少し濃くして、タイトルの金が沈まないようにしている */
+  const bg=g.createLinearGradient(0,by,0,by+bh);
+  bg.addColorStop(0,"rgba(8,14,10,.66)");
+  bg.addColorStop(.38,"rgba(6,16,11,.52)");
+  bg.addColorStop(1,"rgba(5,12,8,.56)");
+  g.fillStyle=bg;
   roundRect(g,bx,by,bw,bh,14*k);g.fill();
-  g.strokeStyle="#c9a227";g.lineWidth=3*k;
+  // 金の二重枠。外は太く、内は細い髪の毛線
+  g.strokeStyle=goldLine(g,by,by+bh);g.lineWidth=3*k;
   roundRect(g,bx,by,bw,bh,14*k);g.stroke();
-  // レース名(ユーザーが入れた文字なので訳さない)
-  const title=document.getElementById("raceName").value||_t("ランキング杯");
-  g.textAlign="center";g.textBaseline="middle";
-  // 板が透けるぶん、文字には影を付けて読みやすくする
-  g.shadowColor="rgba(0,0,0,.85)";g.shadowBlur=6*k;g.shadowOffsetY=1.5*k;
-  let fs=42*k;g.font=font(fs);
-  while(fs>18*k&&g.measureText(title).width>bw-50*k){fs-=2*k;g.font=font(fs);}
-  g.fillStyle="#fff";g.fillText(title,w/2,by+titleH*0.62);
-  g.font=font(20*k);g.fillStyle="#c9a227";
-  g.fillText(`― ${_t("出馬表")} ―`,w/2,by+titleH+headH*0.35);
-  // 各馬: 馬番(馬体色の札)＋馬名
-  const top=by+titleH+headH;
+  g.strokeStyle="rgba(255,240,196,.34)";g.lineWidth=1*k;
+  roundRect(g,bx+5*k,by+5*k,bw-10*k,bh-10*k,10*k);g.stroke();
+  // 四隅
+  const cs=16*k, ci=11*k;
+  cornerMark(g,bx+ci,by+ci,cs, 1, 1);
+  cornerMark(g,bx+bw-ci,by+ci,cs,-1, 1);
+  cornerMark(g,bx+ci,by+bh-ci,cs, 1,-1);
+  cornerMark(g,bx+bw-ci,by+bh-ci,cs,-1,-1);
+
+  // ---- 冠飾り(タイトルの上)。画像が落ちていたら月桂樹の線画で代わりを立てる ----
+  if(crestImg)g.drawImage(crestImg,(w-crestW)/2,topY,crestW,crestH);
+  else{
+    const pad=10*k;
+    laurel(g,w/2-tw/2-pad-titleH*0.26,ty,titleH*0.42,-1);
+    laurel(g,w/2+tw/2+pad+titleH*0.26,ty,titleH*0.42, 1);
+  }
+
+  // ---- レース名(ユーザーが入れた文字なので訳さない。大きさは上で決めてある) ----
+  goldText(g,title,w/2,ty,fs,font);
+
+  // ---- 「出馬表」 ----
+  goldRibbon(g,w/2,by+headH*0.46,bw*0.30,22*k,_t("出馬表"),font);
+
+  // ---- 各馬: 馬番(馬体色の札)＋馬名 ----
+  const top=by+headH;
+  // 板をタイトルに合わせて広げたぶん、馬名の列は板の中で改めて中央に置く
+  const listX=bx+(bw-(colW*cols+(cols===2?30*k:0)))/2;
   list.forEach((e,i)=>{
     const c=cols===2?Math.floor(i/rows):0, r=cols===2?i%rows:i;
-    const x0=bx+30*k+c*(colW+30*k), y=top+r*rowH+rowH/2;
+    const x0=listX+c*(colW+30*k), y=top+r*rowH+rowH/2;
     const bs=Math.min(rowH*0.78,34*k);
+    // 馬番札。枠色の面に金の細縁を付けて、板の金と馬体色をつなぐ
+    g.save();
+    g.shadowColor="rgba(0,0,0,.55)";g.shadowBlur=3*k;g.shadowOffsetY=1*k;
     g.fillStyle=e.color;
     roundRect(g,x0,y-bs/2,bs,bs,5*k);g.fill();
+    g.restore();
+    g.strokeStyle="rgba(240,214,140,.72)";g.lineWidth=Math.max(1,1.2*k);
+    roundRect(g,x0+.5,y-bs/2+.5,bs-1,bs-1,5*k);g.stroke();
     const hex=e.color.replace("#","");
     const lum=(parseInt(hex.slice(0,2),16)*299+parseInt(hex.slice(2,4),16)*587+parseInt(hex.slice(4,6),16)*114)/1000;
     g.fillStyle=lum>150?"#111":"#fff";
-    g.font=font(bs*0.56);g.textAlign="center";
+    g.font=font(bs*0.56);g.textAlign="center";g.textBaseline="middle";
     g.fillText(String(e.gate),x0+bs/2,y+1);
-    g.textAlign="left";g.fillStyle="#fff";
+    // 馬名。白より少し生成りに寄せると金枠と喧嘩しない
+    g.textAlign="left";
     let nf=Math.min(26*k,rowH*0.6);g.font=font(nf);
     const maxW=colW-bs-18*k;
     while(nf>12*k&&g.measureText(e.name).width>maxW){nf-=1;g.font=font(nf);}
+    g.save();
+    g.shadowColor="rgba(0,0,0,.8)";g.shadowBlur=4*k;g.shadowOffsetY=1*k;
+    g.lineJoin="round";g.lineWidth=nf*0.16;g.strokeStyle="rgba(10,8,4,.85)";
+    g.strokeText(e.name,x0+bs+14*k,y+1);
+    g.restore();
+    g.fillStyle="#f7f1df";
     g.fillText(e.name,x0+bs+14*k,y+1);
     if(r<rows-1&&rowH>24*k){
-      g.strokeStyle="rgba(255,255,255,.14)";g.lineWidth=1;
-      g.beginPath();g.moveTo(x0,y+rowH/2);g.lineTo(x0+colW,y+rowH/2);g.stroke();
+      const ly=y+rowH/2;
+      const lg=g.createLinearGradient(x0,0,x0+colW,0);
+      lg.addColorStop(0,"rgba(201,162,39,.05)");
+      lg.addColorStop(.5,"rgba(233,202,110,.42)");
+      lg.addColorStop(1,"rgba(201,162,39,.05)");
+      g.strokeStyle=lg;g.lineWidth=1;
+      g.beginPath();g.moveTo(x0,ly);g.lineTo(x0+colW,ly);g.stroke();
     }
   });
   g.restore();
 }
-
 const Sound=(()=>{
   const RATE=48000;
   const files={};          // 名前 → Promise<AudioBuffer>
@@ -2874,7 +3175,7 @@ const Sound=(()=>{
     listenBtn.setAttribute("data-track-sound",fanEl.value);
   };
   const retime=()=>{
-    syncFan();Sound.prefetch();
+    syncFan();Sound.prefetch();prefetchDecor();
     realDirty=true;   // 3Dは次の再生で組み直す(展開はシードで決まるので同じになる)
     if(race){
       // 競馬風: 展開はそのままに、スタート前の長さだけ付け替えて測り直す
@@ -2892,7 +3193,7 @@ const Sound=(()=>{
   syncFan();
   listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn));
   // ツールに触れたら、今の設定で鳴らす音を先に読み込んでおく(初期表示は軽いまま)
-  document.getElementById("tool").addEventListener("pointerdown",()=>Sound.prefetch(),{once:true});
+  document.getElementById("tool").addEventListener("pointerdown",()=>{Sound.prefetch();prefetchDecor();},{once:true});
 }
 /* 競馬風: レースを頭から最後まで流して、音の時刻表と書き出しの尺を測る。
    乱数は buildRace() の時点で決まっているので、何度流しても同じになる */
@@ -3277,6 +3578,40 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
   applyAspect();
   updateStartBtn();
   if(target==="real")switchMode("real");
+}
+
+/* 初回訪問者にだけ、切り替えタブの下に「3Dもある」案内を出す。
+   3Dのデータは押されるまで読み込まない設計なので、存在に気づかれないまま
+   終わりやすい。保存データが無いときだけ出すので、2回目以降は自然に出なくなる。
+   すでに ?mode=real で3Dを開いている人には不要なので出さない */
+{
+  const hint=document.getElementById("modeHint");
+  const wrap=document.getElementById("toolSwitchWrap");
+  let timer=null;
+  const close=()=>{
+    if(hint.hidden)return;
+    hint.hidden=true;
+    wrap.classList.remove("mode-hint-on");
+    clearTimeout(timer);
+    removeEventListener("resize",placeArrow);
+  };
+  // 三角は「リアル競馬風」タブの真ん中へ。英語版はタブ幅が違うので実測して置く
+  function placeArrow(){
+    if(hint.hidden)return;
+    const w=wrap.getBoundingClientRect(), t=tabs.real.getBoundingClientRect();
+    hint.style.setProperty("--arrow-right",
+      Math.max(12,Math.min(w.right-(t.left+t.width/2),hint.offsetWidth-12))+"px");
+  }
+  if(firstVisit&&toolMode==="classic"){
+    hint.hidden=false;
+    wrap.classList.add("mode-hint-on");
+    placeArrow();
+    addEventListener("resize",placeArrow);
+    document.getElementById("modeHintClose").addEventListener("click",close);
+    // どちらかのタブを押した時点で役目は終わり。放置されても邪魔にならないよう自分で消える
+    for(const m in tabs)tabs[m].addEventListener("click",close);
+    timer=setTimeout(close,14000);
+  }
 }
 
 /* ================= 動画の書き出し(shared/video-export.js) =================

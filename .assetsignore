@@ -17,6 +17,8 @@ node_modules/
 analytics/
 # 株価レース（未公開の検証用）。誤ってデプロイしないよう除外
 stock-race/
+# 装飾の元データ（透過PNGの原寸）。配信するのは変換後の assets/decor/*.webp だけ
+装飾/
 # Wrangler のローカル状態・秘密情報
 .wrangler/
 .env*

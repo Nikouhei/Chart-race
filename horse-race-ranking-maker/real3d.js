@@ -4025,6 +4025,10 @@ global.Real3D={
   })),
   FPS,
 
+  /* 出馬表の板は一度描いてテクスチャに焼くので、絵柄の材料が後から届いたときは
+     ホストからこれを呼んで描き直させる(装飾画像の読み込み完了など) */
+  invalidateIntro(){ introShown=null; },
+
   /* 馬のCGモデル(約3.5MB)を読み込んで描画を始める。
      読めなかった場合も throw せず、積み木の馬(BlockHorse)で続行して
      {fallback:true, reason} を返す。file:// では fetch がCORSで弾かれる */
