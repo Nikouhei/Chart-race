@@ -771,6 +771,7 @@ const soundReady = includeDrafts();
     }
     .umarace .btn:disabled{opacity:.45;cursor:not-allowed}
     /* サウンド: ファンファーレの選択と試聴ボタンを1行に */
+    .umarace .sub-label{display:block;margin:10px 0 4px;font-size:11.5px;opacity:.78}
     .umarace .sound-row{display:flex;gap:6px;align-items:stretch}
     .umarace .sound-row select{flex:1;min-width:0}
     .umarace .btn-listen{
@@ -1084,6 +1085,11 @@ const soundReady = includeDrafts();
                 </select>
                 <button type="button" class="btn-listen" id="fanfareListen" data-track="sound_preview" title="ファンファーレを試聴">▶ 試聴</button>
               </div>
+              <!-- ファンファーレだけの音量。歓声や蹄の音とのバランスをここで取る
+                   （サウンドの「音量」は全体にかかる） -->
+              <label class="sub-label" for="fanfareVolume">ファンファーレの音量</label>
+              <input type="range" id="fanfareVolume" min="0" max="150" step="5" value="100">
+              <div class="timeline-time" id="fanfareVolumeValue">100%</div>
             </div>
             <div class="field mode-real">
               <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
@@ -1715,7 +1721,7 @@ const clockNow=()=>exportActive?exportClockMs:performance.now();
 const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
-  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","sfx","volume"],
+  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","fanfareVolume","sfx","volume"],
   classic:["duration","drama","captions","iconSize"],
   real   :["coursePreset","handed","algo","seed","palette","showMap","showField"],
 };
@@ -1961,7 +1967,7 @@ lockSoundUI();
     const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
     // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
     // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
-    const keep=(id==="volume"||id==="sfx"||id==="fanfare"||id==="countdown");
+    const keep=(id==="volume"||id==="fanfareVolume"||id==="sfx"||id==="fanfare"||id==="countdown");
     el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
   // アイコンサイズの表示(%)はドラッグ中もリアルタイムに更新する
@@ -2674,6 +2680,9 @@ function introSecFor(){
   return id?FANFARES[id]+FANFARE_TAIL:0;
 }
 function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("volume").value||0)/100)); }
+/* ファンファーレだけの音量。歓声や蹄の音に対する大きさを決める。
+   100%でそのまま、150%まで上げられる(この音が鳴るのは歓声が小さい出走前なので割れにくい) */
+function fanfareVolume(){ return Math.max(0,Math.min(1.5,(+document.getElementById("fanfareVolume").value||0)/100)); }
 function sfxOn(){ return SOUND_READY && document.getElementById("sfx").value==="on"; }
 function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
 
@@ -3080,7 +3089,7 @@ const Sound=(()=>{
     out.gain.setValueAtTime(vol,0);
     out.gain.setValueAtTime(vol,Math.max(0,T-0.8));
     out.gain.linearRampToValueAtTime(0,T);   // 最後は静かに終わる
-    if(B.fan)one(oc,B.fan,0.15,out,1.0);
+    if(B.fan)one(oc,B.fan,0.15,out,opt.fanVol==null?1:opt.fanVol);
     if(sfx){
       const S=m.start, G=m.firstGoal!=null?m.firstGoal:S+10, A=m.allGoal!=null?m.allGoal:G+1;
       // スタンドのざわめき: ファンファーレ中は控えめ、レースが進むほど大きく
@@ -3126,7 +3135,8 @@ const Sound=(()=>{
   }
   function keyOf(m){
     const r=x=>x==null?null:Math.round(x*100)/100;
-    return JSON.stringify([r(m.intro),r(m.start),r(m.firstGoal),r(m.allGoal),r(m.slowA),r(m.slowB),r(m.total),fanfareId(),sfxOn()]);
+    return JSON.stringify([r(m.intro),r(m.start),r(m.firstGoal),r(m.allGoal),r(m.slowA),r(m.slowB),r(m.total),
+      fanfareId(),fanfareVolume(),sfxOn()]);
   }
   function stop(){
     if(live.src){try{live.src.stop();}catch(_){} live.src.disconnect();live.src=null;}
@@ -3137,7 +3147,7 @@ const Sound=(()=>{
     if(live.failedKey===key)return null;   // 読み込めなかった設定は、設定が変わるまで再挑戦しない
     if(live.buildingKey!==key){
       live.buildingKey=key;
-      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1}).then(b=>{
+      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1,fanVol:fanfareVolume()}).then(b=>{
         if(live.buildingKey===key){live.buf=b;live.key=key;}
       }).catch(e=>{console.warn("[格付けダービー] 音を用意できませんでした",e);
         if(live.buildingKey===key){live.buildingKey=null;live.failedKey=key;}});
@@ -3171,7 +3181,9 @@ const Sound=(()=>{
     try{
       const buf=await load("fanfare-"+f);
       if(!btn.classList.contains("playing"))return;
-      const s=c.createBufferSource();s.buffer=buf;s.connect(master);s.start();
+      const s=c.createBufferSource();s.buffer=buf;
+      const g=c.createGain();g.gain.value=fanfareVolume();   // 本番と同じ大きさで聴けるように
+      s.connect(g);g.connect(master);s.start();
       listen=s;
       s.onended=()=>{if(listen===s){listen=null;btn.classList.remove("playing");btn.textContent="▶ 試聴";}};
     }catch(e){
@@ -3186,6 +3198,10 @@ const Sound=(()=>{
   const fanEl=document.getElementById("fanfare"), listenBtn=document.getElementById("fanfareListen");
   const syncVol=()=>{volVal.textContent=volEl.value+"%";Sound.setVolume();};
   volEl.addEventListener("input",syncVol);syncVol();
+  // ファンファーレの音量。尺は変わらないので、表示を直すだけでよい
+  const fanVolEl=document.getElementById("fanfareVolume"), fanVolVal=document.getElementById("fanfareVolumeValue");
+  const syncFanVol=()=>{fanVolVal.textContent=fanVolEl.value+"%";};
+  fanVolEl.addEventListener("input",syncFanVol);syncFanVol();
   const cdEl=document.getElementById("countdown"), fanField=document.getElementById("fanfareField");
   const syncFan=()=>{
     fanField.hidden=cdEl.value!=="fanfare";   // 種類はファンファーレを選んだときだけ出す
@@ -3711,7 +3727,8 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       else{prepareClassic();m=race.marks;}
       if(!m)return null;
       Sound.stop();
-      return Sound.mix(Object.assign({},m,{total:sec}),{fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume()});
+      return Sound.mix(Object.assign({},m,{total:sec}),
+        {fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume(),fanVol:fanfareVolume()});
     },
     getDurationMs(){
       if(isReal()){const s=ensureReal();return Math.max(0,s.totalFrames-1)/Real3D.FPS*1000;}

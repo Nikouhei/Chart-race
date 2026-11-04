@@ -169,6 +169,7 @@ I18N.registerText('en', {
   'サウンド': 'Sound',
   'ファンファーレ': 'Fanfare',
   'ファンファーレの種類': 'Fanfare',
+  'ファンファーレの音量': 'Fanfare volume',
   'スタート前の演出': 'Pre-race intro',
   'スタート前の演出について': 'About the pre-race intro',
   'スタート前に3・2・1を出します': 'Shows 3-2-1 before the start',
