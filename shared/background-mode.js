@@ -123,6 +123,13 @@
     var palette = $('barColorPalette');
     if (palette && mode !== 'white' && palette.value === 'dark') { palette.value = 'standard'; fire(palette); }
 
+    // 線グラフの右端のラベル。線の色のままだと黒フチに沈むので、透過では白文字にする
+    var useLineColor = $('labelUseLineColor');
+    if (useLineColor) {
+      var wantLineColor = mode === 'transparent' ? false : useLineColor.defaultChecked;
+      if (useLineColor.checked !== wantLineColor) { useLineColor.checked = wantLineColor; fire(useLineColor); }
+    }
+
     // 文字のフチ
     var outlineW = $('textOutlineWidth'), outlineC = $('textOutlineColor');
     if (outlineW) setValue(outlineW, mode === 'transparent' ? OVERLAY_OUTLINE : 0);
