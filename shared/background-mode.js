@@ -4,8 +4,11 @@
  *
  * - 白・黒を選ぶと、背景色とあわせて文字・軸などの色を自動で切り替える
  *   （白のときの色は、各ツールの HTML に書いてある初期値）
- * - 「透過」は背景色をオフにする（文字・軸の色は今のまま）。プレビューは市松模様で見せ、
- *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過WebM／PNG連番にする
+ * - 「透過」は背景色をオフにする。重ねる映像の明るさは分からないので、文字を白＋黒フチにして
+ *   どの映像の上でも読めるようにする（どちらも設定で変えられる）。プレビューは市松模様で見せ、
+ *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過で書き出す
+ * - 文字のフチ（textOutlineWidth / textOutlineColor）は #chartArea の .grs-outlined と CSS 変数で付ける。
+ *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
  *   今後 Polar で有料化するときは、ここに課金判定を入れる
  * - 計測：白・黒のボタンは id（bgWhite / bgBlack）がそのまま tool_ui_click の button_id になる
@@ -30,6 +33,22 @@
     pieCenterColor: '#f2f2f2'
   };
   var BG = { white: '#ffffff', black: '#000000' };
+  // 透過のときの色（フチを付けるので文字はすべて白）
+  var OVERLAY = {
+    layoutTextColor: '#ffffff',
+    titleColor: '#ffffff',
+    sourceColor: '#ffffff',
+    nameLabelColor: '#ffffff',
+    valueLabelColor: '#ffffff',
+    legendColor: '#ffffff',
+    categoryLegendColor: '#ffffff',
+    timeCounterColor: '#ffffff',
+    axisTextColor: '#ffffff',
+    axisLineColor: '#888888',
+    pieGapColor: '#000000',
+    pieCenterColor: '#ffffff'
+  };
+  var OVERLAY_OUTLINE = 3; // px
 
   var STYLE = [
     '.grs-bg-mode{display:flex;gap:2px;padding:3px;border-radius:9px;background:var(--panel-surface-2,#eef0f3)}',
@@ -39,7 +58,10 @@
     '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}',
     // 透過のプレビュー用の市松模様（style 属性の background-* より優先する）。書き出しには写らない
     '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%)!important;background-size:20px 20px!important;background-position:0 0!important;background-repeat:repeat!important}',
-    'body.grs-checker-dark #chartArea.grs-transparent{background-image:repeating-conic-gradient(#2b2b2b 0 25%,#3d3d3d 0 50%)!important}'
+    'body.grs-checker-dark #chartArea.grs-transparent{background-image:repeating-conic-gradient(#2b2b2b 0 25%,#3d3d3d 0 50%)!important}',
+    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない
+    '#chartArea.grs-outlined{-webkit-text-stroke:var(--grs-outline-width) var(--grs-outline-color);paint-order:stroke fill}',
+    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-width);stroke-linejoin:round;paint-order:stroke fill}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -47,6 +69,10 @@
   function fire(el) {
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function setValue(el, next) {
+    if (String(el.value).toLowerCase() !== String(next).toLowerCase()) { el.value = next; fire(el); }
   }
 
   function isDark(hex) {
@@ -81,23 +107,32 @@
     var useBg = $('enableBackgroundColor');
     if (!bg) return;
 
+    // 透過のまま押し直しても、自分で変えた色やフチは戻さない
+    if (mode === 'transparent' && currentMode() === 'transparent') return;
+
+    // 文字・軸などの色
+    var colors = mode === 'transparent' ? OVERLAY : mode === 'black' ? DARK : null;
+    Object.keys(DARK).forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      var next = colors ? colors[id] : el.defaultValue;
+      setValue(el, next);
+    });
+
+    // 黒系の背景で「ダーク」パターンだと見えにくいのでスタンダードへ
+    var palette = $('barColorPalette');
+    if (palette && mode !== 'white' && palette.value === 'dark') { palette.value = 'standard'; fire(palette); }
+
+    // 文字のフチ
+    var outlineW = $('textOutlineWidth'), outlineC = $('textOutlineColor');
+    if (outlineW) setValue(outlineW, mode === 'transparent' ? OVERLAY_OUTLINE : 0);
+    if (outlineC) setValue(outlineC, '#000000');
+
     if (mode === 'transparent') {
       if (useBg && useBg.checked) { useBg.checked = false; fire(useBg); }
       syncButtons();
       return;
     }
-
-    // 文字・軸などの色
-    Object.keys(DARK).forEach(function (id) {
-      var el = $(id);
-      if (!el) return;
-      var next = mode === 'black' ? DARK[id] : el.defaultValue;
-      if (el.value.toLowerCase() !== String(next).toLowerCase()) { el.value = next; fire(el); }
-    });
-
-    // 黒背景で「ダーク」パターンだと見えにくいのでスタンダードへ
-    var palette = $('barColorPalette');
-    if (palette && mode === 'black' && palette.value === 'dark') { palette.value = 'standard'; fire(palette); }
 
     if (useBg && !useBg.checked) { useBg.checked = true; fire(useBg); }
     bg.value = BG[mode];
@@ -115,6 +150,11 @@
       b.addEventListener('click', function () {
         applyMode(b.getAttribute('data-bg-mode'));
       });
+    });
+
+    var outline = $('textOutlineWidth');
+    if (outline) outline.addEventListener('change', function () {
+      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textOutlineWidth', button_label: '文字のフチ' });
     });
 
     syncButtons();
