@@ -491,7 +491,7 @@ const soundReady = includeDrafts();
       font-size:12.5px;font-weight:400;letter-spacing:.02em;line-height:1.75;
       text-align:left;white-space:normal;overflow-wrap:anywhere;
       box-shadow:0 10px 26px rgba(0,0,0,.5);
-      animation:modeHintIn .28s ease-out both;
+      animation:modeHintIn .55s cubic-bezier(.22,.7,.3,1) both;
     }
     .umarace .mode-hint[hidden]{display:none}
     .umarace .mode-hint::before{
@@ -514,17 +514,15 @@ const soundReady = includeDrafts();
     }
     .umarace .mode-hint-close:hover{opacity:1;background:rgba(0,0,0,.08)}
     .umarace .mode-hint-close:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-    @keyframes modeHintIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-    /* 案内が出ているあいだは、指している「リアル競馬風」側も光らせる */
-    .umarace .mode-hint-on #tabReal{color:#f2ecd9;box-shadow:0 0 0 2px var(--gold);
-      animation:modeHintPulse 1.9s ease-in-out 3}
-    @keyframes modeHintPulse{
-      0%,100%{box-shadow:0 0 0 2px var(--gold)}
-      50%{box-shadow:0 0 0 5px rgba(201,162,39,.3)}
+    @keyframes modeHintIn{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
+    /* 案内が出ているあいだは、指している「リアル競馬風」側も光らせる(点滅はさせない) */
+    .umarace .mode-hint-on #tabReal{
+      color:#f2ecd9;box-shadow:0 0 0 2px var(--gold);
+      transition:box-shadow .55s ease-out,color .55s ease-out;
     }
     @media(prefers-reduced-motion:reduce){
       .umarace .mode-hint{animation:none}
-      .umarace .mode-hint-on #tabReal{animation:none}
+      .umarace .mode-hint-on #tabReal{transition:none}
     }
     @media(max-width:600px){
       .tool-switch-wrap{margin-left:0;width:100%}
@@ -3606,7 +3604,9 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
 {
   const hint=document.getElementById("modeHint");
   const wrap=document.getElementById("toolSwitchWrap");
+  let cancel=null;          // まだ出していない案内を取り下げる(タブを先に押されたとき)
   const close=()=>{
+    if(cancel)cancel();
     if(hint.hidden)return;
     hint.hidden=true;
     wrap.classList.remove("mode-hint-on");
@@ -3619,11 +3619,37 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
     hint.style.setProperty("--arrow-right",
       Math.max(12,Math.min(w.right-(t.left+t.width/2),hint.offsetWidth-12))+"px");
   }
+  /* 出すのはページを開いた瞬間ではなく、切り替えタブが画面に入ってから
+     さらに少しスクロールしたとき。読み始めた人の視界の中でそっと現れるので、
+     いきなり出るより気づかれやすく、邪魔にもなりにくい */
+  function showWhenScrolledTo(){
+    let seen=false, scrolled=false, done=false;
+    const stop=()=>{
+      done=true;
+      removeEventListener("scroll",onScroll);
+      io.disconnect();
+      cancel=null;
+    };
+    const show=()=>{
+      if(done||!seen||!scrolled)return;
+      stop();
+      hint.hidden=false;
+      wrap.classList.add("mode-hint-on");
+      placeArrow();
+      addEventListener("resize",placeArrow);
+    };
+    cancel=stop;
+    const onScroll=()=>{scrolled=true;show();};
+    const io=new IntersectionObserver((es)=>{
+      if(es[0].isIntersecting)seen=true;
+      show();
+    },{threshold:.9});
+    io.observe(wrap);
+    addEventListener("scroll",onScroll,{passive:true});
+  }
+
   if(firstVisit&&toolMode==="classic"){
-    hint.hidden=false;
-    wrap.classList.add("mode-hint-on");
-    placeArrow();
-    addEventListener("resize",placeArrow);
+    showWhenScrolledTo();
     document.getElementById("modeHintClose").addEventListener("click",close);
     /* どちらかのタブを押した時点で役目は終わり。
        時間では消さない。ページを開いた直後はまだツールまで下りてきていないことが多く、
