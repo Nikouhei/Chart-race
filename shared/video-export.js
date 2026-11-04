@@ -1,5 +1,5 @@
 /*!
- * video-export.js — SVG / HTML で描いているツールの動画書き出し（WebM / MP4）
+ * video-export.js — SVG / HTML で描いているツールの動画書き出し（WebM / MP4 / 透過WebM / PNG連番）
  *
  * バーチャートレース・線グラフレースは d3 で SVG に描き、タイトル・年号・凡例は HTML。
  * canvas ではないので、競馬ツールのように captureStream で録画することはできない。
@@ -49,6 +49,14 @@
  *   外部画像は CORS を許可しているサーバーのものだけ動画に入る（flagcdn は可）。
  *   許可していない画像は動画から抜け、完了画面でその件数を知らせる。
  *
+ * ── 透過 ───────────────────────────────────────────────
+ *   ステージに .grs-transparent が付いていると背景を塗らず、形式の選択肢が次の2つに替わる。
+ *   MP4 に透過は無いので出さない。
+ *     透過WebM … VP8/VP9 はアルファを持てないので、色とアルファ（Y面に入れる）を別々に
+ *                エンコードし、アルファを BlockAdditions に入れる（ffmpeg の libvpx と同じ形）
+ *     PNG連番  … 透過PNGを無圧縮の ZIP にまとめる。動画編集ソフトで確実に透過を読めるのはこちら
+ *   export_format は webm_alpha / png_sequence になる。
+ *
  * 計測: 書き出すボタンは data-track="export_start"（export_format / watermark /
  *       export_scale / export_fps を付ける）。保存は a.click() なので export_complete は自動。
  *       失敗は js_error（error_source=video-export）で送る。
@@ -61,7 +69,7 @@
   var SHARED_BASE = SCRIPT_SRC ? SCRIPT_SRC.replace(/[^/]*$/, "") : "/shared/";
   var VENDOR = {
     mp4: SHARED_BASE + "vendor/mp4-muxer-5.2.2.js",
-    webm: SHARED_BASE + "vendor/webm-muxer-5.1.4.js"
+    webm: SHARED_BASE + "vendor/webm-muxer-5.1.4-alpha.js"
   };
   var LOGO_URL = SHARED_BASE + "../Logo/GraphRace_Studio_Logo.png";
 
@@ -178,6 +186,8 @@
   function isTransparent(c) {
     return !c || c === "transparent" || /^rgba\(.*,\s*0(\.0+)?\)$/.test(c);
   }
+  // 背景「透過」のステージか（ツールが applyLayoutAppearance で付ける）
+  function isAlphaStage(stage) { return !!(stage && stage.classList && stage.classList.contains("grs-transparent")); }
   function fontOf(cs) {
     return (cs.fontStyle || "normal") + " " + (cs.fontWeight || "400") + " " + (cs.fontSize || "16px") + " " + (cs.fontFamily || "sans-serif");
   }
@@ -262,14 +272,18 @@
     this.k = this.sr.width / this.W;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
-    // 動画に透明は無いので、ステージが透明なら「プレビューで後ろに見えている色」で塗る
-    var bg = "#ffffff";
-    for (var el = stage; el && el.nodeType === 1; el = el.parentElement) {
-      var c = getComputedStyle(el).backgroundColor;
-      if (!isTransparent(c)) { bg = c; break; }
+    if (isAlphaStage(stage)) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    } else {
+      // MP4 などに透明は無いので、ステージが透明なら「プレビューで後ろに見えている色」で塗る
+      var bg = "#ffffff";
+      for (var el = stage; el && el.nodeType === 1; el = el.parentElement) {
+        var c = getComputedStyle(el).backgroundColor;
+        if (!isTransparent(c)) { bg = c; break; }
+      }
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     this.paintHtml(stage, 1, true);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
@@ -634,9 +648,16 @@
         el = el.parentElement;
       }
     } catch (e) {}
-    var m = /rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/.exec(c);
-    var lum = m ? (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255 : 1;
+    var lum = luminance(c);
     markTone = lum < 0.5 ? "#ffffff" : "#000000";
+    // 透過のときは後ろの色が分からないので、文字と同じ色味にする
+    if (isAlphaStage(stage)) markTone = luminance(getComputedStyle(stage).color) < 0.5 ? "#000000" : "#ffffff";
+  }
+
+  function rgbOf(c) { return /rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/.exec(c || ""); }
+  function luminance(c) {
+    var m = rgbOf(c);
+    return m ? (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255 : 1;
   }
 
   // ロゴ＋文字の1単位を (0,0) 中心に描く。h は文字の高さの目安
@@ -801,6 +822,7 @@
 
   var supportCache = {};
   function formatSupported(format, size) {
+    if (format === "png") return Promise.resolve(true);
     var key = format + ":" + size.width + "x" + size.height;
     if (!supportCache[key]) supportCache[key] = pickConfig(format, size.width, size.height, 30).then(function (c) { return !!c; });
     return supportCache[key];
@@ -863,24 +885,260 @@
    * 1本書き出す。opts: { adapter, format, watermark, scale, fps, holdSec, onProgress, signal }
    * 戻り値: { blob, fileExt, frames, failedImages }
    */
+  // フレーム数の計算（アニメーション＋最後の静止）
+  function frameTiming(opts) {
+    var durationMs = Math.max(0, opts.adapter.getDurationMs());
+    var frameMs = 1000 / opts.fps;
+    var animFrames = Math.max(1, Math.ceil(durationMs / frameMs) + 1);
+    var holdFrames = Math.round((opts.holdSec || 0) * opts.fps);
+    return { durationMs: durationMs, frameMs: frameMs, total: animFrames + holdFrames, keyEvery: opts.fps * 2 };
+  }
+
+  // 全フレームを順に ctx へ描き、1枚ごとに emit(i) を呼ぶ
+  async function paintFrames(opts, ctx, size, timing, emit) {
+    var adapter = opts.adapter, fps = opts.fps, total = timing.total;
+    var ownMark = !!adapter.ownWatermark;
+    var custom = typeof adapter.paintFrame === "function";
+    var stage = custom ? null : adapter.getStage();
+    var painter = custom ? null : new Painter(ctx, stage, size.width);
+    var started = performance.now();
+    for (var i = 0; i < total; i++) {
+      if (opts.signal && opts.signal.aborted) throw new DOMException("cancelled", "AbortError");
+      // 最後の静止部分も毎フレーム描く（順位の入れ替わりが落ち着くまで動かすため）。
+      // 透かしも止めずに動かし続ける（止まると切り取られやすい）
+      await adapter.renderAt(Math.min(timing.durationMs, i * timing.frameMs), i === 0 ? 0 : timing.frameMs);
+      if (custom) {
+        await adapter.paintFrame(ctx, size.width, size.height, {});
+      } else {
+        var waiting = ensureImages(stage);
+        if (waiting) await waiting;
+        painter.paint();
+      }
+      if (opts.watermark && !ownMark) drawWatermark(ctx, size.width, size.height, i / fps);
+      await emit(i);
+      if (i % 3 === 0 || i === total - 1) {
+        var elapsed = performance.now() - started;
+        if (opts.onProgress) opts.onProgress({ done: i + 1, total: total, etaMs: elapsed / (i + 1) * (total - i - 1) });
+        await yieldTask();
+      }
+    }
+  }
+
+  // 透過WebM。色とアルファを別の VideoEncoder に通し、同じ時刻どうしを組にして muxer へ渡す
+  function alphaWebmWriter(ctx, size, fps, pick, keyEvery, matteCss) {
+    var W = size.width, H = size.height, pixels = W * H;
+    var target = new window.WebMMuxer.ArrayBufferTarget();
+    var muxer = new window.WebMMuxer.Muxer({
+      target: target,
+      video: { codec: pick.muxCodec, width: W, height: H, frameRate: fps, alpha: true },
+      firstTimestampBehavior: "offset"
+    });
+    var colors = [], alphas = [], error = null;
+    function pump() {
+      while (colors.length && alphas.length) {
+        var c = colors.shift();
+        muxer.addVideoChunk(c.chunk, Object.assign({}, c.meta, { alphaSideData: alphas.shift() }));
+      }
+    }
+    var onError = function (e) { error = e; };
+    var colorEnc = new VideoEncoder({
+      output: function (chunk, meta) { colors.push({ chunk: chunk, meta: meta }); pump(); },
+      error: onError
+    });
+    var alphaEnc = new VideoEncoder({
+      output: function (chunk) {
+        var data = new Uint8Array(chunk.byteLength);
+        chunk.copyTo(data);
+        alphas.push(data);
+        pump();
+      },
+      error: onError
+    });
+    colorEnc.configure(pick.config);
+    alphaEnc.configure(Object.assign({}, pick.config, { bitrate: Math.round(pick.config.bitrate * 0.6) }));
+
+    // アルファは I420 の Y 面にそのまま入れる（RGB から変換すると 16〜235 に縮んでしまう）。U・V は無彩色
+    var yuv = new Uint8Array(pixels + (W >> 1) * (H >> 1) * 2).fill(128);
+    // 完全に透明な部分の色は見えないが、圧縮で輪郭ににじむので文字と同じ色にしておく
+    var matte = rgbOf(matteCss);
+    var mr = matte ? +matte[1] : 0, mg = matte ? +matte[2] : 0, mb = matte ? +matte[3] : 0;
+    return {
+      add: async function (i) {
+        if (error) throw error;
+        var d = ctx.getImageData(0, 0, W, H).data;
+        for (var p = 0, o = 0; p < pixels; p++, o += 4) {
+          var a = d[o + 3];
+          yuv[p] = a;
+          if (a === 0) { d[o] = mr; d[o + 1] = mg; d[o + 2] = mb; }
+        }
+        var time = { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) };
+        var key = { keyFrame: i % keyEvery === 0 };
+        var colorFrame = new VideoFrame(d, Object.assign({ format: "RGBA", codedWidth: W, codedHeight: H }, time));
+        colorEnc.encode(colorFrame, key);
+        colorFrame.close();
+        var alphaFrame = new VideoFrame(yuv, Object.assign({ format: "I420", codedWidth: W, codedHeight: H }, time));
+        alphaEnc.encode(alphaFrame, key);
+        alphaFrame.close();
+        while (colorEnc.encodeQueueSize > 4 || alphaEnc.encodeQueueSize > 4) {
+          var busy = colorEnc.encodeQueueSize > 4 ? colorEnc : alphaEnc;
+          await new Promise(function (res) { busy.addEventListener("dequeue", res, { once: true }); });
+        }
+      },
+      finish: async function () {
+        await colorEnc.flush();
+        await alphaEnc.flush();
+        if (error) throw error;
+        pump();
+        muxer.finalize();
+        return { blob: new Blob([target.buffer], { type: "video/webm" }), fileExt: "webm" };
+      },
+      close: function () {
+        [colorEnc, alphaEnc].forEach(function (enc) { try { if (enc.state !== "closed") enc.close(); } catch (e) {} });
+      }
+    };
+  }
+
+  var crcTable = null;
+  function crc32(bytes) {
+    if (!crcTable) {
+      crcTable = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        crcTable[n] = c >>> 0;
+      }
+    }
+    var crc = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) crc = crcTable[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function pngChunk(type, data) {
+    var body = new Uint8Array(4 + data.length);
+    for (var i = 0; i < 4; i++) body[i] = type.charCodeAt(i);
+    body.set(data, 4);
+    var head = new DataView(new ArrayBuffer(4)), tail = new DataView(new ArrayBuffer(4));
+    head.setUint32(0, data.length);
+    tail.setUint32(0, crc32(body));
+    return [head.buffer, body, tail.buffer];
+  }
+
+  // RGBA の画素から PNG を作る。canvas.toBlob はブラウザの空き時間に回されるので、
+  // 別のタブにいると1枚1秒かかる（書き出しが止まって見える）。ここで直接組み立てる
+  async function encodePng(rgba, W, H, raw) {
+    var stride = W * 4;
+    for (var y = 0, si = 0, di = 0; y < H; y++) {
+      raw[di++] = 2; // 行フィルタ Up（真上の行との差）。グラフは縦に同じ色が続くのでよく縮む
+      for (var x = 0; x < stride; x++, si++) raw[di++] = rgba[si] - (y ? rgba[si - stride] : 0);
+    }
+    var deflated = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer();
+    var ihdr = new DataView(new ArrayBuffer(13));
+    ihdr.setUint32(0, W);
+    ihdr.setUint32(4, H);
+    ihdr.setUint8(8, 8);  // 8bit
+    ihdr.setUint8(9, 6);  // RGBA
+    var signature = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    return new Blob([signature].concat(
+      pngChunk("IHDR", new Uint8Array(ihdr.buffer)),
+      pngChunk("IDAT", new Uint8Array(deflated)),
+      pngChunk("IEND", new Uint8Array(0))
+    ), { type: "image/png" });
+  }
+
+  // PNG連番を ZIP（無圧縮）にまとめる。PNG はもう圧縮されているので縮める意味がない
+  function pngZipWriter(ctx, size) {
+    var parts = [], central = [], offset = 0, count = 0;
+    function header(size) { return new DataView(new ArrayBuffer(size)); }
+    // ローカルヘッダーと中央ディレクトリで共通の部分（version needed から extra length まで）
+    function common(v, p, crc, size, nameLen) {
+      v.setUint16(p, 20, true);       // version needed
+      v.setUint16(p + 2, 0x0800, true); // UTF-8
+      v.setUint16(p + 4, 0, true);    // 無圧縮
+      v.setUint16(p + 6, 0, true);    // 時刻
+      v.setUint16(p + 8, 0x21, true); // 日付（1980-01-01）
+      v.setUint32(p + 10, crc, true);
+      v.setUint32(p + 14, size, true);
+      v.setUint32(p + 18, size, true);
+      v.setUint16(p + 22, nameLen, true);
+    }
+    var enc = new TextEncoder();
+    var W = size.width, H = size.height, raw = new Uint8Array((W * 4 + 1) * H);
+    return {
+      add: async function (i) {
+        var blob = await encodePng(ctx.getImageData(0, 0, W, H).data, W, H, raw);
+        var crc = crc32(new Uint8Array(await blob.arrayBuffer()));
+        var name = enc.encode("frame_" + String(i + 1).padStart(6, "0") + ".png");
+        var local = header(30);
+        local.setUint32(0, 0x04034b50, true);
+        common(local, 4, crc, blob.size, name.length);
+        parts.push(local.buffer, name, blob);
+        var dir = header(46);
+        dir.setUint32(0, 0x02014b50, true);
+        dir.setUint16(4, 20, true);
+        common(dir, 6, crc, blob.size, name.length);
+        dir.setUint32(42, offset, true);
+        central.push(dir.buffer, name);
+        offset += 30 + name.length + blob.size;
+        count++;
+      },
+      finish: async function () {
+        var dirSize = central.reduce(function (n, b) { return n + b.byteLength; }, 0);
+        var end = header(22);
+        end.setUint32(0, 0x06054b50, true);
+        end.setUint16(8, count, true);
+        end.setUint16(10, count, true);
+        end.setUint32(12, dirSize, true);
+        end.setUint32(16, offset, true);
+        return { blob: new Blob(parts.concat(central, [end.buffer]), { type: "application/zip" }), fileExt: "zip" };
+      },
+      close: function () {}
+    };
+  }
+
+  async function encodeTransparent(opts) {
+    var adapter = opts.adapter, fps = opts.fps;
+    var size = outputSize(adapter.getSize(), opts.scale);
+    var png = opts.format === "png";
+    var pick = png ? null : await pickConfig("webm", size.width, size.height, fps);
+    if (!png && !pick) throw new Error("このブラウザでは WebM を書き出せません");
+    if (!png) await loadScript(VENDOR.webm);
+    var stage = adapter.getStage();
+    if (opts.watermark) { await loadLogo(); setMarkToneFrom(stage); }
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+
+    var timing = frameTiming(opts);
+    var canvas = document.createElement("canvas");
+    canvas.width = size.width;
+    canvas.height = size.height;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    var writer = png ? pngZipWriter(ctx, size) : alphaWebmWriter(ctx, size, fps, pick, timing.keyEvery, getComputedStyle(stage).color);
+
+    await adapter.beginExport({ watermark: !!opts.watermark, fps: fps, size: size });
+    var out;
+    try {
+      await paintFrames(opts, ctx, size, timing, writer.add);
+      out = await writer.finish();
+    } finally {
+      writer.close();
+      try { await adapter.endExport(); } catch (e) {}
+    }
+    return { blob: out.blob, fileExt: out.fileExt, frames: timing.total, failedImages: failedImageCount(), size: size, audioSkipped: false };
+  }
+
   async function encodeVideo(opts) {
+    if (opts.transparent) return encodeTransparent(opts);
     var adapter = opts.adapter;
     var size = outputSize(adapter.getSize(), opts.scale);
     var fps = opts.fps;
     var pick = await pickConfig(opts.format, size.width, size.height, fps);
     if (!pick) throw new Error(opts.format === "mp4" ? "このブラウザでは MP4 を書き出せません" : "このブラウザでは WebM を書き出せません");
     await loadScript(opts.format === "mp4" ? VENDOR.mp4 : VENDOR.webm);
-    var ownMark = !!adapter.ownWatermark;
-    var custom = typeof adapter.paintFrame === "function";
-    if (opts.watermark && !ownMark) { await loadLogo(); setMarkToneFrom(adapter.getStage()); }
+    if (opts.watermark && !adapter.ownWatermark) { await loadLogo(); setMarkToneFrom(adapter.getStage()); }
     try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
 
-    var durationMs = Math.max(0, adapter.getDurationMs());
-    var frameMs = 1000 / fps;
-    var animFrames = Math.max(1, Math.ceil(durationMs / frameMs) + 1);
-    var holdFrames = Math.round((opts.holdSec || 0) * fps);
-    var total = animFrames + holdFrames;
-    var keyEvery = fps * 2;
+    var timing = frameTiming(opts);
+    var total = timing.total;
+    var keyEvery = timing.keyEvery;
 
     // 音は映像の総尺ぶん。作れなかった・ブラウザが対応していないときは音なしで続ける
     var audio = null, audioSkipped = false;
@@ -936,35 +1194,15 @@
 
     await adapter.beginExport({ watermark: !!opts.watermark, fps: fps, size: size });
     try {
-      var stage = custom ? null : adapter.getStage();
-      var painter = custom ? null : new Painter(ctx, stage, size.width);
-      var started = performance.now();
-      for (var i = 0; i < total; i++) {
-        if (opts.signal && opts.signal.aborted) throw new DOMException("cancelled", "AbortError");
+      await paintFrames(opts, ctx, size, timing, async function (i) {
         if (encodeError) throw encodeError;
-        // 最後の静止部分も毎フレーム描く（順位の入れ替わりが落ち着くまで動かすため）。
-        // 透かしも止めずに動かし続ける（止まると切り取られやすい）
-        await adapter.renderAt(Math.min(durationMs, i * frameMs), i === 0 ? 0 : frameMs);
-        if (custom) {
-          await adapter.paintFrame(ctx, size.width, size.height, {});
-        } else {
-          var waiting = ensureImages(stage);
-          if (waiting) await waiting;
-          painter.paint();
-        }
-        if (opts.watermark && !ownMark) drawWatermark(ctx, size.width, size.height, i / fps);
         var frame = new VideoFrame(canvas, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
         encoder.encode(frame, { keyFrame: i % keyEvery === 0 });
         frame.close();
         while (encoder.encodeQueueSize > 4) {
           await new Promise(function (res) { encoder.addEventListener("dequeue", res, { once: true }); });
         }
-        if (i % 3 === 0 || i === total - 1) {
-          var elapsed = performance.now() - started;
-          if (opts.onProgress) opts.onProgress({ done: i + 1, total: total, etaMs: elapsed / (i + 1) * (total - i - 1) });
-          await yieldTask();
-        }
-      }
+      });
       await encoder.flush();
       if (encodeError) throw encodeError;
       feedAudio(Infinity);
@@ -1090,6 +1328,7 @@
 
     // ── 設定画面 ──
     var size0 = adapter.getSize();
+    var alpha = typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage());
     function scaleLabel(s) { var o = outputSize(size0, s); return o.width + "×" + o.height; }
     var SCALE_NAMES = { "1": "標準", "1.5": "高画質", "2": "最高画質" };
     var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [1, 1.5];
@@ -1106,9 +1345,13 @@
     body.innerHTML = inAppNote +
       '<div class="grsx-thumb"><canvas id="grsxThumb"></canvas></div>' +
       '<div class="grsx-field"><span>形式</span><div class="grsx-seg" data-name="format">' +
-        '<label><input type="radio" name="grsxFormat" value="mp4"><b>MP4 <em class="grsx-tag">おすすめ</em></b></label>' +
-        '<label><input type="radio" name="grsxFormat" value="webm"><b>WebM <em class="grsx-tag">PC向け</em></b></label>' +
+        (alpha
+          ? '<label><input type="radio" name="grsxFormat" value="webm"><b>透過WebM <em class="grsx-tag">1ファイル</em></b></label>' +
+            '<label><input type="radio" name="grsxFormat" value="png"><b>PNG連番 <em class="grsx-tag">動画編集ソフト向け</em></b></label>'
+          : '<label><input type="radio" name="grsxFormat" value="mp4"><b>MP4 <em class="grsx-tag">おすすめ</em></b></label>' +
+            '<label><input type="radio" name="grsxFormat" value="webm"><b>WebM <em class="grsx-tag">PC向け</em></b></label>') +
       "</div></div>" +
+      '<p class="grsx-note" id="grsxAlphaNote" hidden></p>' +
       '<p class="grsx-note grsx-webm-note" id="grsxWebmNote" hidden>WebM はスマホで再生できないことがあります。</p>' +
       '<div class="grsx-field"><span>透かし</span><div class="grsx-seg" data-name="mark">' +
         '<label><input type="radio" name="grsxMark" value="on"><b>あり</b></label>' +
@@ -1142,7 +1385,7 @@
     function val(name) { var el = body.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ""; }
 
     // 形式は MP4 を最初に選ぶ（スマホで再生・写真アプリに保存できるため）。書き出せないブラウザだけ WebM にする
-    radio("grsxFormat", "mp4");
+    radio("grsxFormat", alpha ? "webm" : "mp4");
     // ツール側に透かしの設定がある場合（格付けダービーのリアル競馬風）はそれに合わせる
     var mark0 = (typeof cfg.defaultWatermark === "function" && cfg.defaultWatermark()) || last.mark;
     radio("grsxMark", mark0 === "off" && (!P || P.canUse("no_watermark")) ? "off" : "on");
@@ -1168,6 +1411,7 @@
     function drawThumb() {
       var c = current();
       var stage = adapter.getStage();
+      if (alpha) thumb.style.background = "repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%) 0 0/16px 16px";
       // スマホで設定タブを開いているときなど、プレビューが非表示なら見本は出さない
       thumb.parentNode.hidden = !stage.getBoundingClientRect().width;
       if (thumb.parentNode.hidden) return;
@@ -1202,10 +1446,20 @@
       var out = outputSize(size0, c.scale);
       var durMs = adapter.getDurationMs() + c.hold * 1000;
       var estBytes = bitrateFor(out.width, out.height, c.fps) * 0.55 * durMs / 8000;
+      if (alpha) {
+        estBytes = c.format === "png"
+          ? out.width * out.height * 0.12 * c.fps * durMs / 1000
+          : estBytes * 1.4;
+      }
       body.querySelector("#grsxSummary").innerHTML =
         "長さ 約" + esc(fmtSec(durMs)) + "・" + out.width + "×" + out.height + "・" + c.fps + "fps・推定 " + esc(fmtMB(estBytes)) + " 前後";
-      body.querySelector("#grsxWebmNote").hidden = c.format !== "webm";
-      startBtn.setAttribute("data-track-export-format", c.format);
+      body.querySelector("#grsxWebmNote").hidden = alpha || c.format !== "webm";
+      var alphaNote = body.querySelector("#grsxAlphaNote");
+      alphaNote.hidden = !alpha;
+      alphaNote.textContent = !alpha ? "" : c.format === "png"
+        ? "透過PNGを1コマずつ ZIP にまとめます。解凍して、動画編集ソフトに連番として読み込んでください。"
+        : "背景が透明な動画です（MP4 は透過に対応していません）。透過 WebM を読み込めない動画編集ソフトでは PNG連番をお使いください。";
+      startBtn.setAttribute("data-track-export-format", alpha ? (c.format === "png" ? "png_sequence" : "webm_alpha") : c.format);
       startBtn.setAttribute("data-track-watermark", c.mark);
       startBtn.setAttribute("data-track-export-scale", c.scale + "x");
       startBtn.setAttribute("data-track-export-fps", String(c.fps));
@@ -1217,7 +1471,9 @@
       formatSupported(c.format, out).then(function (ok) {
         if (token !== supportToken || closed) return;
         supportEl.hidden = ok;
-        supportEl.textContent = ok ? "" : (c.format === "mp4"
+        supportEl.textContent = ok ? "" : alpha
+          ? "このブラウザでは、この画質の透過 WebM を書き出せません。PNG連番を選ぶか、画質を下げてください。"
+          : (c.format === "mp4"
           ? "このブラウザでは、この画質の MP4 を書き出せません。WebM を選ぶか、画質を下げてください。"
           : "このブラウザでは、この画質の WebM を書き出せません。MP4 を選ぶか、画質を下げてください。");
         startBtn.disabled = !ok;
@@ -1244,10 +1500,11 @@
     startBtn.addEventListener("click", function () { run(current()); });
     drawThumb();
     refresh();
-    // MP4 を書き出せないブラウザでは、最初から WebM にしておく
-    formatSupported("mp4", outputSize(size0, current().scale)).then(function (ok) {
-      if (ok || closed || val("grsxFormat") !== "mp4") return;
-      radio("grsxFormat", "webm");
+    // 既定の形式を書き出せないブラウザでは、最初からもう一方にしておく
+    var format0 = alpha ? "webm" : "mp4";
+    formatSupported(format0, outputSize(size0, current().scale)).then(function (ok) {
+      if (ok || closed || val("grsxFormat") !== format0) return;
+      radio("grsxFormat", alpha ? "png" : "webm");
       refresh();
     });
     startBtn.focus({ preventScroll: true });
@@ -1292,6 +1549,7 @@
         result = await encodeVideo({
           adapter: adapter,
           format: c.format,
+          transparent: alpha,
           watermark: c.mark === "on",
           scale: c.scale,
           fps: c.fps,

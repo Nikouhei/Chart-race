@@ -4,10 +4,10 @@
  *
  * - 白・黒を選ぶと、背景色とあわせて文字・軸などの色を自動で切り替える
  *   （白のときの色は、各ツールの HTML に書いてある初期値）
- * - 「透過」はまだ作っていない。有料機能にするか需要を測るためのボタン
+ * - 「透過」は背景色をオフにする（文字・軸の色は今のまま）。プレビューは市松模様で見せ、
+ *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過WebM／PNG連番にする
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
- *     「使いたい」と答える → tool_ui_click（button_id: transparentWant）
- *   今後 Polar で有料化するときは、ここに透過書き出しの本体と課金判定を入れる
+ *   今後 Polar で有料化するときは、ここに課金判定を入れる
  * - 計測：白・黒のボタンは id（bgWhite / bgBlack）がそのまま tool_ui_click の button_id になる
  * - 以前の「背景画像」は廃止（古い保存データに残っていても使わない）
  */
@@ -36,7 +36,10 @@
     '.grs-bg-mode button{flex:1;min-width:0;margin:0;padding:7px 6px;border:0;border-radius:6px;background:transparent;color:var(--text-muted,#6b7280);font-size:13px;line-height:1.2;box-shadow:none;cursor:pointer}',
     '.grs-bg-mode button:hover{transform:none}',
     '.grs-bg-mode button.active{background:#fff;color:var(--text-strong,#111);box-shadow:var(--shadow-soft,0 1px 3px rgba(0,0,0,.12))}',
-    '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}'
+    '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}',
+    // 透過のプレビュー用の市松模様（style 属性の background-* より優先する）。書き出しには写らない
+    '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%)!important;background-size:20px 20px!important;background-position:0 0!important;background-repeat:repeat!important}',
+    'body.grs-checker-dark #chartArea.grs-transparent{background-image:repeating-conic-gradient(#2b2b2b 0 25%,#3d3d3d 0 50%)!important}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -56,6 +59,8 @@
 
   function currentMode() {
     var bg = $('layoutBackgroundColor');
+    var useBg = $('enableBackgroundColor');
+    if (useBg && !useBg.checked) return 'transparent';
     return bg && isDark(bg.value) ? 'black' : 'white';
   }
 
@@ -66,12 +71,21 @@
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    // 文字が白っぽいときは暗い市松模様にする
+    var text = $('layoutTextColor');
+    document.body.classList.toggle('grs-checker-dark', mode === 'transparent' && !!text && !isDark(text.value));
   }
 
   function applyMode(mode) {
     var bg = $('layoutBackgroundColor');
     var useBg = $('enableBackgroundColor');
     if (!bg) return;
+
+    if (mode === 'transparent') {
+      if (useBg && useBg.checked) { useBg.checked = false; fire(useBg); }
+      syncButtons();
+      return;
+    }
 
     // 文字・軸などの色
     Object.keys(DARK).forEach(function (id) {
@@ -91,14 +105,6 @@
     syncButtons();
   }
 
-  function askTransparent() {
-    var msg = '透過での書き出しは準備中です。\n使ってみたいですか？（OKを押すと「使いたい」として送信されます）';
-    if (window.confirm(msg)) {
-      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'transparentWant', button_label: '透過を使いたい' });
-      window.alert('ありがとうございます！今後の開発の参考にします。');
-    }
-  }
-
   function init() {
     if (!document.querySelector('.grs-bg-mode')) return;
     var st = document.createElement('style');
@@ -107,9 +113,7 @@
 
     document.querySelectorAll('.grs-bg-mode [data-bg-mode]').forEach(function (b) {
       b.addEventListener('click', function () {
-        var mode = b.getAttribute('data-bg-mode');
-        if (mode === 'transparent') { askTransparent(); return; }
-        applyMode(mode);
+        applyMode(b.getAttribute('data-bg-mode'));
       });
     });
 

@@ -33,8 +33,6 @@ I18N.registerText('en', {
   '黒': 'Black',
   '透過': 'Transparent',
   '有料予定': 'Paid (planned)',
-  '透過での書き出しは準備中です。\n使ってみたいですか？（OKを押すと「使いたい」として送信されます）': 'Transparent export is coming soon.\nWould you like to use it? (Press OK to let us know.)',
-  'ありがとうございます！今後の開発の参考にします。': 'Thank you! We’ll use this to guide development.',
 
   // ── グラフ ──
   'グラフ': 'Chart',

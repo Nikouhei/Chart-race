@@ -719,7 +719,12 @@ var WebMMuxer = (() => {
         __privateSet(this, _firstVideoTimestamp, timestamp);
       if (meta)
         __privateMethod(this, _writeVideoDecoderConfig, writeVideoDecoderConfig_fn).call(this, meta);
-      let videoChunk = __privateMethod(this, _createInternalChunk, createInternalChunk_fn).call(this, data, type, timestamp, VIDEO_TRACK_NUMBER);
+      // GraphRace 追記: 透過動画のアルファ面（別エンコードした VP8/VP9 のフレーム）を BlockAdditions に入れる
+      let additions = meta?.alphaSideData ? [{ id: 166 /* BlockMore */, data: [
+        { id: 238 /* BlockAddID */, data: 1 },
+        { id: 165 /* BlockAdditional */, data: meta.alphaSideData }
+      ] }] : void 0;
+      let videoChunk = __privateMethod(this, _createInternalChunk, createInternalChunk_fn).call(this, data, type, timestamp, VIDEO_TRACK_NUMBER, void 0, additions);
       if (__privateGet(this, _options).video.codec === "V_VP9")
         __privateMethod(this, _fixVP9ColorSpace, fixVP9ColorSpace_fn).call(this, videoChunk);
       __privateSet(this, _lastVideoTimestamp, videoChunk.timestamp);
