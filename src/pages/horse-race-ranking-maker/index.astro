@@ -484,30 +484,35 @@ const soundReady = includeDrafts();
     /* 初回訪問者にだけ出す案内。タブの真下に出し、三角で「リアル競馬風」を指す。
        三角の横位置は訳文でタブ幅が変わるので、JSが --arrow-right に実測値を入れる */
     .umarace .mode-hint{
-      position:absolute;top:calc(100% + 10px);right:0;
-      width:min(288px,calc(100vw - 28px));padding:11px 30px 12px 13px;
-      background:#2e2a20;color:#f0ead2;border:1px solid var(--gold);border-radius:8px;
-      font-size:11.5px;font-weight:400;letter-spacing:.02em;line-height:1.7;
+      position:absolute;top:calc(100% + 11px);right:0;
+      width:min(340px,calc(100vw - 28px));padding:14px 36px 15px 16px;
+      background:linear-gradient(180deg,#fbf7ea,#f1e7cf);
+      color:var(--ink);border:2px solid var(--gold);border-radius:10px;
+      font-size:12.5px;font-weight:400;letter-spacing:.02em;line-height:1.75;
       text-align:left;white-space:normal;overflow-wrap:anywhere;
-      box-shadow:0 8px 22px rgba(0,0,0,.45);
+      box-shadow:0 10px 26px rgba(0,0,0,.5);
       animation:modeHintIn .28s ease-out both;
     }
     .umarace .mode-hint[hidden]{display:none}
     .umarace .mode-hint::before{
-      content:"";position:absolute;top:-5px;right:var(--arrow-right,62px);margin-right:-4px;
-      width:8px;height:8px;background:#2e2a20;
-      border-left:1px solid var(--gold);border-top:1px solid var(--gold);
+      content:"";position:absolute;top:-7px;right:var(--arrow-right,62px);margin-right:-5px;
+      width:10px;height:10px;background:#fbf7ea;
+      border-left:2px solid var(--gold);border-top:2px solid var(--gold);
       transform:rotate(45deg);
     }
-    .umarace .mode-hint b{display:block;margin:0 0 4px;color:var(--gold);font-weight:700;font-size:12px}
+    /* 見出しは本体の見出しと同じ太さ・字間にして、サイトの一部に見えるようにする */
+    .umarace .mode-hint b{
+      display:block;margin:0 0 5px;color:#7c5c10;
+      font-weight:800;font-size:14px;letter-spacing:.06em;line-height:1.45;
+    }
     .umarace .mode-hint p{margin:0}
     .umarace .mode-hint-close{
-      position:absolute;top:4px;right:4px;width:22px;height:22px;
+      position:absolute;top:5px;right:5px;width:24px;height:24px;
       display:flex;align-items:center;justify-content:center;
       border:none;background:none;cursor:pointer;
-      color:#f0ead2;opacity:.6;font-size:15px;line-height:1;border-radius:5px;
+      color:var(--ink);opacity:.5;font-size:16px;line-height:1;border-radius:5px;
     }
-    .umarace .mode-hint-close:hover{opacity:1;background:rgba(255,255,255,.1)}
+    .umarace .mode-hint-close:hover{opacity:1;background:rgba(0,0,0,.08)}
     .umarace .mode-hint-close:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
     @keyframes modeHintIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
     /* 案内が出ているあいだは、指している「リアル競馬風」側も光らせる */
@@ -1010,7 +1015,7 @@ const soundReady = includeDrafts();
             <summary>レース設定</summary>
             <div class="field">
               <label>レース名</label>
-              <input type="text" id="raceName" value="第1回 ランキング杯" maxlength="24" data-i18n-value>
+              <input type="text" id="raceName" value="第1回 ランキング杯" maxlength="40" data-i18n-value>
             </div>
             <!-- 尺の決め方が2つのツールで根本的に違うので、あえて別々に持つ。
                  競馬風=秒を指定 / リアル競馬風=コース距離から逆算。
@@ -2508,7 +2513,7 @@ function draw(dt){
   ctx.fillStyle="#c9a227";ctx.fillRect(0,52,W,3);
   ctx.font="bold 24px 'Hiragino Kaku Gothic ProN',sans-serif";
   ctx.fillStyle="#f2ecd9";ctx.textAlign="left";
-  ctx.fillText(R?R.name:_t("格付けダービー"),20,35);
+  ctx.fillText(R?R.name:_t("格付けダービー"),20,35,W-40);
   // 透かし(右下から左へ流れ続ける。動画にも焼き込まれる。書き出し画面で「なし」なら描かない)
   if(!exportNoMark){
   ctx.save();
@@ -2675,12 +2680,14 @@ function sfxOn(){ return SOUND_READY && document.getElementById("sfx").value==="
 function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
 
 /* ---- 出走前シーンの装飾画像 ----
-   タイトルの上に載せる冠飾りは Canvas では出せない質感なので画像で持つ。
+   冠飾りと月桂樹は Canvas では出せない質感なので画像で持つ。
    動画書き出しは new VideoFrame(canvas) でキャンバスを直接読むため、別オリジンの
    画像を1枚でも描くとキャンバスが汚染されて書き出しごと失敗する。
    必ず同じサイトの assets/ から読むこと(外部URL・CDNは不可) */
 const DECOR_SRC={
-  crest:"assets/decor/crest.webp",
+  crest  :"assets/decor/crest.webp",
+  laurelL:"assets/decor/laurel-left.webp",
+  laurelR:"assets/decor/laurel-right.webp",
 };
 const decorImgs={};
 let decorLoading=null;
@@ -2864,31 +2871,42 @@ function paintIntroCard(g,w,h,place){
   const n=list.length;
   const cols=(n>8&&w>=h)?2:1;
   const rows=Math.ceil(n/cols);
-  const titleH=104*k, gap=16*k, headH=42*k;
-  const crestImg=decorImg("crest");       // 冠飾り。読めていなければ月桂樹の線画に下げる
+  const gap=16*k, headH=42*k;
+  const crestImg=decorImg("crest");       // タイトルの上に置く冠飾り
+  const lL=decorImg("laurelL"), lR=decorImg("laurelR");   // タイトルの左右の月桂樹
 
   /* レース名と装飾は板の外(上)に置く。参考にしたJRAの重賞タイトルも、
      ロゴは中継映像の上に直接浮いていて枠には入っていない。
-     板の幅に縛られないので、長いレース名でも縮まずに済む。
-     装飾の大きさはタイトルに合わせるので、先に文字の大きさを決める */
-  const title=document.getElementById("raceName").value||_t("ランキング杯");
-  /* 冠飾りは横2.9:縦1。幅を広げると高さも増えて出馬表の行を押しつぶすので、
-     高さを画面の28%までに抑え、その範囲に入る幅を上限にする。
-     文字はリボンの平らな部分(画像の幅のおよそ7割)までしか大きくしない */
-  const crestAR=crestImg?crestImg.height/crestImg.width:0;
-  const crestMaxW=crestImg?Math.min(w*(w<h?0.96:0.86),h*0.28/crestAR):0;
-  const lw=crestImg?0:titleH*0.52;        // 下げたときの月桂樹の幅
-  const maxTitleW=crestImg?crestMaxW*0.74:w*0.90-(lw+14*k)*2;
-  let fs=54*k;
-  g.font=font(fs);
-  while(fs>18*k&&g.measureText(title).width>maxTitleW){fs-=2*k;g.font=font(fs);}
-  const tw=g.measureText(title).width;
 
-  /* タイトルの幅から冠飾りの大きさを逆算すると、短い名前でも間延びしない */
-  const crestW=crestImg?Math.max(w*0.34,Math.min(tw/0.68,crestMaxW)):0;
+     主役はレース名なので、まず文字の大きさを決め、装飾をそれに合わせる。
+     基準の大きさは画面の短辺(k)で決まり、横にはみ出すぶんだけ縮める。
+     同じ文字数でも 16:9 は横に余裕があるぶん 9:16 より大きく出る */
+  const title=document.getElementById("raceName").value||_t("ランキング杯");
+  const LAUREL_H=1.18;                    // 月桂樹の高さ = 文字の大きさの何倍か
+  const blockWidth=(size)=>{
+    g.font=font(size);
+    const t=g.measureText(title).width, lh=size*LAUREL_H, pad=size*0.26;
+    const wl=lL?lh*lL.width/lL.height+pad:0;
+    const wr=lR?lh*lR.width/lR.height+pad:0;
+    return t+wl+wr;
+  };
+  let fs=62*k;
+  while(fs>16*k&&blockWidth(fs)>w*0.92)fs-=k;
+  g.font=font(fs);
+  const tw=g.measureText(title).width;
+  const lh=fs*LAUREL_H, pad=fs*0.26;
+  const lwL=lL?lh*lL.width/lL.height:0, lwR=lR?lh*lR.width/lR.height:0;
+  const titleH=Math.max(fs*1.5,lh);       // タイトル行の高さ(月桂樹も入る)
+
+  /* 冠飾りは横2.9:縦1。幅を広げると高さも増えて出馬表の行を押しつぶすので、
+     高さを画面の22%までに抑える。幅はタイトルの広がりに合わせる */
+  const crestAR=crestImg?crestImg.height/crestImg.width:0;
+  const crestW=crestImg
+    ?Math.min(Math.max((tw+lwL+lwR)*0.92,w*0.26),w*0.72,h*0.22/crestAR)
+    :0;
   const crestH=crestW*crestAR;
-  const crestDrop=crestH*0.26;            // リボンをタイトルに重ねる量
-  const headBlockH=(crestImg?crestH-crestDrop:0)+titleH;
+  const crestOverlap=-fs*0.10;            // 冠飾りとタイトルの間の空き(負=重ねない)
+  const headBlockH=(crestImg?crestH-crestOverlap:0)+titleH;
 
   const maxRowH=46*k;
   const rowH=Math.min(maxRowH,(h*0.90-headBlockH-gap-headH-30*k)/rows);
@@ -2900,7 +2918,7 @@ function paintIntroCard(g,w,h,place){
   const totalH=headBlockH+gap+bh;
   const topY=place==="bottom" ? Math.max((h-totalH)/2, h-totalH-26*k) : (h-totalH)/2;
   const by=topY+headBlockH+gap;
-  const ty=topY+(crestImg?crestH-crestDrop:0)+titleH*0.54;   // タイトルの中心
+  const ty=topY+(crestImg?crestH-crestOverlap:0)+titleH*0.52;   // タイトルの中心
 
   g.save();
   /* 背景(レースの映像)は暗くしない。板も半透明にして、後ろの馬が透けて見えるようにする。
@@ -2923,13 +2941,14 @@ function paintIntroCard(g,w,h,place){
   cornerMark(g,bx+ci,by+bh-ci,cs, 1,-1);
   cornerMark(g,bx+bw-ci,by+bh-ci,cs,-1,-1);
 
-  // ---- 冠飾り(タイトルの上)。画像が落ちていたら月桂樹の線画で代わりを立てる ----
+  // ---- 冠飾り(タイトルの上) ----
   if(crestImg)g.drawImage(crestImg,(w-crestW)/2,topY,crestW,crestH);
-  else{
-    const pad=10*k;
-    laurel(g,w/2-tw/2-pad-titleH*0.26,ty,titleH*0.42,-1);
-    laurel(g,w/2+tw/2+pad+titleH*0.26,ty,titleH*0.42, 1);
-  }
+
+  // ---- 月桂樹(タイトルの左右)。画像が落ちていたら Canvas 描画に下げる ----
+  if(lL)g.drawImage(lL,w/2-tw/2-pad-lwL,ty-lh/2,lwL,lh);
+  else laurel(g,w/2-tw/2-pad-fs*0.34,ty,fs*0.56,-1);
+  if(lR)g.drawImage(lR,w/2+tw/2+pad,ty-lh/2,lwR,lh);
+  else laurel(g,w/2+tw/2+pad+fs*0.34,ty,fs*0.56, 1);
 
   // ---- レース名(ユーザーが入れた文字なので訳さない。大きさは上で決めてある) ----
   goldText(g,title,w/2,ty,fs,font);
@@ -3587,12 +3606,10 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
 {
   const hint=document.getElementById("modeHint");
   const wrap=document.getElementById("toolSwitchWrap");
-  let timer=null;
   const close=()=>{
     if(hint.hidden)return;
     hint.hidden=true;
     wrap.classList.remove("mode-hint-on");
-    clearTimeout(timer);
     removeEventListener("resize",placeArrow);
   };
   // 三角は「リアル競馬風」タブの真ん中へ。英語版はタブ幅が違うので実測して置く
@@ -3608,9 +3625,12 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
     placeArrow();
     addEventListener("resize",placeArrow);
     document.getElementById("modeHintClose").addEventListener("click",close);
-    // どちらかのタブを押した時点で役目は終わり。放置されても邪魔にならないよう自分で消える
+    /* どちらかのタブを押した時点で役目は終わり。
+       時間では消さない。ページを開いた直後はまだツールまで下りてきていないことが多く、
+       勝手に消えると「3Dがある」ことに気づかないまま終わってしまう */
     for(const m in tabs)tabs[m].addEventListener("click",close);
-    timer=setTimeout(close,14000);
+    // レースを始めた人にはもう邪魔なだけ(プレビューに少しかぶる)ので、ここでも消す
+    document.getElementById("startBtn").addEventListener("click",close);
   }
 }
 
