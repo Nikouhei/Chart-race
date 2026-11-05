@@ -41,7 +41,7 @@
  *   });
  *
  * ── 描き写せるもの ──────────────────────────────────────
- *   HTML: 背景色・背景画像（cover）・角丸・テキスト（折り返し含む）
+ *   HTML: 背景色・背景画像（cover）・角丸・テキスト（折り返し含む）・-webkit-text-stroke（文字の後ろに描く）
  *   SVG : g / rect / circle / ellipse / line / path / polyline / polygon / text(+tspan) / image
  *         塗り・線・破線・不透明度・transform・preserveAspectRatio・
  *         CSS clip-path の circle() / inset(... round ...)
@@ -377,6 +377,12 @@
     ctx.fillStyle = cs.color;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
+    var strokeW = num(cs.webkitTextStrokeWidth, 0);
+    if (strokeW > 0) {
+      ctx.strokeStyle = cs.webkitTextStrokeColor;
+      ctx.lineWidth = strokeW;
+      ctx.lineJoin = "round";
+    }
     for (var j = 0; j < lines.length; j++) {
       var t = lines[j].text.replace(/\s+/g, " ").trim();
       if (!t) continue;
@@ -384,7 +390,9 @@
       var m = ctx.measureText(t);
       var asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
       if (!Number.isFinite(asc)) { asc = num(cs.fontSize, 16) * 0.88; desc = num(cs.fontSize, 16) * 0.24; }
-      ctx.fillText(t, L.x, L.y + (L.h - (asc + desc)) / 2 + asc);
+      var baseY = L.y + (L.h - (asc + desc)) / 2 + asc;
+      if (strokeW > 0) ctx.strokeText(t, L.x, baseY);
+      ctx.fillText(t, L.x, baseY);
     }
   };
 

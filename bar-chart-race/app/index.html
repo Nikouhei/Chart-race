@@ -17,7 +17,7 @@
   <script src="../../shared/analytics.js?v=20261023" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026101703" defer></script>
-  <script src="../../shared/video-export.js?v=2026110101" defer></script>
+  <script src="../../shared/video-export.js?v=2026110510" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -52,9 +52,9 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110101" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110510" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/background-mode.js?v=2026102601" defer></script>
+  <script src="../../shared/background-mode.js?v=2026110510" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -1350,6 +1350,16 @@
           </div>
         </div>
       </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>文字のフチ(px)</span>
+          <input type="number" id="textOutlineWidth" value="0" min="0" max="20" step="0.5">
+        </div>
+        <div class="setting-field">
+          <span>フチの色</span>
+          <input type="color" id="textOutlineColor" value="#000000">
+        </div>
+      </div>
       <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している -->
       <div hidden>
         <input type="color" id="layoutBackgroundColor" value="#ffffff">
@@ -1447,8 +1457,8 @@
       <div class="element-toggle-field">
         <span class="setting-caption">グラフ内に表示</span>
         <div class="element-toggles" role="group" aria-label="グラフ内に表示">
-          <label class="element-toggle"><input type="checkbox" id="showNameLabels" checked><span>項目名</span></label>
-          <label class="element-toggle"><input type="checkbox" id="showValueLabels" checked><span>値</span></label>
+          <label class="element-toggle" data-chart-style="score"><input type="checkbox" id="showNameLabels" checked><span>項目名</span></label>
+          <label class="element-toggle" data-chart-style="score"><input type="checkbox" id="showValueLabels" checked><span>値</span></label>
           <label class="element-toggle"><input type="checkbox" id="barShowImages" checked data-image-toggle><span>画像</span></label>
         </div>
       </div>
@@ -1467,18 +1477,22 @@
           <span>値の色</span>
           <input type="color" id="valueLabelColor" value="#333333">
         </div>
-        <div class="setting-field">
+        <div class="setting-field" data-chart-style="score">
           <span>値の余白(px)</span>
           <input type="number" id="valueLabelSpace" value="15" min="-80" max="200" step="0.5">
         </div>
       </div>
       <div class="checkbox-group">
-        <input type="checkbox" id="showRankingItemAfterBar" checked>
-        <span>ランキング: バー後方に項目名</span>
+        <input type="checkbox" id="labelBold" data-track="tool_ui_click">
+        <span>太字</span>
       </div>
-      <div class="checkbox-group">
+      <div class="checkbox-group" data-chart-style="ranking">
+        <input type="checkbox" id="showRankingItemAfterBar" checked>
+        <span>バーの後ろに項目名</span>
+      </div>
+      <div class="checkbox-group" data-chart-style="ranking">
         <input type="checkbox" id="showRankingValueInsideBar" checked>
-        <span>ランキング: バー内左端にデータ</span>
+        <span>バーの中にデータ</span>
       </div>
     </div>
 
@@ -1981,10 +1995,10 @@
     const PROJECT_SETTING_IDS = [
       'playbackLengthMode', 'playbackCustomSeconds',
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
-      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor',
+      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
-      'showRankingItemAfterBar', 'showRankingValueInsideBar',
+      'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
@@ -2244,6 +2258,11 @@
       setSegmentedActive('[data-sort-enabled]', sortEnabled, 'sortEnabled');
       setSegmentedActive('[data-bar-advanced]', showAdvanced, 'barAdvanced');
       document.getElementById('barAdvancedSettings')?.classList.toggle('active', Boolean(showAdvanced));
+      // 表示形式で効かない設定は隠す（値は保持するので、形式を戻せば元どおり）
+      const chartStyle = document.getElementById('chartStyle')?.value || 'score';
+      document.querySelectorAll('[data-chart-style]').forEach(el => {
+        el.style.display = el.dataset.chartStyle === chartStyle ? '' : 'none';
+      });
     }
 
     function hashString(value) {
@@ -2754,7 +2773,9 @@
         font: document.getElementById('mainFont').value || "'Helvetica Neue', Arial, sans-serif",
         textColor: document.getElementById('layoutTextColor').value || '#222222',
         useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
-        backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff'
+        backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
+        outlineWidth: Math.max(0, parseFloat(document.getElementById('textOutlineWidth').value) || 0),
+        outlineColor: document.getElementById('textOutlineColor').value || '#000000'
       };
     }
 
@@ -2767,6 +2788,10 @@
       chart.style.fontFamily = settings.font;
       chart.style.color = settings.textColor;
       chart.style.backgroundColor = settings.useBackgroundColor ? settings.backgroundColor : 'transparent';
+      // 文字のフチ（見た目の指定は shared/background-mode.js の .grs-outlined）
+      chart.classList.toggle('grs-outlined', settings.outlineWidth > 0);
+      chart.style.setProperty('--grs-outline-width', settings.outlineWidth + 'px');
+      chart.style.setProperty('--grs-outline-color', settings.outlineColor);
       chart.style.backgroundImage = 'none';
       chart.style.backgroundSize = 'cover';
       chart.style.backgroundPosition = 'center';
@@ -2795,6 +2820,7 @@
         showNames: document.getElementById('showNameLabels').checked,
         nameColor: document.getElementById('nameLabelColor').value || '#333333',
         showValues: document.getElementById('showValueLabels').checked,
+        bold: document.getElementById('labelBold').checked,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
         valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
         showRankingItemAfterBar: document.getElementById('showRankingItemAfterBar').checked,
@@ -4901,6 +4927,9 @@
         .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).x)
         .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width);
 
+      rowsUpdate.selectAll(".name-label, .value-label, .ranking-item-label, .ranking-value-label")
+        .style("font-weight", labelSettings.bold ? 700 : null);
+
       rowsUpdate.select(".name-label")
         .attr("y", yScale.bandwidth() / 2)
         .style("font-size", effectiveLabelFontSize + "px")
@@ -5853,7 +5882,7 @@
       document.getElementById('aspectRatioPreset').value = 'custom';
       onLayoutSettingChange('canvasHeight');
     });
-    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor'].forEach(id => {
+    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor'].forEach(id => {
       const eventName = ['mainFont', 'enableBackgroundColor'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => {
         applyLayoutAppearance();
@@ -5865,10 +5894,11 @@
     });
     document.getElementById('chartStyle').addEventListener('change', () => {
       document.getElementById('barStartOffset').value = 0;
+      syncBarSettingsControls();
       onLayoutSettingChange('chartStyle');
     });
-    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
-      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
+    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
+      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
     });
     document.getElementById('barShowImages').addEventListener('change', () => refreshCurrentPreview({ reset: true }));

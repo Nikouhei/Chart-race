@@ -8,6 +8,8 @@
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
  *     「使いたい」と答える → tool_ui_click（button_id: transparentWant）
  *   今後 Polar で有料化するときは、ここに透過書き出しの本体と課金判定を入れる
+ * - 文字のフチ（textOutlineWidth / textOutlineColor）は #chartArea の .grs-outlined と CSS 変数で付ける。
+ *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
  * - 計測：白・黒のボタンは id（bgWhite / bgBlack）がそのまま tool_ui_click の button_id になる
  * - 以前の「背景画像」は廃止（古い保存データに残っていても使わない）
  */
@@ -36,7 +38,10 @@
     '.grs-bg-mode button{flex:1;min-width:0;margin:0;padding:7px 6px;border:0;border-radius:6px;background:transparent;color:var(--text-muted,#6b7280);font-size:13px;line-height:1.2;box-shadow:none;cursor:pointer}',
     '.grs-bg-mode button:hover{transform:none}',
     '.grs-bg-mode button.active{background:#fff;color:var(--text-strong,#111);box-shadow:var(--shadow-soft,0 1px 3px rgba(0,0,0,.12))}',
-    '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}'
+    '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}',
+    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない
+    '#chartArea.grs-outlined{-webkit-text-stroke:var(--grs-outline-width) var(--grs-outline-color);paint-order:stroke fill}',
+    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-width);stroke-linejoin:round;paint-order:stroke fill}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -111,6 +116,11 @@
         if (mode === 'transparent') { askTransparent(); return; }
         applyMode(mode);
       });
+    });
+
+    var outline = $('textOutlineWidth');
+    if (outline) outline.addEventListener('change', function () {
+      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textOutlineWidth', button_label: '文字のフチ' });
     });
 
     syncButtons();
