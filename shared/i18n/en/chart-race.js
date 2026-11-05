@@ -133,8 +133,8 @@ I18N.registerText('en', {
   '値の色': 'Value color',
   '値の余白(px)': 'Value spacing (px)',
   '値を表示': 'Show values',
-  'ランキング: バー後方に項目名': 'Ranking: name after the bar',
-  'ランキング: バー内左端にデータ': 'Ranking: value inside the bar',
+  'バーの後ろに項目名': 'Name after the bar',
+  'バーの中にデータ': 'Value inside the bar',
 
   // ── 画像 ──
   '画像': 'Images',

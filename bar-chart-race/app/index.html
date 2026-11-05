@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110501" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110502" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110404" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -1457,8 +1457,8 @@
       <div class="element-toggle-field">
         <span class="setting-caption">グラフ内に表示</span>
         <div class="element-toggles" role="group" aria-label="グラフ内に表示">
-          <label class="element-toggle"><input type="checkbox" id="showNameLabels" checked><span>項目名</span></label>
-          <label class="element-toggle"><input type="checkbox" id="showValueLabels" checked><span>値</span></label>
+          <label class="element-toggle" data-chart-style="score"><input type="checkbox" id="showNameLabels" checked><span>項目名</span></label>
+          <label class="element-toggle" data-chart-style="score"><input type="checkbox" id="showValueLabels" checked><span>値</span></label>
           <label class="element-toggle"><input type="checkbox" id="barShowImages" checked data-image-toggle><span>画像</span></label>
         </div>
       </div>
@@ -1477,7 +1477,7 @@
           <span>値の色</span>
           <input type="color" id="valueLabelColor" value="#333333">
         </div>
-        <div class="setting-field">
+        <div class="setting-field" data-chart-style="score">
           <span>値の余白(px)</span>
           <input type="number" id="valueLabelSpace" value="15" min="-80" max="200" step="0.5">
         </div>
@@ -1486,13 +1486,13 @@
         <input type="checkbox" id="labelBold" data-track="tool_ui_click">
         <span>太字</span>
       </div>
-      <div class="checkbox-group">
+      <div class="checkbox-group" data-chart-style="ranking">
         <input type="checkbox" id="showRankingItemAfterBar" checked>
-        <span>ランキング: バー後方に項目名</span>
+        <span>バーの後ろに項目名</span>
       </div>
-      <div class="checkbox-group">
+      <div class="checkbox-group" data-chart-style="ranking">
         <input type="checkbox" id="showRankingValueInsideBar" checked>
-        <span>ランキング: バー内左端にデータ</span>
+        <span>バーの中にデータ</span>
       </div>
     </div>
 
@@ -2258,6 +2258,11 @@
       setSegmentedActive('[data-sort-enabled]', sortEnabled, 'sortEnabled');
       setSegmentedActive('[data-bar-advanced]', showAdvanced, 'barAdvanced');
       document.getElementById('barAdvancedSettings')?.classList.toggle('active', Boolean(showAdvanced));
+      // 表示形式で効かない設定は隠す（値は保持するので、形式を戻せば元どおり）
+      const chartStyle = document.getElementById('chartStyle')?.value || 'score';
+      document.querySelectorAll('[data-chart-style]').forEach(el => {
+        el.style.display = el.dataset.chartStyle === chartStyle ? '' : 'none';
+      });
     }
 
     function hashString(value) {
@@ -5890,6 +5895,7 @@
     });
     document.getElementById('chartStyle').addEventListener('change', () => {
       document.getElementById('barStartOffset').value = 0;
+      syncBarSettingsControls();
       onLayoutSettingChange('chartStyle');
     });
     ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
