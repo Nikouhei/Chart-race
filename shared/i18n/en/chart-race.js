@@ -128,6 +128,7 @@ I18N.registerText('en', {
   '出典色': 'Source color',
   '文字サイズ(px)': 'Text size (px)',
   '項目名の色': 'Name color',
+  '太字': 'Bold',
   '項目名を表示': 'Show names',
   '値の色': 'Value color',
   '値の余白(px)': 'Value spacing (px)',

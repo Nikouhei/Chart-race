@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110403" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110501" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110404" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -1483,6 +1483,10 @@
         </div>
       </div>
       <div class="checkbox-group">
+        <input type="checkbox" id="labelBold" data-track="tool_ui_click">
+        <span>太字</span>
+      </div>
+      <div class="checkbox-group">
         <input type="checkbox" id="showRankingItemAfterBar" checked>
         <span>ランキング: バー後方に項目名</span>
       </div>
@@ -1994,7 +1998,7 @@
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
-      'showRankingItemAfterBar', 'showRankingValueInsideBar',
+      'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
@@ -2812,6 +2816,7 @@
         showNames: document.getElementById('showNameLabels').checked,
         nameColor: document.getElementById('nameLabelColor').value || '#333333',
         showValues: document.getElementById('showValueLabels').checked,
+        bold: document.getElementById('labelBold').checked,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
         valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
         showRankingItemAfterBar: document.getElementById('showRankingItemAfterBar').checked,
@@ -4918,6 +4923,9 @@
         .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).x)
         .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width);
 
+      rowsUpdate.selectAll(".name-label, .value-label, .ranking-item-label, .ranking-value-label")
+        .style("font-weight", labelSettings.bold ? 700 : null);
+
       rowsUpdate.select(".name-label")
         .attr("y", yScale.bandwidth() / 2)
         .style("font-size", effectiveLabelFontSize + "px")
@@ -5884,8 +5892,8 @@
       document.getElementById('barStartOffset').value = 0;
       onLayoutSettingChange('chartStyle');
     });
-    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
-      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
+    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
+      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
     });
     document.getElementById('barShowImages').addEventListener('change', () => refreshCurrentPreview({ reset: true }));
