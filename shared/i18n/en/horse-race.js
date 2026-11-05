@@ -162,6 +162,11 @@ I18N.registerText('en', {
 
   // ── サウンド ──
   'サウンド': 'Sound',
+  // 初回訪問者にだけ出る、3Dの存在を知らせる案内
+  '3Dの馬が走るモードもあります': 'There\u2019s a 3D mode, too',
+  'いま開いているのは、すぐ使える軽い「競馬風」です。こちらに切り替えると、実際の競馬場のようなコースをCGの馬が走ります。':
+    'You\u2019re in 2D Race, the light mode that opens instantly. Switch over here and CG horses will run on a course like a real racetrack.',
+  'このお知らせを閉じる': 'Dismiss this message',
   'ファンファーレ': 'Fanfare',
   'ファンファーレの種類': 'Fanfare',
   'スタート前の演出': 'Pre-race intro',

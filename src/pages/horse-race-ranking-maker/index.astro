@@ -30,9 +30,9 @@ const soundReady = includeDrafts();
 >
   <Fragment slot="head">
     <script is:inline src="/shared/export-plan.js?v=2026101703" defer></script>
-    <script is:inline src="/shared/video-export.js?v=2026110101" defer></script>
+    <script is:inline src="/shared/video-export.js?v=2026110510" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026110101" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026110510" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
@@ -461,7 +461,7 @@ const soundReady = includeDrafts();
     /* ツール切替。2つのエンジンは見た目も重さも別物なので、
        見出しの中の一番目に付く場所に置いて今どちらなのかを常に示す */
     .tool-switch{
-      margin-left:auto;display:flex;gap:4px;padding:4px;
+      display:flex;gap:4px;padding:4px;
       background:rgba(0,0,0,.35);border:1px solid #2c4033;border-radius:999px;
     }
     .tool-switch button{
@@ -479,8 +479,54 @@ const soundReady = includeDrafts();
       background:rgba(255,255,255,.16);color:inherit;
     }
     .tool-switch button[aria-selected="true"] .tag3d{background:rgba(0,0,0,.22)}
+    /* 初回案内の位置の基準。案内がツール本体の上に乗るよう重ね順も上げる */
+    .tool-switch-wrap{margin-left:auto;position:relative;z-index:70}
+    /* 初回訪問者にだけ出す案内。タブの真下に出し、三角で「リアル競馬風」を指す。
+       三角の横位置は訳文でタブ幅が変わるので、JSが --arrow-right に実測値を入れる */
+    .umarace .mode-hint{
+      position:absolute;top:calc(100% + 11px);right:0;
+      width:min(340px,calc(100vw - 28px));padding:14px 36px 15px 16px;
+      background:linear-gradient(180deg,#fbf7ea,#f1e7cf);
+      color:var(--ink);border:2px solid var(--gold);border-radius:10px;
+      font-size:12.5px;font-weight:400;letter-spacing:.02em;line-height:1.75;
+      text-align:left;white-space:normal;overflow-wrap:anywhere;
+      box-shadow:0 10px 26px rgba(0,0,0,.5);
+      animation:modeHintIn .55s cubic-bezier(.22,.7,.3,1) both;
+    }
+    .umarace .mode-hint[hidden]{display:none}
+    .umarace .mode-hint::before{
+      content:"";position:absolute;top:-7px;right:var(--arrow-right,62px);margin-right:-5px;
+      width:10px;height:10px;background:#fbf7ea;
+      border-left:2px solid var(--gold);border-top:2px solid var(--gold);
+      transform:rotate(45deg);
+    }
+    /* 見出しは本体の見出しと同じ太さ・字間にして、サイトの一部に見えるようにする */
+    .umarace .mode-hint b{
+      display:block;margin:0 0 5px;color:#7c5c10;
+      font-weight:800;font-size:14px;letter-spacing:.06em;line-height:1.45;
+    }
+    .umarace .mode-hint p{margin:0}
+    .umarace .mode-hint-close{
+      position:absolute;top:5px;right:5px;width:24px;height:24px;
+      display:flex;align-items:center;justify-content:center;
+      border:none;background:none;cursor:pointer;
+      color:var(--ink);opacity:.5;font-size:16px;line-height:1;border-radius:5px;
+    }
+    .umarace .mode-hint-close:hover{opacity:1;background:rgba(0,0,0,.08)}
+    .umarace .mode-hint-close:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+    @keyframes modeHintIn{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
+    /* 案内が出ているあいだは、指している「リアル競馬風」側も光らせる(点滅はさせない) */
+    .umarace .mode-hint-on #tabReal{
+      color:#f2ecd9;box-shadow:0 0 0 2px var(--gold);
+      transition:box-shadow .55s ease-out,color .55s ease-out;
+    }
+    @media(prefers-reduced-motion:reduce){
+      .umarace .mode-hint{animation:none}
+      .umarace .mode-hint-on #tabReal{transition:none}
+    }
     @media(max-width:600px){
-      .tool-switch{margin-left:0;width:100%}
+      .tool-switch-wrap{margin-left:0;width:100%}
+      .tool-switch{width:100%}
       .tool-switch button{flex:1;justify-content:center;padding:9px 8px}
     }
     /* モード別の出し分け。DOMは常に両方あり、表示だけ切り替える */
@@ -896,9 +942,19 @@ const soundReady = includeDrafts();
       <div class="umarace-head">
         <h2>格付け<span>ダービー</span></h2>
         <p id="toolTagline">順位を決めて、走らせるだけ。競馬中継風ランキング動画メーカー</p>
-        <div class="tool-switch" role="tablist" aria-label="ツールの切り替え">
-          <button type="button" role="tab" id="tabClassic" data-mode="classic" aria-selected="true">競馬風</button>
-          <button type="button" role="tab" id="tabReal" data-mode="real" aria-selected="false">リアル競馬風<span class="tag3d">3D</span></button>
+        <!-- 切り替えタブ。初回案内をこの真下に出すので、位置の基準になる箱で包む -->
+        <div class="tool-switch-wrap" id="toolSwitchWrap">
+          <div class="tool-switch" role="tablist" aria-label="ツールの切り替え">
+            <button type="button" role="tab" id="tabClassic" data-mode="classic" aria-selected="true">競馬風</button>
+            <button type="button" role="tab" id="tabReal" data-mode="real" aria-selected="false">リアル競馬風<span class="tag3d">3D</span></button>
+          </div>
+          <!-- 初回訪問のときだけ出す案内。3Dは押されるまで読み込まれないので、
+               存在に気づかないまま帰ってしまう人が出る。role=status で読み上げにも乗せる -->
+          <div class="mode-hint" id="modeHint" role="status" hidden>
+            <b>3Dの馬が走るモードもあります</b>
+            <p>いま開いているのは、すぐ使える軽い「競馬風」です。こちらに切り替えると、実際の競馬場のようなコースをCGの馬が走ります。</p>
+            <button type="button" class="mode-hint-close" id="modeHintClose" aria-label="このお知らせを閉じる">×</button>
+          </div>
         </div>
       </div>
       <div class="umarace-grid">
@@ -1665,6 +1721,7 @@ const SETTING_GROUPS={
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
 let stateLoaded=false;    // 復元完了前の保存を抑止
+let firstVisit=false;     // 保存データが無かった = このブラウザでは初めて開いた
 /* DOMの入力欄に紐づかない覚え書き。
    いまは「そのモードでしか選べないアスペクト比」を記憶するのに使っている */
 let extras={aspectMemo:{}};
@@ -1785,6 +1842,7 @@ function loadState(){
     localizeUntouchedDefaults();
     render();
   }else{
+    firstVisit=true;
     for(let i=0;i<10;i++)addEntry();   // 初期の出走馬は10頭
     // 英語圏の中継はラッパの招集合図がなじみ深いので、英語版の既定はラッパにする
     document.getElementById("fanfare").value=IS_I18N?"bugle-1":"grade-1";
@@ -3277,6 +3335,69 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
   applyAspect();
   updateStartBtn();
   if(target==="real")switchMode("real");
+}
+
+/* 初回訪問者にだけ、切り替えタブの下に「3Dもある」案内を出す。
+   3Dのデータは押されるまで読み込まない設計なので、存在に気づかれないまま
+   終わりやすい。保存データが無いときだけ出すので、2回目以降は自然に出なくなる。
+   すでに ?mode=real で3Dを開いている人には不要なので出さない */
+{
+  const hint=document.getElementById("modeHint");
+  const wrap=document.getElementById("toolSwitchWrap");
+  let cancel=null;          // まだ出していない案内を取り下げる(タブを先に押されたとき)
+  const close=()=>{
+    if(cancel)cancel();
+    if(hint.hidden)return;
+    hint.hidden=true;
+    wrap.classList.remove("mode-hint-on");
+    removeEventListener("resize",placeArrow);
+  };
+  // 三角は「リアル競馬風」タブの真ん中へ。英語版はタブ幅が違うので実測して置く
+  function placeArrow(){
+    if(hint.hidden)return;
+    const w=wrap.getBoundingClientRect(), t=tabs.real.getBoundingClientRect();
+    hint.style.setProperty("--arrow-right",
+      Math.max(12,Math.min(w.right-(t.left+t.width/2),hint.offsetWidth-12))+"px");
+  }
+  /* 出すのはページを開いた瞬間ではなく、切り替えタブが画面に入ってから
+     さらに少しスクロールしたとき。読み始めた人の視界の中でそっと現れるので、
+     いきなり出るより気づかれやすく、邪魔にもなりにくい */
+  function showWhenScrolledTo(){
+    let seen=false, scrolled=false, done=false;
+    const stop=()=>{
+      done=true;
+      removeEventListener("scroll",onScroll);
+      io.disconnect();
+      cancel=null;
+    };
+    const show=()=>{
+      if(done||!seen||!scrolled)return;
+      stop();
+      hint.hidden=false;
+      wrap.classList.add("mode-hint-on");
+      placeArrow();
+      addEventListener("resize",placeArrow);
+    };
+    cancel=stop;
+    const onScroll=()=>{scrolled=true;show();};
+    const io=new IntersectionObserver((es)=>{
+      if(es[0].isIntersecting)seen=true;
+      show();
+    },{threshold:.9});
+    io.observe(wrap);
+    addEventListener("scroll",onScroll,{passive:true});
+  }
+
+  if(firstVisit&&toolMode==="classic"){
+    showWhenScrolledTo();
+    document.getElementById("modeHintClose").addEventListener("click",close);
+    /* どちらかのタブを押した時点で役目は終わり。
+       時間では消さない。ページを開いた直後はまだツールまで下りてきていないことが多く、
+       勝手に消えると「3Dがある」ことに気づかないまま終わってしまう */
+    for(const m in tabs)tabs[m].addEventListener("click",close);
+    // レースを始めた人にはもう邪魔なだけ(プレビューに少しかぶる)ので、ここでも消す
+    document.getElementById("startBtn").addEventListener("click",close);
+  }
 }
 
 /* ================= 動画の書き出し(shared/video-export.js) =================
