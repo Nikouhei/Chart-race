@@ -1,5 +1,5 @@
 /*!
- * video-export.js — SVG / HTML で描いているツールの動画書き出し（WebM / MP4 / 透過MOV / 透過WebM / PNG連番）
+ * video-export.js — SVG / HTML で描いているツールの動画書き出し（WebM / MP4 / 透過MOV / PNG連番）
  *
  * バーチャートレース・線グラフレースは d3 で SVG に描き、タイトル・年号・凡例は HTML。
  * canvas ではないので、競馬ツールのように captureStream で録画することはできない。
@@ -52,14 +52,14 @@
  * ── 透過 ───────────────────────────────────────────────
  *   ステージに .grs-transparent が付いていると背景を塗らず、形式の選択肢が次の3つに替わる。
  *   MP4 に透過は無いので出さない。
- *     透過MOV  … QuickTime Animation（'rle '・32bit ARGB）。ブラウザのエンコーダーは ProRes を
- *                作れないので、ここで RLE に圧縮して MOV を組み立てる。Premiere Pro・
- *                Final Cut Pro・DaVinci Resolve が対応を明記している形式。Premiere は差分フレーム
- *                ありの Animation を読めないので、全フレームをキーフレームにする
- *     透過WebM … VP8/VP9 はアルファを持てないので、色とアルファ（Y面に入れる）を別々に
- *                エンコードし、アルファを BlockAdditions に入れる（ffmpeg の libvpx と同じ形）
+ *     透過MOV（おすすめ）… 'png '。1コマずつの透過PNGをそのまま MOV に入れる。iMovie だけ読めない
+ *     透過MOV（iMovie用）… QuickTime Animation（'rle '・32bit ARGB）。PowerDirector だけ読めない。
+ *                Premiere は差分フレームありの Animation を読めないので、全フレームをキーフレームにする
  *     PNG連番  … 透過PNGを無圧縮の ZIP にまとめる
- *   export_format は mov_alpha / webm_alpha / png_sequence になる。
+ *   2つの MOV は弱点が重ならないので両方を出す。ブラウザのエンコーダーは ProRes を作れず、
+ *   透過WebM は実機の編集ソフトでほとんど透過しなかったので出さない。
+ *   MOV の構造は、9本の編集ソフトで確認した ffmpeg の出力と同じにしている（qtMoov の注）。
+ *   export_format は mov_png_alpha / mov_animation_alpha / png_sequence になる。
  *
  * 計測: 書き出すボタンは data-track="export_start"（export_format / watermark /
  *       export_scale / export_fps を付ける）。保存は a.click() なので export_complete は自動。
@@ -834,7 +834,7 @@
 
   var supportCache = {};
   function formatSupported(format, size) {
-    if (format === "png" || format === "mov") return Promise.resolve(true);
+    if (format === "png" || format === "mov" || format === "mov_rle") return Promise.resolve(true);
     var key = format + ":" + size.width + "x" + size.height;
     if (!supportCache[key]) supportCache[key] = pickConfig(format, size.width, size.height, 30).then(function (c) { return !!c; });
     return supportCache[key];
@@ -934,80 +934,6 @@
         await yieldTask();
       }
     }
-  }
-
-  // 透過WebM。色とアルファを別の VideoEncoder に通し、同じ時刻どうしを組にして muxer へ渡す
-  function alphaWebmWriter(ctx, size, fps, pick, keyEvery, matteCss) {
-    var W = size.width, H = size.height, pixels = W * H;
-    var target = new window.WebMMuxer.ArrayBufferTarget();
-    var muxer = new window.WebMMuxer.Muxer({
-      target: target,
-      video: { codec: pick.muxCodec, width: W, height: H, frameRate: fps, alpha: true },
-      firstTimestampBehavior: "offset"
-    });
-    var colors = [], alphas = [], error = null;
-    function pump() {
-      while (colors.length && alphas.length) {
-        var c = colors.shift();
-        muxer.addVideoChunk(c.chunk, Object.assign({}, c.meta, { alphaSideData: alphas.shift() }));
-      }
-    }
-    var onError = function (e) { error = e; };
-    var colorEnc = new VideoEncoder({
-      output: function (chunk, meta) { colors.push({ chunk: chunk, meta: meta }); pump(); },
-      error: onError
-    });
-    var alphaEnc = new VideoEncoder({
-      output: function (chunk) {
-        var data = new Uint8Array(chunk.byteLength);
-        chunk.copyTo(data);
-        alphas.push(data);
-        pump();
-      },
-      error: onError
-    });
-    colorEnc.configure(pick.config);
-    alphaEnc.configure(Object.assign({}, pick.config, { bitrate: Math.round(pick.config.bitrate * 0.6) }));
-
-    // アルファは I420 の Y 面にそのまま入れる（RGB から変換すると 16〜235 に縮んでしまう）。U・V は無彩色
-    var yuv = new Uint8Array(pixels + (W >> 1) * (H >> 1) * 2).fill(128);
-    // 完全に透明な部分の色は見えないが、圧縮で輪郭ににじむので文字と同じ色にしておく
-    var matte = rgbOf(matteCss);
-    var mr = matte ? +matte[1] : 0, mg = matte ? +matte[2] : 0, mb = matte ? +matte[3] : 0;
-    return {
-      add: async function (i) {
-        if (error) throw error;
-        var d = ctx.getImageData(0, 0, W, H).data;
-        for (var p = 0, o = 0; p < pixels; p++, o += 4) {
-          var a = d[o + 3];
-          yuv[p] = a;
-          if (a === 0) { d[o] = mr; d[o + 1] = mg; d[o + 2] = mb; }
-        }
-        var time = { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) };
-        var key = { keyFrame: i % keyEvery === 0 };
-        var colorFrame = new VideoFrame(d, Object.assign({ format: "RGBA", codedWidth: W, codedHeight: H }, time));
-        colorEnc.encode(colorFrame, key);
-        colorFrame.close();
-        var alphaFrame = new VideoFrame(yuv, Object.assign({ format: "I420", codedWidth: W, codedHeight: H }, time));
-        alphaEnc.encode(alphaFrame, key);
-        alphaFrame.close();
-        while (colorEnc.encodeQueueSize > 4 || alphaEnc.encodeQueueSize > 4) {
-          var busy = colorEnc.encodeQueueSize > 4 ? colorEnc : alphaEnc;
-          await new Promise(function (res) { busy.addEventListener("dequeue", res, { once: true }); });
-        }
-      },
-      finish: async function () {
-        await colorEnc.flush();
-        await alphaEnc.flush();
-        if (error) throw error;
-        pump();
-        muxer.finalize();
-        return { blob: new Blob([target.buffer], { type: "video/webm" }), fileExt: "webm" };
-      },
-      close: function () {
-        [colorEnc, alphaEnc].forEach(function (enc) { try { if (enc.state !== "closed") enc.close(); } catch (e) {} });
-      }
-    };
   }
 
   var crcTable = null;
@@ -1162,62 +1088,60 @@
     for (var i = 0; i < s.length; i++) out.push(s.charCodeAt(i));
     return len ? out.concat(zeros(len - out.length)) : out;
   }
-  function rleMoov(W, H, fps, sizes, offsets) {
-    var count = sizes.length, TS = fps * 100, DELTA = 100;
-    var duration = count * DELTA;
+  // moov の値は ffmpeg の出力とそろえている。編集ソフトでの確認はこの形で通っていて、
+  // 以前の独自の形（vmhd が Straight alpha など）では Final Cut Pro の背景が白くなった
+  function qtMoov(W, H, fps, sizes, codec) {
+    var count = sizes.length, TS = fps * 512, DELTA = 512;
+    var movieDuration = Math.round(count * 1000 / fps);
     var matrix = [].concat(u32(0x10000), u32(0), u32(0), u32(0), u32(0x10000), u32(0), u32(0), u32(0), u32(0x40000000));
-    var wide = offsets[count - 1] >= 4294967296;
-    var mvhd = atom("mvhd", [u32(0), u32(0), u32(0), u32(TS), u32(duration), u32(0x10000), u16(0x100), zeros(10), matrix, zeros(24), u32(2)]);
-    var tkhd = atom("tkhd", [u32(0x0f), u32(0), u32(0), u32(1), u32(0), u32(duration), zeros(8), u16(0), u16(0), u16(0), u16(0), matrix, u32(W * 65536), u32(H * 65536)]);
-    var mdhd = atom("mdhd", [u32(0), u32(0), u32(0), u32(TS), u32(duration), u16(0), u16(0)]);
-    var mhlr = atom("hdlr", [u32(0), fourcc("mhlr"), fourcc("vide"), fourcc("appl"), u32(0), u32(0), pascal("Video Media Handler")]);
-    // 0x100 = 非乗算アルファ（Straight alpha）
-    var vmhd = atom("vmhd", [u32(1), u16(0x100), u16(0x8000), u16(0x8000), u16(0x8000)]);
-    var dhlr = atom("hdlr", [u32(0), fourcc("dhlr"), fourcc("alis"), fourcc("appl"), u32(0), u32(0), pascal("Data Handler")]);
-    var dinf = atom("dinf", [atom("dref", [u32(0), u32(1), atom("alis", [u32(1)])])]);
-    var entry = atom("rle ", [
-      zeros(6), u16(1), u16(0), u16(0), fourcc("appl"), u32(0), u32(1024), u16(W), u16(H),
-      u32(72 * 65536), u32(72 * 65536), u32(0), u16(1), pascal("Animation", 32), u16(32), u16(0xffff)
+    var mvhd = atom("mvhd", [u32(0), u32(0), u32(0), u32(1000), u32(movieDuration), u32(0x10000), u16(0x100), zeros(10), matrix, zeros(24), u32(2)]);
+    var tkhd = atom("tkhd", [u32(3), u32(0), u32(0), u32(1), u32(0), u32(movieDuration), zeros(8), u16(0), u16(0), u16(0), u16(0), matrix, u32(W * 65536), u32(H * 65536)]);
+    var edts = atom("edts", [atom("elst", [u32(0), u32(1), u32(movieDuration), u32(0), u32(0x10000)])]);
+    var mdhd = atom("mdhd", [u32(0), u32(0), u32(0), u32(TS), u32(count * DELTA), u16(0x7fff), u16(0)]);
+    var mhlr = atom("hdlr", [u32(0), fourcc("mhlr"), fourcc("vide"), u32(0), u32(0), u32(0), pascal("VideoHandler")]);
+    var vmhd = atom("vmhd", [u32(1), u16(0), u16(0), u16(0), u16(0)]);
+    var dhlr = atom("hdlr", [u32(0), fourcc("dhlr"), fourcc("url "), u32(0), u32(0), u32(0), pascal("DataHandler")]);
+    var dinf = atom("dinf", [atom("dref", [u32(0), u32(1), atom("url ", [u32(1)])])]);
+    var entry = atom(codec.fourcc, [
+      zeros(6), u16(1), u16(0), u16(0), fourcc("FFMP"), u32(512), u32(512), u16(W), u16(H),
+      u32(72 * 65536), u32(72 * 65536), u32(0), u16(1), pascal(codec.name, 32), u16(32), u16(0xffff),
+      atom("fiel", [[1, 0]]), atom("pasp", [u32(1), u32(1)])
     ]);
     var stsd = atom("stsd", [u32(0), u32(1), entry]);
     var stts = atom("stts", [u32(0), u32(1), u32(count), u32(DELTA)]);
-    var stsc = atom("stsc", [u32(0), u32(1), u32(1), u32(1), u32(1)]);
-    var stszBytes = new Array(count * 4), stcoBytes = new Array(count * (wide ? 8 : 4));
+    var stsc = atom("stsc", [u32(0), u32(1), u32(1), u32(count), u32(1)]);
+    var stszBytes = new Array(count * 4);
     sizes.forEach(function (n, i) {
       u32(n).forEach(function (b, k) { stszBytes[i * 4 + k] = b; });
-      (wide ? u64(offsets[i]) : u32(offsets[i])).forEach(function (b, k) { stcoBytes[i * (wide ? 8 : 4) + k] = b; });
     });
     var stsz = atom("stsz", [u32(0), u32(0), u32(count), stszBytes]);
-    var stco = atom(wide ? "co64" : "stco", [u32(0), u32(count), stcoBytes]);
+    // 全フレームが1つの chunk。ftyp(20)・wide(8)・mdat のヘッダー(8) の直後から始まる
+    var stco = atom("stco", [u32(0), u32(1), u32(36)]);
     // stss を書かない = 全フレームがキーフレーム
     var stbl = atom("stbl", [stsd, stts, stsc, stsz, stco]);
     var minf = atom("minf", [vmhd, dhlr, dinf, stbl]);
     var mdia = atom("mdia", [mdhd, mhlr, minf]);
-    return atom("moov", [mvhd, atom("trak", [tkhd, mdia])]);
+    return atom("moov", [mvhd, atom("trak", [tkhd, edts, mdia])]);
   }
 
-  // 透過MOV（QuickTime Animation）。moov は最後にまとめて書く
-  function rleMovWriter(ctx, size, fps) {
+  // 透過MOV。encodeFrame が RGBA の画素から1フレーム分の Blob を作る。moov は最後にまとめて書く
+  function movWriter(ctx, size, fps, codec, encodeFrame) {
     var W = size.width, H = size.height;
-    var buf = new Uint8Array(H * (W * 4 + Math.ceil(W / 127) + 2) + 7);
-    var ftyp = atom("ftyp", [fourcc("qt  "), u32(0x20050300), fourcc("qt  ")]);
-    var mdatStart = ftyp.length + 8; // ftyp の直後に wide（8バイト）を置き、4GB を超えたら mdat のヘッダーに使う
-    var parts = [], sizes = [], offsets = [], offset = mdatStart + 8, frames = 0;
+    var ftyp = atom("ftyp", [fourcc("qt  "), u32(0x200), fourcc("qt  ")]);
+    var parts = [], sizes = [], mdatSize = 8;
     return {
       add: async function () {
-        var n = encodeRleFrame(ctx.getImageData(0, 0, W, H).data, W, H, buf);
-        parts.push(new Blob([buf.subarray(0, n)]));
-        sizes.push(n);
-        offsets.push(offset);
-        offset += n;
-        frames++;
+        var frame = await encodeFrame(ctx.getImageData(0, 0, W, H).data);
+        parts.push(frame);
+        sizes.push(frame.size);
+        mdatSize += frame.size;
       },
       finish: async function () {
-        var mdatSize = offset - mdatStart;
+        // ftyp の直後に wide（8バイト）を置き、4GB を超えたら mdat のヘッダーに使う
         var head = mdatSize < 4294967296
           ? atom("wide").concat(u32(mdatSize), fourcc("mdat"))
           : u32(1).concat(fourcc("mdat"), u64(mdatSize + 8));
-        var moov = rleMoov(W, H, fps, sizes, offsets);
+        var moov = qtMoov(W, H, fps, sizes, codec);
         return {
           blob: new Blob([new Uint8Array(ftyp.concat(head))].concat(parts, [new Uint8Array(moov)]), { type: "video/quicktime" }),
           fileExt: "mov"
@@ -1227,13 +1151,25 @@
     };
   }
 
+  function pngMovWriter(ctx, size, fps) {
+    var W = size.width, H = size.height;
+    var raw = new Uint8Array(H * (W * 4 + 1));
+    return movWriter(ctx, size, fps, { fourcc: "png ", name: "png" }, function (rgba) {
+      return encodePng(rgba, W, H, raw);
+    });
+  }
+
+  function rleMovWriter(ctx, size, fps) {
+    var W = size.width, H = size.height;
+    var buf = new Uint8Array(H * (W * 4 + Math.ceil(W / 127) + 2) + 7);
+    return movWriter(ctx, size, fps, { fourcc: "rle ", name: "qtrle" }, function (rgba) {
+      return new Blob([buf.subarray(0, encodeRleFrame(rgba, W, H, buf))]);
+    });
+  }
+
   async function encodeTransparent(opts) {
     var adapter = opts.adapter, fps = opts.fps;
     var size = outputSize(adapter.getSize(), opts.scale);
-    var webm = opts.format === "webm";
-    var pick = webm ? await pickConfig("webm", size.width, size.height, fps) : null;
-    if (webm && !pick) throw new Error("このブラウザでは WebM を書き出せません");
-    if (webm) await loadScript(VENDOR.webm);
     var stage = adapter.getStage();
     if (opts.watermark) { await loadLogo(); setMarkToneFrom(stage); }
     try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
@@ -1243,8 +1179,8 @@
     canvas.width = size.width;
     canvas.height = size.height;
     var ctx = canvas.getContext("2d", { willReadFrequently: true });
-    var writer = webm ? alphaWebmWriter(ctx, size, fps, pick, timing.keyEvery, getComputedStyle(stage).color)
-      : opts.format === "mov" ? rleMovWriter(ctx, size, fps) : pngZipWriter(ctx, size);
+    var writer = opts.format === "mov" ? pngMovWriter(ctx, size, fps)
+      : opts.format === "mov_rle" ? rleMovWriter(ctx, size, fps) : pngZipWriter(ctx, size);
 
     await adapter.beginExport({ watermark: !!opts.watermark, fps: fps, size: size });
     var out;
@@ -1480,8 +1416,8 @@
       '<div class="grsx-field"><span>形式</span><div class="grsx-seg" data-name="format">' +
         (alpha
           ? '<label><input type="radio" name="grsxFormat" value="mov"><b>透過MOV <em class="grsx-tag">おすすめ</em></b></label>' +
-            '<label><input type="radio" name="grsxFormat" value="webm"><b>透過WebM <em class="grsx-tag">軽量</em></b></label>' +
-            '<label><input type="radio" name="grsxFormat" value="png"><b>PNG連番 <em class="grsx-tag">画像</em></b></label>'
+            '<label><input type="radio" name="grsxFormat" value="mov_rle"><b>透過MOV <em class="grsx-tag">iMovie用</em></b></label>' +
+            '<label><input type="radio" name="grsxFormat" value="png"><b>PNG連番 <em class="grsx-tag">上級者向け</em></b></label>'
           : '<label><input type="radio" name="grsxFormat" value="mp4"><b>MP4 <em class="grsx-tag">おすすめ</em></b></label>' +
             '<label><input type="radio" name="grsxFormat" value="webm"><b>WebM <em class="grsx-tag">PC向け</em></b></label>') +
       "</div></div>" +
@@ -1581,9 +1517,7 @@
       var durMs = adapter.getDurationMs() + c.hold * 1000;
       var estBytes = bitrateFor(out.width, out.height, c.fps) * 0.55 * durMs / 8000;
       if (alpha) {
-        estBytes = c.format === "png"
-          ? out.width * out.height * 0.12 * c.fps * durMs / 1000
-          : c.format === "mov" ? out.width * out.height * 0.2 * c.fps * durMs / 1000 : estBytes * 1.4;
+        estBytes = out.width * out.height * (c.format === "mov_rle" ? 0.2 : 0.12) * c.fps * durMs / 1000;
       }
       body.querySelector("#grsxSummary").innerHTML =
         "長さ 約" + esc(fmtSec(durMs)) + "・" + out.width + "×" + out.height + "・" + c.fps + "fps・推定 " + esc(fmtMB(estBytes)) + " 前後";
@@ -1591,11 +1525,11 @@
       var alphaNote = body.querySelector("#grsxAlphaNote");
       alphaNote.hidden = !alpha;
       alphaNote.textContent = !alpha ? "" : {
-        mov: "Premiere Pro・Final Cut Pro・DaVinci Resolve などの動画編集ソフト向けです（Animation 形式）。画質は劣化しませんが、ファイルは大きくなります。",
-        webm: "ファイルは軽いですが、透過 WebM を読み込めない動画編集ソフトがあります。",
+        mov: "PowerDirector・Filmora・CapCut・DaVinci Resolve・Final Cut Pro などの動画編集ソフト向けです（PNG 形式）。iMovie では読み込めません。画質は劣化しません。",
+        mov_rle: "iMovie・Final Cut Pro などの動画編集ソフト向けです（Animation 形式）。PowerDirector では読み込めません。画質は劣化しませんが、ファイルは大きくなります。",
         png: "透過PNGを1コマずつ ZIP にまとめます。解凍して、動画編集ソフトに連番として読み込んでください。"
       }[c.format];
-      startBtn.setAttribute("data-track-export-format", alpha ? { mov: "mov_alpha", webm: "webm_alpha", png: "png_sequence" }[c.format] : c.format);
+      startBtn.setAttribute("data-track-export-format", alpha ? { mov: "mov_png_alpha", mov_rle: "mov_animation_alpha", png: "png_sequence" }[c.format] : c.format);
       startBtn.setAttribute("data-track-watermark", c.mark);
       startBtn.setAttribute("data-track-export-scale", c.scale + "x");
       startBtn.setAttribute("data-track-export-fps", String(c.fps));
@@ -1607,11 +1541,9 @@
       formatSupported(c.format, out).then(function (ok) {
         if (token !== supportToken || closed) return;
         supportEl.hidden = ok;
-        supportEl.textContent = ok ? "" : alpha
-          ? "このブラウザでは、この画質の透過 WebM を書き出せません。PNG連番を選ぶか、画質を下げてください。"
-          : (c.format === "mp4"
+        supportEl.textContent = ok ? "" : c.format === "mp4"
           ? "このブラウザでは、この画質の MP4 を書き出せません。WebM を選ぶか、画質を下げてください。"
-          : "このブラウザでは、この画質の WebM を書き出せません。MP4 を選ぶか、画質を下げてください。");
+          : "このブラウザでは、この画質の WebM を書き出せません。MP4 を選ぶか、画質を下げてください。";
         startBtn.disabled = !ok;
       });
     }
