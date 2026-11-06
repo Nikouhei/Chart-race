@@ -17,7 +17,7 @@
   <script src="../../shared/analytics.js?v=20261023" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026101703" defer></script>
-  <script src="../../shared/video-export.js?v=2026110601" defer></script>
+  <script src="../../shared/video-export.js?v=2026110602" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -52,9 +52,9 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110601" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110602" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/background-mode.js?v=2026110404" defer></script>
+  <script src="../../shared/background-mode.js?v=2026110602" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -1363,7 +1363,7 @@
       </div>
       <div class="setting-row">
         <div class="setting-field">
-          <span>文字のフチ(px)</span>
+          <span>文字のフチ</span>
           <input type="number" id="textOutlineWidth" value="0" min="0" max="20" step="0.5">
         </div>
         <div class="setting-field">
@@ -2912,8 +2912,11 @@
       chart.classList.toggle('grs-transparent', !settings.useBackgroundColor); // 書き出しの透過はこのクラスで判定する
       // 文字のフチ（見た目の指定は shared/background-mode.js の .grs-outlined）
       chart.classList.toggle('grs-outlined', settings.outlineWidth > 0);
-      chart.style.setProperty('--grs-outline-width', settings.outlineWidth + 'px');
-      chart.style.setProperty('--grs-outline-color', settings.outlineColor);
+      // フチと影は半透明の黒（色を変えたらその色）。太さは文字サイズに比例させる
+      const outlineRgb = parseInt((/^#([0-9a-f]{6})$/i.exec(settings.outlineColor) || [0, '000000'])[1], 16);
+      chart.style.setProperty('--grs-outline-scale', settings.outlineWidth);
+      chart.style.setProperty('--grs-outline-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, 0.6)`);
+      chart.style.setProperty('--grs-shadow-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, 0.5)`);
       chart.style.backgroundImage = 'none';
       chart.style.backgroundSize = 'cover';
       chart.style.backgroundPosition = 'center';

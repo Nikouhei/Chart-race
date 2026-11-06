@@ -57,11 +57,11 @@
     '.grs-bg-mode button.active{background:#fff;color:var(--text-strong,#111);box-shadow:var(--shadow-soft,0 1px 3px rgba(0,0,0,.12))}',
     '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}',
     // 透過のプレビュー用の市松模様（style 属性の background-* より優先する）。書き出しには写らない
-    '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#d9d9d9 0 25%,#fff 0 50%)!important;background-size:20px 20px!important;background-position:0 0!important;background-repeat:repeat!important}',
-    'body.grs-checker-dark #chartArea.grs-transparent{background-image:repeating-conic-gradient(#2b2b2b 0 25%,#3d3d3d 0 50%)!important}',
-    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない
-    '#chartArea.grs-outlined{-webkit-text-stroke:var(--grs-outline-width) var(--grs-outline-color);paint-order:stroke fill}',
-    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-width);stroke-linejoin:round;paint-order:stroke fill}'
+    '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%)!important;background-size:16px 16px!important;background-position:0 0!important;background-repeat:repeat!important}',
+    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない。
+    // 太さは文字サイズに比例（大きい年号は太く、小さい軸の数字は細く）。フチは半透明、そこにやわらかい影を足す
+    '#chartArea.grs-outlined{--grs-outline-px:clamp(1px,calc(var(--grs-outline-scale) * .04em),calc(var(--grs-outline-scale) * 1.5px));-webkit-text-stroke:var(--grs-outline-px) var(--grs-outline-color);paint-order:stroke fill;text-shadow:0 .05em .15em var(--grs-shadow-color)}',
+    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-px);stroke-linejoin:round;paint-order:stroke fill;text-shadow:none;filter:drop-shadow(0 .05em .15em var(--grs-shadow-color))}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -97,9 +97,6 @@
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    // 文字が白っぽいときは暗い市松模様にする
-    var text = $('layoutTextColor');
-    document.body.classList.toggle('grs-checker-dark', mode === 'transparent' && !!text && !isDark(text.value));
   }
 
   function applyMode(mode) {

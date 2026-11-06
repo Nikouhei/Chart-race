@@ -200,6 +200,34 @@
     if (/^currentcolor$/i.test(paint)) return cs.color;
     return paint;
   }
+  // text-shadow / filter: drop-shadow() の先頭1つ（計算済みの値）を {color, x, y, blur} にする
+  function parseShadow(v) {
+    var s = String(v || "");
+    var m = /(rgba?\([^)]*\))\s+(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+([\d.]+)px)?/i.exec(s) ||
+      /(-?[\d.]+)px\s+(-?[\d.]+)px(?:\s+([\d.]+)px)?\s+(rgba?\([^)]*\))/i.exec(s);
+    if (!m) return null;
+    return /^rgb/i.test(m[1])
+      ? { color: m[1], x: num(m[2], 0), y: num(m[3], 0), blur: num(m[4], 0) }
+      : { color: m[4], x: num(m[1], 0), y: num(m[2], 0), blur: num(m[3], 0) };
+  }
+  // 文字の影だけを描く。canvas は影の元の絵も描いてしまうので、元の絵を画面の外へ逃がして影だけ画面内に落とす
+  // （draw は、文字の形を塗りつぶしで描くだけの関数。色は呼び出し側で決めない）
+  function paintTextShadow(ctx, sh, alpha, draw) {
+    if (!sh) return;
+    var FAR = 20000;
+    var m = ctx.getTransform();
+    var k = Math.hypot(m.a, m.b);
+    ctx.save();
+    ctx.setTransform(m.a, m.b, m.c, m.d, m.e - FAR, m.f);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = ctx.strokeStyle = "#000";
+    ctx.shadowColor = sh.color;
+    ctx.shadowBlur = sh.blur * k;
+    ctx.shadowOffsetX = FAR + sh.x * k;
+    ctx.shadowOffsetY = sh.y * k;
+    draw();
+    ctx.restore();
+  }
   function parseDash(v) {
     if (!v || v === "none") return [];
     var parts = String(v).split(/[\s,]+/).map(function (x) { return num(x, 0); });
@@ -409,6 +437,10 @@
       var asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
       if (!Number.isFinite(asc)) { asc = num(cs.fontSize, 16) * 0.88; desc = num(cs.fontSize, 16) * 0.24; }
       var baseY = L.y + (L.h - (asc + desc)) / 2 + asc;
+      paintTextShadow(ctx, parseShadow(cs.textShadow), alpha, function () {
+        if (strokeW > 0) ctx.strokeText(t, L.x, baseY);
+        ctx.fillText(t, L.x, baseY);
+      });
       if (strokeW > 0) ctx.strokeText(t, L.x, baseY);
       ctx.fillText(t, L.x, baseY);
     }
@@ -571,11 +603,20 @@
     ctx.textAlign = "left";
     ctx.textBaseline = BASELINE[cs.dominantBaseline] || "alphabetic";
     var y = y0;
+    // 影は filter: drop-shadow() で付けている（text 要素の値。tspan には付かない）
+    var shadow = parseShadow(cs.filter);
     for (var j = 0; j < segs.length; j++) {
       var s = segs[j];
       x += s.dx;
       y += s.dy;
       ctx.font = fontOf(s.cs);
+      if (shadow) {
+        var sx = x, sy = y, ss = s;
+        paintTextShadow(ctx, shadow, alpha * (s.alpha == null ? 1 : s.alpha), function () {
+          if (num(ss.cs.strokeWidth, 0) > 0) { ctx.lineWidth = num(ss.cs.strokeWidth, 0); ctx.lineJoin = "round"; ctx.strokeText(ss.text, sx, sy); }
+          ctx.fillText(ss.text, sx, sy);
+        });
+      }
       var fill = colorOf(s.cs.fill, s.cs);
       var stroke = colorOf(s.cs.stroke, s.cs);
       var sw = num(s.cs.strokeWidth, 0);
@@ -1525,9 +1566,9 @@
       var alphaNote = body.querySelector("#grsxAlphaNote");
       alphaNote.hidden = !alpha;
       alphaNote.textContent = !alpha ? "" : {
-        mov: "PowerDirector・Filmora・CapCut・DaVinci Resolve・Final Cut Pro などの動画編集ソフト向けです（PNG 形式）。iMovie では読み込めません。画質は劣化しません。",
-        mov_rle: "iMovie・Final Cut Pro などの動画編集ソフト向けです（Animation 形式）。PowerDirector では読み込めません。画質は劣化しませんが、ファイルは大きくなります。",
-        png: "透過PNGを1コマずつ ZIP にまとめます。解凍して、動画編集ソフトに連番として読み込んでください。"
+        mov: "PowerDirector・Filmora・CapCut など向け",
+        mov_rle: "iMovie・Final Cut Pro 向け",
+        png: "1コマずつの透過PNGをZIPで書き出します（連番読み込み用）"
       }[c.format];
       startBtn.setAttribute("data-track-export-format", alpha ? { mov: "mov_png_alpha", mov_rle: "mov_animation_alpha", png: "png_sequence" }[c.format] : c.format);
       startBtn.setAttribute("data-track-watermark", c.mark);
