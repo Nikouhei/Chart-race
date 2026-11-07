@@ -287,6 +287,12 @@
   // ── ファイル読み込み ──────────────────────────────────
   document.addEventListener("change", function (ev) {
     var el = ev.target;
+    // アスペクト比のプリセット（select）を変えたとき
+    if (el && el.tagName === "SELECT" && el.id === "aspectRatioPreset") {
+      track("tool_ui_click", { button_id: "aspectRatioPreset", button_label: clip(el.value, 40) });
+      markEngaged("input");
+      return;
+    }
     if (!el || el.tagName !== "INPUT") return;
     if (el.type === "file") {
       if (!el.files || !el.files.length) return;

@@ -73,6 +73,13 @@
     try { if (typeof window.grsTrack === "function") window.grsTrack(name, params || {}); } catch (e) {}
   }
   function plan() { return window.GRSPlan; }
+  // 計測用: 画面サイズ → アスペクト比のラベル（プリセットに近ければその名前、そうでなければ custom）
+  function aspectLabel(w, h) {
+    if (!w || !h) return "unknown";
+    var r = w / h, list = [["1:1", 1], ["9:16", 9 / 16], ["16:9", 16 / 9], ["3:4", 3 / 4], ["4:3", 4 / 3]];
+    for (var i = 0; i < list.length; i++) if (Math.abs(r - list[i][1]) / list[i][1] < 0.01) return list[i][0];
+    return "custom";
+  }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -1258,6 +1265,7 @@
       startBtn.setAttribute("data-track-watermark", c.mark);
       startBtn.setAttribute("data-track-export-scale", c.scale + "x");
       startBtn.setAttribute("data-track-export-fps", String(c.fps));
+      startBtn.setAttribute("data-track-aspect-ratio", aspectLabel(size0.width, size0.height));
       if (typeof cfg.trackParams === "function") {
         var tp = cfg.trackParams() || {};
         Object.keys(tp).forEach(function (k) { startBtn.setAttribute("data-track-" + k.replace(/_/g, "-"), String(tp[k])); });
@@ -1378,7 +1386,11 @@
         var cancelled = error && error.name === "AbortError";
         if (!cancelled) {
           try { console.error("[video-export]", error); } catch (e2) {}
-          track("js_error", { error_message: String(error && error.message || error).slice(0, 100), error_source: "video-export" });
+          track("js_error", {
+            error_message: String(error && error.message || error).slice(0, 100), error_source: "video-export",
+            export_format: c.format, export_scale: c.scale + "x", export_fps: String(c.fps), watermark: c.mark,
+            aspect_ratio: aspectLabel(size0.width, size0.height)
+          });
         }
         runBox.innerHTML =
           (cancelled ? "<p>書き出しを中止しました。</p>"
