@@ -8,10 +8,10 @@
  *   どの映像の上でも読めるようにする（どちらも設定で変えられる）。明るい映像には「文字色」で
  *   黒＋白フチに切り替える（透過のときだけ出る。計測は id がそのまま tool_ui_click の button_id）。プレビューは市松模様で見せ、
  *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過で書き出す
- * - 文字のフチ（textOutlineWidth / textOutlineColor）と影（textShadowStrength）は #chartArea の .grs-outlined と CSS 変数で付ける。
- *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
  *   今後 Polar で有料化するときは、ここに課金判定を入れる
+ * - 文字のフチ（textOutlineWidth / textOutlineColor）と影（textShadowStrength）は #chartArea の .grs-outlined と CSS 変数で付ける。
+ *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）、影の強さを変えると tool_ui_click（button_id: textShadowStrength）
  * - 計測：白・黒のボタンは id（bgWhite / bgBlack）がそのまま tool_ui_click の button_id になる
  * - 以前の「背景画像」は廃止（古い保存データに残っていても使わない）
  */
@@ -76,7 +76,7 @@
     // 透過のプレビュー用の市松模様（style 属性の background-* より優先する）。書き出しには写らない
     '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%)!important;background-size:16px 16px!important;background-position:0 0!important;background-repeat:repeat!important}',
     // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない。
-    // 太さは文字サイズに比例（大きい年号は太く、小さい軸の数字は細く）。フチは半透明、そこにやわらかい影を足す
+    // 太さは文字サイズに比例（大きい年号は太く、小さい軸の数字は細く）。フチは半透明
     '#chartArea.grs-outlined{--grs-outline-px:clamp(1px,calc(var(--grs-outline-scale) * .04em),calc(var(--grs-outline-scale) * 1.5px));-webkit-text-stroke:var(--grs-outline-px) var(--grs-outline-color);paint-order:stroke fill}',
     '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-px);stroke-linejoin:round;paint-order:stroke fill}',
     // 影（フチとは別に付けられる）。HTML は text-shadow、SVG の文字は filter: drop-shadow
@@ -226,6 +226,11 @@
     var outline = $('textOutlineWidth');
     if (outline) outline.addEventListener('change', function () {
       if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textOutlineWidth', button_label: '文字のフチ' });
+    });
+
+    var shadow = $('textShadowStrength');
+    if (shadow) shadow.addEventListener('change', function () {
+      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textShadowStrength', button_label: '影の強さ' });
     });
 
     syncButtons();
