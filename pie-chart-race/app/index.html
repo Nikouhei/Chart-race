@@ -17,7 +17,7 @@
   <script src="../../shared/analytics.js?v=20261023" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026101703" defer></script>
-  <script src="../../shared/video-export.js?v=2026110510" defer></script>
+  <script src="../../shared/video-export.js?v=2026110701" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -52,9 +52,9 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110510" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110701" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/background-mode.js?v=2026110510" defer></script>
+  <script src="../../shared/background-mode.js?v=2026110701" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -324,6 +324,9 @@
     /* 表示する要素（項目名・値・画像）のON/OFFボタン。中身はチェックボックス */
     .element-toggle-field { margin: 2px 0 12px; }
     .element-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    /* パネル内の小見出し（先頭だけ線なし） */
+    .panel-subhead { margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid var(--panel-border, #333); font-size: 12px; font-weight: 700; color: var(--text-muted, #aaa); }
+    .panel-subhead:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .element-toggle {
       position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
       min-height: 36px; padding: 0 14px; box-sizing: border-box;
@@ -1336,6 +1339,16 @@
     <div class="input-group">
       <label>レイアウト</label>
       <div class="setting-row">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>背景</span>
+          <div class="grs-bg-mode" role="group" aria-label="背景">
+            <button type="button" id="bgWhite" data-bg-mode="white">白</button>
+            <button type="button" id="bgBlack" data-bg-mode="black">黒</button>
+            <button type="button" id="bgTransparent" data-bg-mode="transparent" data-track="upgrade_click" data-track-id="transparentExport">透過<small>有料予定</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
         <div class="setting-field">
           <span>フォント</span>
           <select id="mainFont">
@@ -1352,18 +1365,8 @@
         </div>
       </div>
       <div class="setting-row">
-        <div class="setting-field" style="flex:1 1 100%;">
-          <span>背景</span>
-          <div class="grs-bg-mode" role="group" aria-label="背景">
-            <button type="button" id="bgWhite" data-bg-mode="white">白</button>
-            <button type="button" id="bgBlack" data-bg-mode="black">黒</button>
-            <button type="button" id="bgTransparent" data-bg-mode="transparent" data-track="upgrade_click" data-track-id="transparentExport">透過<small>有料予定</small></button>
-          </div>
-        </div>
-      </div>
-      <div class="setting-row">
         <div class="setting-field">
-          <span>文字のフチ(px)</span>
+          <span>文字のフチ</span>
           <input type="number" id="textOutlineWidth" value="0" min="0" max="20" step="0.5">
         </div>
         <div class="setting-field">
@@ -1371,10 +1374,42 @@
           <input type="color" id="textOutlineColor" value="#000000">
         </div>
       </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>影の強さ(%)</span>
+          <input type="number" id="textShadowStrength" value="0" min="0" max="100" step="5">
+        </div>
+      </div>
       <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している -->
       <div hidden>
         <input type="color" id="layoutBackgroundColor" value="#ffffff">
         <input type="checkbox" id="enableBackgroundColor" checked>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>タイトル・出典</label>
+      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>タイトル文字サイズ(%)</span>
+          <input type="number" id="titleSize" value="5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>タイトル色</span>
+          <input type="color" id="titleColor" value="#222222">
+        </div>
+      </div>
+      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>出典文字サイズ(%)</span>
+          <input type="number" id="sourceSize" value="2" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>出典色</span>
+          <input type="color" id="sourceColor" value="#666666">
+        </div>
       </div>
     </div>
 
@@ -1527,28 +1562,7 @@
 
     <div class="input-group">
       <label>ラベル</label>
-      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
-      <div class="setting-row">
-        <div class="setting-field">
-          <span>タイトル文字サイズ(%)</span>
-          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>タイトル色</span>
-          <input type="color" id="titleColor" value="#222222">
-        </div>
-      </div>
-      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
-      <div class="setting-row" style="margin-bottom:14px;">
-        <div class="setting-field">
-          <span>出典文字サイズ(%)</span>
-          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>出典色</span>
-          <input type="color" id="sourceColor" value="#666666">
-        </div>
-      </div>
+      <div class="panel-subhead">表示する内容</div>
       <div class="element-toggle-field">
         <span class="setting-caption">グラフ内に表示</span>
         <div class="element-toggles" role="group" aria-label="グラフ内に表示">
@@ -1576,19 +1590,25 @@
       </div>
       <div class="setting-row" style="margin-top:12px;">
         <div class="setting-field">
-          <span>ラベルの文字サイズ(px)</span>
-          <input type="number" id="labelFontSize" value="22" min="1" max="120">
-        </div>
-        <div class="setting-field">
           <span>割合の小数点桁数</span>
           <input type="number" id="piePercentDecimals" value="1" min="0" max="3" step="1">
         </div>
-      </div>
-      <div class="setting-row">
         <div class="setting-field">
           <span>小さいスライスのラベルを隠す(%未満)</span>
           <input type="number" id="pieMinLabelPercent" value="3" min="0" max="50" step="0.5">
         </div>
+      </div>
+
+      <div class="panel-subhead">文字の見た目</div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>ラベルの文字サイズ(px)</span>
+          <input type="number" id="labelFontSize" value="22" min="1" max="120">
+        </div>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="labelBold" checked data-track="tool_ui_click">
+        <span>太字</span>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="pieAutoLabelColor" checked>
@@ -1600,7 +1620,7 @@
           <input type="color" id="nameLabelColor" value="#333333">
         </div>
         <div class="setting-field">
-          <span>数値の色</span>
+          <span>値の色</span>
           <input type="color" id="valueLabelColor" value="#333333">
         </div>
       </div>
@@ -2203,9 +2223,9 @@
     const BLANK_COLUMN_PREFIX = '__blank_column_';
     const PROJECT_SETTING_IDS = [
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
-      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
+      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
-      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
@@ -3000,7 +3020,8 @@
         useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
         backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
         outlineWidth: Math.max(0, parseFloat(document.getElementById('textOutlineWidth').value) || 0),
-        outlineColor: document.getElementById('textOutlineColor').value || '#000000'
+        outlineColor: document.getElementById('textOutlineColor').value || '#000000',
+        shadowStrength: Math.min(100, Math.max(0, parseFloat(document.getElementById('textShadowStrength').value) || 0))
       };
     }
 
@@ -3015,8 +3036,12 @@
       chart.style.backgroundColor = settings.useBackgroundColor ? settings.backgroundColor : 'transparent';
       // 文字のフチ（見た目の指定は shared/background-mode.js の .grs-outlined）
       chart.classList.toggle('grs-outlined', settings.outlineWidth > 0);
-      chart.style.setProperty('--grs-outline-width', settings.outlineWidth + 'px');
-      chart.style.setProperty('--grs-outline-color', settings.outlineColor);
+      // フチと影は半透明の黒（色を変えたらその色）。フチの太さは文字サイズに比例させ、影の濃さは「影の強さ」で決める
+      const outlineRgb = parseInt((/^#([0-9a-f]{6})$/i.exec(settings.outlineColor) || [0, '000000'])[1], 16);
+      chart.style.setProperty('--grs-outline-scale', settings.outlineWidth);
+      chart.style.setProperty('--grs-outline-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, 0.6)`);
+      chart.classList.toggle('grs-shadowed', settings.shadowStrength > 0);
+      chart.style.setProperty('--grs-shadow-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, ${settings.shadowStrength / 100})`);
       chart.style.backgroundImage = 'none';
       chart.style.backgroundSize = 'cover';
       chart.style.backgroundPosition = 'center';
@@ -4714,6 +4739,9 @@
       // 旧データは先端の文字を線の色で描いていたので、その見た目を保つ
       const lineColorEl = document.getElementById('labelUseLineColor');
       if (lineColorEl && !has('labelUseLineColor')) lineColorEl.checked = true;
+      // 旧データは半太字で描いていたので、その見た目を保つ
+      const boldEl = document.getElementById('labelBold');
+      if (boldEl && !has('labelBold')) boldEl.checked = true;
     }
 
     // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
@@ -4813,17 +4841,17 @@
     }
 
     // 線の先端ラベルが右余白（budget px）に収まるよう、名前の末尾を「…」で縮める
-    function fitEndLabelName(name, valueText, fontSize, budget, valueGap) {
+    function fitEndLabelName(name, valueText, fontSize, budget, valueGap, bold) {
       try {
         if (!fitEndLabelName.ctx) fitEndLabelName.ctx = document.createElement('canvas').getContext('2d');
         const ctx = fitEndLabelName.ctx;
         const family = getLayoutAppearanceSettings().font;
         let valueWidth = 0;
         if (valueText) {
-          ctx.font = `700 ${fontSize}px ${family}`;
+          ctx.font = `${bold ? 700 : 400} ${fontSize}px ${family}`;
           valueWidth = ctx.measureText(valueText).width + (Number.isFinite(valueGap) ? valueGap : 4);
         }
-        ctx.font = `600 ${fontSize}px ${family}`;
+        ctx.font = `${bold ? 600 : 400} ${fontSize}px ${family}`;
         const room = budget - valueWidth;
         if (ctx.measureText(name).width <= room) return name;
         // 「〇〇（TSM）」のような末尾の括弧は見分けに使うので残し、その前を縮める
@@ -4904,6 +4932,9 @@
         legendValues: document.getElementById('pieLegendValues')?.checked !== false,
         legendImages: document.getElementById('pieLegendImages')?.checked !== false,
         labelFontSize: Math.max(1, num('labelFontSize', 22)),
+        // 太字：オンは今の半太字（項目名600・数値700）、オフは標準の太さ（400）
+        nameWeight: document.getElementById('labelBold')?.checked !== false ? 600 : 400,
+        valueWeight: document.getElementById('labelBold')?.checked !== false ? 700 : 400,
         percentDecimals: Math.min(3, Math.max(0, Math.round(num('piePercentDecimals', 1)))),
         minLabelPercent: Math.max(0, num('pieMinLabelPercent', 3)),
         autoLabelColor: document.getElementById('pieAutoLabelColor')?.checked !== false,
@@ -5153,7 +5184,7 @@
       const title = (document.getElementById('titleInput')?.value || '').trim();
       if (!title) return height * 0.05;
       const titleSize = parseFloat(document.getElementById('titleSize')?.value);
-      const font = resolveCanvasShortSide() * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100);
+      const font = resolveCanvasShortSide() * ((Number.isFinite(titleSize) ? titleSize : 5) / 100);
       // タイトルは上から4%の位置。2行になっても重ならないよう少し余裕を持たせる
       return height * 0.04 + font * 1.5 + height * 0.03;
     }
@@ -5173,7 +5204,7 @@
       // 右下の出典と重ならないよう、下に出典ぶんの高さを空ける
       const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
       const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
-      const sourceFont = shortSide * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
+      const sourceFont = shortSide * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 2) / 100);
       const sourcePad = sourceText ? height * 0.03 + sourceFont * 1.6 : height * 0.03;
 
       const box = {
@@ -5201,8 +5232,8 @@
           const swatch = Math.round(fontSize * 0.9);
           const gap = Math.round(fontSize * 0.5);
           let nameW = 0;
-          legendNames.forEach(name => { nameW = Math.max(nameW, measurePieText(name, 600, fontSize)); });
-          const valueW = settings.legendValues ? Math.ceil(measurePieText(formatPieNumber(sample, settings), 700, fontSize)) : 0;
+          legendNames.forEach(name => { nameW = Math.max(nameW, measurePieText(name, settings.nameWeight, fontSize)); });
+          const valueW = settings.legendValues ? Math.ceil(measurePieText(formatPieNumber(sample, settings), settings.valueWeight, fontSize)) : 0;
           const itemW = swatch + gap + (imgSize ? imgSize + gap : 0) + nameW + (valueW ? gap * 2 + valueW : 0);
           return { fontSize, rowH, imgSize, swatch, gap, valueW, itemW, colGap: Math.round(fontSize * 1.4) };
         };
@@ -5258,8 +5289,8 @@
         const names = items.map(item => item.name);
         if (settings.groupOthers) names.push(settings.othersLabel);
         names.forEach(name => {
-          const w = (settings.showNames ? measurePieText(name, 600, fs) : 0)
-            + (numText ? measurePieText(' ' + numText, 700, fs) : 0);
+          const w = (settings.showNames ? measurePieText(name, settings.nameWeight, fs) : 0)
+            + (numText ? measurePieText(' ' + numText, settings.valueWeight, fs) : 0);
           widest = Math.max(widest, w);
         });
         const hasImage = settings.labelImages && items.some(item => item.imageUrl);
@@ -5532,9 +5563,9 @@
       const sourceSize = parseFloat(document.getElementById('sourceSize').value);
       const title = document.getElementById('chartTitle');
       const source = document.getElementById('sourceDisplay');
-      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100) + 'px';
+      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 5) / 100) + 'px';
       title.style.color = document.getElementById('titleColor').value || '#222222';
-      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100) + 'px';
+      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 2) / 100) + 'px';
       source.style.color = document.getElementById('sourceColor').value || '#666666';
     }
 
@@ -5711,8 +5742,8 @@
           const x = Math.sin(a) * labelR + ox;
           const y = -Math.cos(a) * labelR + oy;
           const lines = [];
-          if (settings.showNames) lines.push({ text: d.name, weight: 600, size: fs, color: settings.autoLabelColor ? autoTextOn(color) : settings.nameColor });
-          if (hasNumber) lines.push({ text: formatPieNumber(d, settings), weight: 700, size: fs * (settings.showNames ? 1.05 : 1.15), color: settings.autoLabelColor ? autoTextOn(color) : settings.valueColor });
+          if (settings.showNames) lines.push({ text: d.name, weight: settings.nameWeight, size: fs, color: settings.autoLabelColor ? autoTextOn(color) : settings.nameColor });
+          if (hasNumber) lines.push({ text: formatPieNumber(d, settings), weight: settings.valueWeight, size: fs * (settings.showNames ? 1.05 : 1.15), color: settings.autoLabelColor ? autoTextOn(color) : settings.valueColor });
           const lineGap = fs * 0.15;
           const textH = lines.reduce((h, l) => h + l.size, 0) + lineGap * Math.max(0, lines.length - 1);
           // 細いスライスでは、ラベル位置での弧の長さに収まらないものを省く（先に画像、次に文字ごと）
@@ -5796,8 +5827,8 @@
             const imageUrl = settings.labelImages ? (d.item?.imageUrl || '') : '';
             const imgSize = imageUrl ? ofs * 1.4 * settings.imageScale : 0;
             const parts = [];
-            if (settings.showNames) parts.push({ text: d.name, weight: 600, color: settings.autoLabelColor ? layoutAppearance.textColor : settings.nameColor });
-            if (hasNumber) parts.push({ text: formatPieNumber(d, settings), weight: 700, color: settings.autoLabelColor ? strongColor : settings.valueColor });
+            if (settings.showNames) parts.push({ text: d.name, weight: settings.nameWeight, color: settings.autoLabelColor ? layoutAppearance.textColor : settings.nameColor });
+            if (hasNumber) parts.push({ text: formatPieNumber(d, settings), weight: settings.valueWeight, color: settings.autoLabelColor ? strongColor : settings.valueColor });
             if (side === 'left') parts.reverse();
             if (imgSize && side === 'right') {
               g.append("image").attr("href", imageUrl)
@@ -5929,9 +5960,9 @@
               .attr("x", tx)
               .attr("dominant-baseline", "central")
               .style("font-size", lg.fontSize + "px")
-              .style("font-weight", 600)
+              .style("font-weight", settings.nameWeight)
               .style("fill", settings.legendColor)
-              .text(fitEndLabelName(d.name, '', lg.fontSize, nameRoom, 0));
+              .text(fitEndLabelName(d.name, '', lg.fontSize, nameRoom, 0, settings.nameWeight > 400));
           }
           if (lg.valueW) {
             g.append("text")
@@ -5939,7 +5970,7 @@
               .attr("text-anchor", "end")
               .attr("dominant-baseline", "central")
               .style("font-size", lg.fontSize + "px")
-              .style("font-weight", 700)
+              .style("font-weight", settings.valueWeight)
               .style("font-variant-numeric", "tabular-nums")
               .style("fill", settings.legendColor)
               .text(formatPieNumber(d, settings));
@@ -6817,7 +6848,7 @@
       document.getElementById('aspectRatioPreset').value = 'custom';
       onLayoutSettingChange('canvasHeight');
     });
-    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor'].forEach(id => {
+    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength'].forEach(id => {
       const eventName = ['mainFont', 'enableBackgroundColor'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => {
         applyLayoutAppearance();
@@ -6831,8 +6862,8 @@
       document.getElementById('barStartOffset').value = 0;
       onLayoutSettingChange('chartStyle');
     });
-    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
-      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
+    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
+      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
     });
     ['imageMarginRight', 'imageSizing', 'imageShape'].forEach(id => {

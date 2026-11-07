@@ -8,8 +8,8 @@
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
  *     「使いたい」と答える → tool_ui_click（button_id: transparentWant）
  *   今後 Polar で有料化するときは、ここに透過書き出しの本体と課金判定を入れる
- * - 文字のフチ（textOutlineWidth / textOutlineColor）は #chartArea の .grs-outlined と CSS 変数で付ける。
- *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
+ * - 文字のフチ（textOutlineWidth / textOutlineColor）と影（textShadowStrength）は #chartArea の .grs-outlined と CSS 変数で付ける。
+ *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）、影の強さを変えると tool_ui_click（button_id: textShadowStrength）
  * - 計測：白・黒のボタンは id（bgWhite / bgBlack）がそのまま tool_ui_click の button_id になる
  * - 以前の「背景画像」は廃止（古い保存データに残っていても使わない）
  */
@@ -39,9 +39,13 @@
     '.grs-bg-mode button:hover{transform:none}',
     '.grs-bg-mode button.active{background:#fff;color:var(--text-strong,#111);box-shadow:var(--shadow-soft,0 1px 3px rgba(0,0,0,.12))}',
     '.grs-bg-mode small{display:block;font-size:10px;opacity:.75;margin-top:1px}',
-    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない
-    '#chartArea.grs-outlined{-webkit-text-stroke:var(--grs-outline-width) var(--grs-outline-color);paint-order:stroke fill}',
-    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-width);stroke-linejoin:round;paint-order:stroke fill}'
+    // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない。
+    // 太さは文字サイズに比例（大きい年号は太く、小さい軸の数字は細く）。フチは半透明
+    '#chartArea.grs-outlined{--grs-outline-px:clamp(1px,calc(var(--grs-outline-scale) * .04em),calc(var(--grs-outline-scale) * 1.5px));-webkit-text-stroke:var(--grs-outline-px) var(--grs-outline-color);paint-order:stroke fill}',
+    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-px);stroke-linejoin:round;paint-order:stroke fill}',
+    // 影（フチとは別に付けられる）。HTML は text-shadow、SVG の文字は filter: drop-shadow
+    '#chartArea.grs-shadowed{text-shadow:0 .05em .15em var(--grs-shadow-color)}',
+    '#chartArea.grs-shadowed text{text-shadow:none;filter:drop-shadow(0 .05em .15em var(--grs-shadow-color))}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -121,6 +125,11 @@
     var outline = $('textOutlineWidth');
     if (outline) outline.addEventListener('change', function () {
       if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textOutlineWidth', button_label: '文字のフチ' });
+    });
+
+    var shadow = $('textShadowStrength');
+    if (shadow) shadow.addEventListener('change', function () {
+      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'textShadowStrength', button_label: '影の強さ' });
     });
 
     syncButtons();

@@ -17,7 +17,7 @@
   <script src="../../shared/analytics.js?v=20261023" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026101703" defer></script>
-  <script src="../../shared/video-export.js?v=2026110510" defer></script>
+  <script src="../../shared/video-export.js?v=2026110701" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -52,9 +52,9 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110510" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110701" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
-  <script src="../../shared/background-mode.js?v=2026110510" defer></script>
+  <script src="../../shared/background-mode.js?v=2026110701" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
@@ -315,6 +315,9 @@
     /* 表示する要素（項目名・値・画像）のON/OFFボタン。中身はチェックボックス */
     .element-toggle-field { margin: 2px 0 12px; }
     .element-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    /* パネル内の小見出し（先頭だけ線なし） */
+    .panel-subhead { margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid var(--panel-border, #333); font-size: 12px; font-weight: 700; color: var(--text-muted, #aaa); }
+    .panel-subhead:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .element-toggle {
       position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
       min-height: 36px; padding: 0 14px; box-sizing: border-box;
@@ -1325,6 +1328,16 @@
     <div class="input-group">
       <label>レイアウト</label>
       <div class="setting-row">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>背景</span>
+          <div class="grs-bg-mode" role="group" aria-label="背景">
+            <button type="button" id="bgWhite" data-bg-mode="white">白</button>
+            <button type="button" id="bgBlack" data-bg-mode="black">黒</button>
+            <button type="button" id="bgTransparent" data-bg-mode="transparent" data-track="upgrade_click" data-track-id="transparentExport">透過<small>有料予定</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
         <div class="setting-field">
           <span>フォント</span>
           <select id="mainFont">
@@ -1341,18 +1354,8 @@
         </div>
       </div>
       <div class="setting-row">
-        <div class="setting-field" style="flex:1 1 100%;">
-          <span>背景</span>
-          <div class="grs-bg-mode" role="group" aria-label="背景">
-            <button type="button" id="bgWhite" data-bg-mode="white">白</button>
-            <button type="button" id="bgBlack" data-bg-mode="black">黒</button>
-            <button type="button" id="bgTransparent" data-bg-mode="transparent" data-track="upgrade_click" data-track-id="transparentExport">透過<small>有料予定</small></button>
-          </div>
-        </div>
-      </div>
-      <div class="setting-row">
         <div class="setting-field">
-          <span>文字のフチ(px)</span>
+          <span>文字のフチ</span>
           <input type="number" id="textOutlineWidth" value="0" min="0" max="20" step="0.5">
         </div>
         <div class="setting-field">
@@ -1360,10 +1363,42 @@
           <input type="color" id="textOutlineColor" value="#000000">
         </div>
       </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>影の強さ(%)</span>
+          <input type="number" id="textShadowStrength" value="0" min="0" max="100" step="5">
+        </div>
+      </div>
       <!-- 背景は上の3択で切り替える。下は既存の処理・保存データ用に残している -->
       <div hidden>
         <input type="color" id="layoutBackgroundColor" value="#ffffff">
         <input type="checkbox" id="enableBackgroundColor" checked>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>タイトル・出典</label>
+      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>タイトル文字サイズ(%)</span>
+          <input type="number" id="titleSize" value="5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>タイトル色</span>
+          <input type="color" id="titleColor" value="#222222">
+        </div>
+      </div>
+      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>出典文字サイズ(%)</span>
+          <input type="number" id="sourceSize" value="2" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>出典色</span>
+          <input type="color" id="sourceColor" value="#666666">
+        </div>
       </div>
     </div>
 
@@ -1432,28 +1467,7 @@
 
     <div class="input-group">
       <label>ラベル</label>
-      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
-      <div class="setting-row">
-        <div class="setting-field">
-          <span>タイトル文字サイズ(%)</span>
-          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>タイトル色</span>
-          <input type="color" id="titleColor" value="#222222">
-        </div>
-      </div>
-      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
-      <div class="setting-row" style="margin-bottom:14px;">
-        <div class="setting-field">
-          <span>出典文字サイズ(%)</span>
-          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>出典色</span>
-          <input type="color" id="sourceColor" value="#666666">
-        </div>
-      </div>
+      <div class="panel-subhead">表示する内容</div>
       <div class="element-toggle-field">
         <span class="setting-caption">グラフ内に表示</span>
         <div class="element-toggles" role="group" aria-label="グラフ内に表示">
@@ -1462,9 +1476,19 @@
           <label class="element-toggle"><input type="checkbox" id="barShowImages" checked data-image-toggle><span>画像</span></label>
         </div>
       </div>
+      <div class="checkbox-group" data-chart-style="ranking">
+        <input type="checkbox" id="showRankingItemAfterBar" checked>
+        <span>バーの後ろに項目名</span>
+      </div>
+      <div class="checkbox-group" data-chart-style="ranking">
+        <input type="checkbox" id="showRankingValueInsideBar" checked>
+        <span>バーの中にデータ</span>
+      </div>
+
+      <div class="panel-subhead">文字の見た目</div>
       <div class="setting-row">
         <div class="setting-field">
-          <span>文字サイズ(px)</span>
+          <span>ラベルの文字サイズ(px)</span>
           <input type="number" id="labelFontSize" value="18" min="1" max="120">
         </div>
         <div class="setting-field">
@@ -1483,16 +1507,8 @@
         </div>
       </div>
       <div class="checkbox-group">
-        <input type="checkbox" id="labelBold" data-track="tool_ui_click">
+        <input type="checkbox" id="labelBold" checked data-track="tool_ui_click">
         <span>太字</span>
-      </div>
-      <div class="checkbox-group" data-chart-style="ranking">
-        <input type="checkbox" id="showRankingItemAfterBar" checked>
-        <span>バーの後ろに項目名</span>
-      </div>
-      <div class="checkbox-group" data-chart-style="ranking">
-        <input type="checkbox" id="showRankingValueInsideBar" checked>
-        <span>バーの中にデータ</span>
       </div>
     </div>
 
@@ -1724,7 +1740,7 @@
         </div>
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">文字サイズ(px)</span>
-          <input type="number" id="axisTextSize" value="11" min="1" max="80">
+          <input type="number" id="axisTextSize" value="15" min="1" max="80">
         </div>
       </div>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
@@ -1995,7 +2011,7 @@
     const PROJECT_SETTING_IDS = [
       'playbackLengthMode', 'playbackCustomSeconds',
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
-      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
+      'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
@@ -2238,6 +2254,12 @@
         if (element.type === 'checkbox') element.checked = Boolean(settings[id]);
         else element.value = settings[id];
       });
+      // 太字を足す前の保存データは、細いラベルで描いていたので、その見た目を保つ
+      // （サンプルのように設定が一部だけのデータは対象外。文字サイズを持つ保存データだけ）
+      if (Object.prototype.hasOwnProperty.call(settings, 'labelFontSize') && !Object.prototype.hasOwnProperty.call(settings, 'labelBold')) {
+        const boldEl = document.getElementById('labelBold');
+        if (boldEl) boldEl.checked = false;
+      }
       syncBarSettingsControls();
       updateBarColorControls();
       syncImageToggleAvailability();
@@ -2759,7 +2781,7 @@
       const fixedMaxValue = parseNumber(document.getElementById('axisFixedMax').value);
       return {
         textColor: document.getElementById('axisTextColor').value || '#999999',
-        textSize: Number.isFinite(textSizeValue) ? Math.max(1, textSizeValue) : 11,
+        textSize: Number.isFinite(textSizeValue) ? Math.max(1, textSizeValue) : 15,
         lineColor: document.getElementById('axisLineColor').value || '#d2d2d2',
         lineWidth: Number.isFinite(lineWidthValue) ? Math.max(0, lineWidthValue) : 1,
         lineDash: Number.isFinite(lineDashValue) ? Math.max(0, lineDashValue) : 0,
@@ -2775,7 +2797,8 @@
         useBackgroundColor: document.getElementById('enableBackgroundColor').checked,
         backgroundColor: document.getElementById('layoutBackgroundColor').value || '#ffffff',
         outlineWidth: Math.max(0, parseFloat(document.getElementById('textOutlineWidth').value) || 0),
-        outlineColor: document.getElementById('textOutlineColor').value || '#000000'
+        outlineColor: document.getElementById('textOutlineColor').value || '#000000',
+        shadowStrength: Math.min(100, Math.max(0, parseFloat(document.getElementById('textShadowStrength').value) || 0))
       };
     }
 
@@ -2790,8 +2813,12 @@
       chart.style.backgroundColor = settings.useBackgroundColor ? settings.backgroundColor : 'transparent';
       // 文字のフチ（見た目の指定は shared/background-mode.js の .grs-outlined）
       chart.classList.toggle('grs-outlined', settings.outlineWidth > 0);
-      chart.style.setProperty('--grs-outline-width', settings.outlineWidth + 'px');
-      chart.style.setProperty('--grs-outline-color', settings.outlineColor);
+      // フチと影は半透明の黒（色を変えたらその色）。フチの太さは文字サイズに比例させ、影の濃さは「影の強さ」で決める
+      const outlineRgb = parseInt((/^#([0-9a-f]{6})$/i.exec(settings.outlineColor) || [0, '000000'])[1], 16);
+      chart.style.setProperty('--grs-outline-scale', settings.outlineWidth);
+      chart.style.setProperty('--grs-outline-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, 0.6)`);
+      chart.classList.toggle('grs-shadowed', settings.shadowStrength > 0);
+      chart.style.setProperty('--grs-shadow-color', `rgba(${outlineRgb >> 16}, ${(outlineRgb >> 8) & 255}, ${outlineRgb & 255}, ${settings.shadowStrength / 100})`);
       chart.style.backgroundImage = 'none';
       chart.style.backgroundSize = 'cover';
       chart.style.backgroundPosition = 'center';
@@ -4242,8 +4269,8 @@
       const titleSize = parseFloat(document.getElementById('titleSize').value);
       const sourceSize = parseFloat(document.getElementById('sourceSize').value);
       return {
-        titlePx: base * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100),
-        sourcePx: base * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100)
+        titlePx: base * ((Number.isFinite(titleSize) ? titleSize : 5) / 100),
+        sourcePx: base * ((Number.isFinite(sourceSize) ? sourceSize : 2) / 100)
       };
     }
 
@@ -5882,7 +5909,7 @@
       document.getElementById('aspectRatioPreset').value = 'custom';
       onLayoutSettingChange('canvasHeight');
     });
-    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor'].forEach(id => {
+    ['mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength'].forEach(id => {
       const eventName = ['mainFont', 'enableBackgroundColor'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => {
         applyLayoutAppearance();

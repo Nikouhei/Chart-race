@@ -26,7 +26,8 @@ I18N.registerText('en', {
   'レイアウト': 'Layout',
   'フォント': 'Font',
   'テキスト色': 'Text color',
-  '文字のフチ(px)': 'Text outline (px)',
+  '文字のフチ': 'Text outline',
+  '影の強さ(%)': 'Shadow strength (%)',
   'フチの色': 'Outline color',
   '背景色': 'Background color',
   '背景色を使う': 'Use background color',
@@ -122,6 +123,9 @@ I18N.registerText('en', {
 
   // ── ラベル ──
   'ラベル': 'Labels',
+  'タイトル・出典': 'Title & source',
+  '表示する内容': 'What to show',
+  '文字の見た目': 'Text style',
   'タイトルを入力': 'Enter a title',
   'タイトル文字サイズ(%)': 'Title size (%)',
   'タイトル色': 'Title color',
