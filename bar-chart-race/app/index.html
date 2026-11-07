@@ -4821,6 +4821,44 @@
       };
     }
 
+    // 角丸（カプセル型）のバーに、縦横比 aspect の四角い画像を収める。
+    // 画像の四隅が端の半円にかからないよう、入らないときは縦横比を保ったまま縮める。
+    // 返す x はバー左端からの距離。gap は、置ける範囲の右端から空ける余白、edgePad は縁から空ける最小の余白
+    function fitImageInCapsule(barWidth, barHeight, aspect, wantHeight, gap, edgePad) {
+      const r = Math.min(barWidth, barHeight) / 2;
+      const R = Math.max(0, r - edgePad); // 画像が使える範囲を作る半円の半径
+      const vertical = barWidth < barHeight; // 幅が高さより短いバーは縦長のカプセルになる
+      // 高さ ih の画像を置ける横方向の範囲 [左端の下限, 右端の上限]。置けないときは null
+      const span = ih => {
+        const a = ih / 2;
+        if (!vertical) {
+          if (a > R) return null;
+          const d = Math.sqrt(R * R - a * a);
+          return [r - d, barWidth - r + d];
+        }
+        const c = Math.max(0, a - (barHeight / 2 - r));
+        if (c > R) return null;
+        const half = Math.sqrt(R * R - c * c);
+        return [r - half, r + half];
+      };
+      const fits = ih => {
+        const s = span(ih);
+        return !!s && s[1] - s[0] >= aspect * ih;
+      };
+      let ih = wantHeight;
+      if (!fits(ih)) {
+        let low = 0, high = wantHeight;
+        for (let i = 0; i < 16; i++) {
+          const mid = (low + high) / 2;
+          if (fits(mid)) low = mid; else high = mid;
+        }
+        ih = low;
+      }
+      const s = span(ih) || [0, 0];
+      const iw = aspect * ih;
+      return { x: vertical ? r - iw / 2 : Math.max(s[0], s[1] - gap - iw), width: iw, height: ih };
+    }
+
     function createXScale(metrics) {
       return d3.scaleLinear()
         .domain([0, metrics.domainMax || metrics.globalDomainMax])
@@ -4942,11 +4980,24 @@
       const imgHeight = yScale.bandwidth() * 0.7;
       const imgWidth = imageSettings.shape === 'circle' ? imgHeight : imgHeight * 1.4;
       // 角丸（カプセル型）：両端を半円にする。幅が高さより短いバーは、幅の半分までで頭打ち。
-      // 端の丸みで画像やバー内の値がはみ出さないよう、バーの高さの15%だけ内側へ寄せる
+      // 端の丸みでバー内の値や丸い画像がはみ出さないよう、バーの高さの15%だけ内側へ寄せる。
+      // 四角い画像は丸みに角がかかるので、fitImageInCapsule で収まる大きさに縮める
       const isRoundBar = layout.barShape === 'round';
       const barCapInset = isRoundBar ? yScale.bandwidth() * 0.15 : 0;
       const barRadius = d => isRoundBar ? Math.min(yScale.bandwidth(), barGeometry(xScale, d.value).width) / 2 : 4;
       const imageRightGap = imageSettings.marginRight + barCapInset;
+      // バーの中での画像の位置と大きさ
+      const imageBox = d => {
+        const bar = barGeometry(xScale, d.value);
+        if (isRoundBar && imageSettings.shape !== 'circle') {
+          const fit = fitImageInCapsule(bar.width, yScale.bandwidth(), imgWidth / imgHeight, imgHeight,
+            imageSettings.marginRight, yScale.bandwidth() * 0.05);
+          return { x: bar.x + fit.x, y: (yScale.bandwidth() - fit.height) / 2, width: fit.width, height: fit.height };
+        }
+        const geo = imageGeometry(xScale, d.value, imgWidth, imageRightGap);
+        const height = imageSettings.shape === 'circle' ? geo.width : imgHeight;
+        return { x: geo.x, y: (yScale.bandwidth() - height) / 2, width: geo.width, height };
+      };
 
       if (exportRowMotion) {
         stepExportRowMotion(rowsUpdate, rows.exit(), getRowY, d => yScale(d.key) === undefined ? 0 : 1, overflowY);
@@ -4971,17 +5022,10 @@
         .style("clip-path", imageSettings.shape === 'circle' ? "circle(50%)" : "inset(0% round 4px)")
         .style("display", d => d.imageUrl && imageSettings.show ? "block" : "none");
       transition(rowsUpdate.select(".flag"))
-        .attr("y", d => {
-          const renderedHeight = imageSettings.shape === 'circle'
-            ? imageGeometry(xScale, d.value, imgWidth, imageRightGap).width
-            : imgHeight;
-          return (yScale.bandwidth() - renderedHeight) / 2;
-        })
-        .attr("height", d => imageSettings.shape === 'circle'
-          ? imageGeometry(xScale, d.value, imgWidth, imageRightGap).width
-          : imgHeight)
-        .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageRightGap).x)
-        .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageRightGap).width);
+        .attr("y", d => imageBox(d).y)
+        .attr("height", d => imageBox(d).height)
+        .attr("x", d => imageBox(d).x)
+        .attr("width", d => imageBox(d).width);
 
       rowsUpdate.selectAll(".name-label, .value-label, .ranking-item-label, .ranking-value-label")
         .style("font-weight", labelSettings.bold ? 700 : null);
