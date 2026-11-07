@@ -1869,6 +1869,14 @@ document.getElementById("resetState").onclick=ev=>{
 /* ================= 描画基盤 ================= */
 const cv=document.getElementById("cv"),ctx=cv.getContext("2d");
 let W=cv.width,H=cv.height;
+/* 書き出しの画質。描画は W×H の座標のまま、キャンバスの実寸だけ PX 倍にする
+   (書き出し中だけ。プレビューは常に1倍) */
+let PX=1;
+function setCanvasScale(s){
+  PX=s;
+  cv.width=Math.round(W*s);cv.height=Math.round(H*s);
+  ctx.setTransform(s,0,0,s,0,0);
+}
 const ASPECT_SIZES={"16:9":[1280,720],"3:4":[960,1280],"9:16":[720,1280]};
 const stageEl=document.querySelector(".umarace .stage");
 const aspectEl=document.getElementById("aspect");
@@ -2543,15 +2551,17 @@ function draw(dt){
   }
   // 出走前シーン: レース名と出馬表。頭0.6秒で出て、最後の0.5秒で消える
   if(R&&R.introSec>0&&R.t<-R.cd){
-    if(!R.introCard||R.introCard.width!==W||R.introCard.height!==H){
-      const c=document.createElement("canvas");c.width=W;c.height=H;
-      paintIntroCard(c.getContext("2d"),W,H);
+    const cw=Math.round(W*PX),ch=Math.round(H*PX);
+    if(!R.introCard||R.introCard.width!==cw||R.introCard.height!==ch){
+      const c=document.createElement("canvas");c.width=cw;c.height=ch;
+      const g=c.getContext("2d");g.scale(PX,PX);
+      paintIntroCard(g,W,H);
       R.introCard=c;
     }
     const u=R.t-R.t0, left=-R.cd-R.t;
     ctx.save();
     ctx.globalAlpha=Math.max(0,Math.min(1,u/0.6,left/0.5));
-    ctx.drawImage(R.introCard,0,0);
+    ctx.drawImage(R.introCard,0,0,W,H);
     ctx.restore();
   }
   // カウントダウン
@@ -3402,7 +3412,7 @@ const REAL3D_SCRIPTS=[
   "vendor/three.r128.min.js",
   "vendor/GLTFLoader.js",
   "vendor/SkeletonUtils.js",
-  "real3d.js?v=2026110101",
+  "real3d.js?v=2026110701",
 ];
 const loading3d=document.getElementById("loading3d");
 const loading3dText=document.getElementById("loading3dText");
@@ -3718,7 +3728,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
     ownWatermark:true,
     isReady(){ return isReal()?real3dReady:entries.length>=2; },
     getStage(){ return isReal()?Real3D.canvas():cv; },
-    getSize(){ return isReal()?Real3D.exportSize():{width:cv.width,height:cv.height}; },
+    getSize(){ return isReal()?Real3D.exportSize():{width:W,height:H}; },
     /* 動画に入れる音。プレビューと同じ時刻表から作る(長さだけ書き出しの尺に合わせる) */
     async getAudio(sec){
       if(!soundActive())return null;
@@ -3741,7 +3751,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
         Real3D.pause();
         exportActive=true;
         Real3D.setView({showMark:!!opts.watermark});
-        Real3D.setExportMode(true);
+        Real3D.setExportMode(true,opts.size);
         Real3D.renderAtFrame(0);
       }else{
         prepareClassic();
@@ -3749,6 +3759,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
         exportActive=true;
         paused=true;
         resetClassic(race);
+        setCanvasScale(opts.size.width/W);
         exportNoMark=!opts.watermark;
         exportClockMs=0;
         wmX=null;
@@ -3792,6 +3803,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       }else{
         exportActive=false;
         exportNoMark=false;
+        setCanvasScale(1);
         if(saved&&race)seekTo(saved.t);
         paused=true;
         updateStartBtn();
@@ -3808,7 +3820,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       button:btn,
       adapter,
       fileBase:"kakuzuke-derby",
-      scales:[1],          // 画質は描画解像度そのまま(高画質は有料化のときに検討)
+      scales:[1,1.5],      // 標準(720p)・高画質(1080p)。描画解像度ごと上げる(引き伸ばしではない)
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート

@@ -3468,11 +3468,20 @@ function updateIntroCard(){
   const on = cfg && cfg.intro && typeof cfg.intro.paint==="function" && frame < introFrames;
   if(!on){ if(introPlane) introPlane.visible=false; return; }
   const [w,h]=EXPORT_SIZES[view.aspect]||EXPORT_SIZES["16:9"];
-  const key=view.aspect;
+  // 板は w×h の座標で描き、高画質の書き出し中は実寸だけ exportPx 倍にする
+  const px=exporting?exportPx:1;
+  const key=view.aspect+"@"+px;
   if(introShown!==key){
     if(!introCanvas) introCanvas=document.createElement("canvas");
-    introCanvas.width=w; introCanvas.height=h;
+    const cw=Math.round(w*px), ch=Math.round(h*px);
+    // 大きさの変わったキャンバスは同じテクスチャに載せ直せないので作り直す
+    if(introTex && (introCanvas.width!==cw || introCanvas.height!==ch)){
+      introTex.dispose(); introTex=new THREE.CanvasTexture(introCanvas);
+      introPlane.material.map=introTex; introPlane.material.needsUpdate=true;
+    }
+    introCanvas.width=cw; introCanvas.height=ch;
     const g=introCanvas.getContext("2d");
+    g.setTransform(px,0,0,px,0,0);
     g.clearRect(0,0,w,h);
     try{ cfg.intro.paint(g,w,h); }catch(e){ console.warn("[real3d] 出馬表を描けませんでした",e); }
     if(!introTex){
@@ -3986,6 +3995,7 @@ function courseInfoText(){
    競馬風(2D)が画面サイズに関係なく1280x720で書き出すのに合わせる */
 const EXPORT_SIZES={"16:9":[1280,720],"9:16":[720,1280],"1:1":[1080,1080]};
 let exporting=false;
+let exportPx=1;   // 書き出しの画質(EXPORT_SIZES に対する倍率)
 
 /* アスペクト比を固定し、余白は黒帯(レターボックス)で埋める。
    比率はエンジンが握る。ホストのCSSに任せるとカメラの画角計算と食い違う */
@@ -4123,12 +4133,15 @@ global.Real3D={
   /* 録画の前後で呼ぶ。書き出し中だけ描画解像度を固定値へ上げる。
      setSize の第3引数を false にしてCSS寸法は据え置くので、
      画面上の見た目は変わらないまま、captureStream に流れる絵だけが高精細になる。
-     カメラは比率しか見ていないので、構図もカット割りも一切変わらない */
-  setExportMode(on){
+     カメラは比率しか見ていないので、構図もカット割りも一切変わらない。
+     size({width,height})を渡すとその大きさで描く(高画質の書き出し) */
+  setExportMode(on,size){
     if(on===exporting) return this.canvas();
     exporting=!!on;
     if(exporting){
-      const [w,h]=EXPORT_SIZES[view.aspect]||EXPORT_SIZES["16:9"];
+      const [ew,eh]=EXPORT_SIZES[view.aspect]||EXPORT_SIZES["16:9"];
+      const w=size?size.width:ew, h=size?size.height:eh;
+      exportPx=w/ew;
       renderer.setPixelRatio(1);
       renderer.setSize(w,h,false);
       cam.aspect=currentAspect(); cam.updateProjectionMatrix();
