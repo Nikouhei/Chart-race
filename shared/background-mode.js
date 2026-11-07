@@ -5,7 +5,8 @@
  * - 白・黒を選ぶと、背景色とあわせて文字・軸などの色を自動で切り替える
  *   （白のときの色は、各ツールの HTML に書いてある初期値）
  * - 「透過」は背景色をオフにする。重ねる映像の明るさは分からないので、文字を白＋黒フチにして
- *   どの映像の上でも読めるようにする（どちらも設定で変えられる）。プレビューは市松模様で見せ、
+ *   どの映像の上でも読めるようにする（どちらも設定で変えられる）。明るい映像には「文字色」で
+ *   黒＋白フチに切り替える（透過のときだけ出る。計測は id がそのまま tool_ui_click の button_id）。プレビューは市松模様で見せ、
  *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過で書き出す
  * - 文字のフチ（textOutlineWidth / textOutlineColor）は #chartArea の .grs-outlined と CSS 変数で付ける。
  *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
@@ -47,6 +48,21 @@
     axisLineColor: '#888888',
     pieGapColor: '#000000',
     pieCenterColor: '#ffffff'
+  };
+  // 透過で文字を黒にするときの色（明るい映像の上で使う。縁と影は白にする）
+  var OVERLAY_DARK = {
+    layoutTextColor: '#111111',
+    titleColor: '#111111',
+    sourceColor: '#111111',
+    nameLabelColor: '#111111',
+    valueLabelColor: '#111111',
+    legendColor: '#111111',
+    categoryLegendColor: '#111111',
+    timeCounterColor: '#111111',
+    axisTextColor: '#111111',
+    axisLineColor: '#777777',
+    pieGapColor: '#ffffff',
+    pieCenterColor: '#111111'
   };
   var OVERLAY_OUTLINE = 3; // px
 
@@ -97,6 +113,29 @@
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    var tone = $('grsTextTone');
+    if (tone) {
+      tone.style.display = mode === 'transparent' ? '' : 'none';
+      var text = $('layoutTextColor');
+      var current = text && isDark(text.value) ? 'dark' : 'light';
+      tone.querySelectorAll('[data-text-tone]').forEach(function (b) {
+        var on = b.getAttribute('data-text-tone') === current;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+  }
+
+  // 透過のときの文字色（白＋黒フチ／黒＋白フチ）。太さなど自分で変えた設定は戻さない
+  function applyTone(tone) {
+    var colors = tone === 'dark' ? OVERLAY_DARK : OVERLAY;
+    Object.keys(colors).forEach(function (id) {
+      var el = $(id);
+      if (el) setValue(el, colors[id]);
+    });
+    var outlineC = $('textOutlineColor');
+    if (outlineC) setValue(outlineC, tone === 'dark' ? '#ffffff' : '#000000');
+    syncButtons();
   }
 
   function applyMode(mode) {
@@ -155,6 +194,25 @@
         applyMode(b.getAttribute('data-bg-mode'));
       });
     });
+
+    // 透過のときだけ出す「文字色」（背景の3択の下に差し込む）
+    var bgRow = document.querySelector('.grs-bg-mode');
+    bgRow = bgRow && bgRow.closest('.setting-row');
+    if (bgRow && !$('grsTextTone')) {
+      var row = document.createElement('div');
+      row.className = 'setting-row';
+      row.id = 'grsTextTone';
+      row.style.display = 'none';
+      row.innerHTML = '<div class="setting-field" style="flex:1 1 100%;"><span>文字色</span>' +
+        '<div class="grs-bg-mode" role="group" aria-label="文字色">' +
+        '<button type="button" id="textToneLight" data-text-tone="light">白</button>' +
+        '<button type="button" id="textToneDark" data-text-tone="dark">黒</button>' +
+        '</div></div>';
+      bgRow.parentNode.insertBefore(row, bgRow.nextSibling);
+      row.querySelectorAll('[data-text-tone]').forEach(function (b) {
+        b.addEventListener('click', function () { applyTone(b.getAttribute('data-text-tone')); });
+      });
+    }
 
     var outline = $('textOutlineWidth');
     if (outline) outline.addEventListener('change', function () {
