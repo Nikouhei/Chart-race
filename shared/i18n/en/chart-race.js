@@ -27,6 +27,7 @@ I18N.registerText('en', {
   'フォント': 'Font',
   'テキスト色': 'Text color',
   '文字のフチ': 'Text outline',
+  '影の強さ(%)': 'Shadow strength (%)',
   'フチの色': 'Outline color',
   '背景色': 'Background color',
   '背景色を使う': 'Use background color',

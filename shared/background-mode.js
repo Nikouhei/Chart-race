@@ -8,7 +8,7 @@
  *   どの映像の上でも読めるようにする（どちらも設定で変えられる）。明るい映像には「文字色」で
  *   黒＋白フチに切り替える（透過のときだけ出る。計測は id がそのまま tool_ui_click の button_id）。プレビューは市松模様で見せ、
  *   書き出し（shared/video-export.js）は #chartArea の .grs-transparent を見て透過で書き出す
- * - 文字のフチ（textOutlineWidth / textOutlineColor）は #chartArea の .grs-outlined と CSS 変数で付ける。
+ * - 文字のフチ（textOutlineWidth / textOutlineColor）と影（textShadowStrength）は #chartArea の .grs-outlined と CSS 変数で付ける。
  *   計測：太さを変えると tool_ui_click（button_id: textOutlineWidth）
  *     押す → upgrade_click（button_id: transparentExport）※HTML の data-track で送る
  *   今後 Polar で有料化するときは、ここに課金判定を入れる
@@ -65,6 +65,7 @@
     pieCenterColor: '#111111'
   };
   var OVERLAY_OUTLINE = 3; // px
+  var OVERLAY_SHADOW = 50; // %
 
   var STYLE = [
     '.grs-bg-mode{display:flex;gap:2px;padding:3px;border-radius:9px;background:var(--panel-surface-2,#eef0f3)}',
@@ -76,8 +77,11 @@
     '#chartArea.grs-transparent{background-image:repeating-conic-gradient(#ccc 0 25%,#fff 0 50%)!important;background-size:16px 16px!important;background-position:0 0!important;background-repeat:repeat!important}',
     // 文字のフチ。線を文字の後ろに描くので、太くしても文字は細らない。
     // 太さは文字サイズに比例（大きい年号は太く、小さい軸の数字は細く）。フチは半透明、そこにやわらかい影を足す
-    '#chartArea.grs-outlined{--grs-outline-px:clamp(1px,calc(var(--grs-outline-scale) * .04em),calc(var(--grs-outline-scale) * 1.5px));-webkit-text-stroke:var(--grs-outline-px) var(--grs-outline-color);paint-order:stroke fill;text-shadow:0 .05em .15em var(--grs-shadow-color)}',
-    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-px);stroke-linejoin:round;paint-order:stroke fill;text-shadow:none;filter:drop-shadow(0 .05em .15em var(--grs-shadow-color))}'
+    '#chartArea.grs-outlined{--grs-outline-px:clamp(1px,calc(var(--grs-outline-scale) * .04em),calc(var(--grs-outline-scale) * 1.5px));-webkit-text-stroke:var(--grs-outline-px) var(--grs-outline-color);paint-order:stroke fill}',
+    '#chartArea.grs-outlined text{-webkit-text-stroke:0;stroke:var(--grs-outline-color);stroke-width:var(--grs-outline-px);stroke-linejoin:round;paint-order:stroke fill}',
+    // 影（フチとは別に付けられる）。HTML は text-shadow、SVG の文字は filter: drop-shadow
+    '#chartArea.grs-shadowed{text-shadow:0 .05em .15em var(--grs-shadow-color)}',
+    '#chartArea.grs-shadowed text{text-shadow:none;filter:drop-shadow(0 .05em .15em var(--grs-shadow-color))}'
   ].join('');
 
   function $(id) { return document.getElementById(id); }
@@ -113,6 +117,10 @@
       b.classList.toggle('active', on);
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    // 透過のときは下の「文字色」（白／黒）で決めるので、テキスト色の欄は隠す
+    var textInput = $('layoutTextColor');
+    var textField = textInput && textInput.closest('.setting-field');
+    if (textField) textField.style.display = mode === 'transparent' ? 'none' : '';
     var tone = $('grsTextTone');
     if (tone) {
       tone.style.display = mode === 'transparent' ? '' : 'none';
@@ -167,8 +175,9 @@
     }
 
     // 文字のフチ
-    var outlineW = $('textOutlineWidth'), outlineC = $('textOutlineColor');
+    var outlineW = $('textOutlineWidth'), outlineC = $('textOutlineColor'), shadowS = $('textShadowStrength');
     if (outlineW) setValue(outlineW, mode === 'transparent' ? OVERLAY_OUTLINE : 0);
+    if (shadowS) setValue(shadowS, mode === 'transparent' ? OVERLAY_SHADOW : 0);
     if (outlineC) setValue(outlineC, '#000000');
 
     if (mode === 'transparent') {
