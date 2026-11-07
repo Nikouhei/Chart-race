@@ -1496,7 +1496,7 @@
         </div>
       </div>
       <div class="checkbox-group" id="labelBoldRow">
-        <input type="checkbox" id="labelBold" data-track="tool_ui_click">
+        <input type="checkbox" id="labelBoldText" checked data-track="tool_ui_click">
         <span>太字</span>
       </div>
       <div class="checkbox-group" id="labelUseLineColorRow">
@@ -2108,7 +2108,7 @@
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
-      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBoldText',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
@@ -2960,7 +2960,7 @@
         legendOn: document.getElementById('lineShowLegend')?.checked ?? false,
         legendPosition: document.getElementById('legendPosition')?.value === 'bottom' ? 'bottom' : 'top',
         useLineColor: document.getElementById('labelUseLineColor')?.checked !== false,
-        bold: document.getElementById('labelBold')?.checked === true,
+        bold: document.getElementById('labelBoldText')?.checked !== false,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
         valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
         legendFontSize: Number.isFinite(+document.getElementById('legendFontSize')?.value) && +document.getElementById('legendFontSize').value > 0
@@ -4659,6 +4659,9 @@
       // 旧データは先端の文字を線の色で描いていたので、その見た目を保つ
       const lineColorEl = document.getElementById('labelUseLineColor');
       if (lineColorEl && !has('labelUseLineColor')) lineColorEl.checked = true;
+      // 旧データは半太字で描いていたので、その見た目を保つ
+      const boldEl = document.getElementById('labelBoldText');
+      if (boldEl && !has('labelBoldText')) boldEl.checked = true;
     }
 
     // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
@@ -4684,12 +4687,12 @@
       const family = getLayoutAppearanceSettings().font;
       let valueWidth = 0;
       if (showValues) {
-        ctx.font = `${labelSettings.bold ? 800 : 700} ${fontSize}px ${family}`;
+        ctx.font = `${labelSettings.bold ? 700 : 400} ${fontSize}px ${family}`;
         const candidates = [valueRange?.min, valueRange?.max].filter(Number.isFinite);
         if (!candidates.length) candidates.push(0);
         valueWidth = Math.ceil(Math.max(...candidates.map(v => ctx.measureText(formatNumberValue(v)).width)));
       }
-      ctx.font = `${labelSettings.bold ? 800 : 600} ${fontSize}px ${family}`;
+      ctx.font = `${labelSettings.bold ? 600 : 400} ${fontSize}px ${family}`;
       const valueGap = showNames && showValues ? (Number.isFinite(labelSettings.valueSpace) ? labelSettings.valueSpace : 8) : 0;
 
       const rows = [];
@@ -4731,14 +4734,14 @@
 
         let valueWidth = 0;
         if (labelSettings.showValues) {
-          ctx.font = `${labelSettings.bold ? 800 : 700} ${fontSize}px ${family}`;
+          ctx.font = `${labelSettings.bold ? 700 : 400} ${fontSize}px ${family}`;
           valueWidth = Math.max(
             ctx.measureText(formatNumberValue(domainMax)).width,
             ctx.measureText(formatNumberValue(domainMin)).width
           );
         }
 
-        ctx.font = `${labelSettings.bold ? 800 : 600} ${fontSize}px ${family}`;
+        ctx.font = `${labelSettings.bold ? 600 : 400} ${fontSize}px ${family}`;
         const spaceWidth = ctx.measureText(' ').width;
         let widest = 0;
         series.forEach(s => {
@@ -4766,10 +4769,10 @@
         const family = getLayoutAppearanceSettings().font;
         let valueWidth = 0;
         if (valueText) {
-          ctx.font = `${bold ? 800 : 700} ${fontSize}px ${family}`;
+          ctx.font = `${bold ? 700 : 400} ${fontSize}px ${family}`;
           valueWidth = ctx.measureText(valueText).width + (Number.isFinite(valueGap) ? valueGap : 4);
         }
-        ctx.font = `${bold ? 800 : 600} ${fontSize}px ${family}`;
+        ctx.font = `${bold ? 600 : 400} ${fontSize}px ${family}`;
         const room = budget - valueWidth;
         if (ctx.measureText(name).width <= room) return name;
         // 「〇〇（TSM）」のような末尾の括弧は見分けに使うので残し、その前を縮める
@@ -5455,7 +5458,7 @@
           .attr("x", textX)
           .attr("dominant-baseline", "central")
           .style("font-size", effectiveLabelFontSize + "px")
-          .style("font-weight", labelSettings.bold ? "800" : "600")
+          .style("font-weight", labelSettings.bold ? "600" : "400")
           .style("fill", color);
         if (labelSettings.showNames) {
           const nameText = metrics.endLabelClamped
@@ -5468,7 +5471,7 @@
         }
         if (labelSettings.showValues) {
           const valueSpan = label.append("tspan")
-            .style("font-weight", labelSettings.bold ? "800" : "700")
+            .style("font-weight", labelSettings.bold ? "700" : "400")
             .style("fill", labelSettings.useLineColor ? color : labelSettings.valueColor)
             .text(formatNumberValue(tip.value));
           if (labelSettings.showNames) valueSpan.attr("dx", labelSettings.valueSpace);
@@ -5513,7 +5516,7 @@
                 .attr("y", y)
                 .attr("dominant-baseline", "central")
                 .style("font-size", lg.fontSize + "px")
-                .style("font-weight", labelSettings.bold ? "800" : "600")
+                .style("font-weight", labelSettings.bold ? "600" : "400")
                 .style("fill", labelSettings.legendColor || layoutAppearance.textColor)
                 .text(item.name);
             }
@@ -5527,7 +5530,7 @@
                 .attr("text-anchor", "end")
                 .attr("dominant-baseline", "central")
                 .style("font-size", lg.fontSize + "px")
-                .style("font-weight", labelSettings.bold ? "800" : "700")
+                .style("font-weight", labelSettings.bold ? "700" : "400")
                 .style("font-variant-numeric", "tabular-nums")
                 .style("fill", labelSettings.useLineColor ? color : labelSettings.valueColor)
                 .text(Number.isFinite(value) ? formatNumberValue(value) : '–');
@@ -6447,7 +6450,7 @@
         onLayoutSettingChange(id);
       });
     });
-    ['seriesLabelMode', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold'].forEach(id => {
+    ['seriesLabelMode', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBoldText'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener('change', syncSeriesLabelControls);

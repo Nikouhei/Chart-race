@@ -1606,7 +1606,7 @@
       </div>
 
       <div class="checkbox-group">
-        <input type="checkbox" id="labelBold" data-track="tool_ui_click">
+        <input type="checkbox" id="labelBoldText" checked data-track="tool_ui_click">
         <span>太字</span>
       </div>
 
@@ -2210,7 +2210,7 @@
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
-      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBoldText',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
@@ -4723,6 +4723,9 @@
       // 旧データは先端の文字を線の色で描いていたので、その見た目を保つ
       const lineColorEl = document.getElementById('labelUseLineColor');
       if (lineColorEl && !has('labelUseLineColor')) lineColorEl.checked = true;
+      // 旧データは半太字で描いていたので、その見た目を保つ
+      const boldEl = document.getElementById('labelBoldText');
+      if (boldEl && !has('labelBoldText')) boldEl.checked = true;
     }
 
     // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
@@ -4829,10 +4832,10 @@
         const family = getLayoutAppearanceSettings().font;
         let valueWidth = 0;
         if (valueText) {
-          ctx.font = `${bold ? 800 : 700} ${fontSize}px ${family}`;
+          ctx.font = `${bold ? 700 : 400} ${fontSize}px ${family}`;
           valueWidth = ctx.measureText(valueText).width + (Number.isFinite(valueGap) ? valueGap : 4);
         }
-        ctx.font = `${bold ? 800 : 600} ${fontSize}px ${family}`;
+        ctx.font = `${bold ? 600 : 400} ${fontSize}px ${family}`;
         const room = budget - valueWidth;
         if (ctx.measureText(name).width <= room) return name;
         // 「〇〇（TSM）」のような末尾の括弧は見分けに使うので残し、その前を縮める
@@ -4913,9 +4916,9 @@
         legendValues: document.getElementById('pieLegendValues')?.checked !== false,
         legendImages: document.getElementById('pieLegendImages')?.checked !== false,
         labelFontSize: Math.max(1, num('labelFontSize', 22)),
-        // 太字：オフは今の半太字（項目名600・数値700）、オンはさらに太く
-        nameWeight: document.getElementById('labelBold')?.checked ? 800 : 600,
-        valueWeight: document.getElementById('labelBold')?.checked ? 800 : 700,
+        // 太字：オンは今の半太字（項目名600・数値700）、オフは標準の太さ（400）
+        nameWeight: document.getElementById('labelBoldText')?.checked !== false ? 600 : 400,
+        valueWeight: document.getElementById('labelBoldText')?.checked !== false ? 700 : 400,
         percentDecimals: Math.min(3, Math.max(0, Math.round(num('piePercentDecimals', 1)))),
         minLabelPercent: Math.max(0, num('pieMinLabelPercent', 3)),
         autoLabelColor: document.getElementById('pieAutoLabelColor')?.checked !== false,
@@ -5943,7 +5946,7 @@
               .style("font-size", lg.fontSize + "px")
               .style("font-weight", settings.nameWeight)
               .style("fill", settings.legendColor)
-              .text(fitEndLabelName(d.name, '', lg.fontSize, nameRoom, 0, settings.nameWeight === 800));
+              .text(fitEndLabelName(d.name, '', lg.fontSize, nameRoom, 0, settings.nameWeight > 400));
           }
           if (lg.valueW) {
             g.append("text")
@@ -6843,8 +6846,8 @@
       document.getElementById('barStartOffset').value = 0;
       onLayoutSettingChange('chartStyle');
     });
-    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
-      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
+    ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBoldText', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].forEach(id => {
+      const eventName = ['sortMode', 'sortEnabled', 'showNameLabels', 'showValueLabels', 'labelBoldText', 'showRankingItemAfterBar', 'showRankingValueInsideBar'].includes(id) ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => onLayoutSettingChange(id));
     });
     ['imageMarginRight', 'imageSizing', 'imageShape'].forEach(id => {
