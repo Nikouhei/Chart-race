@@ -121,6 +121,9 @@ I18N.registerText('en', {
 
   // ── ラベル ──
   'ラベル': 'Labels',
+  'タイトル・出典': 'Title & source',
+  '表示する内容': 'What to show',
+  '文字の見た目': 'Text style',
   'タイトルを入力': 'Enter a title',
   'タイトル文字サイズ(%)': 'Title size (%)',
   'タイトル色': 'Title color',

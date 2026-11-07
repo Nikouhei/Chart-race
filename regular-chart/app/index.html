@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110802" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110803" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110802" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -324,6 +324,9 @@
     /* 表示する要素（項目名・値・画像）のON/OFFボタン。中身はチェックボックス */
     .element-toggle-field { margin: 2px 0 12px; }
     .element-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    /* パネル内の小見出し（先頭だけ線なし） */
+    .panel-subhead { margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid var(--panel-border, #333); font-size: 12px; font-weight: 700; color: var(--text-muted, #aaa); }
+    .panel-subhead:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     .element-toggle {
       position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
       min-height: 36px; padding: 0 14px; box-sizing: border-box;
@@ -1385,6 +1388,32 @@
     </div>
 
     <div class="input-group">
+      <label>タイトル・出典</label>
+      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>タイトル文字サイズ(%)</span>
+          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>タイトル色</span>
+          <input type="color" id="titleColor" value="#222222">
+        </div>
+      </div>
+      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>出典文字サイズ(%)</span>
+          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
+        </div>
+        <div class="setting-field">
+          <span>出典色</span>
+          <input type="color" id="sourceColor" value="#666666">
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
       <label>グラフ</label>
       <div class="setting-row">
         <div class="setting-field">
@@ -1444,28 +1473,7 @@
 
     <div class="input-group">
       <label>ラベル</label>
-      <input type="text" id="titleInput" placeholder="タイトルを入力" style="margin:0 0 10px;">
-      <div class="setting-row">
-        <div class="setting-field">
-          <span>タイトル文字サイズ(%)</span>
-          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>タイトル色</span>
-          <input type="color" id="titleColor" value="#222222">
-        </div>
-      </div>
-      <input type="text" id="sourceInput" placeholder="出典を入力" style="margin:12px 0 10px;">
-      <div class="setting-row" style="margin-bottom:14px;">
-        <div class="setting-field">
-          <span>出典文字サイズ(%)</span>
-          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
-        </div>
-        <div class="setting-field">
-          <span>出典色</span>
-          <input type="color" id="sourceColor" value="#666666">
-        </div>
-      </div>
+      <div class="panel-subhead">表示する内容</div>
       <div class="element-toggle-field">
         <span class="setting-caption">線の先端に表示</span>
         <div class="element-toggles" role="group" aria-label="線の先端に表示">
@@ -1481,9 +1489,10 @@
       </div>
       <input type="checkbox" id="showNameLabels" checked hidden>
       <input type="checkbox" id="showValueLabels" checked hidden>
-      <div class="setting-row" id="endLabelFontRow" style="margin-top:12px;">
+      <div class="panel-subhead" id="labelStyleHead">文字の見た目</div>
+      <div class="setting-row" id="endLabelFontRow">
         <div class="setting-field">
-          <span>先端の文字サイズ(px)</span>
+          <span>ラベルの文字サイズ(px)</span>
           <input type="number" id="labelFontSize" value="18" min="1" max="120">
         </div>
         <div class="setting-field" id="nameLabelColorField">
@@ -1502,7 +1511,7 @@
         </div>
       </div>
       <div class="checkbox-group" id="labelBoldRow">
-        <input type="checkbox" id="labelBoldText" checked data-track="tool_ui_click">
+        <input type="checkbox" id="labelBold" checked data-track="tool_ui_click">
         <span>太字</span>
       </div>
       <div class="checkbox-group" id="labelUseLineColorRow">
@@ -2114,7 +2123,7 @@
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength',
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
-      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBoldText',
+      'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels', 'legendFontSize', 'legendColor', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold',
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
@@ -2968,7 +2977,7 @@
         legendOn: document.getElementById('lineShowLegend')?.checked ?? false,
         legendPosition: document.getElementById('legendPosition')?.value === 'bottom' ? 'bottom' : 'top',
         useLineColor: document.getElementById('labelUseLineColor')?.checked !== false,
-        bold: document.getElementById('labelBoldText')?.checked !== false,
+        bold: document.getElementById('labelBold')?.checked !== false,
         valueColor: document.getElementById('valueLabelColor').value || '#333333',
         valueSpace: Number.isFinite(valueSpaceValue) ? valueSpaceValue : 15,
         legendFontSize: Number.isFinite(+document.getElementById('legendFontSize')?.value) && +document.getElementById('legendFontSize').value > 0
@@ -4631,6 +4640,7 @@
       if (valueColorField) valueColorField.style.visibility = useLineColor ? 'hidden' : '';
       show('labelUseLineColorRow', showTipName || showTipValue || seriesLabelModeShowsLegend(valueMode));
       show('labelBoldRow', showTipName || showTipValue || anyLegend);
+      show('labelStyleHead', showTipName || showTipValue || anyLegend);
     }
 
     // 旧形式の保存データ（「項目名を表示」チェック＋ライン側の3択）を新しい4択に読み替える。
@@ -4668,8 +4678,8 @@
       const lineColorEl = document.getElementById('labelUseLineColor');
       if (lineColorEl && !has('labelUseLineColor')) lineColorEl.checked = true;
       // 旧データは半太字で描いていたので、その見た目を保つ
-      const boldEl = document.getElementById('labelBoldText');
-      if (boldEl && !has('labelBoldText')) boldEl.checked = true;
+      const boldEl = document.getElementById('labelBold');
+      if (boldEl && !has('labelBold')) boldEl.checked = true;
     }
 
     // 凡例: 「線見本＋名前」を横に並べ、入り切らなければ折り返す。
@@ -6458,7 +6468,7 @@
         onLayoutSettingChange(id);
       });
     });
-    ['seriesLabelMode', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBoldText'].forEach(id => {
+    ['seriesLabelMode', 'valueLabelMode', 'legendPosition', 'labelUseLineColor', 'labelBold'].forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
       el.addEventListener('change', syncSeriesLabelControls);
