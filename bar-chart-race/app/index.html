@@ -108,7 +108,6 @@
     .segmented-control button:hover:not(:disabled) { transform: none; }
     .segmented-control button.active { background: #FFFFFF; color: var(--text-strong); box-shadow: var(--shadow-soft); }
     .segmented-control button:disabled { background: #20242b; color: #6f7886; cursor: not-allowed; }
-    .segmented-control button small { display: block; font-size: 10px; opacity: .75; margin-top: 1px; }
     .bar-advanced-settings { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #444; }
     .bar-advanced-settings.active { display: block; }
     .color-mode-panel { display: none; margin-top: 12px; }
@@ -1623,7 +1622,7 @@
           <input type="hidden" id="barShape" value="normal">
           <div class="segmented-control" aria-label="バーの形">
             <button type="button" class="active" id="barShapeNormal" data-bar-shape="normal">標準</button>
-            <button type="button" id="barShapeRound" data-bar-shape="round" data-track="upgrade_click" data-track-id="roundedBar">角丸<small>有料予定</small></button>
+            <button type="button" id="barShapeRound" data-bar-shape="round" data-track="upgrade_click" data-track-id="roundedBar">角丸</button>
           </div>
         </div>
       </div>
