@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110803" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110804" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110802" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -108,6 +108,7 @@
     .segmented-control button:hover:not(:disabled) { transform: none; }
     .segmented-control button.active { background: #FFFFFF; color: var(--text-strong); box-shadow: var(--shadow-soft); }
     .segmented-control button:disabled { background: #20242b; color: #6f7886; cursor: not-allowed; }
+    .segmented-control button small { display: block; font-size: 10px; opacity: .75; margin-top: 1px; }
     .bar-advanced-settings { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #444; }
     .bar-advanced-settings.active { display: block; }
     .color-mode-panel { display: none; margin-top: 12px; }
@@ -1617,6 +1618,16 @@
         </div>
       </div>
       <div class="setting-row">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>バーの形</span>
+          <input type="hidden" id="barShape" value="normal">
+          <div class="segmented-control" aria-label="バーの形">
+            <button type="button" class="active" id="barShapeNormal" data-bar-shape="normal">標準</button>
+            <button type="button" id="barShapeRound" data-bar-shape="round" data-track="upgrade_click" data-track-id="roundedBar">角丸<small>有料予定</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
         <div class="setting-field">
           <span>間隔（%）</span>
           <input type="number" id="barSpacing" value="15" min="0" max="80" step="1">
@@ -2012,7 +2023,7 @@
       'playbackLengthMode', 'playbackCustomSeconds',
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength',
-      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
+      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'barShape', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
@@ -2277,6 +2288,7 @@
       const sortEnabled = document.getElementById('sortEnabled')?.checked;
       const showAdvanced = document.getElementById('showAdvancedBarSettings')?.checked;
       setSegmentedActive('[data-bar-orientation]', orientation, 'barOrientation');
+      setSegmentedActive('[data-bar-shape]', getBarShape(), 'barShape');
       setSegmentedActive('[data-sort-enabled]', sortEnabled, 'sortEnabled');
       setSegmentedActive('[data-bar-advanced]', showAdvanced, 'barAdvanced');
       document.getElementById('barAdvancedSettings')?.classList.toggle('active', Boolean(showAdvanced));
@@ -2828,11 +2840,18 @@
       source.style.color = settings.textColor;
     }
 
+    // バーの形：'normal'（標準）／'round'（角丸＝両端が半円のカプセル型。有料予定）
+    // 有料化するときは、ここで課金判定を見て 'normal' に戻す
+    function getBarShape() {
+      return document.getElementById('barShape')?.value === 'round' ? 'round' : 'normal';
+    }
+
     function getGraphSettings() {
       const topNValue = +document.getElementById('topN').value;
       const spacingValue = +document.getElementById('barSpacing').value;
       return {
         chartStyle: document.getElementById('chartStyle').value || 'score',
+        barShape: getBarShape(),
         topN: Number.isFinite(topNValue) ? Math.max(1, topNValue) : 10,
         barSpacing: Number.isFinite(spacingValue) ? Math.min(Math.max(0, spacingValue), 80) : 15,
         sortEnabled: document.getElementById('sortEnabled').checked,
@@ -4291,6 +4310,7 @@
         topN: graphSettings.topN,
         labelFontSize: labelSettings.fontSize,
         barSpacing: graphSettings.barSpacing,
+        barShape: graphSettings.barShape,
         sortEnabled: graphSettings.sortEnabled,
         sortMode: graphSettings.sortMode,
         chartStyle: graphSettings.chartStyle,
@@ -4921,6 +4941,12 @@
       const rowsUpdate = rowsEnter.merge(rows);
       const imgHeight = yScale.bandwidth() * 0.7;
       const imgWidth = imageSettings.shape === 'circle' ? imgHeight : imgHeight * 1.4;
+      // 角丸（カプセル型）：両端を半円にする。幅が高さより短いバーは、幅の半分までで頭打ち。
+      // 端の丸みで画像やバー内の値がはみ出さないよう、バーの高さの15%だけ内側へ寄せる
+      const isRoundBar = layout.barShape === 'round';
+      const barCapInset = isRoundBar ? yScale.bandwidth() * 0.15 : 0;
+      const barRadius = d => isRoundBar ? Math.min(yScale.bandwidth(), barGeometry(xScale, d.value).width) / 2 : 4;
+      const imageRightGap = imageSettings.marginRight + barCapInset;
 
       if (exportRowMotion) {
         stepExportRowMotion(rowsUpdate, rows.exit(), getRowY, d => yScale(d.key) === undefined ? 0 : 1, overflowY);
@@ -4935,7 +4961,9 @@
         .attr("height", yScale.bandwidth());
       transition(rowsUpdate.select(".bar"))
         .attr("x", d => barGeometry(xScale, d.value).x)
-        .attr("width", d => barGeometry(xScale, d.value).width);
+        .attr("width", d => barGeometry(xScale, d.value).width)
+        .attr("rx", barRadius)
+        .attr("ry", barRadius);
 
       rowsUpdate.select(".flag")
         .attr("preserveAspectRatio", imageSettings.preserveAspectRatio)
@@ -4945,15 +4973,15 @@
       transition(rowsUpdate.select(".flag"))
         .attr("y", d => {
           const renderedHeight = imageSettings.shape === 'circle'
-            ? imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width
+            ? imageGeometry(xScale, d.value, imgWidth, imageRightGap).width
             : imgHeight;
           return (yScale.bandwidth() - renderedHeight) / 2;
         })
         .attr("height", d => imageSettings.shape === 'circle'
-          ? imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width
+          ? imageGeometry(xScale, d.value, imgWidth, imageRightGap).width
           : imgHeight)
-        .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).x)
-        .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageSettings.marginRight).width);
+        .attr("x", d => imageGeometry(xScale, d.value, imgWidth, imageRightGap).x)
+        .attr("width", d => imageGeometry(xScale, d.value, imgWidth, imageRightGap).width);
 
       rowsUpdate.selectAll(".name-label, .value-label, .ranking-item-label, .ranking-value-label")
         .style("font-weight", labelSettings.bold ? 700 : null);
@@ -5010,11 +5038,11 @@
 
       if (instant) {
         rankingValueLabels
-          .attr("x", d => barGeometry(xScale, d.value).x + 10)
+          .attr("x", d => barGeometry(xScale, d.value).x + 10 + barCapInset)
           .text(d => shouldShowRankingValueInsideBar ? formatNumberValue(d.value) : '');
       } else {
         rankingValueLabels.transition().duration(duration).ease(d3.easeLinear)
-          .attr("x", d => barGeometry(xScale, d.value).x + 10)
+          .attr("x", d => barGeometry(xScale, d.value).x + 10 + barCapInset)
           .tween("text", function(d) {
             if (!shouldShowRankingValueInsideBar) {
               this.textContent = '';
@@ -5828,6 +5856,13 @@
         document.getElementById('barOrientation').value = button.dataset.barOrientation;
         syncBarSettingsControls();
         onLayoutSettingChange('barOrientation');
+      });
+    });
+    document.querySelectorAll('[data-bar-shape]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById('barShape').value = button.dataset.barShape;
+        syncBarSettingsControls();
+        onLayoutSettingChange('barShape');
       });
     });
     document.querySelectorAll('[data-sort-enabled]').forEach(button => {

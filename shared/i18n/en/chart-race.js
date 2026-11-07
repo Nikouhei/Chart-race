@@ -156,6 +156,8 @@ I18N.registerText('en', {
   '横向き': 'Horizontal',
   '縦向き': 'Vertical',
   '縦向きは今後対応予定です': 'Vertical bars are coming soon',
+  'バーの形': 'Bar shape',
+  '角丸': 'Rounded',
   '表示本数': 'Bars shown',
   '間隔（%）': 'Gap (%)',
   '並べ替え': 'Sorting',
