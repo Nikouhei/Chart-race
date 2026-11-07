@@ -1393,7 +1393,7 @@
       <div class="setting-row">
         <div class="setting-field">
           <span>タイトル文字サイズ(%)</span>
-          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
+          <input type="number" id="titleSize" value="5" min="0.5" max="10" step="0.1">
         </div>
         <div class="setting-field">
           <span>タイトル色</span>
@@ -1404,7 +1404,7 @@
       <div class="setting-row">
         <div class="setting-field">
           <span>出典文字サイズ(%)</span>
-          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
+          <input type="number" id="sourceSize" value="2" min="0.5" max="10" step="0.1">
         </div>
         <div class="setting-field">
           <span>出典色</span>
@@ -1853,7 +1853,7 @@
         </div>
         <div style="flex:1;">
           <span style="font-size:11px; color:#aaa;">文字サイズ(px)</span>
-          <input type="number" id="axisTextSize" value="16" min="1" max="80">
+          <input type="number" id="axisTextSize" value="15" min="1" max="80">
         </div>
       </div>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
@@ -2898,7 +2898,7 @@
       const fixedMaxValue = parseNumber(document.getElementById('axisFixedMax').value);
       return {
         textColor: document.getElementById('axisTextColor').value || '#999999',
-        textSize: Number.isFinite(textSizeValue) ? Math.max(1, textSizeValue) : 11,
+        textSize: Number.isFinite(textSizeValue) ? Math.max(1, textSizeValue) : 15,
         lineColor: document.getElementById('axisLineColor').value || '#d2d2d2',
         lineWidth: Number.isFinite(lineWidthValue) ? Math.max(0, lineWidthValue) : 1,
         lineDash: Number.isFinite(lineDashValue) ? Math.max(0, lineDashValue) : 0,
@@ -4890,7 +4890,7 @@
       // 右下の出典（下から3%の位置）と、日付ラベル・下の凡例が重ならないよう、その高さぶんを空ける
       const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
       const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
-      const sourceFont = resolveCanvasShortSide() * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
+      const sourceFont = resolveCanvasShortSide() * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 2) / 100);
       const sourcePad = sourceText ? height * 0.03 + sourceFont * 1.6 : 0;
       const baseBottom = Math.max(axisSettings.textSize * 2 + 12, xLabelExtent.down + 14) + (legendAtBottom ? 0 : sourcePad);
       let bottomPad = 0;
@@ -5158,9 +5158,9 @@
       const sourceSize = parseFloat(document.getElementById('sourceSize').value);
       const title = document.getElementById('chartTitle');
       const source = document.getElementById('sourceDisplay');
-      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100) + 'px';
+      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 5) / 100) + 'px';
       title.style.color = document.getElementById('titleColor').value || '#222222';
-      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100) + 'px';
+      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 2) / 100) + 'px';
       source.style.color = document.getElementById('sourceColor').value || '#666666';
     }
 

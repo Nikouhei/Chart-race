@@ -1393,7 +1393,7 @@
       <div class="setting-row">
         <div class="setting-field">
           <span>タイトル文字サイズ(%)</span>
-          <input type="number" id="titleSize" value="2.5" min="0.5" max="10" step="0.1">
+          <input type="number" id="titleSize" value="5" min="0.5" max="10" step="0.1">
         </div>
         <div class="setting-field">
           <span>タイトル色</span>
@@ -1404,7 +1404,7 @@
       <div class="setting-row">
         <div class="setting-field">
           <span>出典文字サイズ(%)</span>
-          <input type="number" id="sourceSize" value="1.5" min="0.5" max="10" step="0.1">
+          <input type="number" id="sourceSize" value="2" min="0.5" max="10" step="0.1">
         </div>
         <div class="setting-field">
           <span>出典色</span>
@@ -5185,7 +5185,7 @@
       const title = (document.getElementById('titleInput')?.value || '').trim();
       if (!title) return height * 0.05;
       const titleSize = parseFloat(document.getElementById('titleSize')?.value);
-      const font = resolveCanvasShortSide() * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100);
+      const font = resolveCanvasShortSide() * ((Number.isFinite(titleSize) ? titleSize : 5) / 100);
       // タイトルは上から4%の位置。2行になっても重ならないよう少し余裕を持たせる
       return height * 0.04 + font * 1.5 + height * 0.03;
     }
@@ -5205,7 +5205,7 @@
       // 右下の出典と重ならないよう、下に出典ぶんの高さを空ける
       const sourceText = (document.getElementById('sourceInput')?.value || '').trim();
       const sourceSizePct = parseFloat(document.getElementById('sourceSize')?.value);
-      const sourceFont = shortSide * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 1.5) / 100);
+      const sourceFont = shortSide * ((Number.isFinite(sourceSizePct) ? sourceSizePct : 2) / 100);
       const sourcePad = sourceText ? height * 0.03 + sourceFont * 1.6 : height * 0.03;
 
       const box = {
@@ -5564,9 +5564,9 @@
       const sourceSize = parseFloat(document.getElementById('sourceSize').value);
       const title = document.getElementById('chartTitle');
       const source = document.getElementById('sourceDisplay');
-      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 2.5) / 100) + 'px';
+      title.style.fontSize = canvasWidth * ((Number.isFinite(titleSize) ? titleSize : 5) / 100) + 'px';
       title.style.color = document.getElementById('titleColor').value || '#222222';
-      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 1.5) / 100) + 'px';
+      source.style.fontSize = canvasWidth * ((Number.isFinite(sourceSize) ? sourceSize : 2) / 100) + 'px';
       source.style.color = document.getElementById('sourceColor').value || '#666666';
     }
 
