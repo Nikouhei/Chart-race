@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110804" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026110806" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -1576,8 +1576,18 @@
     <div class="input-group">
       <label>画像</label>
       <div class="setting-row">
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>画像の位置</span>
+          <input type="hidden" id="imagePosition" value="inside">
+          <div class="segmented-control" aria-label="画像の位置">
+            <button type="button" class="active" id="imagePositionInside" data-image-position="inside">バーの中</button>
+            <button type="button" id="imagePositionOutside" data-image-position="outside">バーの右（数字の左）</button>
+          </div>
+        </div>
+      </div>
+      <div class="setting-row">
         <div class="setting-field">
-          <span>右余白(px)</span>
+          <span id="imageMarginLabel">右余白(px)</span>
           <input type="number" id="imageMarginRight" value="8" min="-200" max="300" step="1">
         </div>
       </div>
@@ -2025,7 +2035,7 @@
       'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'barShape', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
-      'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
+      'imagePosition', 'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax',
@@ -2288,6 +2298,10 @@
       const showAdvanced = document.getElementById('showAdvancedBarSettings')?.checked;
       setSegmentedActive('[data-bar-orientation]', orientation, 'barOrientation');
       setSegmentedActive('[data-bar-shape]', getBarShape(), 'barShape');
+      const imagePosition = getImagePosition();
+      setSegmentedActive('[data-image-position]', imagePosition, 'imagePosition');
+      const imageMarginLabel = document.getElementById('imageMarginLabel');
+      if (imageMarginLabel) imageMarginLabel.textContent = imagePosition === 'outside' ? 'バーとの間(px)' : '右余白(px)';
       setSegmentedActive('[data-sort-enabled]', sortEnabled, 'sortEnabled');
       setSegmentedActive('[data-bar-advanced]', showAdvanced, 'barAdvanced');
       document.getElementById('barAdvancedSettings')?.classList.toggle('active', Boolean(showAdvanced));
@@ -2841,6 +2855,11 @@
 
     // バーの形：'normal'（標準）／'round'（角丸＝両端が半円のカプセル型。有料予定）
     // 有料化するときは、ここで課金判定を見て 'normal' に戻す
+    // 画像をバーの中に置くか、バーの右（数字の左）に置くか
+    function getImagePosition() {
+      return document.getElementById('imagePosition')?.value === 'outside' ? 'outside' : 'inside';
+    }
+
     function getBarShape() {
       return document.getElementById('barShape')?.value === 'round' ? 'round' : 'normal';
     }
@@ -2879,6 +2898,7 @@
       const sizing = document.getElementById('imageSizing').value || 'fill';
       return {
         marginRight: Number.isFinite(marginRightValue) ? marginRightValue : 8,
+        position: getImagePosition(),
         sizing,
         shape: document.getElementById('imageShape').value || 'rectangle',
         // 「グラフ内に表示」の画像ボタン
@@ -4464,9 +4484,13 @@
       let globalMaxValue = 1;
       let globalMaxNameLength = 1;
       let globalMaxItemNameLength = 1;
+      let minRowCount = Infinity;
+      let hasImages = false;
 
       years.forEach(year => {
         const yearData = getYearData(year, layout.topN, layout);
+        if (yearData.length) minRowCount = Math.min(minRowCount, yearData.length);
+        if (!hasImages && yearData.some(d => d.imageUrl)) hasImages = true;
         globalMaxValue = Math.max(globalMaxValue, d3.max(yearData, d => d.value) || 1);
         globalMaxNameLength = Math.max(
           globalMaxNameLength,
@@ -4514,10 +4538,23 @@
       const axisTextPx = getAxisSettings().textSize;
       const overlayGap = Math.max(8, layout.height * 0.01);
 
+      const marginTop = titleTop + titlePx * 1.35 + overlayGap + axisTextPx + overlayGap;
+      const marginBottom = sourceBottom + sourcePx * 1.35 + overlayGap;
+
+      // 画像を「バーの右（数字の左）」に置くときは、右側に画像1枚分の場所を足す。
+      // 画像の大きさはバーの高さで決まるので、行が一番少ない年（＝バーが一番太い）で見積もる
+      const imageSettings = getImageSettings();
+      let outsideImageSpace = 0;
+      if (imageSettings.position === 'outside' && imageSettings.show && hasImages) {
+        const rowCount = Number.isFinite(minRowCount) ? minRowCount : layout.topN;
+        const bandwidth = getBarBandwidth(layout.height - marginTop - marginBottom, rowCount, layout.barSpacing);
+        outsideImageSpace = Math.max(0, imageSettings.marginRight + getBarImageSize(bandwidth, imageSettings).width);
+      }
+
       const margin = {
-        top: titleTop + titlePx * 1.35 + overlayGap + axisTextPx + overlayGap,
-        right: valueLabelSpace,
-        bottom: sourceBottom + sourcePx * 1.35 + overlayGap,
+        top: marginTop,
+        right: valueLabelSpace + outsideImageSpace,
+        bottom: marginBottom,
         left: nameLabelSpace
       };
 
@@ -4809,6 +4846,19 @@
       };
     }
 
+    // d3.scaleBand().padding(p) と同じ計算で、バー1本の太さを出す
+    function getBarBandwidth(innerHeight, rowCount, barSpacing) {
+      const p = barSpacing / 100;
+      const step = innerHeight / Math.max(1, rowCount + p);
+      return step * (1 - p);
+    }
+
+    // バーの太さから決まる画像の大きさ（縮める前）
+    function getBarImageSize(bandwidth, imageSettings) {
+      const height = bandwidth * 0.7;
+      return { width: imageSettings.shape === 'circle' ? height : height * 1.4, height };
+    }
+
     function imageGeometry(xScale, value, imageWidth, marginRight = 8) {
       const bar = barGeometry(xScale, value);
       const width = Math.min(imageWidth, bar.width);
@@ -4976,8 +5026,12 @@
       rowsEnter.append("text").attr("class", "ranking-value-label").attr("text-anchor", "start").attr("dominant-baseline", "central");
 
       const rowsUpdate = rowsEnter.merge(rows);
-      const imgHeight = yScale.bandwidth() * 0.7;
-      const imgWidth = imageSettings.shape === 'circle' ? imgHeight : imgHeight * 1.4;
+      const { width: imgWidth, height: imgHeight } = getBarImageSize(yScale.bandwidth(), imageSettings);
+      // 画像を「バーの右（数字の左）」に置く。バーの長さに関係なく同じ大きさで出す
+      const isImageOutside = imageSettings.position === 'outside';
+      const showsImage = d => Boolean(d.imageUrl && imageSettings.show);
+      // バーの右に出す文字（値・ランキングの項目名）を、画像の分だけ右へずらす量
+      const outsideImageShift = d => isImageOutside && showsImage(d) ? Math.max(0, imageSettings.marginRight + imgWidth) : 0;
       // 角丸（カプセル型）：両端を半円にする。幅が高さより短いバーは、幅の半分までで頭打ち。
       // 端の丸みでバー内の値や丸い画像がはみ出さないよう、バーの高さの15%だけ内側へ寄せる。
       // 四角い画像は丸みに角がかかるので、fitImageInCapsule で収まる大きさに縮める
@@ -4987,6 +5041,9 @@
       const imageRightGap = imageSettings.marginRight + barCapInset;
       // バーの中での画像の位置と大きさ
       const imageBox = d => {
+        if (isImageOutside) {
+          return { x: xScale(d.value) + imageSettings.marginRight, y: (yScale.bandwidth() - imgHeight) / 2, width: imgWidth, height: imgHeight };
+        }
         const bar = barGeometry(xScale, d.value);
         if (isRoundBar && imageSettings.shape !== 'circle') {
           const fit = fitImageInCapsule(bar.width, yScale.bandwidth(), imgWidth / imgHeight, imgHeight,
@@ -5019,7 +5076,7 @@
         .attr("preserveAspectRatio", imageSettings.preserveAspectRatio)
         .attr("href", d => d.imageUrl || "")
         .style("clip-path", imageSettings.shape === 'circle' ? "circle(50%)" : "inset(0% round 4px)")
-        .style("display", d => d.imageUrl && imageSettings.show ? "block" : "none");
+        .style("display", d => showsImage(d) ? "block" : "none");
       transition(rowsUpdate.select(".flag"))
         .attr("y", d => imageBox(d).y)
         .attr("height", d => imageBox(d).height)
@@ -5047,7 +5104,7 @@
         .text(d => shouldShowRankingItemAfterBar ? d.name : '');
 
       transition(rankingItemLabels)
-        .attr("x", d => xScale(d.value) + 12);
+        .attr("x", d => xScale(d.value) + outsideImageShift(d) + 12);
 
       const valueLabels = rowsUpdate.select(".value-label")
         .attr("y", yScale.bandwidth() / 2)
@@ -5057,11 +5114,11 @@
 
       if (instant) {
         valueLabels
-          .attr("x", d => xScale(d.value) + labelSettings.valueSpace)
+          .attr("x", d => xScale(d.value) + outsideImageShift(d) + labelSettings.valueSpace)
           .text(d => shouldShowValueLabels ? formatNumberValue(d.value) : '');
       } else {
         valueLabels.transition().duration(duration).ease(d3.easeLinear)
-          .attr("x", d => xScale(d.value) + labelSettings.valueSpace)
+          .attr("x", d => xScale(d.value) + outsideImageShift(d) + labelSettings.valueSpace)
           .tween("text", function(d) {
             if (!shouldShowValueLabels) {
               this.textContent = '';
@@ -5899,6 +5956,13 @@
         document.getElementById('barOrientation').value = button.dataset.barOrientation;
         syncBarSettingsControls();
         onLayoutSettingChange('barOrientation');
+      });
+    });
+    document.querySelectorAll('[data-image-position]').forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById('imagePosition').value = button.dataset.imagePosition;
+        syncBarSettingsControls();
+        onLayoutSettingChange('imagePosition');
       });
     });
     document.querySelectorAll('[data-bar-shape]').forEach(button => {

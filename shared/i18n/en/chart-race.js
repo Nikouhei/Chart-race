@@ -143,6 +143,10 @@ I18N.registerText('en', {
   // ── 画像 ──
   '画像': 'Images',
   '右余白(px)': 'Right margin (px)',
+  '画像の位置': 'Image position',
+  'バーの中': 'Inside the bar',
+  'バーの右（数字の左）': 'After the bar',
+  'バーとの間(px)': 'Gap from bar (px)',
   '画像の収め方': 'Image fit',
   '埋める': 'Fill',
   '収める': 'Fit',
