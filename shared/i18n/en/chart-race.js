@@ -210,6 +210,7 @@ I18N.registerText('en', {
   // ── 再生 ──
   '再生速度': 'Playback',
   '動画の長さ': 'Video length',
+  '※倍速ボタンはプレビュー用です。書き出しは「動画の長さ」で決まります。': 'Note: Speed buttons only affect the preview. Export length follows “Video length”.',
   '自動（1期間 1.2秒）': 'Auto (1.2s per period)',
   '秒数を指定': 'Custom seconds',
   '秒数': 'Seconds',
