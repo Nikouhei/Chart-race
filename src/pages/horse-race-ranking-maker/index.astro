@@ -3536,7 +3536,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート
       // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute
-      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
+      trackParams:()=>({tool_mode:toolMode==="real"?"3d":"2d",sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
       }
