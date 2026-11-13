@@ -1726,6 +1726,9 @@ const SETTING_GROUPS={
   real   :["coursePreset","handed","algo","seed","palette","showMap","showField"],
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
+/* 計測：どのモードで起きたイベントか分かるよう、全イベントに tool_mode（2d=競馬風 / 3d=リアル競馬風）を付ける。
+   shared/analytics.js が送信のたびに呼ぶ。GA4 のカスタムディメンション tool_mode は登録済みなので枠は増えない */
+window.grsDefaultParams=()=>({tool_mode:toolMode==="real"?"3d":"2d"});
 let stateLoaded=false;    // 復元完了前の保存を抑止
 let firstVisit=false;     // 保存データが無かった = このブラウザでは初めて開いた
 /* DOMの入力欄に紐づかない覚え書き。
@@ -3825,7 +3828,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート
       // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute
-      trackParams:()=>({tool_mode:toolMode==="real"?"3d":"2d",sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
+      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
       }
