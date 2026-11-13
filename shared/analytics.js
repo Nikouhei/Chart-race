@@ -23,6 +23,11 @@
  *     → gtag('event','upgrade_click',{ plan:'lifetime', tool_name:..., ... })
  *   JS から直接送る場合は window.grsTrack('survey_submit', { price:'1980' })
  *
+ * ── 全イベント共通のパラメータ ────────────────────────────
+ *   ページ側で window.grsDefaultParams = function(){ return { tool_mode:'3d' }; } を定義すると、
+ *   送るたびに呼ばれ、その値が全イベントに付く（個別に渡した同名の値が優先）。
+ *   格付けダービーが2D/3Dのモード（tool_mode）を全イベントに付けるのに使う。
+ *
  * ── 本番以外では送信しない ───────────────────────────────
  *   graphrace-studio.com 以外（localhost・*.pages.dev）では送信せず console に出すだけ。
  *   本番で DebugView に流したいときは URL に ?grs_debug=1 を付ける（以後そのブラウザで有効）。
@@ -93,6 +98,13 @@
   // ── 送信 ──────────────────────────────────────────────
   function track(name, params) {
     var p = { tool_name: PAGE.tool || "none", page_type: PAGE.type, site_language: siteLanguage() };
+    // ページ側が window.grsDefaultParams を定義していれば、その値を全イベントに足す（例：格付けダービーの tool_mode）
+    if (typeof window.grsDefaultParams === "function") {
+      try {
+        var dp = window.grsDefaultParams() || {};
+        for (var dk in dp) if (dp[dk] !== undefined && dp[dk] !== null && dp[dk] !== "") p[dk] = dp[dk];
+      } catch (e) {}
+    }
     if (params) for (var k in params) if (params[k] !== undefined && params[k] !== null && params[k] !== "") p[k] = params[k];
     if (DEBUG && IS_PROD) p.debug_mode = true;
     if (!IS_PROD || DEBUG) { try { console.log("[grs-analytics]", name, p); } catch (e) {} }
