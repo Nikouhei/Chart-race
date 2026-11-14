@@ -1,0 +1,219 @@
+---
+/*
+ * 価格ページの共通部品（/pricing.html・/en/pricing.html）。
+ * 購入ボタンは POST /api/checkout（{ lookup_key, lang }）を呼び、返ってきた Stripe の Checkout 画面へ移る。
+ * Checkout の「戻る」の戻り先（worker/checkout.js の cancel_url）もこのページ。
+ * 価格の表示は Stripe 側の金額（サンドボックスは worker/plans.js・Stripe/stripe-implementation-brief.md の表）と手でそろえる。
+ * 通貨は言語で決まる（日本語=JPY、英語=USD）。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from './SiteHeader.astro';
+import SiteFooter from './SiteFooter.astro';
+import { legacyCss } from '../../build/legacy-tool.mjs';
+
+interface Props { locale: 'ja' | 'en' }
+const { locale } = Astro.props;
+const css = legacyCss('about.html');
+
+const TEXT = {
+  ja: {
+    title: '料金プラン｜GraphRace Studio',
+    description: 'GraphRace Studio の料金プラン。透かしなし・高画質・透過書き出しなどが使える 7日パス・月額・年額プランを、必要な期間だけ選べます。',
+    heading: '料金プラン',
+    lead: 'ツールは無料で試せます。透かしなしの書き出しや高画質・透過書き出しなどを使いたいときだけ、プランをお選びください。どのプランも使える機能は同じです。',
+    crumbs: [{ name: 'ホーム', href: '/' }, { name: '料金プラン' }],
+    tagline: 'データビジュアライゼーションツール',
+    featuresTitle: 'どのプランでも使える機能',
+    features: [
+      '透かしなしの書き出し',
+      '高画質の書き出し（1080p・最高画質）',
+      '透過書き出し（背景を透明にしたMOV・PNG連番）',
+      '角丸バー・ファンファーレなどの有料機能',
+    ],
+    plans: [
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '7日パスを購入する' },
+      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '月額プランを購入する' },
+      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '年額プランを購入する', badge: 'おすすめ' },
+    ],
+    taxNote: '表示は税込です。お支払いは Stripe の決済画面で行います。',
+    faqTitle: 'よくある質問',
+    faq: [
+      { q: 'ライセンスキーはどう届きますか？', a: 'お支払いが済むと購入完了ページにキーが表示され、同じ内容をメールでもお送りします。ツールで書き出すときに表示される案内の「ライセンスキーをお持ちの方」を開き、キーを貼り付けてください。' },
+      { q: '7日パスは自動で更新されますか？', a: 'いいえ。7日パスは1回のお支払いで、7日たつと自動的に終了します。続けて使う場合は、もう一度購入するか月額・年額プランをお選びください。' },
+      { q: '月額・年額プランの更新日と解約はどうなりますか？', a: '購入日と同じ日に、毎月（年額は毎年）自動で更新されます。解約・お支払い方法の変更は Link（link.com）から行えます。解約しても、お支払い済みの期間の終わりまでは使えます。' },
+      { q: 'カードの明細にはどう表示されますか？', a: '「LINK.COM*」と表示されます。領収書は Link から届きます。' },
+      { q: '何台の端末で使えますか？', a: '現在、端末の台数に制限はありません。ライセンスキーはご自身の範囲でお使いください。' },
+      { q: '返金されたときはどうなりますか？', a: '返金されたライセンスキーは使えなくなります。' },
+    ],
+    contact: 'ご不明な点は',
+    contactLink: 'お問い合わせ',
+    contactEnd: 'ページからご連絡ください。',
+    termsLabel: '利用規約', privacyLabel: 'プライバシーポリシー',
+  },
+  en: {
+    title: 'Pricing | GraphRace Studio',
+    description: 'GraphRace Studio pricing. Choose a 7-day pass, monthly or yearly plan to export without a watermark, in high quality, or with a transparent background.',
+    heading: 'Pricing',
+    lead: 'You can try every tool for free. Pick a plan only when you want to export without a watermark, in higher quality, or with a transparent background. All plans include the same features.',
+    crumbs: [{ name: 'Home', href: '/en/' }, { name: 'Pricing' }],
+    tagline: 'Data visualization tools',
+    featuresTitle: 'Included in every plan',
+    features: [
+      'Export without a watermark',
+      'High-quality export (1080p and maximum quality)',
+      'Transparent export (MOV and PNG sequence with a clear background)',
+      'Rounded bars, fanfare and other paid features',
+    ],
+    plans: [
+      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Get the 7-Day Pass' },
+      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Get the monthly plan' },
+      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Get the yearly plan', badge: 'Best value' },
+    ],
+    taxNote: 'Prices are shown in USD. You pay on Stripe’s secure checkout page.',
+    faqTitle: 'FAQ',
+    faq: [
+      { q: 'How do I get my license key?', a: 'After you pay, the key appears on the confirmation page and we also email it to you. When you export in a tool, open “I have a license key” in the dialog and paste the key.' },
+      { q: 'Does the 7-Day Pass renew automatically?', a: 'No. It is a one-time payment and ends after 7 days. To keep going, buy another pass or choose the monthly or yearly plan.' },
+      { q: 'How do renewals and cancellation work for monthly and yearly plans?', a: 'Plans renew automatically on the same day each month (or year) as your purchase. You can cancel or update your payment method through Link (link.com). After you cancel, you can keep using the plan until the end of the period you have paid for.' },
+      { q: 'What will appear on my card statement?', a: 'It will show “LINK.COM*”. Receipts are sent by Link.' },
+      { q: 'How many devices can I use it on?', a: 'There is currently no limit on the number of devices. Please use your key for your own work.' },
+      { q: 'What happens if I am refunded?', a: 'A refunded license key stops working.' },
+    ],
+    contact: 'Questions? Please ',
+    contactLink: 'contact us',
+    contactEnd: '.',
+    termsLabel: 'Terms of Service', privacyLabel: 'Privacy Policy',
+  },
+}[locale];
+
+// ボタンを押したときの文言（本文に波括弧を書かないよう、属性で渡す）
+const I18N = {
+  ja: { loading: '決済画面へ移動しています…', error: '決済画面を開けませんでした。時間をおいて、もう一度お試しください。' },
+  en: { loading: 'Taking you to checkout…', error: 'We could not open the checkout page. Please try again in a moment.' },
+}[locale];
+
+const PREFIX = locale === 'en' ? '/en' : '';
+const ABOUT_HREF = `${PREFIX}/about.html`;
+const TERMS_HREF = `${PREFIX}/terms.html`;
+const PRIVACY_HREF = `${PREFIX}/privacy.html`;
+---
+<BaseLayout pageId="pricing" title={TEXT.title} description={TEXT.description}>
+  <Fragment slot="head">
+    <style is:inline set:html={css}></style>
+    <style is:inline>
+      .pricing-lead { margin: 0 0 28px; }
+      .pricing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0 0 12px; }
+      .plan-card { position: relative; display: flex; flex-direction: column; padding: 24px 20px 20px; border: 1px solid var(--panel-border); border-radius: 14px; background: #fff; }
+      .plan-card.is-featured { border: 2px solid var(--accent); padding: 23px 19px 19px; }
+      .plan-badge { position: absolute; top: -12px; left: 16px; padding: 2px 12px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; }
+      .plan-name { margin: 0 0 8px; font-size: 1.05rem; font-weight: 700; color: var(--text-strong); }
+      .plan-price { margin: 0 0 4px; font-size: 2rem; font-weight: 700; line-height: 1.2; color: var(--text-strong); }
+      .plan-unit { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+      .plan-note { flex: 1; margin: 8px 0 16px; font-size: 0.9rem; color: var(--text-muted); }
+      .plan-buy { font: inherit; font-weight: 700; cursor: pointer; padding: 12px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; }
+      .plan-buy:hover { filter: brightness(1.08); }
+      .plan-buy:disabled { opacity: 0.6; cursor: progress; }
+      .pricing-status { min-height: 1.6em; margin: 8px 0 0; color: #b42318; font-weight: 600; }
+      .pricing-tax { margin: 0 0 32px; font-size: 0.88rem; color: var(--text-muted); }
+      .pricing-features { margin: 0 0 8px; padding-left: 1.4em; }
+      .faq-item { margin: 0 0 18px; }
+      .faq-item h3 { margin: 0 0 4px; font-size: 1rem; color: var(--text-strong); }
+      .faq-item p { margin: 0; }
+      @media (max-width: 760px) { .pricing-grid { grid-template-columns: 1fr; } }
+    </style>
+  </Fragment>
+
+  <SiteHeader pageId="pricing" locale={locale} />
+
+  <main class="wrap">
+    <h1 class="page-title">{TEXT.heading}</h1>
+    <div class="content-block" id="pricing" data-lang={locale} data-i18n={JSON.stringify(I18N)}>
+      <section>
+        <p class="pricing-lead">{TEXT.lead}</p>
+
+        <div class="pricing-grid">
+          {TEXT.plans.map((p) => (
+            <div class={`plan-card${p.badge ? ' is-featured' : ''}`}>
+              {p.badge && <span class="plan-badge">{p.badge}</span>}
+              <h2 class="plan-name">{p.name}</h2>
+              <p class="plan-price">{p.price}<span class="plan-unit">{p.unit}</span></p>
+              <p class="plan-note">{p.note}</p>
+              <button
+                type="button"
+                class="plan-buy"
+                data-lookup={p.lookup}
+                data-track="checkout_start"
+                data-track-plan={p.key}
+              >{p.cta}</button>
+            </div>
+          ))}
+        </div>
+        <p class="pricing-status" id="pricing-status" role="status" aria-live="polite"></p>
+        <p class="pricing-tax">{TEXT.taxNote}</p>
+      </section>
+
+      <section>
+        <h2>{TEXT.featuresTitle}</h2>
+        <ul class="pricing-features">
+          {TEXT.features.map((f) => <li>{f}</li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h2>{TEXT.faqTitle}</h2>
+        {TEXT.faq.map((f) => (
+          <div class="faq-item">
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </div>
+        ))}
+        <p>{TEXT.contact}<a href={ABOUT_HREF}>{TEXT.contactLink}</a>{TEXT.contactEnd}</p>
+        <p><a href={TERMS_HREF}>{TEXT.termsLabel}</a> / <a href={PRIVACY_HREF}>{TEXT.privacyLabel}</a></p>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter locale={locale} crumbs={TEXT.crumbs} tagline={TEXT.tagline} />
+
+  <script is:inline>
+    (function () {
+      var root = document.getElementById('pricing');
+      var T = JSON.parse(root.getAttribute('data-i18n'));
+      var lang = root.getAttribute('data-lang');
+      var statusEl = document.getElementById('pricing-status');
+      var buttons = Array.prototype.slice.call(root.querySelectorAll('.plan-buy'));
+
+      function setBusy(busy) {
+        buttons.forEach(function (b) { b.disabled = busy; });
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          statusEl.style.color = '';
+          statusEl.textContent = T.loading;
+          setBusy(true);
+          fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ lookup_key: btn.getAttribute('data-lookup'), lang: lang }),
+          })
+            .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
+            .then(function (r) {
+              if (r.ok && r.d && r.d.url) { location.href = r.d.url; return; }
+              throw new Error('checkout_failed');
+            })
+            .catch(function () {
+              statusEl.style.color = '#b42318';
+              statusEl.textContent = T.error;
+              setBusy(false);
+            });
+        });
+      });
+
+      // Stripe の決済画面からブラウザの「戻る」で戻ったとき、ボタンが押せない状態で残らないようにする
+      window.addEventListener('pageshow', function (e) {
+        if (e.persisted) { statusEl.textContent = ''; setBusy(false); }
+      });
+    })();
+  </script>
+</BaseLayout>

@@ -30,6 +30,9 @@ export const PAGES = [
   { id: 'terms', paths: { ja: '/terms.html', en: '/en/terms.html' } },
   { id: 'privacy', paths: { ja: '/privacy.html', en: '/en/privacy.html' } },
 
+  // 料金プラン（Stripe Checkout の cancel_url の戻り先。販売開始まで日英とも下書き。公開するとき drafts を消す）
+  { id: 'pricing', paths: { ja: '/pricing.html', en: '/en/pricing.html' }, drafts: ['ja', 'en'] },
+
   // 購入完了ページ（noindex。Stripe の success_url の戻り先。/thanks でも開ける）
   { id: 'thanks', paths: { ja: '/thanks.html', en: '/en/thanks.html' } },
 ];
