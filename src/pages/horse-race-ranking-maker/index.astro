@@ -3832,6 +3832,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       adapter,
       fileBase:"kakuzuke-derby",
       scales:[1,1.5],      // 標準(720p)・高画質(1080p)。描画解像度ごと上げる(引き伸ばしではない)
+      paidScales:[1.5],    // 有料化後は高画質(1080p)が有料。パスなしは標準に戻す
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v1", // 2問だけの短いアンケート

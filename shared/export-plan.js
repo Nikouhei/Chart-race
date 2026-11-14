@@ -47,6 +47,7 @@
   // 書き出しボタンを押したとき、使われていて、かつパスが無ければ止める機能
   var FEATURES = {
     hd_max: "最高画質",
+    hd_1080: "高画質（1080p）",
     no_watermark: "透かしなし",
     transparent_export: "透過書き出し",
     rounded_bar: "角丸バー",
@@ -153,8 +154,10 @@
         '<h3 id="grspUpTitle">有料パスが必要な機能が使われています</h3>' +
         '<ul class="grsp-list">' + list.map(function (f) { return "<li>" + esc(FEATURES[f]) + "</li>"; }).join("") + "</ul>" +
         '<p>書き出すには有料パスが必要です。パスなしで書き出す場合は、これらを標準の設定に戻します。</p>' +
+        '<div class="grsp-cta">' +
         '<a class="grsp-btn grsp-primary" target="_blank" rel="noopener" href="' + esc(pricingUrl()) + '" data-track="upgrade_click" data-track-plan-feature="' + esc(featureKeys) + '" data-track-upgrade-from="export_gate">プランを見る</a>' +
         (opts.allowStrip ? '<button type="button" class="grsp-btn grsp-ghost grsp-strip">有料機能を外して書き出す</button>' : "") +
+        '</div>' +
         '<details class="grsp-license"><summary>ライセンスキーをお持ちの方</summary>' +
           '<div class="grsp-row"><input type="text" class="grsp-input" placeholder="GRS-XXXX-XXXX-XXXX" autocomplete="off">' +
           '<button type="button" class="grsp-btn grsp-primary grsp-activate">有効にする</button></div>' +
@@ -480,6 +483,7 @@
       ".grsp-btn{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:96px;margin:0;padding:10px 14px;border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none}" +
       ".grsp-primary{background:var(--accent,#6E62F0);color:#fff}.grsp-primary:disabled{background:#c9c9d6;color:#fff;cursor:not-allowed}" +
       ".grsp-ghost{background:#eceef3;color:#333}" +
+      ".grsp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}" +
       ".grsp-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}" +
       ".grsp-license{margin-top:12px}.grsp-license summary{cursor:pointer;color:#555}" +
       ".grsp-row{display:flex;gap:8px;margin-top:8px}.grsp-input{flex:1;min-width:0;padding:9px 10px;border:1px solid #cfd4dc;border-radius:6px;font-size:14px}" +

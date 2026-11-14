@@ -1452,7 +1452,8 @@
     var fpsList = (cfg.fpsOptions && cfg.fpsOptions.length) ? cfg.fpsOptions : [30, 60];
     var FPS_NAMES = { "30": "30fps（標準）", "60": "60fps（なめらか・ファイル大）" };
     var scaleOptions = scales.map(function (s) {
-      return '<option value="' + s + '">' + (SCALE_NAMES[String(s)] || s + "倍") + "（" + scaleLabel(s) + "）</option>";
+      return '<option value="' + s + '">' + (SCALE_NAMES[String(s)] || s + "倍") + "（" + scaleLabel(s) + "）" +
+        (P && P.config.paywallEnabled && cfg.paidScales && cfg.paidScales.indexOf(s) >= 0 && !P.canUse("hd_1080") ? "・有料" : "") + "</option>";
     }).join("") +
       // 最高画質は有料化（paywallEnabled）してから出す。画質を固定しているツールには出さない
       (!cfg.scales && P && P.config.paywallEnabled ? '<option value="2">最高画質（' + scaleLabel(2) + "）" + (P.canUse("hd_max") ? "" : "・有料") + "</option>" : "");
@@ -1623,6 +1624,7 @@
       if (P && P.config.paywallEnabled) {
         var used = [];
         if (c.scale >= 2) used.push("hd_max");
+        if (cfg.paidScales && cfg.paidScales.indexOf(c.scale) >= 0) used.push("hd_1080");
         if (c.mark === "off") used.push("no_watermark");
         if (typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage())) used.push("transparent_export");
         if (typeof adapter.getPaidFeatures === "function") {
@@ -1635,6 +1637,7 @@
           var locked = P.lockedOf(used);
           c = Object.assign({}, c);
           if (locked.indexOf("hd_max") >= 0) c.scale = 1.5;
+          if (locked.indexOf("hd_1080") >= 0) c.scale = 1;
           if (locked.indexOf("no_watermark") >= 0) c.mark = "on";
           if (locked.indexOf("transparent_export") >= 0) {
             var whiteBtn = document.querySelector('[data-bg-mode="white"]');

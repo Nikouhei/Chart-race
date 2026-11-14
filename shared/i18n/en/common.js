@@ -61,6 +61,7 @@ I18N.registerText('en', {
   '標準': 'Standard',
   '高画質': 'High',
   '最高画質': 'Best',
+  '高画質（1080p）': 'HD (1080p)',
   'なめらかさ': 'Frame rate',
   '30fps（標準）': '30 fps (standard)',
   '60fps（なめらか・ファイル大）': '60 fps (smoother, larger file)',
