@@ -17,6 +17,10 @@ node_modules/
 analytics/
 # 株価レース（未公開の検証用）。誤ってデプロイしないよう除外
 stock-race/
+# 決済・ライセンス API の Worker、D1 マイグレーション、実装メモ（静的アセットとして配信しない）
+worker/
+migrations/
+Stripe/
 # 装飾の元データ（透過PNGの原寸）。配信するのは変換後の assets/decor/*.webp だけ
 装飾/
 # Wrangler のローカル状態・秘密情報

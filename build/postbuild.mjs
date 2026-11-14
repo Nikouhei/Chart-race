@@ -219,7 +219,7 @@ fs.writeFileSync(path.join(DIST, 'sitemap.xml'), xml);
 log(`sitemap.xml: ${entries.length} URL`);
 
 // 5. 公開してはいけないものの最終確認 -------------------------------------------
-const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', 'build', 'First Coding', '.git', '.github', '.agents', '.claude', '.wrangler'];
+const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', 'build', 'First Coding', '.git', '.github', '.agents', '.claude', '.wrangler', 'worker', 'migrations', 'Stripe'];
 const leaked = forbidden.filter((d) => fs.existsSync(path.join(DIST, d)));
 // dist 全体を見て、ドット始まりのファイル・フォルダや秘密情報らしいファイル名が無いか確認する
 // （.gitkeep は public/ の空フォルダ用、.well-known は将来の正規の公開用なので許可）

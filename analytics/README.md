@@ -86,6 +86,7 @@ node analytics/fetch-reports.mjs --setup-dimensions   # ボタンIDなどを GA4
 | tool_ui_click | 上記以外のツール内ボタン（button_id / button_label 付き） |
 | js_error | サイトのスクリプトエラー（1表示3件まで） |
 | upgrade_click | 有料機能（透かしなし・MP4）を選んで購入案内が出た（有料化スイッチ ON のときだけ） plan_feature 付き |
+| purchase_complete | 購入完了ページ（/thanks, /en/thanks）にキーが表示された。plan 付き。同じ購入のリロードでは1回だけ |
 | license_activate | ライセンスキーの確認（license_result = ok / invalid / error） |
 | survey_view | 有料化アンケートを表示した（回答率の分母） |
 | survey_submit | アンケートに回答（use_case / wanted_features / pay_model / survey_comment） |

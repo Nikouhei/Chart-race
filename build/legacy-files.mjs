@@ -27,6 +27,7 @@ const NEVER_DIRS = new Set([
   'stock-race', // 未公開。公開の指示があるまで絶対に出さない
   'src', 'public', 'dist', 'build', 'node_modules', '.astro',
   '.git', '.github', '.agents', '.claude', '.vscode', '.idea', '.wrangler', 'First Coding', 'analytics',
+  'worker', 'migrations', 'Stripe', // 決済 Worker・D1 マイグレーション・実装メモ
 ]);
 
 // 秘密情報・ローカル設定になりがちなファイル名（どの階層にあっても配信しない）

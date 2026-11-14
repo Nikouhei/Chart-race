@@ -29,6 +29,9 @@ export const PAGES = [
   { id: 'about', paths: { ja: '/about.html', en: '/en/about.html' } },
   { id: 'terms', paths: { ja: '/terms.html', en: '/en/terms.html' } },
   { id: 'privacy', paths: { ja: '/privacy.html', en: '/en/privacy.html' } },
+
+  // 購入完了ページ（noindex。Stripe の success_url の戻り先。/thanks でも開ける）
+  { id: 'thanks', paths: { ja: '/thanks.html', en: '/en/thanks.html' } },
 ];
 
 // ヘッダーのツールメニュー（カテゴリごと。並び順もこの通り）

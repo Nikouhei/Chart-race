@@ -1,0 +1,9 @@
+# ローカル開発用の秘密情報の雛形。実際の値は .dev.vars（git 管理外）に書く。このファイルに値を書かない。
+# 本番・preview は `npx wrangler secret put <NAME>` で Cloudflare に登録する。
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_API_KEY=
+# 送信元（Resend で認証済みのドメインのアドレス。例: GraphRace Studio <noreply@example.com>）。空だとメール送信をスキップする
+RESEND_FROM=
+# 任意: Stripe API バージョンの上書き（既定は 2025-03-31.basil）
+# STRIPE_API_VERSION=

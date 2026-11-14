@@ -1,0 +1,177 @@
+---
+/*
+ * 購入完了ページの共通部品（/thanks.html・/en/thanks.html）。Stripe Checkout の success_url の戻り先。
+ * URL の session_id から /api/license?session_id=… でキーを引いて表示する。
+ * キーの発行は webhook だけが行う（このページは表示のみ）。webhook が少し遅れても出るよう、数回引き直す。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from './SiteHeader.astro';
+import SiteFooter from './SiteFooter.astro';
+import { legacyCss } from '../../build/legacy-tool.mjs';
+
+interface Props { locale: 'ja' | 'en' }
+const { locale } = Astro.props;
+const css = legacyCss('about.html');
+
+const TEXT = {
+  ja: {
+    title: 'ご購入ありがとうございます｜GraphRace Studio',
+    description: 'ご購入ありがとうございます。ライセンスキーを表示します。',
+    heading: 'ご購入ありがとうございます',
+    crumbs: [{ name: 'ホーム', href: '/' }, { name: 'ご購入ありがとうございます' }],
+    tagline: 'データビジュアライゼーションツール',
+  },
+  en: {
+    title: 'Thank you for your purchase | GraphRace Studio',
+    description: 'Thank you for your purchase. Your license key is shown here.',
+    heading: 'Thank you for your purchase',
+    crumbs: [{ name: 'Home', href: '/en/' }, { name: 'Thank you for your purchase' }],
+    tagline: 'Data visualization tools',
+  },
+}[locale];
+
+// ページ側のスクリプトに渡す文言（本文に波括弧を書かないよう、属性で渡す）
+const I18N = {
+  ja: {
+    loading: 'ライセンスキーを発行しています…',
+    ready: 'ライセンスキーを発行しました。同じ内容をメールでもお送りしています。',
+    timeout: '発行の反映に時間がかかっています。しばらくしてからこのページを開き直すか、メールをご確認ください。届かない場合はお問い合わせください。',
+    missing: '購入情報が見つかりませんでした。Stripe の決済画面から戻った直後のページでのみ表示されます。',
+    invalid: 'このライセンスキーは現在使えません（返金済みか、期限が切れています）。',
+    error: '通信に失敗しました。しばらくしてからこのページを開き直してください。',
+    copy: 'コピー', copied: 'コピーしました',
+    plan: 'プラン', expires: '有効期限', renews: '現在の期間の終わり',
+    plans: { pass7: '7日パス', monthly: '月額プラン', yearly: '年額プラン' },
+  },
+  en: {
+    loading: 'Issuing your license key…',
+    ready: 'Your license key is ready. We have also emailed it to you.',
+    timeout: 'It is taking a little longer than usual. Please reopen this page in a few minutes, or check your email. If it does not arrive, contact us.',
+    missing: 'We could not find your purchase. This page only works right after returning from the Stripe checkout.',
+    invalid: 'This license key is not active (refunded or expired).',
+    error: 'Could not connect. Please reopen this page in a few minutes.',
+    copy: 'Copy', copied: 'Copied',
+    plan: 'Plan', expires: 'Valid until', renews: 'Current period ends',
+    plans: { pass7: '7-Day Pass', monthly: 'Monthly plan', yearly: 'Yearly plan' },
+  },
+}[locale];
+
+const HOW = locale === 'en'
+  ? 'How to use: when you export in a tool, open “I have a license key” in the dialog and paste the key.'
+  : '使い方：ツールで書き出すときに表示される案内の「ライセンスキーをお持ちの方」を開き、キーを貼り付けてください。';
+const LINK_NOTE = locale === 'en'
+  ? 'Cancel or update your payment method through Link (link.com). Your card statement will show “LINK.COM*”, and receipts are sent by Link.'
+  : '解約・お支払い方法の変更は Link（link.com）から行えます。カードの明細には「LINK.COM*」と表示され、領収書は Link から届きます。';
+const ABOUT_HREF = locale === 'en' ? '/en/about.html' : '/about.html';
+const ABOUT_LABEL = locale === 'en' ? 'Contact' : 'お問い合わせ';
+---
+<BaseLayout pageId="thanks" title={TEXT.title} description={TEXT.description} robots="noindex, nofollow">
+  <Fragment slot="head">
+    <style is:inline set:html={css}></style>
+    <!-- URL の session_id を外部サイトへの Referer で漏らさない -->
+    <meta name="referrer" content="same-origin">
+    <style is:inline>
+      .thanks-status { margin: 0 0 20px; font-weight: 600; }
+      .thanks-key { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0 0 16px; }
+      .thanks-key code { font-size: clamp(1.2rem, 4.5vw, 1.7rem); font-weight: 700; letter-spacing: 0.06em; padding: 12px 18px; background: #f3f4f6; border-radius: 10px; user-select: all; }
+      .thanks-key button { font: inherit; cursor: pointer; padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
+      .thanks-meta { margin: 0 0 8px; }
+      .thanks-note { color: #4b5563; font-size: 0.92em; }
+      [hidden] { display: none !important; }
+    </style>
+  </Fragment>
+
+  <SiteHeader pageId="thanks" locale={locale} />
+
+  <main class="wrap">
+    <h1 class="page-title">{TEXT.heading}</h1>
+    <div class="content-block" id="thanks" data-lang={locale} data-i18n={JSON.stringify(I18N)}>
+      <section>
+        <p class="thanks-status" id="thanks-status" role="status" aria-live="polite">{I18N.loading}</p>
+        <div id="thanks-result" hidden>
+          <div class="thanks-key">
+            <code id="thanks-key"></code>
+            <button type="button" id="thanks-copy">{I18N.copy}</button>
+          </div>
+          <p class="thanks-meta" id="thanks-plan"></p>
+          <p class="thanks-meta" id="thanks-expires"></p>
+          <p>{HOW}</p>
+          <p class="thanks-note">{LINK_NOTE}</p>
+        </div>
+        <p class="thanks-note"><a href={ABOUT_HREF}>{ABOUT_LABEL}</a></p>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter locale={locale} crumbs={TEXT.crumbs} tagline={TEXT.tagline} />
+
+  <script is:inline>
+    (function () {
+      var root = document.getElementById('thanks');
+      var T = JSON.parse(root.getAttribute('data-i18n'));
+      var lang = root.getAttribute('data-lang');
+      var sid = new URLSearchParams(location.search).get('session_id') || '';
+      var statusEl = document.getElementById('thanks-status');
+      var resultEl = document.getElementById('thanks-result');
+      var tries = 0;
+      var MAX_TRIES = 15; // 2秒おき × 15回（約30秒）
+
+      function say(msg) { statusEl.textContent = msg; }
+      function fmtDate(sec) {
+        try {
+          return new Intl.DateTimeFormat(lang === 'en' ? 'en-US' : 'ja-JP', { year: 'numeric', month: 'long', day: 'numeric', timeZone: lang === 'en' ? 'UTC' : 'Asia/Tokyo' }).format(new Date(sec * 1000)) + (lang === 'en' ? ' (UTC)' : '');
+        } catch (e) { return new Date(sec * 1000).toISOString().slice(0, 10); }
+      }
+
+      function show(d) {
+        if (!d.valid) { say(T.invalid); return; }
+        say(T.ready);
+        document.getElementById('thanks-key').textContent = d.key;
+        document.getElementById('thanks-plan').textContent = T.plan + ': ' + (T.plans[d.plan] || d.plan);
+        document.getElementById('thanks-expires').textContent = (d.plan === 'pass7' ? T.expires : T.renews) + ': ' + fmtDate(d.expires_at);
+        resultEl.hidden = false;
+        // 計測: 購入完了（同じ購入でリロードしても1回だけ）
+        try {
+          var mark = 'grs_purchase_tracked_' + sid;
+          if (!sessionStorage.getItem(mark)) {
+            sessionStorage.setItem(mark, '1');
+            if (window.grsTrack) window.grsTrack('purchase_complete', { plan: d.plan });
+          }
+        } catch (e) { if (window.grsTrack) window.grsTrack('purchase_complete', { plan: d.plan }); }
+      }
+
+      function poll() {
+        fetch('/api/license?session_id=' + encodeURIComponent(sid), { cache: 'no-store' })
+          .then(function (res) {
+            if (res.status === 400) { say(T.missing); return null; }
+            return res.json().then(function (d) { return { status: res.status, d: d }; });
+          })
+          .then(function (r) {
+            if (!r) return;
+            if (r.d && r.d.status === 'ready') { show(r.d); return; }
+            if (++tries >= MAX_TRIES) { say(T.timeout); return; }
+            setTimeout(poll, 2000);
+          })
+          .catch(function () {
+            if (++tries >= MAX_TRIES) { say(T.error); return; }
+            setTimeout(poll, 2000);
+          });
+      }
+
+      document.getElementById('thanks-copy').addEventListener('click', function () {
+        var btn = this;
+        var key = document.getElementById('thanks-key').textContent;
+        (navigator.clipboard ? navigator.clipboard.writeText(key) : Promise.reject()).then(function () {
+          btn.textContent = T.copied;
+          setTimeout(function () { btn.textContent = T.copy; }, 2000);
+        }).catch(function () {
+          var sel = window.getSelection(); var range = document.createRange();
+          range.selectNodeContents(document.getElementById('thanks-key')); sel.removeAllRanges(); sel.addRange(range);
+        });
+      });
+
+      if (!sid) { say(T.missing); return; }
+      poll();
+    })();
+  </script>
+</BaseLayout>

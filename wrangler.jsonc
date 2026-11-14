@@ -7,8 +7,22 @@
   },
   // 配信するのは npm run build の出力（dist/）。Cloudflare 側のビルドコマンドは npm run build
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // /api/* だけ先に Worker で処理する。それ以外は今までどおり静的アセットを直接返す
+    "run_worker_first": ["/api/*"]
   },
+  // 決済・ライセンス API（worker/ は dist に入れない。.assetsignore と build/legacy-files.mjs で除外）
+  "main": "worker/index.js",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "grs-licenses",
+      // TODO: `npx wrangler d1 create grs-licenses` の出力にある database_id に差し替える。
+      // ローカル開発（wrangler dev / d1 --local）はこの仮の値のままで動く
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
   "compatibility_flags": [
     "nodejs_compat"
   ]
