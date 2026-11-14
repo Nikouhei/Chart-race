@@ -17,9 +17,7 @@
     {
       "binding": "DB",
       "database_name": "grs-licenses",
-      // TODO: `npx wrangler d1 create grs-licenses` の出力にある database_id に差し替える。
-      // ローカル開発（wrangler dev / d1 --local）はこの仮の値のままで動く
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "c34ba352-9a67-49bd-b574-044743e9460e",
       "migrations_dir": "migrations"
     }
   ],
