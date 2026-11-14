@@ -29,6 +29,8 @@ export const PAGES = [
   { id: 'about', paths: { ja: '/about.html', en: '/en/about.html' } },
   { id: 'terms', paths: { ja: '/terms.html', en: '/en/terms.html' } },
   { id: 'privacy', paths: { ja: '/privacy.html', en: '/en/privacy.html' } },
+  // 特定商取引法に基づく表記（日本語のみ。販売開始まで下書き。公開するとき drafts を消す）
+  { id: 'tokushoho', paths: { ja: '/tokushoho.html' }, drafts: ['ja'] },
 
   // 料金プラン（Stripe Checkout の cancel_url の戻り先。販売開始まで日英とも下書き。公開するとき drafts を消す）
   { id: 'pricing', paths: { ja: '/pricing.html', en: '/en/pricing.html' }, drafts: ['ja', 'en'] },
@@ -62,4 +64,5 @@ export const FOOTER_LINKS = [
   { id: 'about', key: 'footer.about' },
   { id: 'terms', key: 'footer.terms' },
   { id: 'privacy', key: 'footer.privacy' },
+  { id: 'tokushoho', key: 'footer.tokushoho' }, // 日本語のみ（他の言語は pathFor が null を返すので出ない）
 ];

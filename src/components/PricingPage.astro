@@ -43,12 +43,12 @@ const TEXT = {
       { q: '月額・年額プランの更新日と解約はどうなりますか？', a: '購入日と同じ日に、毎月（年額は毎年）自動で更新されます。解約・お支払い方法の変更は Link（link.com）から行えます。解約しても、お支払い済みの期間の終わりまでは使えます。' },
       { q: 'カードの明細にはどう表示されますか？', a: '「LINK.COM*」と表示されます。領収書は Link から届きます。' },
       { q: '何台の端末で使えますか？', a: '現在、端末の台数に制限はありません。ライセンスキーはご自身の範囲でお使いください。' },
-      { q: '返金されたときはどうなりますか？', a: '返金されたライセンスキーは使えなくなります。' },
+      { q: '返金はできますか？', a: 'デジタルコンテンツの性質上、お客様のご都合による返金・キャンセルはお受けしていません。ただし、二重にお支払いいただいた場合や、不具合でご利用いただけない場合は、お問い合わせください。確認のうえ返金します。返金したライセンスキーは使えなくなります。' },
     ],
     contact: 'ご不明な点は',
     contactLink: 'お問い合わせ',
     contactEnd: 'ページからご連絡ください。',
-    termsLabel: '利用規約', privacyLabel: 'プライバシーポリシー',
+    termsLabel: '利用規約', privacyLabel: 'プライバシーポリシー', tokushohoLabel: '特定商取引法に基づく表記',
   },
   en: {
     title: 'Pricing | GraphRace Studio',
@@ -77,7 +77,7 @@ const TEXT = {
       { q: 'How do renewals and cancellation work for monthly and yearly plans?', a: 'Plans renew automatically on the same day each month (or year) as your purchase. You can cancel or update your payment method through Link (link.com). After you cancel, you can keep using the plan until the end of the period you have paid for.' },
       { q: 'What will appear on my card statement?', a: 'It will show “LINK.COM*”. Receipts are sent by Link.' },
       { q: 'How many devices can I use it on?', a: 'There is currently no limit on the number of devices. Please use your key for your own work.' },
-      { q: 'What happens if I am refunded?', a: 'A refunded license key stops working.' },
+      { q: 'Can I get a refund?', a: 'Because this is digital content, we do not offer refunds or cancellations for reasons of personal convenience. If you were charged twice, or you cannot use the Service because of a defect, please contact us. We will review it and refund you if appropriate. A refunded license key stops working.' },
     ],
     contact: 'Questions? Please ',
     contactLink: 'contact us',
@@ -168,7 +168,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
           </div>
         ))}
         <p>{TEXT.contact}<a href={ABOUT_HREF}>{TEXT.contactLink}</a>{TEXT.contactEnd}</p>
-        <p><a href={TERMS_HREF}>{TEXT.termsLabel}</a> / <a href={PRIVACY_HREF}>{TEXT.privacyLabel}</a></p>
+        <p><a href={TERMS_HREF}>{TEXT.termsLabel}</a> / <a href={PRIVACY_HREF}>{TEXT.privacyLabel}</a>{TEXT.tokushohoLabel && <Fragment> / <a href="/tokushoho.html">{TEXT.tokushohoLabel}</a></Fragment>}</p>
       </section>
     </div>
   </main>

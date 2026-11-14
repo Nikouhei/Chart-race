@@ -1,0 +1,76 @@
+---
+/*
+ * 特定商取引法に基づく表記（日本語のみ）— /tokushoho.html。販売開始まで下書き（routes.mjs の drafts）
+ * ※氏名・住所・電話番号は「請求があれば遅滞なく開示」の方式で書いている（個人運営。2026-11-15 決定）。
+ *   公開前に Stripe のサポート記事「特定商取引法に基づく表記」ページの作成と表示方法）と照らして確認すること。
+ * ※返金・解約の文面は、価格ページの FAQ（src/components/PricingPage.astro）・利用規約（src/pages/terms.astro と en/terms.astro）とそろえる。
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { legacyCss } from '../../build/legacy-tool.mjs';
+
+const locale = 'ja';
+const css = legacyCss('about.html');
+const MAIL = 'support@graphrace-studio.com';
+const DISCLOSE = '請求があれば遅滞なく開示します。下記のメールアドレスまでご連絡ください。';
+
+const ROWS = [
+  { th: '販売事業者', td: 'GraphRace Studio（個人運営）' },
+  { th: '運営責任者', td: DISCLOSE },
+  { th: '所在地', td: DISCLOSE },
+  { th: '電話番号', td: `${DISCLOSE}（お問い合わせはメールで承ります）` },
+  { th: 'メールアドレス', td: MAIL, mail: true },
+  { th: 'サイトのURL', td: 'https://graphrace-studio.com/' },
+  { th: '販売するもの', td: 'GraphRace Studio の有料機能（透かしなしの書き出し、高画質・透過書き出しなど）を使うためのライセンスキー。7日パス・月額プラン・年額プランがあります。' },
+  { th: '販売価格', td: '料金プランのページに表示しています（税込）。' , link: { href: '/pricing', label: '料金プランを見る' } },
+  { th: '商品代金以外の必要料金', td: 'ありません。インターネットへの接続にかかる通信料等は、お客様のご負担となります。' },
+  { th: 'お支払い方法', td: 'Stripe の決済画面で表示される方法（クレジットカード等）。' },
+  { th: 'お支払い時期', td: '購入時にお支払いいただきます。月額・年額プランは、購入日を基準に、毎月（年額は毎年）の更新日に自動でお支払いいただきます。7日パスは1回のお支払いで、自動更新はありません。' },
+  { th: '提供時期', td: 'お支払いの完了後、ただちに提供します。ライセンスキーは購入完了ページに表示し、メールでもお送りします。' },
+  { th: 'ご利用期間', td: '7日パスは購入から7日間。月額・年額プランは、解約しない限り更新が続きます。' },
+  { th: '解約について', td: '月額・年額プランは、Link（link.com）からいつでも解約できます。次回の更新日より前に解約すれば、以降の請求はありません。解約後も、お支払い済みの期間の終わりまでは使えます。' },
+  { th: '返品・返金（キャンセル）について', td: 'デジタルコンテンツの性質上、お客様のご都合による返品・返金・キャンセルはお受けしていません。更新後の期間分の返金や日割りでの返金も、原則として行いません。ただし、二重にお支払いいただいた場合や、不具合によりご利用いただけない場合は、メールでご連絡ください。内容を確認のうえ、返金します。返金したライセンスキーは使えなくなります。' },
+  { th: '動作環境', td: 'インターネットに接続できる環境と、最新版の主要なブラウザ（PC でのご利用を推奨します）。' },
+];
+---
+<BaseLayout
+  pageId="tokushoho"
+  title={"特定商取引法に基づく表記｜GraphRace Studio"}
+  description={"GraphRace Studio の有料プランに関する、特定商取引法に基づく表記です。販売事業者、価格、お支払い方法、解約・返金について記載しています。"}
+>
+  <Fragment slot="head">
+    <style is:inline set:html={css}></style>
+    <style is:inline>
+      .tokusho { margin: 0; border-top: 1px solid var(--panel-border); }
+      .tokusho-row { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 8px 24px; padding: 16px 4px; border-bottom: 1px solid var(--panel-border); }
+      .tokusho-row dt { margin: 0; font-weight: 700; color: var(--text-strong); }
+      .tokusho-row dd { margin: 0; }
+      @media (max-width: 640px) { .tokusho-row { grid-template-columns: 1fr; } }
+    </style>
+  </Fragment>
+
+  <SiteHeader pageId="tokushoho" locale={locale} />
+
+  <main class="wrap">
+    <h1 class="page-title">特定商取引法に基づく表記</h1>
+    <div class="content-block">
+      <section>
+        <p>GraphRace Studio の有料プランの販売について、特定商取引法に基づき表示します。</p>
+        <dl class="tokusho">
+          {ROWS.map((r) => (
+            <div class="tokusho-row">
+              <dt>{r.th}</dt>
+              <dd>
+                {r.mail ? <a href={`mailto:${r.td}`}>{r.td}</a> : r.td}
+                {r.link && <span> <a href={r.link.href}>{r.link.label}</a></span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter locale={locale} crumbs={[{ name: 'ホーム', href: '/' }, { name: '特定商取引法に基づく表記' }]} tagline="データビジュアライゼーションツール" />
+</BaseLayout>
