@@ -3941,7 +3941,8 @@ function renderFrame(){
   if((ovPlane&&ovPlane.visible) || (mapPlane&&mapPlane.visible)
      || (fieldPlane&&fieldPlane.visible) || (splitLine&&splitLine.visible)
      || (stPlane&&stPlane.visible)
-     || (cdPlane&&cdPlane.visible) || (markPlane&&markPlane.visible)){
+     || (cdPlane&&cdPlane.visible) || (markPlane&&markPlane.visible)
+     || (introPlane&&introPlane.visible)){   // 出走前の板。これが無いと、透かしなしの書き出しで板が描かれない
     renderer.autoClear=false;
     renderer.render(ovScene,ovCam);
     renderer.autoClear=true;
