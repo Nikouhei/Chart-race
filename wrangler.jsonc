@@ -23,5 +23,20 @@
   ],
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  // 確認用（preview ブランチなど main 以外）の設定。Worker Previews は本番の設定を引き継がないので、
+  // D1 などのバインディングはここに別に書く。main / assets / compatibility_* は引き継がれる。
+  // secret（STRIPE_SECRET_KEY など）はここに書かず、Previews Base に登録する:
+  //   npx wrangler preview base-config secret put <NAME>
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "grs-licenses",
+        // テスト購入のデータ置き場。本番用のDBは販売開始前に別に作り、上のトップレベルの d1_databases を差し替える
+        "database_id": "c34ba352-9a67-49bd-b574-044743e9460e",
+        "migrations_dir": "migrations"
+      }
+    ]
+  }
 }
