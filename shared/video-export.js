@@ -1601,15 +1601,7 @@
       var t = e.target;
       // 書き出しが始まると中身がアンケートに替わるので、設定画面の入力だけを扱う
       if (!body.querySelector("#grsxScale") || !/^grsx/.test(t.name || t.id || "")) return;
-      // 有料化後、ライセンスの無い人が有料機能を選んだら購入案内を出して戻す
-      if (P && t.id === "grsxScale" && num(t.value, 1) >= 2 && !P.canUse("hd_max")) {
-        t.value = "1.5";
-        P.openUpgrade("hd_max", { from: "export_dialog", onClose: function (ok) { if (ok) { scaleSel.value = "2"; refresh(); } } });
-      }
-      if (P && t.name === "grsxMark" && t.value === "off" && !P.canUse("no_watermark")) {
-        radio("grsxMark", "on");
-        P.openUpgrade("no_watermark", { from: "export_dialog", onClose: function (ok) { if (ok) { radio("grsxMark", "off"); refresh(); drawThumb(); } } });
-      }
+      // 有料機能の選択・プレビューは止めない（判定は「書き出す」を押したとき。run() を参照）
       if (t.name === "grsxMark") drawThumb();
       refresh();
     });
@@ -1627,8 +1619,32 @@
 
     // ── 書き出し ──
     async function run(c) {
-      // 有料化後の念押し（設定画面を経由しない呼び出しにも効くように）
-      if (P && ((c.scale >= 2 && !P.canUse("hd_max")) || (c.mark === "off" && !P.canUse("no_watermark")))) return;
+      // 有料化後：使われている有料機能をここでまとめて判定する（購入案内は1回だけ）
+      if (P && P.config.paywallEnabled) {
+        var used = [];
+        if (c.scale >= 2) used.push("hd_max");
+        if (c.mark === "off") used.push("no_watermark");
+        if (typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage())) used.push("transparent_export");
+        if (typeof adapter.getPaidFeatures === "function") {
+          try { used = used.concat(adapter.getPaidFeatures(c) || []); } catch (e) {}
+        }
+        var verdict = await P.gate(used, { from: "export_gate" });
+        if (verdict === "cancel") return;
+        if (verdict === "strip") {
+          // 使えない有料機能をすべて標準に戻して書き出す
+          var locked = P.lockedOf(used);
+          c = Object.assign({}, c);
+          if (locked.indexOf("hd_max") >= 0) c.scale = 1.5;
+          if (locked.indexOf("no_watermark") >= 0) c.mark = "on";
+          if (locked.indexOf("transparent_export") >= 0) {
+            var whiteBtn = document.querySelector('[data-bg-mode="white"]');
+            if (whiteBtn) whiteBtn.click();
+          }
+          if (typeof adapter.stripPaidFeatures === "function") {
+            try { adapter.stripPaidFeatures(locked); } catch (e) {}
+          }
+        }
+      }
       try { localStorage.setItem("grs_export_prefs", JSON.stringify(c)); } catch (e) {}
       if (P) P.countExport();
       state.busy = true;

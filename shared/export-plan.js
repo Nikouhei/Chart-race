@@ -11,9 +11,13 @@
  *     透かしなしは全員が使える（有料予定のラベルは出さない）。最高画質は選択肢に出さない。
  *     透かしの有無は export_start の watermark で GA4 に残る。
  *   CONFIG.paywallEnabled = true（販売開始後）
- *     ライセンスが無い人は有料機能を選べない。選ぶと購入案内（upgrade_click）を出す。
- *     ライセンスの確認は CONFIG.licenseEndpoint に POST する（Lemon Squeezy の
- *     license-keys/validate を中継するサーバー側の口。未実装なら空のままにしておく）。
+ *     有料機能は誰でも選べる（プレビューも止めない）。「書き出す」を押したとき、
+ *     GRSPlan.gate(使われている機能の配列) で判定し、有料パスが無い人には
+ *     購入案内を1回だけ出す。使われている有料機能はまとめて一覧表示する。
+ *       ・購入する（価格ページへ） ・有料機能を外して書き出す（標準の形に戻す） ・閉じる
+ *     止めたときは export_blocked（plan_feature＝機能名をカンマ区切り）を GA4 に送る。
+ *     パスの確認は CONFIG.licenseEndpoint（自前の /api/license。Stripe の支払い完了通知で
+ *     発行したキーを Cloudflare D1 と照合する）に POST する。未実装なら空のままにしておく。
  *
  * ── アンケート（pricing_v1）──────────────────────────────
  *   書き出しのエンコード待ちの間に出す。1ブラウザにつき回答は1回。
@@ -31,19 +35,23 @@
 
   var CONFIG = {
     paywallEnabled: false,
-    // 販売ページ（Lemon Squeezy のチェックアウトURL）。販売開始時に入れる
-    buyUrl: "",
-    priceLabel: "¥1,980（買い切り）",
-    // ライセンス確認のサーバー側エンドポイント（例 "/api/license/validate"）。未実装なら空
+    // 価格ページ（言語ごと）。価格ページの公開と同時に paywallEnabled を true にする
+    pricingUrls: { ja: "/pricing", en: "/en/pricing" },
+    // パス確認のサーバー側エンドポイント（例 "/api/license"）。未実装なら空
     licenseEndpoint: "",
     // ライセンスを一度確認したら、次に確認しなおすまでの日数
     licenseRecheckDays: 7
   };
 
   // 有料予定の機能と表示名
+  // 書き出しボタンを押したとき、使われていて、かつパスが無ければ止める機能
   var FEATURES = {
     hd_max: "最高画質",
-    no_watermark: "透かしなし"
+    no_watermark: "透かしなし",
+    transparent_export: "透過書き出し",
+    rounded_bar: "角丸バー",
+    image_right: "画像の位置：バーの右",
+    derby_fanfare: "ファンファーレ"
   };
 
   var LS_LICENSE = "grs_license_v1";
@@ -122,20 +130,33 @@
   recheckLicense();
 
   // ── 購入案内（paywallEnabled のときだけ使う）────────────────
-  function openUpgrade(feature, opts) {
+  function lockedOf(features) {
+    return (features || []).filter(function (f, i, a) { return FEATURES[f] && a.indexOf(f) === i && !canUse(f); });
+  }
+  function pricingUrl() {
+    var lang = (document.documentElement.lang || "ja").slice(0, 2);
+    return CONFIG.pricingUrls[lang] || CONFIG.pricingUrls.ja;
+  }
+
+  // features … 機能キーの配列（1つでも可）。複数ならまとめて一覧で1回だけ出す
+  // opts.from … 計測用の表示元／opts.allowStrip … 「有料機能を外して書き出す」を出すか
+  // opts.onClose(result) … result は "bought"（パスが有効になった）／ "strip" ／ "cancel"
+  function openUpgrade(features, opts) {
     opts = opts || {};
-    track("upgrade_click", { plan: "lifetime", plan_feature: feature, upgrade_from: opts.from || "export_dialog" });
+    var list = (Array.isArray(features) ? features : [features]).filter(function (f) { return FEATURES[f]; });
+    var featureKeys = list.join(",");
     ensureStyles();
     var back = document.createElement("div");
     back.className = "grsp-backdrop";
     back.innerHTML =
       '<div class="grsp-modal" role="dialog" aria-modal="true" aria-labelledby="grspUpTitle">' +
-        '<h3 id="grspUpTitle">' + esc(FEATURES[feature] || "この機能") + 'は有料ライセンスで使えます</h3>' +
-        '<p>透かしなし・最高画質の書き出しが、バーチャートレース・線グラフレース・競馬風ランキングの全ツールで使えます。</p>' +
-        '<p class="grsp-price">' + esc(CONFIG.priceLabel) + '</p>' +
-        (CONFIG.buyUrl ? '<a class="grsp-btn grsp-primary" target="_blank" rel="noopener" href="' + esc(CONFIG.buyUrl) + '" data-track="upgrade_click" data-track-plan="lifetime" data-track-upgrade-from="buy_button">購入ページへ</a>' : "") +
+        '<h3 id="grspUpTitle">有料パスが必要な機能が使われています</h3>' +
+        '<ul class="grsp-list">' + list.map(function (f) { return "<li>" + esc(FEATURES[f]) + "</li>"; }).join("") + "</ul>" +
+        '<p>書き出すには有料パスが必要です。パスなしで書き出す場合は、これらを標準の設定に戻します。</p>' +
+        '<a class="grsp-btn grsp-primary" target="_blank" rel="noopener" href="' + esc(pricingUrl()) + '" data-track="upgrade_click" data-track-plan-feature="' + esc(featureKeys) + '" data-track-upgrade-from="export_gate">プランを見る</a>' +
+        (opts.allowStrip ? '<button type="button" class="grsp-btn grsp-ghost grsp-strip">有料機能を外して書き出す</button>' : "") +
         '<details class="grsp-license"><summary>ライセンスキーをお持ちの方</summary>' +
-          '<div class="grsp-row"><input type="text" class="grsp-input" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">' +
+          '<div class="grsp-row"><input type="text" class="grsp-input" placeholder="GRS-XXXX-XXXX-XXXX" autocomplete="off">' +
           '<button type="button" class="grsp-btn grsp-primary grsp-activate">有効にする</button></div>' +
           '<p class="grsp-msg" aria-live="polite"></p>' +
         '</details>' +
@@ -144,16 +165,37 @@
     document.body.appendChild(back);
     function close(result) {
       back.remove();
-      if (opts.onClose) opts.onClose(!!result);
+      if (opts.onClose) opts.onClose(result);
     }
-    back.querySelector(".grsp-close").addEventListener("click", function () { close(false); });
-    back.addEventListener("click", function (e) { if (e.target === back) close(false); });
+    back.querySelector(".grsp-close").addEventListener("click", function () { close("cancel"); });
+    back.addEventListener("click", function (e) { if (e.target === back) close("cancel"); });
+    var strip = back.querySelector(".grsp-strip");
+    if (strip) strip.addEventListener("click", function () { close("strip"); });
     back.querySelector(".grsp-activate").addEventListener("click", async function () {
       var msg = back.querySelector(".grsp-msg");
       msg.textContent = "確認中…";
       var r = await activateLicense(back.querySelector(".grsp-input").value);
-      if (r.ok) { msg.textContent = "有効になりました"; setTimeout(function () { close(true); }, 600); }
+      if (r.ok) { msg.textContent = "有効になりました"; setTimeout(function () { close("bought"); }, 600); }
       else msg.textContent = r.message;
+    });
+  }
+
+  // 書き出しボタンを押したときの判定。features … 使われている機能キーの配列
+  // 戻り値: Promise<"ok" | "strip" | "cancel">
+  //   ok     … そのまま書き出してよい（有料機能が無い／パスが有効／paywall が無効）
+  //   strip  … 有料機能を標準に戻して書き出す（呼び出し側が戻す）
+  //   cancel … 書き出さない
+  function gate(features, opts) {
+    opts = opts || {};
+    var locked = lockedOf(features);
+    if (!locked.length) return Promise.resolve("ok");
+    track("export_blocked", { plan_feature: locked.join(","), upgrade_from: opts.from || "export_gate" });
+    return new Promise(function (resolve) {
+      openUpgrade(locked, {
+        from: opts.from || "export_gate",
+        allowStrip: opts.allowStrip !== false,
+        onClose: function (r) { resolve(r === "bought" ? "ok" : r); }
+      });
     });
   }
 
@@ -467,6 +509,8 @@
     canUse: canUse,
     badgeText: badgeText,
     openUpgrade: openUpgrade,
+    gate: gate,
+    lockedOf: lockedOf,
     activateLicense: activateLicense,
     countExport: countExport,
     survey: { id: SURVEY_ID, shouldShow: shouldShowSurvey, render: renderSurvey },

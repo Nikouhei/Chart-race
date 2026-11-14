@@ -3728,6 +3728,14 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
   }
 
   const adapter={
+    /* 有料化後、書き出しボタンを押したときに使われている有料機能を申告する(shared/export-plan.js の gate) */
+    getPaidFeatures(){ return fanfareId()?["derby_fanfare"]:[]; },
+    /* 「有料機能を外して書き出す」を選んだとき、カウントダウンに戻す */
+    stripPaidFeatures(locked){
+      if(locked.includes("derby_fanfare")){
+        const cd=document.getElementById("countdown"); cd.value="on"; cd.dispatchEvent(new Event("change",{bubbles:true}));
+      }
+    },
     ownWatermark:true,
     isReady(){ return isReal()?real3dReady:entries.length>=2; },
     getStage(){ return isReal()?Real3D.canvas():cv; },

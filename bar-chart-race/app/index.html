@@ -6140,6 +6140,18 @@
       let saved = null;
       const adapter = {
         isReady: () => years.length > 0 && !startBtn.disabled,
+        // 有料化後、書き出しボタンを押したときに使われている有料機能を申告する（shared/export-plan.js の gate）
+        getPaidFeatures: () => {
+          const used = [];
+          if (getBarShape() === 'round') used.push('rounded_bar');
+          if (getImagePosition() === 'outside') used.push('image_right');
+          return used;
+        },
+        // 「有料機能を外して書き出す」を選んだとき、標準の設定に戻す
+        stripPaidFeatures: (locked) => {
+          if (locked.includes('rounded_bar')) document.getElementById('barShapeNormal')?.click();
+          if (locked.includes('image_right')) document.getElementById('imagePositionInside')?.click();
+        },
         getStage: () => document.getElementById('chartArea'),
         getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
         getDurationMs: () => getMsPerPeriod() * Math.max(0, years.length - 1),
