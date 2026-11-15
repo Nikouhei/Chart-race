@@ -52,7 +52,8 @@
     transparent_export: "透過書き出し",
     rounded_bar: "角丸バー",
     image_right: "画像の位置：バーの右",
-    derby_fanfare: "ファンファーレ"
+    derby_fanfare: "ファンファーレ",
+    derby_sound: "サウンド（歓声・蹄の音）"
   };
 
   var LS_LICENSE = "grs_license_v1";

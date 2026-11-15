@@ -173,6 +173,7 @@ I18N.registerText('en', {
     'You\u2019re in 2D Race, the light mode that opens instantly. Switch over here and CG horses will run on a course like a real racetrack.',
   'このお知らせを閉じる': 'Dismiss this message',
   'ファンファーレ': 'Fanfare',
+  'サウンド（歓声・蹄の音）': 'Sound (crowd and hoofbeats)',
   'ファンファーレの種類': 'Fanfare',
   'ファンファーレの音量': 'Fanfare volume',
   'スタート前の演出': 'Pre-race intro',

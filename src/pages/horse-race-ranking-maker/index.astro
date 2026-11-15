@@ -7,15 +7,13 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
-import { includeDrafts } from '../../i18n/utils.mjs';
-
 const locale = 'ja';
-/* 音まわり(ファンファーレ・歓声・蹄の音)は有料プランの公開に合わせて出す。
-   それまで本番(main)では選択肢だけ出して選べなくする。
-   preview ブランチと開発サーバーでは普通に使える（下書きページと同じ判定）。
+/* 音まわり(ファンファーレ・歓声・蹄の音)を使えるようにするか。有料プランの公開に合わせて有効にした(2026-11)。
+   書き出しでは有料機能(shared/export-plan.js の derby_fanfare / derby_sound)として判定する。
+   false にすると、選択肢だけ出して選べなくする(「（準備中）」の表示)。
    ★ツール部分には Astro の式を書けない(英語版がこのファイルをそのまま取り出すため)ので、
      head のメタタグで渡してスクリプト側で読む */
-const soundReady = includeDrafts();
+const soundReady = true;
 ---
 <BaseLayout
   pageId="horse-race"
@@ -29,10 +27,10 @@ const soundReady = includeDrafts();
   ogImage={"https://graphrace-studio.com/Logo/GraphRace_Studio_Logo.jpg"}
 >
   <Fragment slot="head">
-    <script is:inline src="/shared/export-plan.js?v=2026111501" defer></script>
+    <script is:inline src="/shared/export-plan.js?v=2026111601" defer></script>
     <script is:inline src="/shared/video-export.js?v=2026110807" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026110601" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026111601" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
@@ -3729,11 +3727,19 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
 
   const adapter={
     /* 有料化後、書き出しボタンを押したときに使われている有料機能を申告する(shared/export-plan.js の gate) */
-    getPaidFeatures(){ return fanfareId()?["derby_fanfare"]:[]; },
-    /* 「有料機能を外して書き出す」を選んだとき、カウントダウンに戻す */
+    getPaidFeatures(){
+      const used=[];
+      if(fanfareId())used.push("derby_fanfare");
+      if(sfxOn()&&soundVolume()>0)used.push("derby_sound");
+      return used;
+    },
+    /* 「有料機能を外して書き出す」を選んだとき、ファンファーレはカウントダウンに戻し、歓声・蹄の音は切る */
     stripPaidFeatures(locked){
       if(locked.includes("derby_fanfare")){
         const cd=document.getElementById("countdown"); cd.value="on"; cd.dispatchEvent(new Event("change",{bubbles:true}));
+      }
+      if(locked.includes("derby_sound")){
+        const sfx=document.getElementById("sfx"); sfx.value="off"; sfx.dispatchEvent(new Event("change",{bubbles:true}));
       }
     },
     ownWatermark:true,

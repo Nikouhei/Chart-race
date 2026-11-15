@@ -27,6 +27,7 @@ const F_JA = {
   rounded_bar: { icon: '💊', name: '角丸バー', desc: 'バーの端を丸くした、やわらかい見た目にできます。' },
   image_right: { icon: '🖼️', name: '画像をバーの右に置く', desc: '国旗やロゴなどの画像を、バーの右（数字の左）に置けます。' },
   fanfare: { icon: '🎺', name: 'ファンファーレ', desc: 'スタート前のカウントダウンの代わりに、ファンファーレを流せます。' },
+  sound: { icon: '🔊', name: 'サウンド（歓声・蹄の音）', desc: 'レース中の歓声や蹄の音を、書き出す動画に入れられます。' },
 };
 const F_EN = {
   no_watermark: { icon: '🫥', name: 'No watermark', desc: 'Export without the “GraphRace Studio” watermark.' },
@@ -36,12 +37,13 @@ const F_EN = {
   rounded_bar: { icon: '💊', name: 'Rounded bars', desc: 'Give your bars soft, rounded ends.' },
   image_right: { icon: '🖼️', name: 'Images to the right of bars', desc: 'Place flags, logos and other images to the right of each bar (left of the number).' },
   fanfare: { icon: '🎺', name: 'Fanfare', desc: 'Play a fanfare before the start instead of the countdown.' },
+  sound: { icon: '🔊', name: 'Sound (crowd and hoofbeats)', desc: 'Add crowd cheers and hoofbeats to your exported video.' },
 };
 const TOOL_DEFS = [
   { id: 'bar-chart-race', icon: '📊', ja: 'バーチャートレース', en: 'Bar Chart Race', f: ['no_watermark', 'hd_max', 'transparent', 'rounded_bar', 'image_right'] },
   { id: 'line-chart-race', icon: '📈', ja: '線グラフレース', en: 'Line Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
   { id: 'pie-chart-race', icon: '🥧', ja: '円グラフレース', en: 'Pie Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
-  { id: 'horse-race', icon: '🏇', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare'] },
+  { id: 'horse-race', icon: '🏇', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare', 'sound'] },
 ];
 const toolsFor = (lang, F) => TOOL_DEFS.map((t) => ({
   id: t.id, icon: t.icon, name: t[lang], href: pathFor(t.id, lang), features: t.f.map((k) => F[k]),
