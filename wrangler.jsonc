@@ -16,8 +16,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "grs-licenses",
-      "database_id": "c34ba352-9a67-49bd-b574-044743e9460e",
+      "database_name": "grs-licenses-prod",
+      "database_id": "935624cf-a54c-4e4a-8599-354dbce240d3",
       "migrations_dir": "migrations"
     }
   ],
@@ -33,7 +33,7 @@
       {
         "binding": "DB",
         "database_name": "grs-licenses",
-        // テスト購入のデータ置き場。本番用のDBは販売開始前に別に作り、上のトップレベルの d1_databases を差し替える
+        // テスト購入のデータ置き場（preview 専用）。本番用は上のトップレベルの grs-licenses-prod（2026-11 に作成）
         "database_id": "c34ba352-9a67-49bd-b574-044743e9460e",
         "migrations_dir": "migrations"
       }

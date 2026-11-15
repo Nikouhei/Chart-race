@@ -29,11 +29,11 @@ export const PAGES = [
   { id: 'about', paths: { ja: '/about.html', en: '/en/about.html' } },
   { id: 'terms', paths: { ja: '/terms.html', en: '/en/terms.html' } },
   { id: 'privacy', paths: { ja: '/privacy.html', en: '/en/privacy.html' } },
-  // 特定商取引法に基づく表記（日本語のみ。販売開始まで下書き。公開するとき drafts を消す）
-  { id: 'tokushoho', paths: { ja: '/tokushoho.html' }, drafts: ['ja'] },
+  // 特定商取引法に基づく表記（日本語のみ。2026-11 に公開）
+  { id: 'tokushoho', paths: { ja: '/tokushoho.html' } },
 
-  // 料金プラン（Stripe Checkout の cancel_url の戻り先。販売開始まで日英とも下書き。公開するとき drafts を消す）
-  { id: 'pricing', paths: { ja: '/pricing.html', en: '/en/pricing.html' }, drafts: ['ja', 'en'] },
+  // 料金プラン（Stripe Checkout の cancel_url の戻り先。2026-11 に公開）
+  { id: 'pricing', paths: { ja: '/pricing.html', en: '/en/pricing.html' } },
 
   // 購入完了ページ（noindex。Stripe の success_url の戻り先。/thanks でも開ける）
   { id: 'thanks', paths: { ja: '/thanks.html', en: '/en/thanks.html' } },
@@ -61,6 +61,7 @@ export const NAV_TOOLS = [
 // フッターのリンク
 export const FOOTER_LINKS = [
   { id: 'blog', key: 'footer.blog' },
+  { id: 'pricing', key: 'footer.pricing' },
   { id: 'about', key: 'footer.about' },
   { id: 'terms', key: 'footer.terms' },
   { id: 'privacy', key: 'footer.privacy' },

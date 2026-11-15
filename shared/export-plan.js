@@ -34,11 +34,11 @@
   if (window.GRSPlan) return;
 
   var CONFIG = {
-    paywallEnabled: false,
-    // 価格ページ（言語ごと）。価格ページの公開と同時に paywallEnabled を true にする
+    paywallEnabled: true,
+    // 価格ページ（言語ごと）。価格ページの公開と同時に paywallEnabled を true にした（2026-11）
     pricingUrls: { ja: "/pricing", en: "/en/pricing" },
-    // パス確認のサーバー側エンドポイント（例 "/api/license"）。未実装なら空
-    licenseEndpoint: "",
+    // パス確認のサーバー側エンドポイント（worker/license-api.js。キーを D1 と照合する）
+    licenseEndpoint: "/api/license",
     // ライセンスを一度確認したら、次に確認しなおすまでの日数
     licenseRecheckDays: 7
   };
