@@ -1,6 +1,6 @@
 ---
 // Terms of Use（英語）— /en/terms.html。日本語版 src/pages/terms.astro の英訳。
-// ※日本語版と内容をそろえること。有料化（タスク8）のときに日英とも更新する
+// ※日本語版と内容をそろえること
 import LegalPage from '../../components/en/LegalPage.astro';
 ---
 <LegalPage
@@ -10,25 +10,29 @@ import LegalPage from '../../components/en/LegalPage.astro';
   heading="Terms of Use"
 >
   <section>
-    <p>These terms set out the rules and commercial use guidelines for this tool (the “Service”). By using the Service, you agree to these terms.</p>
+    <p>These terms set out the rules and commercial use guidelines for this tool (the “Service”). By using the Service, you agree to these terms. The Service is free to use, and <a href="/en/pricing" style="color: var(--accent); text-decoration: underline;">paid plans</a> add features such as watermark-free and high-quality export.</p>
     <p style="font-size: 13px; color: var(--text-muted);">This is an English translation of the Japanese terms. If there is any difference between the two, the <a href="/terms.html" style="color: var(--accent);">Japanese version</a> prevails.</p>
   </section>
 
   <section>
     <h2>License and commercial use</h2>
-    <p>Charts, images and videos you create with the Service may, in principle, be used free of charge by both individuals and businesses.</p>
-    <p>Conditions for commercial use: if you use your creations in monetized YouTube videos, company websites, presentations, news media, promotional materials or similar, a credit is required.</p>
+    <p>Charts, images and videos you create with the Service can be used commercially by both individuals and businesses, on the free version or a paid plan (for example in monetized YouTube videos, company websites, presentations, news media, ads and promotional materials).</p>
+    <p>Ownership: you own the images and videos you create, and the Service claims no rights to them. You are responsible for making sure you have the rights to any data, images or logos you include.</p>
+
+    <h3>Exports from the free version</h3>
+    <p>Exports from the free version include a GraphRace Studio watermark. The watermark also serves as the credit, so please keep it as it is and do not remove or hide it. If you want exports without a watermark, please use a paid plan.</p>
+
+    <h3>Exports from a paid plan</h3>
+    <p>Exports from a paid plan can be used commercially without a watermark. No credit is required (though we always appreciate one).</p>
+    <p>Anything you export while your plan is active can still be used commercially after you cancel or the plan ends.</p>
+
+    <h3>Work created before paid plans were introduced</h3>
+    <p>Work you exported without a watermark before paid plans were introduced can still be used, with a credit as before.</p>
     <p>How to credit: place one of the following credits near your creation or in an easy-to-find place such as the content’s description.</p>
     <ul>
       <li>Created with GraphRace Studio</li>
       <li>Made with GraphRace Studio (URL)</li>
     </ul>
-  </section>
-
-  <section>
-    <h2>Future changes to the terms and the Service</h2>
-    <p>Future updates to the Service may add features, introduce user accounts, or separate free and paid features.</p>
-    <p>As a result, we may change these terms or the commercial use license (for example, by introducing a paid license). When we do, we will announce a reasonable transition period and clear rules for content created before the change.</p>
   </section>
 
   <section>
@@ -47,6 +51,8 @@ import LegalPage from '../../components/en/LegalPage.astro';
     <p>When using the Service, you must not:</p>
     <ul>
       <li>Use images or videos created with the Service in content that is illegal or offensive to public order and morals.</li>
+      <li>Remove or hide the watermark on free exports, for example by cropping, painting over or editing it.</li>
+      <li>Share, publish or resell a license key.</li>
       <li>Reuse the Service’s source code or design to redistribute or publish a competing service.</li>
       <li>Interfere with the operation of the Service, for example by placing excessive load on servers or networks.</li>
     </ul>
@@ -57,5 +63,11 @@ import LegalPage from '../../components/en/LegalPage.astro';
     <p>1. The Service and its quality: The Service is provided without any warranty, express or implied, as to its accuracy, completeness, usefulness or fitness for a particular purpose.</p>
     <p>2. Limitation of liability: The developer is not responsible for any damage resulting from the use of, or inability to use, the Service (including loss of data, business interruption, emotional distress or other financial loss).</p>
     <p>3. External services: The developer is not responsible for any trouble arising from links to external websites or from features that connect to external APIs or services.</p>
+  </section>
+
+  <section>
+    <h2>Changes to the terms and the Service</h2>
+    <p>We may add or change features, or change which features are free and which are paid. We may update these terms accordingly.</p>
+    <p>Updated terms take effect when they are posted on this site. If a change would negatively affect how you can use work exported before the change, or a paid period you have already paid for, we will announce it on the site in advance.</p>
   </section>
 </LegalPage>
