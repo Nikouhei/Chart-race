@@ -13,6 +13,13 @@ const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in 
   h1="Make an Animated<br>Line Chart Race"
   lead="Load a spreadsheet and watch each line draw itself through time, with a flag and the current value riding at the tip. Compare trends at a glance, then save the animation as an MP4 or WebM video — no software to install."
   demo={{ src: '/regular-chart/line-chart-race-example-en-720x960.webm', title: 'Explain trends in a vertical video', text: 'Export a clean, animated line chart sized for phone screens. Perfect for explaining how numbers changed over time on Shorts, Reels and TikTok.' }}
+  intro={{
+    title: 'What is a line chart race?',
+    paragraphs: [
+      'A <strong>line chart race</strong> (also called an animated line chart or line graph race) draws each line step by step through time instead of showing the finished chart at once. Viewers see lines climb, dip and cross as the story unfolds, which makes it ideal for stock prices, market caps, population and any trend you want people to follow rather than decode.',
+      'GraphRace Studio is a <strong>line chart race maker</strong> that runs in your browser. Upload a CSV or Excel file or paste your data into the table, set colors, line style and flags, preview the animation and export it as an MP4 or WebM video. No install and no account needed.',
+    ],
+  }}
   appHref="/regular-chart/app/?lang=en"
   sampleHref="/regular-chart/app/?lang=en&sample=1"
   featureList={['CSV and Excel import', 'Flags and live values at line tips', 'Straight or curved lines, solid, dashed or dotted', 'Switch to bar chart race with the same data', 'MP4 / WebM export']}
@@ -47,6 +54,7 @@ const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in 
   }}
   faq={[
     { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account is needed, and you can use your videos commercially on YouTube, social media, in presentations and in class. Please credit GraphRace Studio in the video or its description.' },
+    { q: 'How is a line chart race different from a bar chart race?', a: 'A bar chart race ranks items and reorders them as values change, which suits “who is #1?” stories. A line chart race keeps every item on its own line, which suits trends and comparisons over time, such as stock prices or temperatures. You can switch between the two with the same data.' },
     { q: 'What data format do I need?', a: 'Item names in column A, an optional image URL in column B, then one column per period with the year or date in the first row. The sample shows the exact layout.' },
     { q: 'Can I export it as a video?', a: 'Yes. Press “Save video” to export an MP4 or WebM file. MP4 plays on iPhone and Android.' },
     { q: 'Can I show missing values as gaps?', a: 'Yes. Leave a cell empty and the line breaks there instead of dropping to zero.' },
