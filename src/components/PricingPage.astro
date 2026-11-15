@@ -10,10 +10,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import { legacyCss } from '../../build/legacy-tool.mjs';
+import { pathFor } from '../i18n/utils.mjs';
 
 interface Props { locale: 'ja' | 'en' }
 const { locale } = Astro.props;
 const css = legacyCss('about.html');
+
+// ツールごとの有料機能。実際の判定（shared/export-plan.js の FEATURES、shared/video-export.js の画質・透過、
+// 各ツールの getPaidFeatures）とそろえること。有料機能を足したり外したりしたら、ここも直す。
+// path は src/i18n/routes.mjs の各ツールの LP。
+const F_JA = {
+  no_watermark: { icon: '🫥', name: '透かしなしの書き出し', desc: '動画に入る「GraphRace Studio」の透かしを消して書き出せます。' },
+  hd_max: { icon: '✨', name: '最高画質', desc: '標準の2倍の解像度で書き出せます。大きな画面での再生や、編集での拡大に。' },
+  hd_1080: { icon: '🎞️', name: '高画質（1080p）', desc: 'フルHD（1080p）で書き出せます。描画ごと高解像度にするので、引き伸ばしではありません。' },
+  transparent: { icon: '🪟', name: '透過書き出し', desc: '背景を透明にした MOV・PNG連番で書き出せます。動画編集ソフトで映像に重ねられます。' },
+  rounded_bar: { icon: '💊', name: '角丸バー', desc: 'バーの端を丸くした、やわらかい見た目にできます。' },
+  image_right: { icon: '🖼️', name: '画像をバーの右に置く', desc: '国旗やロゴなどの画像を、バーの右（数字の左）に置けます。' },
+  fanfare: { icon: '🎺', name: 'ファンファーレ', desc: 'スタート前のカウントダウンの代わりに、ファンファーレを流せます。' },
+};
+const F_EN = {
+  no_watermark: { icon: '🫥', name: 'No watermark', desc: 'Export without the “GraphRace Studio” watermark.' },
+  hd_max: { icon: '✨', name: 'Maximum quality', desc: 'Export at twice the standard resolution — great for big screens or zooming in while editing.' },
+  hd_1080: { icon: '🎞️', name: 'High quality (1080p)', desc: 'Export in Full HD (1080p). The scene is rendered at full resolution, not upscaled.' },
+  transparent: { icon: '🪟', name: 'Transparent export', desc: 'Export MOV or a PNG sequence with a clear background, ready to layer over footage in your editor.' },
+  rounded_bar: { icon: '💊', name: 'Rounded bars', desc: 'Give your bars soft, rounded ends.' },
+  image_right: { icon: '🖼️', name: 'Images to the right of bars', desc: 'Place flags, logos and other images to the right of each bar (left of the number).' },
+  fanfare: { icon: '🎺', name: 'Fanfare', desc: 'Play a fanfare before the start instead of the countdown.' },
+};
+const TOOL_DEFS = [
+  { id: 'bar-chart-race', icon: '📊', ja: 'バーチャートレース', en: 'Bar Chart Race', f: ['no_watermark', 'hd_max', 'transparent', 'rounded_bar', 'image_right'] },
+  { id: 'line-chart-race', icon: '📈', ja: '線グラフレース', en: 'Line Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
+  { id: 'pie-chart-race', icon: '🥧', ja: '円グラフレース', en: 'Pie Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
+  { id: 'horse-race', icon: '🏇', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare'] },
+];
+const toolsFor = (lang, F) => TOOL_DEFS.map((t) => ({
+  id: t.id, icon: t.icon, name: t[lang], href: pathFor(t.id, lang), features: t.f.map((k) => F[k]),
+}));
+const TOOLS_JA = toolsFor('ja', F_JA);
+const TOOLS_EN = toolsFor('en', F_EN);
 
 const TEXT = {
   ja: {
@@ -23,20 +57,23 @@ const TEXT = {
     lead: 'ツールは無料で試せます。透かしなしの書き出しや高画質・透過書き出しなどを使いたいときだけ、プランをお選びください。どのプランも使える機能は同じです。',
     crumbs: [{ name: 'ホーム', href: '/' }, { name: '料金プラン' }],
     tagline: 'データビジュアライゼーションツール',
-    featuresTitle: 'どのプランでも使える機能',
-    features: [
-      '透かしなしの書き出し',
-      '高画質の書き出し（1080p・最高画質）',
-      '透過書き出し（背景を透明にしたMOV・PNG連番）',
-      '角丸バー・ファンファーレなどの有料機能',
-    ],
+    featuresEyebrow: 'FEATURES',
+    featuresTitle: '有料プランでできること',
+    featuresSub: 'どのプランでも、使える機能は同じです。ツールを選ぶと、そのツールで使える有料機能が表示されます。',
+    openTool: 'ツールを開く',
+    freeTitle: 'すべての機能が無料のツール',
+    freeNote: '次のツールは、有料プランがなくても透かしなし・すべての機能を使えます。',
+    tools: TOOLS_JA,
+    freeTools: ['トーナメント表', 'ランキング動画', 'あみだくじ'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '7日パスを購入する' },
-      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '月額プランを購入する' },
-      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '年額プランを購入する', badge: 'おすすめ' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
+      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
+      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
     ],
     taxNote: '表示は税込です。お支払いは Stripe の決済画面で行います。',
+    faqEyebrow: 'FAQ',
     faqTitle: 'よくある質問',
+    faqSub: '購入・ライセンスキー・解約について',
     faq: [
       { q: 'ライセンスキーはどう届きますか？', a: 'お支払いが済むと購入完了ページにキーが表示され、同じ内容をメールでもお送りします。ツールで書き出すときに表示される案内の「ライセンスキーをお持ちの方」を開き、キーを貼り付けてください。' },
       { q: '7日パスは自動で更新されますか？', a: 'いいえ。7日パスは1回のお支払いで、7日たつと自動的に終了します。続けて使う場合は、もう一度購入するか月額・年額プランをお選びください。' },
@@ -57,20 +94,23 @@ const TEXT = {
     lead: 'You can try every tool for free. Pick a plan only when you want to export without a watermark, in higher quality, or with a transparent background. All plans include the same features.',
     crumbs: [{ name: 'Home', href: '/en/' }, { name: 'Pricing' }],
     tagline: 'Data visualization tools',
-    featuresTitle: 'Included in every plan',
-    features: [
-      'Export without a watermark',
-      'High-quality export (1080p and maximum quality)',
-      'Transparent export (MOV and PNG sequence with a clear background)',
-      'Rounded bars, fanfare and other paid features',
-    ],
+    featuresEyebrow: 'FEATURES',
+    featuresTitle: 'What paid plans unlock',
+    featuresSub: 'Every plan includes the same features. Pick a tool to see what you unlock in it.',
+    openTool: 'Open the tool',
+    freeTitle: 'Tools that are completely free',
+    freeNote: 'These tools have no watermark and every feature is free — no plan needed.',
+    tools: TOOLS_EN,
+    freeTools: ['Tournament Bracket', 'Ranking Video'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Get the 7-Day Pass' },
-      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Get the monthly plan' },
-      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Get the yearly plan', badge: 'Best value' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
+      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
+      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
     ],
     taxNote: 'Prices are shown in USD. You pay on Stripe’s secure checkout page.',
-    faqTitle: 'FAQ',
+    faqEyebrow: 'FAQ',
+    faqTitle: 'Frequently asked questions',
+    faqSub: 'Buying, license keys and cancelling',
     faq: [
       { q: 'How do I get my license key?', a: 'After you pay, the key appears on the confirmation page and we also email it to you. When you export in a tool, open “I have a license key” in the dialog and paste the key.' },
       { q: 'Does the 7-Day Pass renew automatically?', a: 'No. It is a one-time payment and ends after 7 days. To keep going, buy another pass or choose the monthly or yearly plan.' },
@@ -117,8 +157,54 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .pricing-tax { margin: 0 0 32px; font-size: 0.88rem; color: var(--text-muted); }
       .pricing-features { margin: 0 0 8px; padding-left: 1.4em; }
       .faq-item { margin: 0 0 18px; }
-      .faq-item h3 { margin: 0 0 4px; font-size: 1rem; color: var(--text-strong); }
-      .faq-item p { margin: 0; }
+      /* 共通の .content-block h2 / p の装飾がカードの中に効かないようにする */
+      .content-block .plan-name { margin: 0 0 8px; padding: 0; border: 0; font-size: 1.15rem; }
+      .content-block .plan-price { margin: 4px 0 4px; padding: 0; font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--text-strong); }
+      .content-block .plan-note { padding: 0; font-size: 0.9rem; line-height: 1.7; color: var(--text-muted); }
+      .plan-buy { white-space: nowrap; font-size: 1rem; }
+      .plan-unit { white-space: nowrap; display: inline-block; }
+
+      /* セクション見出し（トップページの .section-title に合わせる） */
+      .pricing-section { margin-top: 64px; }
+      .sec-head { text-align: center; margin: 0 0 28px; }
+      .sec-eyebrow { display: inline-block; padding: 3px 12px; border-radius: 999px; background: var(--accent-soft, rgba(108, 92, 231, 0.1)); color: var(--accent-strong, var(--accent)); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
+      .content-block h2.sec-title { margin: 10px 0 8px; padding: 0; border: 0; font-size: clamp(22px, 3vw, 28px); font-weight: 800; color: var(--text-strong); }
+      .content-block .sec-sub { margin: 0 auto; padding: 0; max-width: 560px; font-size: 14px; color: var(--text-muted); }
+
+      /* ツールのタブ（スマホでは横にスクロール） */
+      .tool-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 0 16px; scrollbar-width: thin; justify-content: center; }
+      .tool-tab { flex: none; display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--panel-border); background: #fff; color: var(--text-main); transition: background 0.15s, color 0.15s, border-color 0.15s; }
+      .tool-tab:hover { border-color: var(--accent); color: var(--accent); }
+      .tool-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .tool-tab-icon { font-size: 16px; }
+      @media (max-width: 760px) { .tool-tabs { justify-content: flex-start; } }
+
+      /* 機能カード */
+      .tool-panel { border: 1px solid var(--panel-border); border-radius: 16px; background: var(--panel-surface, #fafafe); padding: 20px; }
+      .feature-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+      .feature-card { background: #fff; border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; }
+      .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: var(--accent-soft, rgba(108, 92, 231, 0.1)); font-size: 20px; margin-bottom: 10px; }
+      .content-block .feature-name { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-strong); }
+      .content-block .feature-desc { margin: 0; padding: 0; font-size: 13px; line-height: 1.7; color: var(--text-muted); }
+      .content-block .tool-open { margin: 14px 0 0; padding: 0; text-align: right; font-size: 14px; }
+      .tool-open a { color: var(--accent); font-weight: 700; text-decoration: none; }
+      .tool-open a:hover { text-decoration: underline; }
+
+      .free-box { margin-top: 16px; padding: 16px 20px; border-radius: 12px; border: 1px dashed var(--panel-border); }
+      .content-block .free-title { margin: 0 0 2px; padding: 0; font-weight: 700; color: var(--text-strong); }
+      .content-block .free-note { margin: 0 0 8px; padding: 0; font-size: 13px; color: var(--text-muted); }
+      .content-block .free-tools { margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+      .free-chip { padding: 3px 10px; border-radius: 999px; background: var(--accent-soft, rgba(108, 92, 231, 0.1)); font-size: 13px; font-weight: 700; color: var(--text-strong); }
+
+      /* よくある質問（開閉式） */
+      .faq-list { display: grid; gap: 10px; margin-bottom: 24px; }
+      .faq-item { border: 1px solid var(--panel-border); border-radius: 12px; background: #fff; }
+      .faq-item summary { cursor: pointer; list-style: none; position: relative; padding: 14px 44px 14px 16px; font-weight: 700; color: var(--text-strong); }
+      .faq-item summary::-webkit-details-marker { display: none; }
+      .faq-item summary::before { content: "Q"; display: inline-block; margin-right: 10px; color: var(--accent); font-weight: 800; }
+      .faq-item summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--accent); }
+      .faq-item[open] summary::after { content: "−"; }
+      .content-block .faq-item p { margin: 0; padding: 0 16px 16px 38px; font-size: 14px; }
       @media (max-width: 760px) { .pricing-grid { grid-template-columns: 1fr; } }
     </style>
   </Fragment>
@@ -141,6 +227,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               <button
                 type="button"
                 class="plan-buy"
+                aria-label={p.ctaLabel}
                 data-lookup={p.lookup}
                 data-track="checkout_start"
                 data-track-plan={p.key}
@@ -152,21 +239,65 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
         <p class="pricing-tax">{TEXT.taxNote}</p>
       </section>
 
-      <section>
-        <h2>{TEXT.featuresTitle}</h2>
-        <ul class="pricing-features">
-          {TEXT.features.map((f) => <li>{f}</li>)}
-        </ul>
-      </section>
+      <section class="pricing-section">
+        <div class="sec-head">
+          <span class="sec-eyebrow">{TEXT.featuresEyebrow}</span>
+          <h2 class="sec-title">{TEXT.featuresTitle}</h2>
+          <p class="sec-sub">{TEXT.featuresSub}</p>
+        </div>
 
-      <section>
-        <h2>{TEXT.faqTitle}</h2>
-        {TEXT.faq.map((f) => (
-          <div class="faq-item">
-            <h3>{f.q}</h3>
-            <p>{f.a}</p>
+        <div class="tool-tabs" role="tablist" aria-label={TEXT.featuresTitle}>
+          {TEXT.tools.map((t, i) => (
+            <button
+              type="button"
+              class="tool-tab"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={`panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-track="pricing_tool_select"
+              data-track-target-tool={t.id}
+            ><span class="tool-tab-icon" aria-hidden="true">{t.icon}</span>{t.name}</button>
+          ))}
+        </div>
+
+        {TEXT.tools.map((t, i) => (
+          <div class="tool-panel" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0}>
+            <ul class="feature-grid">
+              {t.features.map((f) => (
+                <li class="feature-card">
+                  <span class="feature-icon" aria-hidden="true">{f.icon}</span>
+                  <h3 class="feature-name">{f.name}</h3>
+                  <p class="feature-desc">{f.desc}</p>
+                </li>
+              ))}
+            </ul>
+            {t.href && <p class="tool-open"><a href={t.href}>{TEXT.openTool} →</a></p>}
           </div>
         ))}
+
+        <div class="free-box">
+          <p class="free-title">🎁 {TEXT.freeTitle}</p>
+          <p class="free-note">{TEXT.freeNote}</p>
+          <p class="free-tools">{TEXT.freeTools.map((n) => <span class="free-chip">{n}</span>)}</p>
+        </div>
+      </section>
+
+      <section class="pricing-section">
+        <div class="sec-head">
+          <span class="sec-eyebrow">{TEXT.faqEyebrow}</span>
+          <h2 class="sec-title">{TEXT.faqTitle}</h2>
+          <p class="sec-sub">{TEXT.faqSub}</p>
+        </div>
+        <div class="faq-list">
+          {TEXT.faq.map((f) => (
+            <details class="faq-item">
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
         <p>{TEXT.contact}<a href={ABOUT_HREF}>{TEXT.contactLink}</a>{TEXT.contactEnd}</p>
         <p><a href={TERMS_HREF}>{TEXT.termsLabel}</a> / <a href={PRIVACY_HREF}>{TEXT.privacyLabel}</a>{TEXT.tokushohoLabel && <Fragment> / <a href="/tokushoho.html">{TEXT.tokushohoLabel}</a></Fragment>}</p>
       </section>
@@ -207,6 +338,28 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               statusEl.textContent = T.error;
               setBusy(false);
             });
+        });
+      });
+
+      // ツールのタブ切り替え（左右キーでも移動できる）
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('.tool-tab'));
+      function selectTab(tab, focus) {
+        tabs.forEach(function (t) {
+          var on = t === tab;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+          document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+        });
+        if (focus) tab.focus();
+        tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { selectTab(tab); });
+        tab.addEventListener('keydown', function (e) {
+          var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!d) return;
+          e.preventDefault();
+          selectTab(tabs[(i + d + tabs.length) % tabs.length], true);
         });
       });
 
