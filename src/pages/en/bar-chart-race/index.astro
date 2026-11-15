@@ -6,13 +6,20 @@ const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in 
 <ToolLanding
   pageId="bar-chart-race"
   jaFile="bar-chart-race/index.html"
-  title="Bar Chart Race Maker | Animated Bar Chart Race Videos Online"
-  description="Make a bar chart race video from CSV or Excel data in your browser. Customize colors, fonts and flags, then export MP4 or WebM, even for Shorts."
+  title="Bar Chart Race Video Maker | Free Online Bar Chart Race Maker"
+  description="Make a racing bar chart video from CSV or Excel in your browser. Customize colors and flags, then export MP4 or WebM for YouTube Shorts, TikTok and Reels."
   appName="Bar Chart Race Maker"
   badges={BADGES}
   h1="Make a Bar Chart Race<br>Video Online"
   lead="Upload a spreadsheet and watch your data come alive. Bars grow, overtake each other and race through time — perfect for showing how rankings change over the years. Everything runs in your browser, and you can save the result as an MP4 or WebM video."
   demo={{ src: '/bar-chart-race/barchart-race-sample-en-720x960.webm', title: 'Vertical videos made for social media', text: 'Make the “racing bar chart” videos you see on YouTube Shorts, TikTok and Instagram Reels in minutes. Vertical sizes fit phone screens perfectly, and you can tune colors and speed to make it your own.' }}
+  intro={{
+    title: 'What is a bar chart race?',
+    paragraphs: [
+      'A <strong>bar chart race</strong> (also called a racing bar chart, bar race chart or animated bar graph) is a bar chart that updates over time. Bars grow, shrink and overtake each other as the values change, so you can watch who leads in every year. It is the format behind countless ranking videos on YouTube, TikTok and Instagram Reels — richest countries by GDP, most-subscribed channels, best-selling games.',
+      'GraphRace Studio is a <strong>bar chart race maker</strong> that runs in your browser. Upload or paste a spreadsheet (CSV or Excel), choose colors, fonts and flags, preview the animation and export it as an MP4 or WebM video. There is nothing to install and no account to create. And if you have tried coding one with Python’s bar_chart_race library, this is the no-code way: no environment to set up and no script to write.',
+    ],
+  }}
   appHref="/bar-chart-race/app/?lang=en"
   sampleHref="/bar-chart-race/app/?lang=en&sample=1"
   featureList={['CSV and Excel import', 'Edit data in a built-in table', 'Flags and icon images on bars', 'Category colors and legend', 'MP4 / WebM export', 'Landscape, square and vertical sizes']}
@@ -46,6 +53,10 @@ const BADGES = ['No install', 'No sign-up', 'Commercial use OK', 'Data stays in 
   }}
   faq={[
     { q: 'Do I need an account? Can I use the videos commercially?', a: 'No account or sign-up is needed. You can use your videos on YouTube, TikTok and other social media, in presentations and in class materials, for commercial or non-commercial purposes. Videos exported with the free version include a GraphRace Studio watermark, which serves as the credit. Watermark-free export, rounded bars and transparent export are available with a paid plan (no credit needed).' },
+    { q: 'Can I make a bar chart race in Excel or Google Sheets?', a: 'Excel and Google Sheets have no built-in bar chart race, but they are a great place to prepare the data. Put one item per row and one column per year or month, then save it as .xlsx or CSV — or copy the cells and paste them straight into the table here — and the tool animates it for you.' },
+    { q: 'Do I need to code? Is this an alternative to Python’s bar_chart_race library?', a: 'No coding is needed. Libraries such as Python’s bar_chart_race require a Python setup and a script. Here you upload or paste your data, adjust the look in the settings panel and export an MP4 or WebM video, all in the browser.' },
+    { q: 'What video size should I use for YouTube Shorts, TikTok or Reels?', a: 'Choose a vertical 9:16 canvas for Shorts, TikTok and Reels, and landscape 16:9 for regular YouTube videos. A square size is also available for feed posts.' },
+    { q: 'Where can I find data for a bar chart race?', a: 'Public sources such as the World Bank, Our World in Data, Wikipedia tables and national statistics offices publish time series you can download as CSV. Arrange it so that each row is one item (a country, brand or channel) and each column is one year or month, with plain numbers as values.' },
     { q: 'How should I format my CSV or Excel file?', a: 'Column A holds the item names (countries, brands, people…), column B an optional image URL, and every column after that holds the values for one period, with the year or date in the first row. Try the sample to see the exact layout.' },
     { q: 'Can I download the bar chart race as a video?', a: 'Yes. Press “Save video” under the preview (or “Export video” in the settings panel) to export an MP4 or WebM file. MP4 plays on iPhone and Android. Your data and settings are also saved in your browser, so you can pick up where you left off.' },
     { q: 'Does it work on phones?', a: 'Yes, it works in phone and tablet browsers such as Chrome and Safari, and you can make vertical 9:16 videos for Shorts and TikTok. If a video won’t save inside an app like Instagram or X, open the page in Safari or Chrome instead.' },

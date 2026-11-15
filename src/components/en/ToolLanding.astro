@@ -27,6 +27,7 @@ interface Props {
   sampleHref?: string;
   primaryCta?: string;
   demo?: { src: string; title: string; text: string };  // 紹介動画（縦型 webm）
+  intro?: { title: string; paragraphs: string[] };       // 「〇〇とは？」の説明ブロック（英語の検索意図向け。省略可）
   features: { title: string; sub: string; items: Item[] };
   useCases: { title: string; sub: string; items: Item[] };
   steps: { title: string; sub: string; items: Item[] };
@@ -63,6 +64,10 @@ const cta = p.primaryCta || 'Start creating';
     <!-- 日本語版LPにFAQが無いページ用の既定。日本語版のCSSがあればそちらが後から上書きする -->
     <style is:inline set:html={faqCss}></style>
     <style is:inline set:html={css}></style>
+    <style is:inline>
+      .intro-text { max-width: 720px; margin: 0 auto 14px; font-size: 15px; line-height: 1.8; color: var(--text-main); }
+      .intro-text strong { color: var(--text-strong); }
+    </style>
     <script type="application/ld+json" is:inline set:html={JSON.stringify(ldJson)}></script>
   </Fragment>
 
@@ -98,6 +103,15 @@ const cta = p.primaryCta || 'Start creating';
               <p set:html={p.demo.text} />
             </div>
           </div>
+        </div>
+      </section>
+    )}
+
+    {p.intro && (
+      <section>
+        <div class="wrap">
+          <h2 class="section-title">{p.intro.title}</h2>
+          {p.intro.paragraphs.map((t) => <p class="intro-text" set:html={t} />)}
         </div>
       </section>
     )}
