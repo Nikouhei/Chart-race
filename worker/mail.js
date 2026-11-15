@@ -1,4 +1,6 @@
 // Resend でライセンスキーを送る。APIキーは env.RESEND_API_KEY、送信元は env.RESEND_FROM。
+// 問い合わせ先。本文に書き、返信先（Reply-To）にも使う（送信元は noreply なので、返信がここへ届くようにする）
+const SUPPORT_EMAIL = 'support@graphrace-studio.com';
 const PLAN_NAMES = {
   ja: { pass7: '7日パス', monthly: '月額プラン', yearly: '年額プラン' },
   en: { pass7: '7-Day Pass', monthly: 'Monthly plan', yearly: 'Yearly plan' },
@@ -27,6 +29,8 @@ export function buildLicenseEmail({ key, plan, expiresAt, lang }) {
       '',
       isPass ? '' : 'Cancel or update your payment method through Link (link.com).',
       'Your card statement will show "LINK.COM*". Receipts are sent by Link.',
+      '',
+      `Questions? Reply to this email or write to ${SUPPORT_EMAIL}.`,
     ].filter((x, i, a) => !(x === '' && a[i - 1] === ''));
     return { subject: '[GraphRace Studio] Your license key', text: lines.join('\n') };
   }
@@ -41,6 +45,8 @@ export function buildLicenseEmail({ key, plan, expiresAt, lang }) {
     '',
     isPass ? '' : '解約・お支払い方法の変更は Link（link.com）から行えます。',
     'カードの明細には「LINK.COM*」と表示されます。領収書は Link から届きます。',
+    '',
+    `ご不明な点は、このメールへの返信か ${SUPPORT_EMAIL} までご連絡ください。`,
   ].filter((x, i, a) => !(x === '' && a[i - 1] === ''));
   return { subject: '【GraphRace Studio】ライセンスキーのお届け', text: lines.join('\n') };
 }
@@ -55,7 +61,7 @@ export async function sendLicenseEmail(env, { to, key, plan, expiresAt, lang }) 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.RESEND_FROM, to: [to], subject, text }),
+    body: JSON.stringify({ from: env.RESEND_FROM, to: [to], reply_to: SUPPORT_EMAIL, subject, text }),
   });
   if (!res.ok) {
     // 本文（宛先・キー）はログに出さず、状態だけ記録する
