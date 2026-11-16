@@ -10,6 +10,7 @@
 import { NAV_TOOLS, NAV_CATEGORIES } from '../i18n/routes.mjs';
 import { pathFor, homePath, t, includeDrafts } from '../i18n/utils.mjs';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+import { iconSvg } from '../i18n/icons.mjs';
 
 interface Props { pageId: string; locale: string; activeId?: string }
 const { pageId, locale, activeId } = Astro.props;
@@ -63,7 +64,7 @@ const allToolsHref = homePath(locale) + '#tools';
                 {g.items.map((n) => (
                   <li>
                     <a class:list={['gnav-item', { 'is-active': n.id === activeId }]} href={n.href} aria-current={n.id === activeId ? 'page' : undefined}>
-                      <span class="gnav-ic" aria-hidden="true">{n.icon}</span>
+                      <span class="gnav-ic" aria-hidden="true" set:html={iconSvg(n.icon)} />
                       <span class="gnav-txt"><b>{t(locale, n.key)}</b><small>{t(locale, n.desc)}</small></span>
                     </a>
                   </li>

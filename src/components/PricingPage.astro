@@ -11,6 +11,7 @@ import SiteHeader from './SiteHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import { legacyCss } from '../../build/legacy-tool.mjs';
 import { pathFor } from '../i18n/utils.mjs';
+import { iconSvg } from '../i18n/icons.mjs';
 
 interface Props { locale: 'ja' | 'en' }
 const { locale } = Astro.props;
@@ -20,30 +21,30 @@ const css = legacyCss('about.html');
 // 各ツールの getPaidFeatures）とそろえること。有料機能を足したり外したりしたら、ここも直す。
 // path は src/i18n/routes.mjs の各ツールの LP。
 const F_JA = {
-  no_watermark: { icon: '🫥', name: '透かしなしの書き出し', desc: '動画に入る「GraphRace Studio」の透かしを消して書き出せます。' },
-  hd_max: { icon: '✨', name: '最高画質', desc: '標準の2倍の解像度で書き出せます。大きな画面での再生や、編集での拡大に。' },
-  hd_1080: { icon: '🎞️', name: '高画質（1080p）', desc: 'フルHD（1080p）で書き出せます。描画ごと高解像度にするので、引き伸ばしではありません。' },
-  transparent: { icon: '🪟', name: '透過書き出し', desc: '背景を透明にした MOV・PNG連番で書き出せます。動画編集ソフトで映像に重ねられます。' },
-  rounded_bar: { icon: '💊', name: '角丸バー', desc: 'バーの端を丸くした、やわらかい見た目にできます。' },
-  image_right: { icon: '🖼️', name: '画像をバーの右に置く', desc: '国旗やロゴなどの画像を、バーの右（数字の左）に置けます。' },
-  fanfare: { icon: '🎺', name: 'ファンファーレ', desc: 'スタート前のカウントダウンの代わりに、ファンファーレを流せます。' },
-  sound: { icon: '🔊', name: 'サウンド（歓声・蹄の音）', desc: 'レース中の歓声や蹄の音を、書き出す動画に入れられます。' },
+  no_watermark: { icon: 'noWatermark', name: '透かしなしの書き出し', desc: '動画に入る「GraphRace Studio」の透かしを消して書き出せます。' },
+  hd_max: { icon: 'sparkle', name: '最高画質', desc: '標準の2倍の解像度で書き出せます。大きな画面での再生や、編集での拡大に。' },
+  hd_1080: { icon: 'hd', name: '高画質（1080p）', desc: 'フルHD（1080p）で書き出せます。描画ごと高解像度にするので、引き伸ばしではありません。' },
+  transparent: { icon: 'transparent', name: '透過書き出し', desc: '背景を透明にした MOV・PNG連番で書き出せます。動画編集ソフトで映像に重ねられます。' },
+  rounded_bar: { icon: 'pill', name: '角丸バー', desc: 'バーの端を丸くした、やわらかい見た目にできます。' },
+  image_right: { icon: 'image', name: '画像をバーの右に置く', desc: '国旗やロゴなどの画像を、バーの右（数字の左）に置けます。' },
+  fanfare: { icon: 'music', name: 'ファンファーレ', desc: 'スタート前のカウントダウンの代わりに、ファンファーレを流せます。' },
+  sound: { icon: 'sound', name: 'サウンド（歓声・蹄の音）', desc: 'レース中の歓声や蹄の音を、書き出す動画に入れられます。' },
 };
 const F_EN = {
-  no_watermark: { icon: '🫥', name: 'No watermark', desc: 'Export without the “GraphRace Studio” watermark.' },
-  hd_max: { icon: '✨', name: 'Maximum quality', desc: 'Export at twice the standard resolution — great for big screens or zooming in while editing.' },
-  hd_1080: { icon: '🎞️', name: 'High quality (1080p)', desc: 'Export in Full HD (1080p). The scene is rendered at full resolution, not upscaled.' },
-  transparent: { icon: '🪟', name: 'Transparent export', desc: 'Export MOV or a PNG sequence with a clear background, ready to layer over footage in your editor.' },
-  rounded_bar: { icon: '💊', name: 'Rounded bars', desc: 'Give your bars soft, rounded ends.' },
-  image_right: { icon: '🖼️', name: 'Images to the right of bars', desc: 'Place flags, logos and other images to the right of each bar (left of the number).' },
-  fanfare: { icon: '🎺', name: 'Fanfare', desc: 'Play a fanfare before the start instead of the countdown.' },
-  sound: { icon: '🔊', name: 'Sound (crowd and hoofbeats)', desc: 'Add crowd cheers and hoofbeats to your exported video.' },
+  no_watermark: { icon: 'noWatermark', name: 'No watermark', desc: 'Export without the “GraphRace Studio” watermark.' },
+  hd_max: { icon: 'sparkle', name: 'Maximum quality', desc: 'Export at twice the standard resolution — great for big screens or zooming in while editing.' },
+  hd_1080: { icon: 'hd', name: 'High quality (1080p)', desc: 'Export in Full HD (1080p). The scene is rendered at full resolution, not upscaled.' },
+  transparent: { icon: 'transparent', name: 'Transparent export', desc: 'Export MOV or a PNG sequence with a clear background, ready to layer over footage in your editor.' },
+  rounded_bar: { icon: 'pill', name: 'Rounded bars', desc: 'Give your bars soft, rounded ends.' },
+  image_right: { icon: 'image', name: 'Images to the right of bars', desc: 'Place flags, logos and other images to the right of each bar (left of the number).' },
+  fanfare: { icon: 'music', name: 'Fanfare', desc: 'Play a fanfare before the start instead of the countdown.' },
+  sound: { icon: 'sound', name: 'Sound (crowd and hoofbeats)', desc: 'Add crowd cheers and hoofbeats to your exported video.' },
 };
 const TOOL_DEFS = [
-  { id: 'bar-chart-race', icon: '📊', ja: 'バーチャートレース', en: 'Bar Chart Race', f: ['no_watermark', 'hd_max', 'transparent', 'rounded_bar', 'image_right'] },
-  { id: 'line-chart-race', icon: '📈', ja: '線グラフレース', en: 'Line Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
-  { id: 'pie-chart-race', icon: '🥧', ja: '円グラフレース', en: 'Pie Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
-  { id: 'horse-race', icon: '🏇', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare', 'sound'] },
+  { id: 'bar-chart-race', icon: 'bars', ja: 'バーチャートレース', en: 'Bar Chart Race', f: ['no_watermark', 'hd_max', 'transparent', 'rounded_bar', 'image_right'] },
+  { id: 'line-chart-race', icon: 'line', ja: '線グラフレース', en: 'Line Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
+  { id: 'pie-chart-race', icon: 'pie', ja: '円グラフレース', en: 'Pie Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
+  { id: 'horse-race', icon: 'flag', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare', 'sound'] },
 ];
 const toolsFor = (lang, F) => TOOL_DEFS.map((t) => ({
   id: t.id, icon: t.icon, name: t[lang], href: pathFor(t.id, lang), features: t.f.map((k) => F[k]),
@@ -68,11 +69,12 @@ const TEXT = {
     tools: TOOLS_JA,
     freeTools: ['トーナメント表', 'ランキング動画', 'あみだくじ'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
-      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
-      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '文化祭・結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
+      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
+      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
     ],
-    taxNote: '表示は税込です。お支払いは Stripe の決済画面で行います。',
+    taxNote: '表示は税込です。',
+    trustNote: 'アカウント登録は不要です。お支払いは、世界中で使われている決済サービス Stripe の画面で行います。カード情報が当サイトに保存されることはありません。',
     faqEyebrow: 'FAQ',
     faqTitle: 'よくある質問',
     faqSub: '購入・ライセンスキー・解約について',
@@ -105,11 +107,12 @@ const TEXT = {
     tools: TOOLS_EN,
     freeTools: ['Tournament Bracket', 'Ranking Video'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
-      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
-      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', fit: 'For a one-off event, class or presentation', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
+      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', fit: 'For a project that runs a few months', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
+      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', fit: 'For creators who publish regularly', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
     ],
-    taxNote: 'Prices are shown in USD. You pay on Stripe’s secure checkout page.',
+    taxNote: 'Prices are shown in USD.',
+    trustNote: 'No account needed. You pay on the secure checkout page of Stripe, a payment service trusted worldwide. Your card details are never stored on this site.',
     faqEyebrow: 'FAQ',
     faqTitle: 'Frequently asked questions',
     faqSub: 'Buying, license keys and cancelling',
@@ -162,6 +165,8 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       /* 共通の .content-block h2 / p の装飾がカードの中に効かないようにする */
       .content-block .plan-name { margin: 0 0 8px; padding: 0; border: 0; font-size: 1.15rem; }
       .content-block .plan-price { margin: 4px 0 4px; padding: 0; font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--text-strong); }
+      .content-block .plan-fit { margin: 0 0 10px; padding: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.5; color: var(--accent); }
+      .content-block .pricing-tax + .pricing-tax { margin-top: -26px; }
       .content-block .plan-note { padding: 0; font-size: 0.9rem; line-height: 1.7; color: var(--text-muted); }
       .plan-buy { white-space: nowrap; font-size: 1rem; }
       .plan-unit { white-space: nowrap; display: inline-block; }
@@ -178,14 +183,15 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .tool-tab { flex: none; display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--panel-border); background: #fff; color: var(--text-main); transition: background 0.15s, color 0.15s, border-color 0.15s; }
       .tool-tab:hover { border-color: var(--accent); color: var(--accent); }
       .tool-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-      .tool-tab-icon { font-size: 16px; }
+      .tool-tab-icon { display: inline-flex; font-size: 17px; }
+      .free-title-icon { display: inline-flex; vertical-align: -0.2em; margin-right: 6px; font-size: 1.25em; color: var(--accent); }
       @media (max-width: 760px) { .tool-tabs { justify-content: flex-start; } }
 
       /* 機能カード */
       .tool-panel { border: 1px solid var(--panel-border); border-radius: 16px; background: var(--panel-surface, #fafafe); padding: 20px; }
       .feature-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
       .feature-card { background: #fff; border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; }
-      .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: var(--accent-soft, rgba(108, 92, 231, 0.1)); font-size: 20px; margin-bottom: 10px; }
+      .feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: var(--accent-soft, rgba(108, 92, 231, 0.1)); color: var(--accent); font-size: 22px; margin-bottom: 10px; }
       .content-block .feature-name { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--text-strong); }
       .content-block .feature-desc { margin: 0; padding: 0; font-size: 13px; line-height: 1.7; color: var(--text-muted); }
       .content-block .tool-open { margin: 14px 0 0; padding: 0; text-align: right; font-size: 14px; }
@@ -224,6 +230,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
             <div class={`plan-card${p.badge ? ' is-featured' : ''}`}>
               {p.badge && <span class="plan-badge">{p.badge}</span>}
               <h2 class="plan-name">{p.name}</h2>
+              <p class="plan-fit">{p.fit}</p>
               <p class="plan-price">{p.price}<span class="plan-unit">{p.unit}</span></p>
               <p class="plan-note">{p.note}</p>
               <button
@@ -238,6 +245,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
           ))}
         </div>
         <p class="pricing-status" id="pricing-status" role="status" aria-live="polite"></p>
+        <p class="pricing-tax">{TEXT.trustNote}</p>
         <p class="pricing-tax">{TEXT.taxNote}</p>
       </section>
 
@@ -260,7 +268,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               tabindex={i === 0 ? 0 : -1}
               data-track="pricing_tool_select"
               data-track-target-tool={t.id}
-            ><span class="tool-tab-icon" aria-hidden="true">{t.icon}</span>{t.name}</button>
+            ><span class="tool-tab-icon" aria-hidden="true" set:html={iconSvg(t.icon)} />{t.name}</button>
           ))}
         </div>
 
@@ -269,7 +277,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
             <ul class="feature-grid">
               {t.features.map((f) => (
                 <li class="feature-card">
-                  <span class="feature-icon" aria-hidden="true">{f.icon}</span>
+                  <span class="feature-icon" aria-hidden="true" set:html={iconSvg(f.icon)} />
                   <h3 class="feature-name">{f.name}</h3>
                   <p class="feature-desc">{f.desc}</p>
                 </li>
@@ -280,7 +288,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
         ))}
 
         <div class="free-box">
-          <p class="free-title">🎁 {TEXT.freeTitle}</p>
+          <p class="free-title"><span class="free-title-icon" aria-hidden="true" set:html={iconSvg('gift')} />{TEXT.freeTitle}</p>
           <p class="free-note">{TEXT.freeNote}</p>
           <p class="free-tools">{TEXT.freeTools.map((n) => <span class="free-chip">{n}</span>)}</p>
         </div>
@@ -316,6 +324,28 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       var statusEl = document.getElementById('pricing-status');
       var buttons = Array.prototype.slice.call(root.querySelectorAll('.plan-buy'));
 
+      // どこから料金ページへ来たか（同じサイト内の直前のページ。URL には何も足さない）。
+      // 言語を切り替えても消えないよう sessionStorage に持つ。個人情報は入らない（ページの種類だけ）
+      var SOURCE_RE = /^[a-z0-9-]{1,40}$/;
+      function readSource() {
+        var s = '';
+        try { s = sessionStorage.getItem('grs_buy_from') || ''; } catch (e) {}
+        if (!s && document.referrer) {
+          try {
+            var r = new URL(document.referrer);
+            if (r.origin === location.origin) {
+              var seg = r.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '').split('/')[1] || 'home';
+              seg = seg.replace(/\.html$/, '');
+              if (SOURCE_RE.test(seg) && seg !== 'pricing') s = seg;
+            }
+          } catch (e) {}
+        }
+        if (!SOURCE_RE.test(s)) s = '';
+        try { if (s) sessionStorage.setItem('grs_buy_from', s); } catch (e) {}
+        return s;
+      }
+      var source = readSource();
+
       function setBusy(busy) {
         buttons.forEach(function (b) { b.disabled = busy; });
       }
@@ -328,7 +358,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
           fetch('/api/checkout', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ lookup_key: btn.getAttribute('data-lookup'), lang: lang }),
+            body: JSON.stringify({ lookup_key: btn.getAttribute('data-lookup'), lang: lang, source: source }),
           })
             .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
             .then(function (r) {

@@ -42,20 +42,20 @@ export const PAGES = [
 // ヘッダーのツールメニュー（カテゴリごと。並び順もこの通り）
 //   PC はメガメニュー、スマホはハンバーガーのドロワーに、カテゴリ見出し付きで出る。
 //   新しいツールは PAGES に足したうえで、ここに1行足すだけ（下書きの言語は自動で隠れる）。
-//   cat: NAV_CATEGORIES の id / key: ツール名 / desc: 一行説明（どちらも ui.mjs）/ icon: 絵文字
+//   cat: NAV_CATEGORIES の id / key: ツール名 / desc: 一行説明（どちらも ui.mjs）/ icon: src/i18n/icons.mjs のアイコン名
 export const NAV_CATEGORIES = [
   { id: 'graph', key: 'nav.cat.graph' },
   { id: 'ranking', key: 'nav.cat.ranking' },
   { id: 'other', key: 'nav.cat.other' },
 ];
 export const NAV_TOOLS = [
-  { id: 'bar-chart-race', cat: 'graph', icon: '📊', key: 'nav.barChartRace', desc: 'nav.desc.barChartRace' },
-  { id: 'line-chart-race', cat: 'graph', icon: '📈', key: 'nav.lineChartRace', desc: 'nav.desc.lineChartRace' },
-  { id: 'pie-chart-race', cat: 'graph', icon: '🥧', key: 'nav.pieChartRace', desc: 'nav.desc.pieChartRace' },
-  { id: 'tournament', cat: 'ranking', icon: '🏆', key: 'nav.tournament', desc: 'nav.desc.tournament' },
-  { id: 'ranking-video', cat: 'ranking', icon: '🥇', key: 'nav.rankingVideo', desc: 'nav.desc.rankingVideo' },
-  { id: 'horse-race', cat: 'ranking', icon: '🏇', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
-  { id: 'amidakuji', cat: 'other', icon: '🎲', key: 'nav.amidakuji', desc: 'nav.desc.amidakuji' },
+  { id: 'bar-chart-race', cat: 'graph', icon: 'bars', key: 'nav.barChartRace', desc: 'nav.desc.barChartRace' },
+  { id: 'line-chart-race', cat: 'graph', icon: 'line', key: 'nav.lineChartRace', desc: 'nav.desc.lineChartRace' },
+  { id: 'pie-chart-race', cat: 'graph', icon: 'pie', key: 'nav.pieChartRace', desc: 'nav.desc.pieChartRace' },
+  { id: 'tournament', cat: 'ranking', icon: 'trophy', key: 'nav.tournament', desc: 'nav.desc.tournament' },
+  { id: 'ranking-video', cat: 'ranking', icon: 'podium', key: 'nav.rankingVideo', desc: 'nav.desc.rankingVideo' },
+  { id: 'horse-race', cat: 'ranking', icon: 'flag', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
+  { id: 'amidakuji', cat: 'other', icon: 'ladder', key: 'nav.amidakuji', desc: 'nav.desc.amidakuji' },
 ];
 
 // フッターのリンク
