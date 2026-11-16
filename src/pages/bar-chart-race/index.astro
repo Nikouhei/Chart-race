@@ -4,6 +4,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import { iconSvg } from '../../i18n/icons.mjs';
 
 const locale = 'ja';
 ---
@@ -623,22 +624,22 @@ const locale = 'ja';
         <p class="section-sub">必要なものはブラウザだけ。データを入れればすぐ動き出します。</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico"><img src="/shared/images/csv_excel.webp" alt="CSV / Excel に対応" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 12px;" set:html={iconSvg('table')} />
             <h3>CSV / Excel に対応</h3>
             <p>手持ちの表データをそのままアップロード。ブラウザ内の表で直接入力・編集もできます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico"><img src="/shared/images/customize_graph.webp" alt="見た目を自由に設定" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 12px;" set:html={iconSvg('sliders')} />
             <h3>見た目を自由に設定</h3>
             <p>色・フォント・キャンバスサイズ・ラベルなどを細かく調整。SNS向けの縦型にも対応。</p>
           </div>
           <div class="feature-card">
-            <div class="ico"><img src="/shared/images/no_need_install.webp" alt="インストール不要" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 12px;" set:html={iconSvg('browser')} />
             <h3>インストール不要</h3>
             <p>アプリのダウンロードや会員登録なしで、ページを開けばすぐに作成を始められます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico"><img src="/shared/images/restore_browse.webp" alt="保存・バックアップ" width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;"></div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 12px;" set:html={iconSvg('save')} />
             <h3>保存・バックアップ</h3>
             <p>作成中のデータはブラウザに保存。バックアップ書き出し／読み込みにも対応します。</p>
           </div>

@@ -36,6 +36,12 @@ const ICONS = {
   bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
   play: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
   sizes: '<rect x="3" y="8" width="11" height="8" rx="1.5"/><rect x="16" y="4" width="5" height="16" rx="1.5"/>',
+  table: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10"/>',
+  sliders: '<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>',
+  donut: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M19.8 16.5l-4.3-2.5"/>',
+  lineFlag: '<path d="M3 18l5-5 4 3 5-7"/><path d="M17 9V3h4.5l-1 1.75 1 1.75H17"/>',
+  swap: '<path d="M4 8h14M15 5l3 3-3 3"/><path d="M20 16H6M9 13l-3 3 3 3"/>',
+  browser: '<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 9h18"/><path d="M6 6.75h.01M8.5 6.75h.01"/><path d="M9.5 14.5l2 2 3.5-4"/>',
 };
 
 export function iconSvg(name) {
