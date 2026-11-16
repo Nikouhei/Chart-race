@@ -35,7 +35,7 @@
  *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [1, 1.5]）
  *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
  *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
- *     surveyId: "derby_v1"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
+ *     surveyId: "derby_v2"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
  *     defaultWatermark()     （任意）透かしの初期値 "on" / "off"。null なら前回の選択
  *     trackParams()          （任意）書き出すボタンの計測に足すパラメータ { 名前: 値 }
  *   });

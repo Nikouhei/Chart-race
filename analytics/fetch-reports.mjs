@@ -341,6 +341,8 @@ const CUSTOM_DIMENSIONS = [
   // 有料化アンケート（shared/export-plan.js）
   ["survey_id", "アンケートID"], ["use_case", "用途"], ["wanted_features", "欲しい機能"],
   ["pay_model", "希望の払い方"], ["survey_comment", "アンケート自由記述"],
+  // アンケート v2（charts_v2）。無料で書き出した人の「有料にしなかった理由」／有料の人の「手間取ったところ」
+  ["no_buy_reason", "有料にしなかった理由"], ["pain_point", "手間取ったところ"],
   // 多言語化（表示言語）。英語版の公開時に --setup-dimensions で登録する
   ["site_language", "表示言語"],
 ];

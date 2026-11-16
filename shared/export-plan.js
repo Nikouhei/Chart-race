@@ -19,15 +19,14 @@
  *     パスの確認は CONFIG.licenseEndpoint（自前の /api/license。Stripe の支払い完了通知で
  *     発行したキーを Cloudflare D1 と照合する）に POST する。未実装なら空のままにしておく。
  *
- * ── アンケート（pricing_v1）──────────────────────────────
- *   書き出しのエンコード待ちの間に出す。1ブラウザにつき回答は1回。
+ * ── アンケート（charts_v2 / derby_v2）────────────────────────
+ *   書き出しのエンコード待ちの間に出す2問。1ブラウザにつき回答は1回。
  *   スキップした人には、そのあと3回書き出したら1回だけもう一度出す（合計2回まで）。
  *   送るイベント:
  *     survey_view     アンケートを表示した（回答率の分母）
- *     survey_submit   回答した  survey_id / use_case / wanted_features / pay_model / survey_comment
+ *     survey_submit   回答した  survey_id / no_buy_reason または pain_point または use_case / wanted_features / survey_comment
  *     survey_dismiss  スキップした
- *   格付けダービーは2問だけの短いアンケート（derby_v1）を使う。下の QUICK_SURVEYS を参照。
- *   値はすべて英語のコード（下の SURVEY の value）。カンマ区切りで複数選択を表す。
+ *   値はすべて英語のコード（下の QUICK_SURVEYS の value）。カンマ区切りで複数選択を表す。
  */
 (function () {
   "use strict";
@@ -57,7 +56,6 @@
   };
 
   var LS_LICENSE = "grs_license_v1";
-  var LS_SURVEY = "grs_survey_pricing_v1";
   var LS_EXPORTS = "grs_export_count";
 
   function lsGet(key) {
@@ -204,179 +202,51 @@
   }
 
   // ── アンケート ─────────────────────────────────────────
-  var SURVEY_ID = "pricing_v1";
-  var SURVEY = {
-    useCase: {
-      label: "何に使う動画ですか？（いくつでも）",
-      multi: true,
-      options: [
-        ["youtube", "YouTube（通常の動画）"],
-        ["shorts", "ショート・リール・TikTok"],
-        ["x", "X（旧Twitter）"],
-        ["work", "仕事の資料・プレゼン"],
-        ["school", "授業・教材"],
-        ["blog", "ブログ・Web記事"],
-        ["personal", "個人で楽しむ"],
-        ["other", "その他"]
-      ]
-    },
-    features: {
-      label: "あったら嬉しいものは？（3つまで）",
-      multi: true,
-      max: 3,
-      options: [
-        ["hd", "フルHD・4Kの高画質"],
-        ["bgm", "BGM・効果音"],
-        ["templates", "デザインのテンプレート"],
-        ["datasets", "人口・GDPなどのデータ収録"],
-        ["long", "長い動画（数分以上）"],
-        ["other", "その他"]
-      ]
-    },
-    payModel: {
-      label: "透かしを消して高画質で書き出せる有料版があったら、いちばん近いのは？",
-      multi: false,
-      options: [
-        ["lifetime", "買い切り（約2,000円）なら買いたい"],
-        ["pass7", "必要なときだけ使える短期パス（数百円）がいい"],
-        ["monthly", "月額でも使いたい"],
-        ["none", "無料版で十分"]
-      ]
-    }
-  };
-
   function countExport() {
     var n = (lsGet(LS_EXPORTS) || 0) + 1;
     lsSet(LS_EXPORTS, n);
     return n;
   }
 
-  function shouldShowSurvey() {
-    var s = lsGet(LS_SURVEY);
-    if (!s) return true;
-    if (s.status === "answered") return false;
-    if ((s.dismissCount || 0) >= 2) return false;
-    var exportsNow = lsGet(LS_EXPORTS) || 0;
-    return exportsNow - (s.exportsAtDismiss || 0) >= 3;
-  }
-
-  /*
-   * container の中にアンケートを描く。
-   *   opts.features   … SURVEY.features.options の差し替え（ツールごとに欲しい機能が違うとき）
-   *   opts.context    … survey_submit に一緒に送る値（export_format など）
-   *   opts.onDone(status) … "answered" | "dismissed"
-   */
-  function renderSurvey(container, opts) {
-    opts = opts || {};
-    ensureStyles();
-    var featureOptions = opts.features || SURVEY.features.options;
-    var answers = { useCase: [], features: [], payModel: "" };
-
-    function group(key, def, options) {
-      var type = def.multi ? "checkbox" : "radio";
-      return '<fieldset class="grsp-q" data-q="' + key + '"><legend>' + esc(def.label) + "</legend>" +
-        '<div class="grsp-chips">' + options.map(function (o) {
-          return '<label class="grsp-chip"><input type="' + type + '" name="grsp_' + key + '" value="' + esc(o[0]) + '"><span>' + esc(o[1]) + "</span></label>";
-        }).join("") + "</div></fieldset>";
-    }
-
-    container.innerHTML =
-      '<div class="grsp-survey">' +
-        '<div class="grsp-survey-head"><b>書き出しを待つあいだに、30秒アンケートにご協力ください</b>' +
-        '<span>今後の機能と料金の参考にします。答えなくても書き出しは止まりません。</span></div>' +
-        group("useCase", SURVEY.useCase, SURVEY.useCase.options) +
-        group("features", SURVEY.features, featureOptions) +
-        group("payModel", SURVEY.payModel, SURVEY.payModel.options) +
-        '<label class="grsp-q grsp-comment"><span>ほかにご意見があれば（任意・100文字まで）</span>' +
-          '<textarea maxlength="100" rows="2" placeholder="例）縦向きの棒グラフがほしい"></textarea></label>' +
-        '<div class="grsp-actions">' +
-          '<button type="button" class="grsp-btn grsp-ghost grsp-skip" id="grspSkipBtn">今回はスキップ</button>' +
-          '<button type="button" class="grsp-btn grsp-primary grsp-submit" id="grspSubmitBtn" disabled>送信する</button>' +
-        "</div>" +
-      "</div>";
-
-    var root = container.querySelector(".grsp-survey");
-    var submitBtn = root.querySelector(".grsp-submit");
-
-    function read() {
-      answers.useCase = values("useCase");
-      answers.features = values("features");
-      answers.payModel = values("payModel")[0] || "";
-    }
-    function values(key) {
-      return Array.prototype.map.call(root.querySelectorAll('[data-q="' + key + '"] input:checked'), function (i) { return i.value; });
-    }
-    function sync() {
-      read();
-      // 欲しい機能は3つまで。上限に達したら残りを押せなくする
-      var max = SURVEY.features.max;
-      root.querySelectorAll('[data-q="features"] input').forEach(function (i) {
-        i.disabled = !i.checked && answers.features.length >= max;
-        i.parentNode.classList.toggle("is-disabled", i.disabled);
-      });
-      // 最低限「有料版」の質問まで答えたら送れる（料金の判断に要る項目）
-      submitBtn.disabled = !answers.payModel;
-    }
-    root.addEventListener("change", sync);
-    sync();
-
-    function finish(status) {
-      var s = lsGet(LS_SURVEY) || {};
-      if (status === "answered") {
-        s.status = "answered";
-        s.answeredAt = Date.now();
-      } else {
-        s.status = "dismissed";
-        s.dismissCount = (s.dismissCount || 0) + 1;
-        s.exportsAtDismiss = lsGet(LS_EXPORTS) || 0;
-      }
-      lsSet(LS_SURVEY, s);
-      if (opts.onDone) opts.onDone(status);
-    }
-
-    submitBtn.addEventListener("click", function () {
-      read();
-      var comment = root.querySelector("textarea").value.replace(/\s+/g, " ").trim().slice(0, 100);
-      var p = {
-        survey_id: SURVEY_ID,
-        use_case: answers.useCase.join(",") || "(none)",
-        wanted_features: answers.features.join(",") || "(none)",
-        pay_model: answers.payModel,
-        survey_comment: comment || undefined
-      };
-      var ctx = opts.context || {};
-      for (var k in ctx) if (p[k] === undefined) p[k] = ctx[k];
-      track("survey_submit", p);
-      root.innerHTML = '<p class="grsp-thanks">ご協力ありがとうございました！</p>';
-      finish("answered");
-    });
-    root.querySelector(".grsp-skip").addEventListener("click", function () {
-      track("survey_dismiss", { survey_id: SURVEY_ID });
-      container.innerHTML = "";
-      finish("dismissed");
-    });
-
-    track("survey_view", { survey_id: SURVEY_ID });
-  }
-
-  // ── 短いアンケート（derby_v1：格付けダービー用）─────────────────
-  // イベントで1回使う人が多いツールなので、2問をタップで答えるだけにする（自由記述なし）。
-  // 1問目は1つ選択、2問目（欲しい機能）は複数選択。2問とも選ぶと「送信する」が押せる。
-  // 複数選択の質問が無い場合は、全部選んだ時点で自動で送る。
-  //   survey_submit  survey_id=derby_v1 / use_case / wanted_features（複数はカンマ区切り）
-  // 表示のルールは pricing_v1 と同じ（回答したら出さない。スキップは3回書き出した後に1回だけ再表示）。
-  // 記録は pricing_v1 とは別に持つので、他のツールで答えた人にも1回は出る。
+  // ── 書き出し待ちのアンケート（charts_v2：グラフ3ツール / derby_v2：格付けダービー）──
+  // どちらも2問をタップで答えるだけ。1問目は1つ選択、2問目（欲しい機能）は複数選択。
+  // 2問とも選ぶと「送信する」が押せる。「その他」を選ぶと1行の入力欄が出る（任意）。
+  //   charts_v2 の1問目は出し分ける：
+  //     有料パスが無い人 → no_buy_reason（有料にしなかった理由）
+  //     有料パスがある人 → pain_point（いちばん手間取ったところ）
+  //   survey_submit  survey_id / use_case・no_buy_reason・pain_point のどれか / wanted_features（カンマ区切り）/ survey_comment
+  // 表示のルール：回答したら出さない。スキップは、そのあと3回書き出したら1回だけ再表示（合計2回まで）。
+  // 記録は survey_id ごとに持つので、v1 に答えた人にも v2 は1回出る。
+  var CHART_WANTED = [
+    ["bgm", "BGM・効果音"], ["templates", "デザインのテンプレート"], ["samples", "すぐ使えるサンプルデータ集"],
+    ["ai_data", "AIでデータを用意する手順"], ["long", "もっと長い動画"], ["other", "その他"]
+  ];
   var QUICK_SURVEYS = {
-    derby_v1: {
+    charts_v2: {
+      head: "書き出しを待つあいだに、2問だけ教えてください",
+      questions: function (opts) {
+        var first = canUse("no_watermark")
+          ? { key: "pain_point", label: "今回、いちばん手間取ったところは？", options: [
+              ["data", "データの用意・入力"], ["design", "見た目の調整"], ["images", "画像（国旗・ロゴ）の設定"],
+              ["export_time", "書き出しに時間がかかる"], ["none", "特になかった"]
+            ] }
+          : { key: "no_buy_reason", label: "有料プラン（透かしなし）にしなかった理由は？", options: [
+              ["no_need", "透かしがあっても困らない"], ["price", "値段が高い"], ["one_time", "1回しか使わない"],
+              ["unaware", "有料プランがあると知らなかった"], ["payment", "支払いが面倒・不安"], ["trying", "まだ試しているだけ"]
+            ] };
+        return [first, { key: "wanted_features", label: "次にほしい機能は？（いくつでも）", multi: true, options: opts.features || CHART_WANTED }];
+      }
+    },
+    derby_v2: {
       head: "書き出しを待つあいだに、2問だけ教えてください",
       questions: [
         { key: "use_case", label: "何に使う動画ですか？", options: [
           ["event_work", "忘年会・社内イベント"], ["party", "結婚式・パーティー"], ["school", "学校・子ども会"],
           ["sns", "YouTube・SNS"], ["personal", "個人で楽しむ"], ["other", "その他"]
         ] },
-        { key: "wanted_features", label: "欲しい機能は？（いくつでも）", multi: true, options: [
-          ["bgm", "BGM・実況の音声"], ["hd", "フルHDの高画質"], ["no_watermark", "透かしなし"],
-          ["photo", "3Dの馬に画像追加"], ["results", "結果発表の演出を増やす"], ["other", "その他"]
+        { key: "wanted_features", label: "次にほしい機能は？（いくつでも）", multi: true, options: [
+          ["bgm", "BGM"], ["commentary", "実況の音声"], ["photo", "3Dの馬に画像追加"], ["results", "結果発表の演出を増やす"],
+          ["more_horses", "出走頭数を増やす"], ["odds", "予想・オッズの表示"], ["other", "その他"]
         ] }
       ]
     }
@@ -407,29 +277,32 @@
     function render(container, opts) {
       opts = opts || {};
       ensureStyles();
-      var hasMulti = def.questions.some(function (q) { return q.multi; });
+      var questions = typeof def.questions === "function" ? def.questions(opts) : def.questions;
+      var hasMulti = questions.some(function (q) { return q.multi; });
       container.innerHTML =
         '<div class="grsp-survey grsp-quick">' +
           '<div class="grsp-survey-head"><b>' + esc(def.head) + '</b><span>' +
             (hasMulti ? "選んで送信するだけです。" : "タップするだけで送信されます。") + "答えなくても書き出しは止まりません。</span></div>" +
-          def.questions.map(function (q) {
+          questions.map(function (q) {
             return '<fieldset class="grsp-q" data-q="' + q.key + '"><legend>' + esc(q.label) + '</legend><div class="grsp-chips">' +
               q.options.map(function (o) {
                 return '<label class="grsp-chip"><input type="' + (q.multi ? "checkbox" : "radio") + '" name="grspq_' + q.key + '" value="' + esc(o[0]) + '"><span>' + esc(o[1]) + "</span></label>";
               }).join("") + "</div></fieldset>";
           }).join("") +
+          (hasMulti ? '<label class="grsp-q grsp-comment grsp-other" hidden><span>どんな機能ですか？（任意）</span><input type="text" maxlength="60" placeholder="ひとことで教えてください"></label>' : "") +
           '<div class="grsp-actions"><button type="button" class="grsp-btn grsp-ghost grsp-skip" id="grspSkipBtn">今回はスキップ</button>' +
             (hasMulti ? '<button type="button" class="grsp-btn grsp-primary grsp-submit" id="grspSubmitBtn" disabled>送信する</button>' : "") +
           "</div>" +
         "</div>";
       var root = container.querySelector(".grsp-survey");
       var submitBtn = root.querySelector(".grsp-submit");
+      var otherBox = root.querySelector(".grsp-other");
       var sent = false;
       // 全問答えていれば { survey_id, 質問key: 値 } を返す（複数選択はカンマ区切り）。未回答があれば null
       function collect() {
         var p = { survey_id: id };
-        for (var i = 0; i < def.questions.length; i++) {
-          var q = def.questions[i];
+        for (var i = 0; i < questions.length; i++) {
+          var q = questions[i];
           var vals = Array.prototype.map.call(root.querySelectorAll('[data-q="' + q.key + '"] input:checked'), function (el) { return el.value; });
           if (!vals.length) return null;
           p[q.key] = vals.join(",");
@@ -439,6 +312,10 @@
       function send(p) {
         if (sent || !p) return;
         sent = true;
+        if (otherBox && !otherBox.hidden) {
+          var comment = otherBox.querySelector("input").value.replace(/\s+/g, " ").trim().slice(0, 60);
+          if (comment) p.survey_comment = comment;
+        }
         var ctx = opts.context || {};
         for (var k in ctx) if (p[k] === undefined) p[k] = ctx[k];
         track("survey_submit", p);
@@ -448,6 +325,8 @@
       }
       root.addEventListener("change", function () {
         if (sent) return;
+        // 複数選択の質問で「その他」を選んだら、1行の入力欄を出す
+        if (otherBox) otherBox.hidden = !root.querySelector('input[type="checkbox"][value="other"]:checked');
         var p = collect();
         if (submitBtn) submitBtn.disabled = !p;
         else send(p);
@@ -499,7 +378,7 @@
       ".grsp-chip input:checked+span{background:var(--accent,#6E62F0);border-color:var(--accent,#6E62F0);color:#fff}" +
       ".grsp-chip input:focus-visible+span{outline:2px solid var(--accent,#6E62F0);outline-offset:2px}" +
       ".grsp-chip.is-disabled span{opacity:.4;cursor:not-allowed}" +
-      ".grsp-comment textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d3d8e0;border-radius:6px;font:inherit;resize:vertical}" +
+      ".grsp-other[hidden]{display:none}.grsp-comment input,.grsp-comment textarea{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #d3d8e0;border-radius:6px;font:inherit;resize:vertical}" +
       ".grsp-thanks{margin:8px 0;font-weight:700;color:#16794c}" +
       ".grsp-modal,.grsp-modal *,.grsp-survey,.grsp-survey *{text-transform:none;letter-spacing:normal}";
     var el = document.createElement("style");
@@ -518,7 +397,7 @@
     lockedOf: lockedOf,
     activateLicense: activateLicense,
     countExport: countExport,
-    survey: { id: SURVEY_ID, shouldShow: shouldShowSurvey, render: renderSurvey },
+    survey: SURVEYS.charts_v2, // surveyId を指定しないツール（グラフ3ツール）が使う
     surveys: SURVEYS,
     esc: esc
   };
