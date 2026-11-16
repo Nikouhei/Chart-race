@@ -12,6 +12,7 @@ import { legacyCss } from '../../../build/legacy-tool.mjs';
 import faqCss from '../../styles/en-faq.css?raw';
 import { SITE_URL } from '../../i18n/config.mjs';
 import { getPage } from '../../i18n/utils.mjs';
+import { iconSvg } from '../../i18n/icons.mjs';
 
 interface Item { title: string; text: string; icon?: string; img?: string; tag?: string }
 interface Props {
@@ -126,7 +127,7 @@ const cta = p.primaryCta || 'Start creating';
               <div class="ico">
                 {f.img
                   ? <img src={f.img} alt={f.title} width="64" height="64" loading="lazy" decoding="async" style="object-fit: contain;" />
-                  : <span style="font-size:48px; line-height:64px;">{f.icon}</span>}
+                  : <span aria-hidden="true" style="display:flex; align-items:center; height:64px; font-size:44px; color:var(--accent);" set:html={iconSvg(f.icon)} />}
               </div>
               <h3>{f.title}</h3>
               <p set:html={f.text} />

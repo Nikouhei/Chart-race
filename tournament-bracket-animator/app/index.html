@@ -28,7 +28,7 @@
   <!-- 共有デザイントークン（単一の真実）。サイト全体と色/フォント/間隔を統一 -->
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
-  <script src="../../shared/i18n.js?v=2026110601" data-i18n-bundles="common,tournament"></script>
+  <script src="../../shared/i18n.js?v=2026111601" data-i18n-bundles="common,tournament"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -641,7 +641,7 @@
             <textarea id="tt-input" hidden></textarea>
             <div class="ent-grid" id="tt-entry-grid"></div>
             <textarea id="tt-bulk" class="ent-bulk" hidden placeholder="1行1名で貼り付け"></textarea>
-            <p class="hint" id="tt-hint">「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の📷から追加（URLは省略表示）</p>
+            <p class="hint" id="tt-hint">「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の「画像」ボタンから追加（URLは省略表示）</p>
           </div>
           <div class="field">
             <span class="field-label">シード表示</span>
@@ -915,14 +915,14 @@
       <div class="tt-tips-panel" id="tt-tips-panel" role="dialog" aria-label="プレビューの操作ヒント">
         <h3>プレビューの操作ヒント</h3>
         <ul>
-          <li><span class="tip-ic">🖱️</span><span>選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）</span></li>
-          <li><span class="tip-ic">🏆</span><span>「勝者の決め方」を<b>手動で指定</b>にすると各対戦者に🏆ボタンが出ます。勝ち上がりを先に決めておけば、再生時はその通りに進行します（ボタンは再生中は非表示なので録画に映りません）。未指定の対戦はランダムです</span></li>
-          <li><span class="tip-ic">▶️</span><span>再生ボタンで全ラウンドを自動進行（再生中は一時停止に切替）。スペースキーでも再生/一時停止できます。速度スライダーでエフェクト速度を調整</span></li>
-          <li><span class="tip-ic">✎</span><span>カードにマウスを乗せて ✎ ボタンで名前をその場で編集</span></li>
-          <li><span class="tip-ic">📷</span><span>カードの 📷 ボタンで画像をアップロード / URL指定</span></li>
-          <li><span class="tip-ic">↔️</span><span>カードの右端・下端をドラッグでサイズ変更</span></li>
-          <li><span class="tip-ic">✏️</span><span>タイトルをダブルクリックで直接編集</span></li>
-          <li><span class="tip-ic">🖼️</span><span>プレビューは画面サイズに自動でフィットします</span></li>
+          <li><span class="tip-ic"><i class="ti ti-pointer" aria-hidden="true"></i></span><span>選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）</span></li>
+          <li><span class="tip-ic"><i class="ti ti-trophy" aria-hidden="true"></i></span><span>「勝者の決め方」を<b>手動で指定</b>にすると各対戦者にトロフィーのボタンが出ます。勝ち上がりを先に決めておけば、再生時はその通りに進行します（ボタンは再生中は非表示なので録画に映りません）。未指定の対戦はランダムです</span></li>
+          <li><span class="tip-ic"><i class="ti ti-player-play" aria-hidden="true"></i></span><span>再生ボタンで全ラウンドを自動進行（再生中は一時停止に切替）。スペースキーでも再生/一時停止できます。速度スライダーでエフェクト速度を調整</span></li>
+          <li><span class="tip-ic"><i class="ti ti-pencil" aria-hidden="true"></i></span><span>カードにマウスを乗せて鉛筆のボタンで名前をその場で編集</span></li>
+          <li><span class="tip-ic"><i class="ti ti-photo" aria-hidden="true"></i></span><span>カードの写真アイコンのボタンで画像をアップロード / URL指定</span></li>
+          <li><span class="tip-ic"><i class="ti ti-arrows-horizontal" aria-hidden="true"></i></span><span>カードの右端・下端をドラッグでサイズ変更</span></li>
+          <li><span class="tip-ic"><i class="ti ti-cursor-text" aria-hidden="true"></i></span><span>タイトルをダブルクリックで直接編集</span></li>
+          <li><span class="tip-ic"><i class="ti ti-aspect-ratio" aria-hidden="true"></i></span><span>プレビューは画面サイズに自動でフィットします</span></li>
         </ul>
       </div>
     </div>
@@ -1132,14 +1132,14 @@
     render();
   }
   function updateHint() {
-    const base = '「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の📷から追加（URLは省略表示）';
+    const base = '「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の「画像」ボタンから追加（URLは省略表示）';
     const tail = winnerMode === 'manual'
-      ? ' · 各対戦者の🏆ボタンで勝者を指定 → 再生でその通りに進行'
+      ? ' · 各対戦者のトロフィーのボタンで勝者を指定 → 再生でその通りに進行'
       : (scoreMode === 'manual' ? ' · スコア入力で勝敗' : ' · カードのクリックで勝者選択');
     hintEl.textContent = base + tail;
     const wh = $('tt-winner-hint');
     if (wh) wh.textContent = winnerMode === 'manual'
-      ? '各対戦者の🏆ボタンで勝ち上がりを指定します。指定は再生中も有効で、ボタンは動画には映りません（未指定の対戦はランダム）'
+      ? '各対戦者のトロフィーのボタンで勝ち上がりを指定します。指定は再生中も有効で、ボタンは動画には映りません（未指定の対戦はランダム）'
       : '再生するたびに勝者を抽選します';
   }
   // スコア入力モードのサンプル値: 未決着・未入力の対戦カードに例として入れる（そのまま編集可能）
@@ -1661,7 +1661,7 @@
     drawLines();
   }
 
-  // --- カード上での名前直接編集（✎ボタン → contenteditable） ---
+  // --- カード上での名前直接編集（鉛筆ボタン → contenteditable） ---
   function startNameEdit(sEl, slot) {
     const span = sEl.querySelector('.name');
     if (!span || span.isContentEditable) return;

@@ -13,7 +13,7 @@ I18N.registerText('en', {
   'エントリー': 'Entries',
   '一括入力': 'Bulk input',
   '1行1名で貼り付け': 'Paste one name per line',
-  '「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の📷から追加（URLは省略表示）': 'Use “Bulk input” to paste names (one per line) · Add images with 📷 on each row (URLs are shortened)',
+  '「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の「画像」ボタンから追加（URLは省略表示）': 'Use “Bulk input” to paste names (one per line) · Add images with the Image button on each row (URLs are shortened)',
   '画像': 'Image',
   '画像を変更': 'Change image',
   '画像を設定': 'Set image',
@@ -42,7 +42,7 @@ I18N.registerText('en', {
   '勝者の決め方': 'Winners',
   '手動で指定': 'Pick manually',
   '再生するたびに勝者を抽選します': 'Winners are drawn at random each time you play',
-  '各対戦者の🏆ボタンで勝ち上がりを指定します。指定は再生中も有効で、ボタンは動画には映りません（未指定の対戦はランダム）': 'Pick winners with the 🏆 button on each player. Picks apply during playback and the buttons don’t appear in the video (unpicked matches are random).',
+  '各対戦者のトロフィーのボタンで勝ち上がりを指定します。指定は再生中も有効で、ボタンは動画には映りません（未指定の対戦はランダム）': 'Pick winners with the trophy button on each player. Picks apply during playback and the buttons don’t appear in the video (unpicked matches are random).',
   'スコア表示': 'Scores',
   '勝敗のみ': 'Win/loss only',
   'スコア入力': 'Enter scores',
@@ -154,15 +154,15 @@ I18N.registerText('en', {
   'プレビューの操作ヒント': 'Preview tips',
   '選手カードをクリックで勝者を決定（スコアモード時は点数入力で自動判定）': 'Click a player card to pick the winner (in score mode, the winner is set from the scores)',
   '「勝者の決め方」を': 'Set “Winners” to',
-  'にすると各対戦者に🏆ボタンが出ます。勝ち上がりを先に決めておけば、再生時はその通りに進行します（ボタンは再生中は非表示なので録画に映りません）。未指定の対戦はランダムです':
-    ' to show a 🏆 button on each player. Pick winners in advance and playback follows them (the buttons are hidden while playing, so they won’t show in recordings). Unpicked matches are random.',
+  'にすると各対戦者にトロフィーのボタンが出ます。勝ち上がりを先に決めておけば、再生時はその通りに進行します（ボタンは再生中は非表示なので録画に映りません）。未指定の対戦はランダムです':
+    ' to show a trophy button on each player. Pick winners in advance and playback follows them (the buttons are hidden while playing, so they won’t show in recordings). Unpicked matches are random.',
   '再生ボタンで全ラウンドを自動進行（再生中は一時停止に切替）。スペースキーでも再生/一時停止できます。速度スライダーでエフェクト速度を調整': 'Press Play to run all rounds (it turns into Pause while playing). Space also plays/pauses. Use the speed slider to adjust the effects.',
-  'カードにマウスを乗せて ✎ ボタンで名前をその場で編集': 'Hover over a card and use ✎ to edit the name',
-  'カードの 📷 ボタンで画像をアップロード / URL指定': 'Use 📷 on a card to upload an image or enter a URL',
+  'カードにマウスを乗せて鉛筆のボタンで名前をその場で編集': 'Hover over a card and use the pencil button to edit the name',
+  'カードの写真アイコンのボタンで画像をアップロード / URL指定': 'Use the photo button on a card to upload an image or enter a URL',
   'カードの右端・下端をドラッグでサイズ変更': 'Drag a card’s right or bottom edge to resize',
   'タイトルをダブルクリックで直接編集': 'Double-click the title to edit it',
   'プレビューは画面サイズに自動でフィットします': 'The preview fits your screen automatically',
-  ' · 各対戦者の🏆ボタンで勝者を指定 → 再生でその通りに進行': ' · Pick winners with 🏆 → playback follows your picks',
+  ' · 各対戦者のトロフィーのボタンで勝者を指定 → 再生でその通りに進行': ' · Pick winners with the trophy button → playback follows your picks',
   ' · スコア入力で勝敗': ' · Results from scores',
   ' · カードのクリックで勝者選択': ' · Click a card to pick the winner',
 });
@@ -173,7 +173,7 @@ I18N.registerPatterns('en', [
   [/^(\d+)名$/, '$1 players'],
   [/^現在: (\d+)枠・不戦勝(\d+)（バランス配置で上位\d+名が1回戦免除）$/, 'Now: $1-slot bracket · $2 byes (top $2 seeds skip round 1 with Balanced)'],
   [/^現在: (\d+)枠・不戦勝なし$/, 'Now: $1-slot bracket · no byes'],
-  [/^「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の📷から追加（URLは省略表示）(.*)$/, function (m, rest) {
-    return 'Use “Bulk input” to paste names (one per line) · Add images with 📷 on each row (URLs are shortened)' + (rest ? I18N.translate(rest) : '');
+  [/^「一括入力」で名前をまとめて貼り付け（1行1名）· 画像は各行の「画像」ボタンから追加（URLは省略表示）(.*)$/, function (m, rest) {
+    return 'Use “Bulk input” to paste names (one per line) · Add images with the Image button on each row (URLs are shortened)' + (rest ? I18N.translate(rest) : '');
   }],
 ]);

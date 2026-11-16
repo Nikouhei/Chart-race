@@ -25,7 +25,7 @@ I18N.registerText('en', {
   // 項目
   'ランキング項目': 'Ranking items',
   '項目を追加': 'Add item',
-  '上の行が1位。📷から画像をアップロード（自動で縮小されます）': 'The top row is #1. Upload an image with 📷 (resized automatically).',
+  '上の行が1位。写真のアイコンから画像をアップロード（自動で縮小されます）': 'The top row is #1. Upload an image with the photo icon (resized automatically).',
   '登場順': 'Reveal order',
   '最下位から': 'From last place',
   '1位から': 'From #1',

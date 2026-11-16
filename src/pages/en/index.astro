@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import homeCss from '../../styles/home.css?raw';
+import { iconSvg } from '../../i18n/icons.mjs';
 import { pathFor, includeDrafts } from '../../i18n/utils.mjs';
 
 const locale = 'en';
@@ -14,12 +15,12 @@ const title = 'GraphRace Studio | Bar Chart Race & Ranking Video Maker';
 const description = 'Free browser tools that turn data into animated videos: bar, line and pie chart races, horse race rankings, tournament brackets and top 10 countdowns.';
 
 const TOOLS = [
-  { id: 'bar-chart-race', icon: '📊', badge: 'Time series', name: 'Bar Chart Race Maker', text: 'Watch bars overtake each other as your data moves through time. The classic format for ranking videos on YouTube and TikTok.', tags: ['CSV / Excel', 'Flags & icons', 'MP4 / WebM'] },
-  { id: 'line-chart-race', icon: '📈', badge: 'Line chart', name: 'Line Chart Race Maker', text: 'Lines draw themselves over time with flags and live values at the tips — ideal for comparing trends in reports and explainers.', tags: ['CSV / Excel', 'Custom styles', 'MP4 / WebM'] },
-  { id: 'pie-chart-race', icon: '🥧', badge: 'Pie chart', name: 'Pie Chart Race Maker', text: 'Pie and donut charts whose slices grow and shrink over time — perfect for market shares, budgets and energy mixes.', tags: ['CSV / Excel', 'Pie or donut', 'MP4 / WebM'] },
-  { id: 'horse-race', icon: '🏇', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
-  { id: 'tournament', icon: '🏆', badge: 'Bracket', name: 'Tournament Bracket Animator', text: 'Animated single-elimination brackets for 2–32 players. Let winners advance automatically or pick them yourself.', tags: ['2–32 players', '4 layouts', 'Player images'] },
-  { id: 'ranking-video', icon: '🏅', badge: 'Countdown', name: 'Ranking Video Maker', text: 'Top 10 countdowns with photos and descriptions. Cards glide in one by one from last place to #1.', tags: ['Photos', '16:9 / 9:16 / 3:4', 'Color themes'] },
+  { id: 'bar-chart-race', icon: 'bars', badge: 'Time series', name: 'Bar Chart Race Maker', text: 'Watch bars overtake each other as your data moves through time. The classic format for ranking videos on YouTube and TikTok.', tags: ['CSV / Excel', 'Flags & icons', 'MP4 / WebM'] },
+  { id: 'line-chart-race', icon: 'line', badge: 'Line chart', name: 'Line Chart Race Maker', text: 'Lines draw themselves over time with flags and live values at the tips — ideal for comparing trends in reports and explainers.', tags: ['CSV / Excel', 'Custom styles', 'MP4 / WebM'] },
+  { id: 'pie-chart-race', icon: 'pie', badge: 'Pie chart', name: 'Pie Chart Race Maker', text: 'Pie and donut charts whose slices grow and shrink over time — perfect for market shares, budgets and energy mixes.', tags: ['CSV / Excel', 'Pie or donut', 'MP4 / WebM'] },
+  { id: 'horse-race', icon: 'flag', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
+  { id: 'tournament', icon: 'trophy', badge: 'Bracket', name: 'Tournament Bracket Animator', text: 'Animated single-elimination brackets for 2–32 players. Let winners advance automatically or pick them yourself.', tags: ['2–32 players', '4 layouts', 'Player images'] },
+  { id: 'ranking-video', icon: 'podium', badge: 'Countdown', name: 'Ranking Video Maker', text: 'Top 10 countdowns with photos and descriptions. Cards glide in one by one from last place to #1.', tags: ['Photos', '16:9 / 9:16 / 3:4', 'Color themes'] },
 ].map((t) => ({ ...t, href: pathFor(t.id, 'en', { drafts }) })).filter((t) => t.href);
 
 const FAQ = [
@@ -59,16 +60,16 @@ const FAQ = [
           <!-- 動くデモ（日本語トップのデモを英語にしたもの） -->
           <div class="hero-visual">
             <div class="demo-tabs">
-              <button class="demo-tab-btn is-active" data-tab="tab-barchart">📊 Bar chart</button>
-              <button class="demo-tab-btn" data-tab="tab-bracket">🏆 Bracket</button>
-              <button class="demo-tab-btn" data-tab="tab-derby">🏇 Derby</button>
-              <button class="demo-tab-btn" data-tab="tab-ranking">🏅 Top 5</button>
+              <button class="demo-tab-btn is-active" data-tab="tab-barchart"><Fragment set:html={iconSvg('bars')} />Bar chart</button>
+              <button class="demo-tab-btn" data-tab="tab-bracket"><Fragment set:html={iconSvg('trophy')} />Bracket</button>
+              <button class="demo-tab-btn" data-tab="tab-derby"><Fragment set:html={iconSvg('flag')} />Derby</button>
+              <button class="demo-tab-btn" data-tab="tab-ranking"><Fragment set:html={iconSvg('podium')} />Top 5</button>
             </div>
 
             <!-- Tab 1: バーチャートレース -->
             <div id="tab-barchart" class="demo-tab-content is-active">
               <div class="demo-header">
-                <span class="demo-title">📊 Smartphone market share (demo)</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('bars')} />Smartphone market share (demo)</span>
                 <span style="font-size: 11px; color: var(--text-muted); font-weight:700;">PREVIEW</span>
               </div>
               <div class="demo-barchart-stage">
@@ -80,7 +81,7 @@ const FAQ = [
             <!-- Tab 2: トーナメント表 -->
             <div id="tab-bracket" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏆 GraphRace Cup 2026</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('trophy')} />GraphRace Cup 2026</span>
                 <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">Round 2 in progress</span>
               </div>
               <div class="bracket-stage">
@@ -101,14 +102,14 @@ const FAQ = [
                     <div class="bracket-col-body" id="bround-3"></div>
                   </div>
                 </div>
-                <div class="bracket-champion" id="bracket-champion">👑 Champion: Thunder</div>
+                <div class="bracket-champion" id="bracket-champion">Champion: Thunder</div>
               </div>
             </div>
 
             <!-- Tab 3: 格付けダービー -->
             <div id="tab-derby" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏇 Ranking Derby G1</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('flag')} />Ranking Derby G1</span>
                 <span id="derby-status" style="font-size: 11px; color: #c9a227; font-weight:800;">Pre-race</span>
               </div>
               <div class="derby-stage">
@@ -129,7 +130,7 @@ const FAQ = [
             <!-- Tab 4: ランキング動画 -->
             <div id="tab-ranking" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏅 Top 5 Ramen Dishes</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('podium')} />Top 5 Ramen Dishes</span>
                 <span id="ranking-counter" style="font-size: 11px; color: var(--accent); font-weight:700;">▶ PLAYING</span>
               </div>
               <div class="ranking-stage">
@@ -150,7 +151,7 @@ const FAQ = [
             <div class="tool-card">
               <div class="card-top">
                 <div class="tool-card-header">
-                  <div class="icon">{t.icon}</div>
+                  <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg(t.icon)} /></div>
                   <span class="tool-category-badge">{t.badge}</span>
                 </div>
                 <h4>{t.name}</h4>
@@ -172,22 +173,22 @@ const FAQ = [
         <p class="section-sub">Numbers, rankings and matchups become something people want to watch.</p>
         <div class="use-cases-grid">
           <div class="use-case-card">
-            <div class="icon-wrapper">📱</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('phone')} /></div>
             <h3>Short-form videos</h3>
             <p>Eye-catching rankings and races for YouTube Shorts, TikTok and Instagram Reels.</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">🎮</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('gamepad')} /></div>
             <h3>Tournaments and live streams</h3>
             <p>Animated brackets and race reveals for esports, game streams and community events.</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">💼</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('briefcase')} /></div>
             <h3>Presentations and reports</h3>
             <p>Show how revenue or market share changed over time with a chart that moves.</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">🎓</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('cap')} /></div>
             <h3>Education and explainers</h3>
             <p>Bring population, economic or historical data to life for classes and articles.</p>
           </div>
@@ -201,17 +202,17 @@ const FAQ = [
         <p class="section-sub">Built to keep your data safe and the tools fast.</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico">🔒</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('lock')} /></div>
             <h3>Nothing leaves your device</h3>
             <p>All processing happens in your browser. Your data is never uploaded to a server.</p>
           </div>
           <div class="feature-card">
-            <div class="ico">💾</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('save')} /></div>
             <h3>Saved in your browser</h3>
             <p>Your work is stored locally on your device, so you can come back to it later.</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🛡️</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('shield')} /></div>
             <h3>Trusted technology</h3>
             <p>Built on widely used open web standards and libraries such as D3.js and the Canvas API.</p>
           </div>
@@ -428,9 +429,9 @@ const FAQ = [
             const championSlot = rounds[r][finalMatch.winner];
             championSlot.classList.add('is-champion');
             const championName = finalMatch.teams[finalMatch.winner];
-            if (statusEl) statusEl.textContent = '👑 Champion decided!';
+            if (statusEl) statusEl.textContent = 'Champion decided!';
             if (championEl) {
-              championEl.textContent = '👑 Champion: ' + championName;
+              championEl.textContent = 'Champion: ' + championName;
               championEl.classList.add('is-visible');
             }
             bracketTimeout = setTimeout(triggerBracketDemo, 3500);
@@ -546,7 +547,7 @@ const FAQ = [
             }
 
             if (allDone) {
-              if (statusEl) { statusEl.textContent = '👑 ' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
+              if (statusEl) { statusEl.textContent = '' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
               if (captionEl) captionEl.style.display = 'none';
               // 結果掲示板（実ツールの「― 結果発表 ―」と同じ体裁）
               if (boardEl) {

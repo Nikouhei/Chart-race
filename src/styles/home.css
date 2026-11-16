@@ -757,6 +757,8 @@ section { padding: 64px 0; }
   margin-bottom: 14px;
 }
 .tool-card-header .icon {
+  display: inline-flex;
+  color: var(--accent);
   font-size: 32px;
   margin-bottom: 0;
   line-height: 1;
@@ -874,7 +876,7 @@ section { padding: 64px 0; }
   background: var(--panel-surface); border: 1px solid var(--panel-border);
   border-radius: 14px; padding: 24px; box-shadow: var(--shadow-soft);
 }
-.feature-card .ico { font-size: 26px; margin-bottom: 12px; }
+.feature-card .ico { display: inline-flex; color: var(--accent); font-size: 28px; margin-bottom: 12px; }
 .feature-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--text-strong); font-weight: 700; }
 .feature-card p { margin: 0; font-size: 14px; color: var(--text-muted); }
 
@@ -1084,3 +1086,6 @@ footer.site-footer {
     padding: 40px 0;
   }
 }
+
+/* 線画アイコン（src/i18n/icons.mjs）を文字の横に置くとき */
+.demo-tab-btn .grs-icon, .demo-title .grs-icon { flex: none; vertical-align: -0.18em; margin-right: 4px; font-size: 1.2em; }

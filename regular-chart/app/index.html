@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026110808" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026111601" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -2678,7 +2678,7 @@
           loadProjectPayload(project);
           closeStorageSelectModal();
         } catch (err) {
-          document.getElementById('status').innerText = "❌ 復元失敗: " + err.message;
+          document.getElementById('status').innerText = "✕ 復元失敗: " + err.message;
         }
         return;
       }
@@ -2689,7 +2689,7 @@
         renderStorageList();
         renderStorageModalList();
         if (!getStoredProjects().length) closeStorageSelectModal();
-        document.getElementById('status').innerText = '✅ 保存済みデータを削除しました';
+        document.getElementById('status').innerText = '✓ 保存済みデータを削除しました';
       }
     }
 
@@ -2705,9 +2705,9 @@
       try {
         setStoredProjects(projects);
         renderStorageList();
-        document.getElementById('status').innerText = `✅ 「${cleanName}」を保存しました`;
+        document.getElementById('status').innerText = `✓ 「${cleanName}」を保存しました`;
       } catch (err) {
-        document.getElementById('status').innerText = '❌ 保存できませんでした。バックアップ書き出しを使ってください';
+        document.getElementById('status').innerText = '✕ 保存できませんでした。バックアップ書き出しを使ってください';
       }
     }
 
@@ -2762,8 +2762,8 @@
       updateProjectActionButtons();
       updateSelectedFileName({ name: project.name === '__active__' ? '引き継いだデータ' : (project.name || '保存済みデータ') });
       document.getElementById('status').innerText = project.name === '__active__'
-        ? '✅ 編集中のデータを引き継ぎました'
-        : `✅ 「${project.name || '保存済みデータ'}」を復元しました`;
+        ? '✓ 編集中のデータを引き継ぎました'
+        : `✓ 「${project.name || '保存済みデータ'}」を復元しました`;
     }
 
     function exportCurrentProject() {
@@ -2773,7 +2773,7 @@
       const payload = makeProjectPayload(name);
       const safeName = name.replace(/[\\/:*?"<>|]+/g, '-').trim() || 'chart-data';
       downloadBlob(`${safeName}.chart-project.json`, 'application/json;charset=utf-8', JSON.stringify(payload, null, 2));
-      document.getElementById('status').innerText = '✅ バックアップを書き出しました';
+      document.getElementById('status').innerText = '✓ バックアップを書き出しました';
     }
 
     function importProjectFile(file) {
@@ -2792,16 +2792,16 @@
             setStoredProjects(projects);
             renderStorageList();
           } catch (err) {
-            document.getElementById('status').innerText = '✅ 復元しました。ブラウザ内保存には失敗したため、バックアップファイルを保管してください';
+            document.getElementById('status').innerText = '✓ 復元しました。ブラウザ内保存には失敗したため、バックアップファイルを保管してください';
           }
         } catch (err) {
-          document.getElementById('status').innerText = "❌ バックアップ読込失敗: " + err.message;
+          document.getElementById('status').innerText = "✕ バックアップ読込失敗: " + err.message;
         } finally {
           document.getElementById('projectImportFile').value = '';
         }
       };
       reader.onerror = () => {
-        document.getElementById('status').innerText = '❌ バックアップファイルの読み込みに失敗しました';
+        document.getElementById('status').innerText = '✕ バックアップファイルの読み込みに失敗しました';
       };
       reader.readAsText(file, 'UTF-8');
     }
@@ -3657,7 +3657,7 @@
       try {
         await ensureXLSX();
       } catch (err) {
-        document.getElementById('status').innerText = "❌ " + err.message;
+        document.getElementById('status').innerText = "✕ " + err.message;
         return;
       }
       const worksheet = XLSX.utils.aoa_to_sheet(getDataAsTable());
@@ -4185,9 +4185,9 @@
         renderTimeline();
         renderCustomColorList();
         renderPreviewFrame(getCurrentYearIndex(), { instant: true, reset: true });
-        document.getElementById('status').innerText = `✅ データ編集中 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
+        document.getElementById('status').innerText = `✓ データ編集中 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
       } catch (err) {
-        document.getElementById('status').innerText = "❌ データ編集エラー: " + err.message;
+        document.getElementById('status').innerText = "✕ データ編集エラー: " + err.message;
       }
     }
 
@@ -4236,7 +4236,7 @@
       applyDetectedDecimalPlaces(csvData, csvData.columns);
       document.getElementById('startBtn').disabled = false;
       updatePlaybackUI();
-      document.getElementById('status').innerText = `✅ データの読み込み完了 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
+      document.getElementById('status').innerText = `✓ データの読み込み完了 — ${Math.max(0, csvData.length - 1)}行 / ${years.length}期間`;
       recomputeChartMetrics();
       fitToScreen();
       renderDataEditor();
@@ -4308,12 +4308,12 @@
           }
         } catch (err) {
           document.getElementById('startBtn').disabled = true;
-          document.getElementById('status').innerText = "❌ 読み込み失敗: " + err.message;
+          document.getElementById('status').innerText = "✕ 読み込み失敗: " + err.message;
         }
       };
       reader.onerror = () => {
         document.getElementById('startBtn').disabled = true;
-        document.getElementById('status').innerText = "❌ ファイルの読み込みに失敗しました";
+        document.getElementById('status').innerText = "✕ ファイルの読み込みに失敗しました";
       };
 
       if (isExcel) reader.readAsArrayBuffer(file);
@@ -5065,9 +5065,9 @@
         recomputeChartMetrics();
         fitToScreen();
         renderPreviewFrame(nextIndex, { instant: true, reset: true, timelinePosition: nextIndex });
-        document.getElementById('status').innerText = `✅ ${getYearLabel(years[nextIndex])} を表示中`;
+        document.getElementById('status').innerText = `✓ ${getYearLabel(years[nextIndex])} を表示中`;
       } catch (err) {
-        document.getElementById('status').innerText = "❌ 表示更新失敗: " + err.message;
+        document.getElementById('status').innerText = "✕ 表示更新失敗: " + err.message;
       }
     }
 
@@ -5178,7 +5178,7 @@
         fitToScreen();
         renderPreviewFrame(getCurrentYearIndex(), { instant: true, reset });
       } catch (err) {
-        document.getElementById('status').innerText = "❌ 表示更新失敗: " + err.message;
+        document.getElementById('status').innerText = "✕ 表示更新失敗: " + err.message;
       }
     }
 
@@ -5297,7 +5297,7 @@
       svg.selectAll("*").remove();
 
       if (!series.length) {
-        document.getElementById('status').innerText = "❌ 表示できるデータがありません";
+        document.getElementById('status').innerText = "✕ 表示できるデータがありません";
         return;
       }
 
@@ -5801,7 +5801,7 @@
       } catch (err) {
         playback.state = 'idle';
         updatePlaybackUI();
-        document.getElementById('status').innerText = "❌ 再生できません: " + err.message;
+        document.getElementById('status').innerText = "✕ 再生できません: " + err.message;
         return;
       }
       frozenMetrics = chartMetrics;
@@ -5830,7 +5830,7 @@
       playback.state = 'idle';
       frozenMetrics = null;
       updatePlaybackUI();
-      document.getElementById('status').innerText = "✅ 再生完了";
+      document.getElementById('status').innerText = "✓ 再生完了";
       if (window.GRSExportCTA) window.GRSExportCTA.showEnd();
     }
 

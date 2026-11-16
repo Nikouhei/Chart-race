@@ -4,6 +4,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import { iconSvg } from '../../i18n/icons.mjs';
 
 const locale = 'ja';
 ---
@@ -365,12 +366,12 @@ const locale = 'ja';
         <p class="section-sub">必要なものはブラウザだけ。名前を入れればすぐ組み上がります。</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏆</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('trophy')} />
             <h3>4〜32名に対応</h3>
             <p>参加人数を選ぶだけで、標準シード・ランダム・順序どおりの組み合わせを自動生成します。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">▶️</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('play')} />
             <h3>勝ち上がりをアニメーション</h3>
             <p>「再生」で1回戦から決勝までの勝者確定を動きで演出。1ラウンドずつ進めることもできます。</p>
           </div>

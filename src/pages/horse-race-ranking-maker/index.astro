@@ -7,6 +7,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import { iconSvg } from '../../i18n/icons.mjs';
 const locale = 'ja';
 /* 音まわり(ファンファーレ・歓声・蹄の音)を使えるようにするか。有料プランの公開に合わせて有効にした(2026-11)。
    書き出しでは有料機能(shared/export-plan.js の derby_fanfare / derby_sound)として判定する。
@@ -1196,27 +1197,27 @@ const soundReady = true;
         <p class="section-sub">必要なものはブラウザだけ。名前と順位を決めればすぐ走り出します。</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('flag')} />
             <h3>順位を決めて走らせるだけ</h3>
             <p>最大16頭の出走馬をドラッグで並べ替えるだけで最終順位を指定。名前・馬体色・アイコン画像も自由に設定できます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎥</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('camera')} />
             <h3>2Dと3Dを切り替えて使える</h3>
             <p>すぐ開けて軽い「競馬風」と、3DCGの馬が実際の競馬場のようなコースを走る「リアル競馬風」の2種類。出走馬もレース設定も共通なので、同じ顔ぶれのまま表現だけを比べられます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🔀</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('shuffle')} />
             <h3>展開は自由に調整できる</h3>
             <p>道中の荒れ具合をおだやか〜大波乱の4段階で指定でき、リアル競馬風なら大逃げ・差しなど各馬の脚質まで設定可能。ゴールは必ず設定した順位のまま、気に入る展開になるまで何度でも走らせられます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">📣</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('megaphone')} />
             <h3>実況テロップと結果掲示板つき</h3>
             <p>道中は実況テロップでレースを盛り上げ、ゴール後はレース名入りの結果掲示板を自動表示。ハナ・クビ・1馬身といった着差まで競馬の表記で出せます。</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('video')} />
             <h3>そのまま動画保存</h3>
             <p>「動画を保存」ボタンから、スタートから結果掲示板までをMP4／WebMの動画ファイルに書き出し。1コマずつ動画にするので、端末が重くてもカクつきません。編集ソフトなしで投稿用素材が完成します。</p>
           </div>
@@ -1496,7 +1497,7 @@ function render(){
     const styleOpts=STYLES.map(([v,label])=>`<option value="${v}" ${e.style===v?"selected":""}>${label}</option>`).join("");
     row.innerHTML=`<div class="grip" title="ドラッグで最終順位を入れ替え">⠿</div>
       <div class="rank">${i+1}</div>
-      <div class="avatar" title="アイコン画像を設定">${e.img?"":"🐴"}</div>
+      <div class="avatar" title="アイコン画像を設定">${e.img?"":"<svg viewBox=\"0 0 24 24\" width=\"1.3em\" height=\"1.3em\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"14\" rx=\"2\"/><circle cx=\"8.5\" cy=\"10\" r=\"1.5\"/><path d=\"M20.5 15.5l-4.5-4.5-7.5 8\"/></svg>"}</div>
       <input type="text" value="${escAttrHR(e.name)}" maxlength="10">
       <input type="color" value="${escAttrHR(e.color)}" title="馬体色">
       <select class="coat" title="毛色"></select>

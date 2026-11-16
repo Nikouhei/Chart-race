@@ -5,6 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import homeCss from '../styles/home.css?raw';
+import { iconSvg } from '../i18n/icons.mjs';
 
 const locale = 'ja';
 ---
@@ -69,16 +70,16 @@ const locale = 'ja';
           
           <div class="hero-visual">
             <div class="demo-tabs">
-              <button class="demo-tab-btn is-active" data-tab="tab-barchart">📊 バーチャート</button>
-              <button class="demo-tab-btn" data-tab="tab-bracket">🏆 トーナメント</button>
-              <button class="demo-tab-btn" data-tab="tab-derby">🏇 格付けダービー</button>
-              <button class="demo-tab-btn" data-tab="tab-ranking">🏅 ランキング</button>
+              <button class="demo-tab-btn is-active" data-tab="tab-barchart"><Fragment set:html={iconSvg('bars')} />バーチャート</button>
+              <button class="demo-tab-btn" data-tab="tab-bracket"><Fragment set:html={iconSvg('trophy')} />トーナメント</button>
+              <button class="demo-tab-btn" data-tab="tab-derby"><Fragment set:html={iconSvg('flag')} />格付けダービー</button>
+              <button class="demo-tab-btn" data-tab="tab-ranking"><Fragment set:html={iconSvg('podium')} />ランキング</button>
             </div>
 
             <!-- Tab 1: バーチャートレース -->
             <div id="tab-barchart" class="demo-tab-content is-active">
               <div class="demo-header">
-                <span class="demo-title">📊 世界スマホシェア推移 (デモ)</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('bars')} />世界スマホシェア推移 (デモ)</span>
                 <span style="font-size: 11px; color: var(--text-muted); font-weight:700;">PREVIEW</span>
               </div>
               <div class="demo-barchart-stage">
@@ -90,7 +91,7 @@ const locale = 'ja';
             <!-- Tab 2: トーナメント表 -->
             <div id="tab-bracket" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏆 第3回 グラフレース杯</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('trophy')} />第3回 グラフレース杯</span>
                 <span id="bracket-status" style="font-size: 11px; color: var(--accent); font-weight:700;">2回戦 進行中</span>
               </div>
               <div class="bracket-stage">
@@ -111,14 +112,14 @@ const locale = 'ja';
                     <div class="bracket-col-body" id="bround-3"></div>
                   </div>
                 </div>
-                <div class="bracket-champion" id="bracket-champion">👑 優勝　雷電</div>
+                <div class="bracket-champion" id="bracket-champion">優勝　雷電</div>
               </div>
             </div>
 
             <!-- Tab 3: 格付けダービー -->
             <div id="tab-derby" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏇 格付けダービー G1</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('flag')} />格付けダービー G1</span>
                 <span id="derby-status" style="font-size: 11px; color: #c9a227; font-weight:800;">発走前</span>
               </div>
               <div class="derby-stage">
@@ -139,7 +140,7 @@ const locale = 'ja';
             <!-- Tab 4: ランキング動画 -->
             <div id="tab-ranking" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title">🏅 人気ラーメンランキング TOP 5</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('podium')} />人気ラーメンランキング TOP 5</span>
                 <span id="ranking-counter" style="font-size: 11px; color: var(--accent); font-weight:700;">▶ PLAYING</span>
               </div>
               <div class="ranking-stage">
@@ -162,7 +163,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">📊</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('bars')} /></div>
                 <span class="tool-category-badge">時系列グラフ</span>
               </div>
               <h4>バーチャートレース作成ツール</h4>
@@ -180,7 +181,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">📈</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('line')} /></div>
                 <span class="tool-category-badge">折れ線グラフ</span>
               </div>
               <h4>線グラフレース作成ツール</h4>
@@ -198,7 +199,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">🥧</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('pie')} /></div>
                 <span class="tool-category-badge">円グラフ</span>
               </div>
               <h4>円グラフレース作成ツール</h4>
@@ -216,7 +217,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">🏅</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('podium')} /></div>
                 <span class="tool-category-badge">順位発表動画</span>
               </div>
               <h4>ランキング動画メーカー</h4>
@@ -234,7 +235,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">🏇</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('flag')} /></div>
                 <span class="tool-category-badge">競馬風レース</span>
               </div>
               <h4>格付けダービー（競馬風ランキング動画）</h4>
@@ -253,7 +254,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">🏆</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('trophy')} /></div>
                 <span class="tool-category-badge">トーナメント</span>
               </div>
               <h4>トーナメント表アニメーター</h4>
@@ -271,7 +272,7 @@ const locale = 'ja';
           <div class="tool-card">
             <div class="card-top">
               <div class="tool-card-header">
-                <div class="icon">🎲</div>
+                <div class="icon" aria-hidden="true"><Fragment set:html={iconSvg('ladder')} /></div>
                 <span class="tool-category-badge">くじ引き・抽選</span>
               </div>
               <h4>あみだくじメーカー</h4>
@@ -297,22 +298,22 @@ const locale = 'ja';
         <p class="section-sub">GraphRace Studioは、数字やランキング、抽選や対戦を魅力的な動的演出へ変えるフリーツール群です。</p>
         <div class="use-cases-grid">
           <div class="use-case-card">
-            <div class="icon-wrapper">📱</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('phone')} /></div>
             <h3>SNSショート動画でエンゲージメント向上</h3>
             <p>YouTube Shorts、TikTok、Instagramリール向けに、目を引くランキング比較やダービー演出動画を発信できます。</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">🎮</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('gamepad')} /></div>
             <h3>大会・イベント・ゲーム配信での対戦演出</h3>
             <p>トーナメント表アニメーションやあみだくじで、対戦カードの組み合わせ・勝ち上がり・グループ分けをダイナミックに実況・演出できます。</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">💼</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('briefcase')} /></div>
             <h3>ビジネスプレゼン・ビジネスレポート</h3>
             <p>売上推移や市場シェアの動きをバーチャートレースや折れ線グラフレースで見せ、説得力を最大化します。</p>
           </div>
           <div class="use-case-card">
-            <div class="icon-wrapper">🎓</div>
+            <div class="icon-wrapper" aria-hidden="true"><Fragment set:html={iconSvg('cap')} /></div>
             <h3>統計データ・解説コンテンツ</h3>
             <p>人口推移や歴史データなど複雑な数値をアニメーション化し、教育現場やブログでの解説に活用できます。</p>
           </div>
@@ -327,17 +328,17 @@ const locale = 'ja';
         <p class="section-sub">本サイトは、プライバシーの保護と操作の軽快さにこだわって作られています。</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico">🔒</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('lock')} /></div>
             <h3>外部送信なし</h3>
             <p>データ処理は100%ユーザーのブラウザ（端末内）で完結。サーバーにデータがアップロードされることはありません。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">💾</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('save')} /></div>
             <h3>ブラウザ内保存</h3>
             <p>編集データはブラウザのローカル保存領域にのみ安全に保持されます。第三者がアクセスすることはできません。</p>
           </div>
           <div class="feature-card">
-            <div class="ico">🛡️</div>
+            <div class="ico" aria-hidden="true"><Fragment set:html={iconSvg('shield')} /></div>
             <h3>安全な標準ライブラリ</h3>
             <p>D3.jsやCanvas APIなど、世界的によく使われている信頼性の高いオープンソース技術のみを使用しています。</p>
           </div>
@@ -679,9 +680,9 @@ const locale = 'ja';
             const championSlot = rounds[r][finalMatch.winner];
             championSlot.classList.add('is-champion');
             const championName = finalMatch.teams[finalMatch.winner];
-            if (statusEl) statusEl.textContent = '👑 優勝決定！';
+            if (statusEl) statusEl.textContent = '優勝決定！';
             if (championEl) {
-              championEl.textContent = '👑 優勝　' + championName;
+              championEl.textContent = '優勝　' + championName;
               championEl.classList.add('is-visible');
             }
             bracketTimeout = setTimeout(triggerBracketDemo, 3500);
@@ -797,7 +798,7 @@ const locale = 'ja';
             }
 
             if (allDone) {
-              if (statusEl) { statusEl.textContent = '👑 ' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
+              if (statusEl) { statusEl.textContent = '' + results[0].def.name; statusEl.style.color = '#f1c40f'; }
               if (captionEl) captionEl.style.display = 'none';
               // 結果掲示板（実ツールの「― 結果発表 ―」と同じ体裁）
               if (boardEl) {

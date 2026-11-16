@@ -666,6 +666,8 @@
     .sound-toggle-btn.is-active:hover {
       background: #ebe7fd;
     }
+    /* 線画アイコン（絵文字の代わり）。大きさは font-size に合わせる */
+    .gi { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
     .sound-toggle-btn .sound-icon {
       font-size: 14px;
       line-height: 1;
@@ -1697,31 +1699,31 @@
                     ▶ 全員スタート
                   </button>
                   <button type="button" class="btn-action" onclick="revealInstantly()">
-                    ⚡ 結果をすぐ見る
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></svg> 結果をすぐ見る
                   </button>
                   <button type="button" class="btn-action" id="btnResetProgress" onclick="resetAmidaProgress()" title="くじの進行状況をスタート前の状態に戻す">
                     ↺ リセット
                   </button>
                   <button type="button" class="btn-action" onclick="shuffleAmida()">
-                    🔀 再生成
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h3.5c5 0 6 10 11 10H21"/><path d="M3 17h3.5c1.6 0 2.8-1 3.8-2.4M13.7 9.4c1-1.4 2.2-2.4 3.8-2.4H21"/><path d="M18.5 4.5L21 7l-2.5 2.5M18.5 14.5L21 17l-2.5 2.5"/></svg> 再生成
                   </button>
                   <button type="button" class="btn-action sound-toggle-btn" id="btnStageSoundToggle" onclick="toggleSoundSetting()" title="効果音のON/OFFを切り替え" aria-pressed="false">
-                    <span class="sound-icon" id="stageSoundIcon">🔇</span>
+                    <span class="sound-icon" id="stageSoundIcon"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg></span>
                     <span id="stageSoundText">効果音 OFF</span>
                   </button>
                 </div>
                 <div class="toolbar-right">
                   <button type="button" class="btn-action" onclick="copyResultText()" title="結果をクリップボードにコピー">
-                    📋 結果コピー
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> 結果コピー
                   </button>
                   <button type="button" class="btn-action" onclick="exportAmidaImage()" title="あみだくじ画像をPNG保存">
-                    🖼 画像保存
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M20.5 15.5l-4.5-4.5-7.5 8"/></svg> 画像保存
                   </button>
                   <button type="button" class="btn-action" onclick="shareUrl()" title="現在の設定をURLで共有">
-                    🔗 共有URL
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg> 共有URL
                   </button>
                   <button type="button" class="btn-action btn-icon-only" id="btnFullscreen" onclick="toggleFullscreen()" title="全画面表示">
-                    ⛶
+                    <svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
                   </button>
                 </div>
               </div>
@@ -1767,32 +1769,32 @@
         <p class="section-sub">日常のちょっとした抽選から大勢のチーム分けまで、誰でもカンタン＆快適に利用可能</p>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="icon-badge">🎲</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01"/></svg></div>
             <h3>完全ランダムで公平</h3>
             <p>横線はランダムに自動生成。さらに下に並ぶ結果の順番を、くじを作るたびに暗号論的乱数でシャッフルするので、どの位置を選んでも当たる確率は全員同じです。</p>
           </div>
           <div class="feature-card">
-            <div class="icon-badge">👥</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/><path d="M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.8c2 .7 3.5 2.4 3.5 5.2"/></svg></div>
             <h3>便利なチーム分けモード</h3>
             <p>通常くじだけでなく、人数を指定したグループに自動均等配分する「チーム分けモード」を搭載。サークルや席替え、ゲームの班分けが一瞬で決まります。</p>
           </div>
           <div class="feature-card">
-            <div class="icon-badge">✨</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.6 4.8 4.2 8.4 9 9-4.8.6-8.4 4.2-9 9-.6-4.8-4.2-8.4-9-9 4.8-.6 8.4-4.2 9-9z"/></svg></div>
             <h3>盛り上がるアニメ演出</h3>
             <p>光の玉が線を辿る滑らかなアニメーション、軽快な効果音、ゴール時の紙吹雪演出を搭載。プロジェクターやオンライン画面共有でも大盛り上がり。</p>
           </div>
           <div class="feature-card">
-            <div class="icon-badge">📱</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17.5h2"/></svg></div>
             <h3>アプリ不要・スマホ最適化</h3>
             <p>会員登録やアプリインストールは一切不要。PCはもちろん、iPhoneやAndroidスマートフォンのブラウザからいつでも即座に使えます。</p>
           </div>
           <div class="feature-card">
-            <div class="icon-badge">🔗</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg></div>
             <h3>URL共有＆画像保存</h3>
             <p>作ったくじのURLを発行してチャットで共有したり、抽選結果をテキストやPNG画像として保存可能。結果の記録や報告もスムーズに行えます。</p>
           </div>
           <div class="feature-card">
-            <div class="icon-badge">🔒</div>
+            <div class="icon-badge" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
             <h3>プライバシーも安心安全</h3>
             <p>入力された参加者名や項目データはすべてブラウザ内部でのみ処理されます。外部サーバーへの送信や保存は一切ないため、本名の利用も安心です。</p>
           </div>
@@ -1833,7 +1835,7 @@
           <p class="section-sub">なぜあみだくじは結果が被らないのか？その理由と歴史を紐解きます</p>
 
           <div class="article-box">
-            <h3><span class="ico">📐</span> なぜ絶対に結果が重複しないのか？（1対1の全単射）</h3>
+            <h3><span class="ico" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/><path d="M17 5l3 3-3 3M7 13l-3 3 3 3"/></svg></span> なぜ絶対に結果が重複しないのか？（1対1の全単射）</h3>
             <p>
               あみだくじで「2人の参加者が同じゴールにたどり着く」ことは絶対にありません。これは数学の「群論」において、あみだくじが<strong>「置換（1対1の全単射写像）」</strong>であるためです。
             </p>
@@ -1847,7 +1849,7 @@
           </div>
 
           <div class="article-box">
-            <h3><span class="ico">⚖️</span> 横線の本数と公平性の関係</h3>
+            <h3><span class="ico" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/></svg></span> 横線の本数と公平性の関係</h3>
             <p>
               手書きのあみだくじで横線の本数が極端に少ない場合、「自分の真下のゴールに行きやすい」という確率の偏りが生じることが知られています。
             </p>
@@ -1857,7 +1859,7 @@
           </div>
 
           <div class="article-box">
-            <h3><span class="ico">⛩️</span> あみだくじの歴史と名前の由来</h3>
+            <h3><span class="ico" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span> あみだくじの歴史と名前の由来</h3>
             <p>
               「あみだくじ（阿弥陀籤）」という名前は、仏教の<strong>阿弥陀如来（あみだにょらい）</strong>に由来しています。
             </p>
@@ -2051,7 +2053,7 @@
   <div class="amida-modal-overlay" id="duplicateWarningModal" role="dialog" aria-modal="true" aria-labelledby="dupModalTitle">
     <div class="amida-modal-card">
       <div class="amida-modal-header">
-        <div class="modal-icon-warn">⚠️</div>
+        <div class="modal-icon-warn" style="color:#d97706" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4L2.5 20h19z"/><path d="M12 10v4.5M12 17.5h.01"/></svg></div>
         <div>
           <h3 id="dupModalTitle">参加者の名前に重複があります</h3>
           <p class="modal-sub">同じ名前があると、結果の確認や判別が難しくなる可能性があります。</p>
@@ -2078,7 +2080,7 @@
   <div class="amida-modal-overlay" id="saveImageModal" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
     <div class="amida-modal-card">
       <div class="amida-modal-header">
-        <div class="modal-icon-info">🖼️</div>
+        <div class="modal-icon-info" style="color:var(--accent-strong)" aria-hidden="true"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M20.5 15.5l-4.5-4.5-7.5 8"/></svg></div>
         <div>
           <h3 id="saveModalTitle">あみだくじ画像を保存しますか？</h3>
           <p class="modal-sub">現在のあみだくじ（参加者名・あみだ線・ゴール項目）を高解像度PNG画像としてダウンロードします。</p>
@@ -2140,7 +2142,7 @@
       stageBtn.classList.toggle("is-active", isSoundOn);
       stageBtn.setAttribute("aria-pressed", isSoundOn ? "true" : "false");
     }
-    if (stageIcon) stageIcon.textContent = isSoundOn ? "🔊" : "🔇";
+    if (stageIcon) stageIcon.innerHTML = isSoundOn ? '<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>' : '<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
     if (stageText) stageText.textContent = isSoundOn ? "効果音 ON" : "効果音 OFF";
 
     if (isSoundOn) {
@@ -3219,11 +3221,11 @@
     if (!anyFinished) {
       noticeArea.innerHTML = `
         <div style="display: flex; gap: 10px; align-items: flex-start;">
-          <span style="font-size: 18px; flex-shrink: 0;">⚠️</span>
+          <span style="font-size: 18px; flex-shrink: 0; color: #d97706;"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4L2.5 20h19z"/><path d="M12 10v4.5M12 17.5h.01"/></svg></span>
           <div>
             <div style="font-weight: 700; color: #d97706; margin-bottom: 2px;">結果がまだ表示されていません</div>
             <div style="color: var(--text-muted); font-size: 12px; line-height: 1.5;">
-              現在はくじが未スタートまたは進行中のため、ゴール結果が確定していません。結果も含めて画像化したい場合は、事前に「⚡ 結果をすぐ見る」やスタートを実行することをおすすめします。
+              現在はくじが未スタートまたは進行中のため、ゴール結果が確定していません。結果も含めて画像化したい場合は、事前に「結果をすぐ見る」やスタートを実行することをおすすめします。
             </div>
           </div>
         </div>
@@ -3231,7 +3233,7 @@
     } else {
       noticeArea.innerHTML = `
         <div style="display: flex; gap: 10px; align-items: flex-start;">
-          <span style="font-size: 18px; flex-shrink: 0;">✅</span>
+          <span style="font-size: 18px; flex-shrink: 0; color: #16a34a;"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/></svg></span>
           <div>
             <div style="font-weight: 700; color: var(--text-strong); margin-bottom: 2px;">現在の結果を含めて保存します</div>
             <div style="color: var(--text-muted); font-size: 12px; line-height: 1.5;">
@@ -3331,7 +3333,7 @@
   window.toggleFullscreen = function() {
     document.body.classList.toggle("is-fullscreen");
     const isFull = document.body.classList.contains("is-fullscreen");
-    document.getElementById("btnFullscreen").textContent = isFull ? "✕" : "⛶";
+    document.getElementById("btnFullscreen").innerHTML = isFull ? '<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' : '<svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
     // レイアウト確定後に確実に高さを再計算して再描画
     requestAnimationFrame(() => {
       renderAll();

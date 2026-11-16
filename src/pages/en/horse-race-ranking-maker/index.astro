@@ -9,6 +9,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import SiteHeader from '../../../components/SiteHeader.astro';
 import SiteFooter from '../../../components/SiteFooter.astro';
+import { iconSvg } from '../../../i18n/icons.mjs';
 import { horseRaceParts } from '../../../../build/legacy-tool.mjs';
 const locale = 'en';
 // 音まわりを出すかどうか。日本語版と同じ値にする（ツールのスクリプトがこのメタを読む）
@@ -90,32 +91,32 @@ const ldJson = {
         <p class="section-sub">All you need is a browser. Name your horses, set the order, and they’re off.</p>
         <div class="features">
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🏇</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('flag')} />
             <h3>You decide the winner</h3>
             <p>Drag up to 16 horses into the finishing order. Give each one a name, a color and an icon image.</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎥</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('camera')} />
             <h3>2D or realistic 3D</h3>
             <p>Use the fast, light 2D race, or switch to 3D Real Race with CG horses and automatic camera work. Your horses and settings carry over, so you can compare both looks instantly.</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🔀</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('shuffle')} />
             <h3>Control the drama</h3>
             <p>Choose from calm to chaotic, and in 3D set each horse’s running style — from runaway leader to deep closer. The result never changes, so rerun it until the race looks just right.</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">📣</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('megaphone')} />
             <h3>Commentary and a results board</h3>
             <p>Live-style captions build the excitement, and a results board with your race name appears at the finish — complete with winning margins like nose, neck and lengths.</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">🎬</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('video')} />
             <h3>Save it as a video</h3>
             <p>Export the whole race, from the gate to the results board, as an MP4 or WebM file. Frames are rendered one by one, so the video stays smooth even on slower devices.</p>
           </div>
           <div class="feature-card">
-            <div class="ico" style="font-size: 48px; line-height: 64px; height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">⚡</div>
+            <div class="ico" aria-hidden="true" style="font-size: 44px; color: var(--accent); height: 64px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;" set:html={iconSvg('bolt')} />
             <h3>Nothing to install</h3>
             <p>No app and no account. Open the page and start making race videos right away. Your data stays in your browser.</p>
           </div>
