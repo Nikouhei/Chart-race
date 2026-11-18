@@ -7,12 +7,14 @@
  *   3. 既存HTMLのうち、他言語版が公開済みのページに hreflang を差し込む
  *   3b. 既存HTML（ブログ・あみだくじ）のヘッダーを、Astro の共通ヘッダー（SiteHeader）に置き換える
  *   4. sitemap.xml を作る（言語の対応関係 xhtml:link 入り）
+ *   4b. AI 向けスキル（ai-skill/）を dist/ai/ に zip と SKILL.md で書き出す（build/skill-zip.mjs）
  *   5. 株価レースが出力に紛れ込んでいないか確認（あればビルド失敗）
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { ROOT, listLegacyFiles } from './legacy-files.mjs';
+import { buildSkillZips } from './skill-zip.mjs';
 import { SITE_URL } from '../src/i18n/config.mjs';
 import { PAGES } from '../src/i18n/routes.mjs';
 import { includeDrafts, hreflangLinks, pageIdForPath } from '../src/i18n/utils.mjs';
@@ -222,6 +224,11 @@ log(`sitemap.xml: ${entries.length} URL`);
 const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', 'build', 'First Coding', '.git', '.github', '.agents', '.claude', '.wrangler', 'worker', 'migrations', 'Stripe'];
 const leaked = forbidden.filter((d) => fs.existsSync(path.join(DIST, d)));
 // dist 全体を見て、ドット始まりのファイル・フォルダや秘密情報らしいファイル名が無いか確認する
+{
+  const skills = buildSkillZips(ROOT, DIST);
+  if (skills.length) log('AI 向けスキル: ' + skills.map((n) => `ai/${n}.zip`).join(', '));
+}
+
 // （.gitkeep は public/ の空フォルダ用、.well-known は将来の正規の公開用なので許可）
 const DOT_OK = new Set(['.gitkeep', '.well-known']);
 const SECRET_RE = /(^\.env|^\.dev\.vars$|service-account.*\.json$|\.local\.json$|\.(pem|key|p12|pfx)$|credentials?.*\.json$|\.(sql|sqlite3?|db|dump|bak)$|^secrets?([._-].*)?\.(json|ya?ml|txt|toml)$|^tokens?\.json$|^id_(rsa|dsa|ecdsa|ed25519)|\.(env|kdbx|keystore|jks|ppk|asc|gpg)$|^\.?npmrc$|^\.?htpasswd$)/i;

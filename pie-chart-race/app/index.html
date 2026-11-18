@@ -52,10 +52,11 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026111602" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026111802" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
+  <script src="../../shared/ai-helper.js?v=2026111802"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
     
@@ -2020,7 +2021,10 @@
 
     <div id="dataTab" class="tab-panel">
       <div class="input-group data-hint" style="background:#2a2a2a; padding:10px; border-radius:4px; border:1px dashed #555;">
-        <label style="color:#4dabf7;">データ形式 (CSV / Excel)</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+          <label style="color:#4dabf7; margin:0;">データ形式 (CSV / Excel)</label>
+          <button type="button" id="aiHelperBtn" class="grs-ai-btn">AIでデータを作る</button>
+        </div>
         <p id="dataFormatHint" style="font-size:11px; margin:0; color:#ccc;">A列: 項目名<br>B列: 画像URL (空欄でもOK)<br>C列以降: 年ごとの数値<br>※カテゴリ列を有効にした場合は、B列がカテゴリ、C列が画像URLになります。</p>
       </div>
 
@@ -6319,6 +6323,58 @@
         window.saveActiveProjectAndGo(targetId, payload);
       });
     }
+
+    // --- 「AIでデータを作る」（shared/ai-helper.js）---
+    GRSAIHelper.init({
+      button: document.getElementById('aiHelperBtn'),
+      prompt: {
+        ja: theme => `次のテーマで、円グラフレース（各期間の割合が変わっていく円グラフ動画）用のデータをCSVで作ってください。
+
+テーマ: ${theme}
+
+# CSVの形式
+- 1行目は見出しで「項目名,画像URL,期間1,期間2,…」とする（期間は年なら 2000 のように数字だけ）
+- 2行目から、1行に1項目。項目は3〜10個くらい
+- 画像URLの列は空欄のままにする
+- 期間は古い順に左から右へ並べる。期間の数は10以上が望ましい
+- 数値は半角数字だけで書く（桁区切りのカンマ・単位・%は付けない）。分からない値は空欄
+- 各期間の数値は、全体に対する内訳（同じ単位の量）にする。割合(%)でなく実数があれば実数を優先
+- 項目名にカンマが入るときは "" で囲む
+
+# 返し方
+- CSVをコードブロック1つにまとめて返す
+- そのあとに、使った出典と、推定で埋めた値があればそのことを短く書く`,
+        en: theme => `Create data for a pie chart race (an animated pie chart whose shares change over time) as CSV, on this topic:
+
+Topic: ${theme}
+
+# CSV format
+- Row 1 is the header: "Name,Image URL,period1,period2,..." (for years, just the number, e.g. 2000)
+- From row 2, one item per row. About 3–10 items
+- Leave the Image URL column empty
+- Periods go oldest to newest, left to right. 10 or more periods is ideal
+- Values are plain numbers only (no thousands separators, units or %). Leave unknown values empty
+- Each period's values should be parts of a whole in the same unit. Prefer raw amounts over percentages when available
+- Wrap names that contain commas in double quotes
+
+# Reply
+- Put the CSV in a single code block
+- After it, briefly list your sources and note any values you estimated`,
+      },
+      onImport: table => {
+        if (table.length < 2 || table[0].length < 3) throw new Error('列が足りません（項目名・画像URL・数値の列が必要です）');
+        if (hasEditableContent() && !window.confirm('いまのデータを、AIで作ったデータに置き換えますか？')) throw new Error('キャンセルしました');
+        const cat = document.getElementById('useCategoryColumn');
+        const img = document.getElementById('useImageColumn');
+        if (cat.checked || !img.checked) {
+          cat.checked = false;
+          img.checked = true;
+          onColumnRoleSettingChange();
+        }
+        applyLoadedData(table.slice(1), table[0]);
+        document.getElementById('selectedFileName').innerText = 'AIで作ったデータ';
+      },
+    });
 
     // --- SEOページの「サンプルで試す」からの遷移（?sample=...）---
     // サンプルが指定された時は、引き継ぎ/自動下書きより優先してサンプルを読み込む。

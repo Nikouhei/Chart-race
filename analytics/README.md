@@ -80,7 +80,9 @@ node analytics/fetch-reports.mjs --setup-dimensions   # ボタンIDなどを GA4
 | export_start | 書き出し・録画ボタン |
 | export_complete | 動画・画像ファイルが実際に保存された |
 | file_save / data_download | CSV・Excel・バックアップの保存 |
-| file_import | CSV・Excel・画像の読み込み |
+| file_import | CSV・Excel・画像の読み込み（AIの返事の貼り付けは via=ai_paste） |
+| ai_helper_open | 「AIでデータを作る」を開いた（via=tool：データ欄のボタン／lp：LPの「AIで作る」リンク＝?ai=1／skill：スキルを入れたAIが案内したリンク＝?ai=1&ref=skill）。スキルのダウンロードは file_save（file_ext=zip・md） |
+| ai_prompt_copy | AIへの頼む文をコピーした（via は同上） |
 | project_save / project_backup / project_import | 保存・バックアップ |
 | stock_fetch | 株価レースで株価を取得 |
 | tool_ui_click | 上記以外のツール内ボタン（button_id / button_label 付き） |

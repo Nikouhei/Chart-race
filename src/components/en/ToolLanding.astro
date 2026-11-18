@@ -26,6 +26,8 @@ interface Props {
   lead: string;
   appHref: string;
   sampleHref?: string;
+  /** 「No data? Make it with AI」のリンク先（ツールで AI ポップアップが開く ?ai=1） */
+  aiHref?: string;
   primaryCta?: string;
   demo?: { src: string; title: string; text: string };  // 紹介動画（縦型 webm）
   intro?: { title: string; paragraphs: string[] };       // 「〇〇とは？」の説明ブロック（英語の検索意図向け。省略可）
@@ -87,6 +89,7 @@ const cta = p.primaryCta || 'Start creating';
           {p.sampleHref && <a class="btn-secondary" href={p.sampleHref}>Try a sample</a>}
         </div>
         <span class="sub-note">No install, no sign-up — runs in your browser.</span>
+        {p.aiHref && <a class="ai-link" href={p.aiHref}>No data yet? Make it with AI →</a>}
       </div>
     </section>
 
