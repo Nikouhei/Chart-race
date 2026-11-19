@@ -787,7 +787,7 @@
     } else {
       // tile / drift: 斜めに千鳥で敷き詰める
       ctx.rotate(MARK_ANGLE);
-      var ht = short * 0.05;
+      var ht = short * 0.043;
       ctx.font = "800 " + Math.round(ht) + "px sans-serif";
       var unitW = (logoImg ? ht * 1.4 : 0) + ctx.measureText(MARK_TEXT).width;
       var stepX = unitW * 1.6, stepY = ht * 7;
