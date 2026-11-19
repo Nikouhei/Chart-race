@@ -686,7 +686,7 @@
   // ════════════════════════════════════════════════════════
   var MARK_TEXT = "GraphRace Studio";
   var MARK_STYLE = "tile";
-  var MARK_OPACITY = { tile: 0.07, center: 0.16, band: 0.14, grid: 0.12, drift: 0.13 };
+  var MARK_OPACITY = { tile: 0.10, center: 0.16, band: 0.14, grid: 0.12, drift: 0.13 };
   var MARK_ANGLE = -24 * Math.PI / 180;
   var markTone = "#000000";
   var logoPromise = null, logoImg = null;
@@ -787,10 +787,10 @@
     } else {
       // tile / drift: 斜めに千鳥で敷き詰める
       ctx.rotate(MARK_ANGLE);
-      var ht = short * 0.036;
+      var ht = short * 0.05;
       ctx.font = "800 " + Math.round(ht) + "px sans-serif";
       var unitW = (logoImg ? ht * 1.4 : 0) + ctx.measureText(MARK_TEXT).width;
-      var stepX = unitW * 2.3, stepY = ht * 10;
+      var stepX = unitW * 1.6, stepY = ht * 7;
       var off = style === "drift" ? (tSec * short * 0.025) % stepX : 0;
       var nx = Math.ceil(diag / 2 / stepX) + 1, ny = Math.ceil(diag / 2 / stepY) + 1;
       for (var ty = -ny; ty <= ny; ty++) {
