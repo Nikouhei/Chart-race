@@ -27,6 +27,7 @@ I18N.registerText('en', {
 
   // ── AIでデータを作る（shared/ai-helper.js）──
   'AIでデータを作る': 'Make data with AI',
+  'AIのデータを読み込みました': 'AI data loaded',
   'ChatGPT・Claude・Gemini などのAIに、このツールで読み込める形でデータを作ってもらえます。': 'Ask an AI such as ChatGPT, Claude or Gemini to create data in a format this tool can load.',
   'テーマを入れて、頼む文をコピー': 'Enter a topic and copy the prompt',
   '例：世界の人口ランキングの推移（1960〜2020年）': 'e.g. World population ranking, 1960–2020',

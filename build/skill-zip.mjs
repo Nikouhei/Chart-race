@@ -69,7 +69,16 @@ function makeZip(entries) {
   return Buffer.concat([...locals, centralBuf, end]);
 }
 
-export function buildSkillZips(root, dist) {
+const PROD_ORIGIN = 'https://graphrace-studio.com';
+
+// siteOrigin を渡すと、スキル内の本番URLをその URL に置き換える
+// （preview で配るスキルは preview のツールを開かせる。本番にまだない機能を試すため）
+export function buildSkillZips(root, dist, { siteOrigin = PROD_ORIGIN } = {}) {
+  const readText = (file) => {
+    const buf = fs.readFileSync(file);
+    if (siteOrigin === PROD_ORIGIN || !/\.(md|txt)$/i.test(file)) return buf;
+    return Buffer.from(buf.toString('utf8').split(PROD_ORIGIN).join(siteOrigin), 'utf8');
+  };
   const src = path.join(root, 'ai-skill');
   if (!fs.existsSync(src)) return [];
   const outDir = path.join(dist, 'ai');
@@ -79,10 +88,10 @@ export function buildSkillZips(root, dist) {
     const skillDir = path.join(src, e.name);
     if (!fs.existsSync(path.join(skillDir, 'SKILL.md'))) continue;
     const files = listFiles(skillDir);
-    const zip = makeZip(files.map((f) => ({ name: `${e.name}/${f}`, data: fs.readFileSync(path.join(skillDir, f)) })));
+    const zip = makeZip(files.map((f) => ({ name: `${e.name}/${f}`, data: readText(path.join(skillDir, f)) })));
     fs.mkdirSync(path.join(outDir, e.name), { recursive: true });
     fs.writeFileSync(path.join(outDir, `${e.name}.zip`), zip);
-    fs.copyFileSync(path.join(skillDir, 'SKILL.md'), path.join(outDir, e.name, 'SKILL.md'));
+    fs.writeFileSync(path.join(outDir, e.name, 'SKILL.md'), readText(path.join(skillDir, 'SKILL.md')));
     made.push(e.name);
   }
   return made;

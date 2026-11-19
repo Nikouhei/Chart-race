@@ -225,8 +225,10 @@ const forbidden = ['stock-race', 'src', 'node_modules', 'analytics', 'build', 'F
 const leaked = forbidden.filter((d) => fs.existsSync(path.join(DIST, d)));
 // dist 全体を見て、ドット始まりのファイル・フォルダや秘密情報らしいファイル名が無いか確認する
 {
-  const skills = buildSkillZips(ROOT, DIST);
-  if (skills.length) log('AI 向けスキル: ' + skills.map((n) => `ai/${n}.zip`).join(', '));
+  // main 以外（preview ブランチ・build:preview）は、スキル内のツールURLを preview の URL にする
+  const skillOrigin = withDrafts ? 'https://preview-chartrace.kohei-coffee-cake.workers.dev' : undefined;
+  const skills = buildSkillZips(ROOT, DIST, skillOrigin ? { siteOrigin: skillOrigin } : {});
+  if (skills.length) log('AI 向けスキル: ' + skills.map((n) => `ai/${n}.zip`).join(', ') + (skillOrigin ? `（URL は ${skillOrigin}）` : ''));
 }
 
 // （.gitkeep は public/ の空フォルダ用、.well-known は将来の正規の公開用なので許可）
