@@ -191,6 +191,9 @@ I18N.registerText('en', {
   // ── 時系列表示 ──
   '時系列表示': 'Time label',
   '時系列を表示': 'Show time label',
+  '合計値の表示': 'Total value',
+  '全項目の合計値を表示': 'Show the total of all items',
+  '見出し': 'Label',
   '色': 'Color',
   '濃さ (%)': 'Opacity (%)',
   'テキストサイズ (%)': 'Text size (%)',

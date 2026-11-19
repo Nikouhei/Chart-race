@@ -139,6 +139,7 @@
       if (!res) { setMsg(msg, "表のデータが見つかりませんでした。AIの返事全体を貼り付けてください", false); return; }
       try {
         cfg.onImport(res.table);
+        applyMeta(extractMeta(raw));
       } catch (err) {
         setMsg(msg, t("読み込めませんでした：") + (err && err.message ? err.message : ""), false);
         return;
@@ -175,6 +176,32 @@
 
   // ── AI の返事から表を取り出す ─────────────────────────
   // 優先順: ```コードブロック → Markdown の表（| 区切り）→ カンマ／タブ区切りの連続した行
+  // 返事の「タイトル: …」「出典: …」「単位: …」（英語は Title / Source / Unit）を拾う
+  function extractMeta(raw) {
+    var text = String(raw || "").replace(/```[\s\S]*?```/g, "");
+    var keys = { title: /^(タイトル|title)$/i, source: /^(出典|source|sources)$/i, unit: /^(単位|unit)$/i };
+    var meta = {};
+    text.split(/\r?\n/).forEach(function (line) {
+      var m = line.replace(/^[\s>*\-・#]+/, "").replace(/\*\*/g, "").match(/^([^:：]{1,10})\s*[:：]\s*(.+)$/);
+      if (!m) return;
+      Object.keys(keys).forEach(function (k) {
+        if (!meta[k] && keys[k].test(m[1].trim())) meta[k] = m[2].trim().slice(0, 200);
+      });
+    });
+    return meta;
+  }
+
+  // ツール画面のタイトル・出典・単位（数値の後ろに付ける文字）の欄に入れる
+  function applyMeta(meta) {
+    [["title", "titleInput"], ["source", "sourceInput"], ["unit", "valueSuffix"]].forEach(function (p) {
+      var el = document.getElementById(p[1]);
+      if (!meta[p[0]] || !el) return;
+      el.value = meta[p[0]];
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
+
   function extractTable(raw) {
     var text = String(raw || "").replace(/^﻿/, "").replace(/\r\n?/g, "\n");
     if (!text.trim()) return null;

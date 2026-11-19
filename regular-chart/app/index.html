@@ -52,11 +52,11 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026111802" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026111901" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
-  <script src="../../shared/ai-helper.js?v=2026111802"></script>
+  <script src="../../shared/ai-helper.js?v=2026111901"></script>
   <style>
     body { font-family: var(--font-sans); background: #222; color: #eee; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
     
@@ -398,6 +398,7 @@
     .col-badge.role-off { background: #555; color: #bbb; }
     body.light-mode .col-badge.role-off { background: #e2e8f0; color: #64748b; }
     .source-text { position: absolute; bottom: 3%; right: 2%; color: #666; z-index: 10; }
+    .total-text { position: absolute; font-weight: bold; z-index: 6; line-height: 1.2; white-space: nowrap; display: none; }
     .year-text { position: absolute; left: 95%; top: 95%; transform: translate(-100%, -100%); font-weight: bold; color: rgba(0,0,0,0.08); z-index: 5; line-height: 1; }
     
     /* 国旗画像を美しく角丸にする設定 */
@@ -1846,6 +1847,40 @@
     </div>
 
     <div class="input-group">
+      <label>合計値の表示</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showTotalCounter" data-track="tool_ui_click">
+        <span>全項目の合計値を表示</span>
+      </div>
+      <div class="setting-row" style="margin-top:12px;">
+        <div class="setting-field">
+          <span>見出し</span>
+          <input type="text" id="totalCounterLabel" value="合計" data-i18n-value>
+        </div>
+        <div class="setting-field">
+          <span>色</span>
+          <input type="color" id="totalCounterColor" value="#333333">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>テキストサイズ (%)</span>
+          <input type="number" id="totalCounterSize" value="3.5" min="0.5" max="20" step="0.1">
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>位置 X (%)</span>
+          <input type="number" id="totalCounterX" value="95" min="0" max="100" step="0.5">
+        </div>
+        <div class="setting-field">
+          <span>位置 Y (%)</span>
+          <input type="number" id="totalCounterY" value="78" min="0" max="100" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
       <label>軸・目盛り設定</label>
       <div style="display:flex; gap:10px; margin-bottom:10px;">
         <div style="flex:1;">
@@ -2004,6 +2039,7 @@
         <div id="chartTitle" class="chart-title"></div>
         <div id="categoryLegend" class="category-legend"></div>
         <div id="yearDisplay" class="year-text"></div>
+        <div id="totalDisplay" class="total-text"></div>
         <div id="sourceDisplay" class="source-text"></div>
         <svg id="svgChart"></svg>
       </div>
@@ -2135,6 +2171,7 @@
       'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel', 'seriesLabelMode', 'playbackLengthMode', 'playbackCustomSeconds',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
+      'showTotalCounter', 'totalCounterLabel', 'totalCounterColor', 'totalCounterSize', 'totalCounterX', 'totalCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax', 'showYGridLines',
       'useCategoryColumn', 'useImageColumn', 'showCategoryLegend', 'categoryLegendSize',
       'categoryLegendPosition', 'categoryLegendLayout', 'categoryLegendColor', 'categoryLegendSwatch', 'categoryLegendBg',
@@ -3032,6 +3069,38 @@
       };
     }
 
+    // 合計値の表示（その時点の全項目の合計。年と年のあいだは補間）
+    function applyTotalCounterSettings(canvasWidth = resolveCanvasShortSide()) {
+      const el = document.getElementById('totalDisplay');
+      const clamp = (v, min, max, d) => Number.isFinite(v) ? Math.min(Math.max(min, v), max) : d;
+      const x = clamp(+document.getElementById('totalCounterX').value, 0, 100, 95);
+      const y = clamp(+document.getElementById('totalCounterY').value, 0, 100, 78);
+      el.style.display = document.getElementById('showTotalCounter').checked ? 'block' : 'none';
+      el.style.color = document.getElementById('totalCounterColor').value || '#333333';
+      el.style.fontSize = (canvasWidth * clamp(+document.getElementById('totalCounterSize').value, 0.5, 20, 3.5) / 100) + 'px';
+      el.style.left = `${x}%`;
+      el.style.top = `${y}%`;
+      el.style.textAlign = x > 66 ? 'right' : (x < 34 ? 'left' : 'center');
+      el.style.transform = `translate(${-x}%, ${-y}%)`;
+    }
+
+    function getYearTotal(year) {
+      return getYearData(year, Number.MAX_SAFE_INTEGER, { sortEnabled: false })
+        .reduce((sum, d) => sum + (Number.isFinite(d.value) ? d.value : 0), 0);
+    }
+
+    function renderTotalDisplay(pos) {
+      const el = document.getElementById('totalDisplay');
+      if (!document.getElementById('showTotalCounter').checked || !years.length) return;
+      const p = Math.min(Math.max(pos, 0), years.length - 1);
+      const i = Math.floor(p), t = p - i;
+      let total = getYearTotal(years[i]);
+      if (t > 0 && i + 1 < years.length) total += (getYearTotal(years[i + 1]) - total) * t;
+      const label = document.getElementById('totalCounterLabel').value.trim();
+      const text = (label ? label + ' ' : '') + formatNumberValue(total);
+      if (el.textContent !== text) el.textContent = text;
+    }
+
     function applyTimeCounterSettings(canvasWidth = resolveCanvasShortSide()) {
       const yearDisplay = document.getElementById('yearDisplay');
       const settings = getTimeCounterSettings();
@@ -3044,6 +3113,7 @@
       yearDisplay.style.right = 'auto';
       yearDisplay.style.bottom = 'auto';
       yearDisplay.style.transform = `translate(${-settings.xPercent}%, ${-settings.yPercent}%)`;
+      applyTotalCounterSettings(canvasWidth);
     }
 
     function getColumnLetter(index) {
@@ -5617,6 +5687,8 @@
         lastRenderedYearDisplayText = yearText;
       }
 
+      renderTotalDisplay(pos);
+
       // --- タイムラインの再生位置マーカーを更新 ---
       updateTimelineMarker(pos);
     }
@@ -5968,8 +6040,13 @@
 - 項目名にカンマが入るときは "" で囲む
 
 # 返し方
+- 項目が1つだけのデータは作らない（順位を競うので複数の項目が必要）。テーマから項目を決められないときは、データを作る前に、具体的なテーマ案を2〜3個挙げて確認する
+- 最初に次の3行を書く（ツールがタイトル・出典・単位の欄に読み込む）
+  タイトル: 動画のタイトル
+  出典: 使った出典
+  単位: 数字の後ろに付ける単位（例: 億ドル、万人、%）
 - CSVをコードブロック1つにまとめて返す
-- そのあとに、使った出典と、推定で埋めた値があればそのことを短く書く`,
+- そのあとに、推定で埋めた値があればそのことを短く書く`,
         en: theme => `Create data for a line chart race (an animated line chart that draws over time) as CSV, on this topic:
 
 Topic: ${theme}
@@ -5983,16 +6060,24 @@ Topic: ${theme}
 - Wrap names that contain commas in double quotes
 
 # Reply
+- Never return data with only one item (a race needs several competing items). If you cannot choose the items from the topic, ask first and suggest 2–3 concrete topics
+- Start with these three lines (the tool loads them into its title, source and unit fields):
+  Title: a short video title
+  Source: the sources you used
+  Unit: the unit shown after each number (e.g. billion USD, million people, %)
 - Put the CSV in a single code block
-- After it, briefly list your sources and note any values you estimated`,
+- After it, briefly note any values you estimated`,
       },
       onImport: table => {
         if (table.length < 2 || table[0].length < 3) throw new Error('列が足りません（項目名・画像URL・数値の列が必要です）');
         if (hasEditableContent() && !window.confirm('いまのデータを、AIで作ったデータに置き換えますか？')) throw new Error('キャンセルしました');
+        // 2列目の見出しが「カテゴリ」なら カテゴリ列あり（項目名,カテゴリ,画像URL,期間…）
+        const hasCat = /^(カテゴリ|カテゴリー|category)$/i.test(String(table[0][1] || '').trim());
+        if (hasCat && table[0].length < 4) throw new Error('列が足りません（項目名・カテゴリ・画像URL・数値の列が必要です）');
         const cat = document.getElementById('useCategoryColumn');
         const img = document.getElementById('useImageColumn');
-        if (cat.checked || !img.checked) {
-          cat.checked = false;
+        if (cat.checked !== hasCat || !img.checked) {
+          cat.checked = hasCat;
           img.checked = true;
           onColumnRoleSettingChange();
         }
@@ -6561,6 +6646,10 @@ Topic: ${theme}
     ['showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY'].forEach(id => {
       const eventName = id === 'showTimeCounter' ? 'change' : 'input';
       document.getElementById(id).addEventListener(eventName, () => applyTimeCounterSettings());
+    });
+    ['showTotalCounter', 'totalCounterLabel', 'totalCounterColor', 'totalCounterSize', 'totalCounterX', 'totalCounterY'].forEach(id => {
+      const eventName = id === 'showTotalCounter' ? 'change' : 'input';
+      document.getElementById(id).addEventListener(eventName, () => { applyTimeCounterSettings(); refreshCurrentPreview(); });
     });
     // 「項目名の表示」「値を表示」の変更で設定欄を出し分ける（再描画より先に同期する）
     ['lineTipNames', 'lineTipValues', 'lineTipImages', 'lineShowLegend', 'lineLegendNames', 'lineLegendValues', 'lineLegendImages'].forEach(id => {
