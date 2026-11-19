@@ -103,7 +103,7 @@
         '<div class="grs-ai-skill"><p class="grs-ai-skill-t">毎回コピーしたくない方へ：スキルを入れておく</p>' +
           '<p class="grs-ai-note" style="margin:0 0 8px">AIに一度入れておけば、次からは「〇〇の推移をバーチャートレース用に」と頼むだけで、この形のデータが返ってきます。</p>' +
           '<div class="grs-ai-row" style="margin-top:0">' +
-            '<a class="grs-ai-dl" href="/ai/graphrace-studio-data.zip" download="graphrace-studio-data.zip">Claude 用（zip）</a>' +
+            '<a class="grs-ai-dl" href="/ai/graphrace-studio-data.zip" download="graphrace-studio-data.zip">Claude・Codex 用（zip）</a>' +
             '<a class="grs-ai-dl" href="/ai/graphrace-studio-data/SKILL.md" download="SKILL.md">Gemini 用（SKILL.md）</a>' +
           '</div>' +
           '<p class="grs-ai-note">Claude：設定 → 機能 → スキル からアップロード。Gemini：カスタマイズ → スキル → 作成 → アップロード。</p>' +

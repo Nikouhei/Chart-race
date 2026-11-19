@@ -16,12 +16,14 @@ A race needs **several items competing in every period**. A single series over t
 
 ## Ask about extra columns
 
-Before (or together with) the first CSV, ask the user once whether they want:
+**Always ask this before making the first CSV** — do not skip it, even if the theme is clear. Ask in one short message (together with the theme check above, if any), then wait for the answer:
 
 - **Category column** — groups items for colouring and a legend (e.g. continent, league, company type). Suggest a concrete grouping.
-- **Image column** — an icon next to each bar.
+- **Image column** — an icon next to each bar. **If the items are countries/territories, always include flags without asking** (just mention it). Otherwise say whether you can provide usable images or not (see rules below).
 
-If the user already said, or wants the data right away, make it without those columns and mention they can be added. Rules for image URLs:
+Example (Japanese, countries): 「作る前に確認させてください。大陸別のカテゴリ列を付けますか？（国旗の画像は付けておきます）」
+
+Skip the question only if the user already answered it in their request (e.g. "with flags", "no images"). Rules for image URLs:
 
 - Use only images that may be reused in a published video: country flags from `https://flagcdn.com/w320/<code>.png` (public domain), or URLs the user gives you. Do not use logos, photos or images taken from websites, Wikipedia or search results — you cannot confirm the user may use them in a video.
 - If no such image exists for the items (companies, people, products…), leave the column empty and tell the user so: e.g. 「企業ロゴなどは使ってよい画像URLを確認できないため、画像列は空欄にしています。使える画像があればURLを入れてください。」

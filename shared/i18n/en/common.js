@@ -49,7 +49,7 @@ I18N.registerText('en', {
   'AIで作ったデータ': 'AI-generated data',
   '毎回コピーしたくない方へ：スキルを入れておく': 'Skip the copy-paste: install the skill',
   'AIに一度入れておけば、次からは「〇〇の推移をバーチャートレース用に」と頼むだけで、この形のデータが返ってきます。': 'Add it to your AI once, and from then on just ask for “X over time as a bar chart race” to get data in this format.',
-  'Claude 用（zip）': 'For Claude (zip)',
+  'Claude・Codex 用（zip）': 'For Claude / Codex (zip)',
   'Gemini 用（SKILL.md）': 'For Gemini (SKILL.md)',
   'Claude：設定 → 機能 → スキル からアップロード。Gemini：カスタマイズ → スキル → 作成 → アップロード。': 'Claude: upload in Settings → Capabilities → Skills. Gemini: Customize → Skills → Create → Upload.',
   '列が足りません（項目名・画像URL・数値の列が必要です）': 'Not enough columns (name, image URL and value columns are needed)',
