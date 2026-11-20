@@ -29,7 +29,7 @@ const soundReady = true;
 >
   <Fragment slot="head">
     <script is:inline src="/shared/export-plan.js?v=2026111602" defer></script>
-    <script is:inline src="/shared/video-export.js?v=2026111902" defer></script>
+    <script is:inline src="/shared/video-export.js?v=2026112001" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
     <script is:inline src="/shared/i18n.js?v=2026111903" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
@@ -2531,15 +2531,19 @@ function draw(dt){
   // 透かし(右下から左へ流れ続ける。動画にも焼き込まれる。書き出し画面で「なし」なら描かない)
   if(!exportNoMark){
   ctx.save();
-  ctx.font="bold 18px 'Hiragino Kaku Gothic ProN',sans-serif";
+  // 画面録画で持ち出されても消しにくいよう、3D版と同じく大きめ・はっきりめにする
+  ctx.font="bold 44px 'Hiragino Kaku Gothic ProN',sans-serif";
   const wmText=_t("GraphRace Studio 格付けダービー");
   const wmW=ctx.measureText(wmText).width;
   if(wmX==null)wmX=W;
-  wmX-=dt*60;
+  wmX-=dt*90;
   if(wmX<-wmW)wmX=W;
-  ctx.fillStyle="rgba(255,255,255,.2)";
-  ctx.textAlign="left";
-  ctx.fillText(wmText,wmX,H-12);
+  ctx.globalAlpha=.5;
+  ctx.textAlign="left";ctx.lineJoin="round";
+  ctx.lineWidth=6;ctx.strokeStyle="rgba(0,0,0,.6)";
+  ctx.strokeText(wmText,wmX,H-24);
+  ctx.fillStyle="#fff";
+  ctx.fillText(wmText,wmX,H-24);
   ctx.restore();
   }
   // 実況テロップ(設定で非表示にできる)。出走前シーンのあいだは出馬表を見せるので出さない
@@ -3838,7 +3842,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       button:btn,
       adapter,
       fileBase:"kakuzuke-derby",
-      scales:[1,1.5],      // 標準(720p)・高画質(1080p)。描画解像度ごと上げる(引き伸ばしではない)
+      scales:[0.75,1.5],   // 標準(540p)・高画質(1080p)。描画解像度ごと変える。プレビューは常に720p
       paidScales:[1.5],    // 有料化後は高画質(1080p)が有料。パスなしは標準に戻す
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く

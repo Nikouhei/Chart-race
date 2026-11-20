@@ -1447,7 +1447,7 @@
     var size0 = adapter.getSize();
     var alpha = typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage());
     function scaleLabel(s) { var o = outputSize(size0, s); return o.width + "×" + o.height; }
-    var SCALE_NAMES = { "1": "標準", "1.5": "高画質", "2": "最高画質" };
+    var SCALE_NAMES = { "0.75": "標準", "1": "標準", "1.5": "高画質", "2": "最高画質" };
     var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [1, 1.5];
     var fpsList = (cfg.fpsOptions && cfg.fpsOptions.length) ? cfg.fpsOptions : [30, 60];
     var FPS_NAMES = { "30": "30fps（標準）", "60": "60fps（なめらか・ファイル大）" };
@@ -1637,7 +1637,7 @@
           var locked = P.lockedOf(used);
           c = Object.assign({}, c);
           if (locked.indexOf("hd_max") >= 0) c.scale = 1.5;
-          if (locked.indexOf("hd_1080") >= 0) c.scale = 1;
+          if (locked.indexOf("hd_1080") >= 0) c.scale = scales[0];
           if (locked.indexOf("no_watermark") >= 0) c.mark = "on";
           if (locked.indexOf("transparent_export") >= 0) {
             var whiteBtn = document.querySelector('[data-bg-mode="white"]');
