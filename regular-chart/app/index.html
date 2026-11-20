@@ -1859,7 +1859,7 @@
         </div>
         <div class="setting-field">
           <span>色</span>
-          <input type="color" id="totalCounterColor" value="#333333">
+          <input type="color" id="totalCounterColor" value="#666666">
         </div>
       </div>
       <div class="setting-row">
@@ -1875,7 +1875,7 @@
         </div>
         <div class="setting-field">
           <span>位置 Y (%)</span>
-          <input type="number" id="totalCounterY" value="78" min="0" max="100" step="0.5">
+          <input type="number" id="totalCounterY" value="89" min="0" max="100" step="0.5">
         </div>
       </div>
     </div>
@@ -3074,9 +3074,9 @@
       const el = document.getElementById('totalDisplay');
       const clamp = (v, min, max, d) => Number.isFinite(v) ? Math.min(Math.max(min, v), max) : d;
       const x = clamp(+document.getElementById('totalCounterX').value, 0, 100, 95);
-      const y = clamp(+document.getElementById('totalCounterY').value, 0, 100, 78);
+      const y = clamp(+document.getElementById('totalCounterY').value, 0, 100, 89);
       el.style.display = document.getElementById('showTotalCounter').checked ? 'block' : 'none';
-      el.style.color = document.getElementById('totalCounterColor').value || '#333333';
+      el.style.color = document.getElementById('totalCounterColor').value || '#666666';
       el.style.fontSize = (canvasWidth * clamp(+document.getElementById('totalCounterSize').value, 0.5, 20, 3.5) / 100) + 'px';
       el.style.left = `${x}%`;
       el.style.top = `${y}%`;
