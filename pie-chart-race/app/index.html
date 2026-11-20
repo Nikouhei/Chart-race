@@ -6335,7 +6335,7 @@
 # CSVの形式
 - 1行目は見出しで「項目名,画像URL,期間1,期間2,…」とする（期間は年なら 2000 のように数字だけ）
 - 2行目から、1行に1項目。項目は3〜10個くらい
-- 画像URLの列は空欄のままにする
+- 画像URLの列: 項目が国・地域なら国旗（https://flagcdn.com/w320/国コード小文字.png 例: jp, us）を入れる。それ以外は空欄にする（ロゴや写真など、使ってよいか分からない画像は入れない）
 - 期間は古い順に左から右へ並べる。期間の数は10以上が望ましい
 - 数値は半角数字だけで書く（桁区切りのカンマ・単位・%は付けない）。分からない値は空欄
 - 各期間の数値は、全体に対する内訳（同じ単位の量）にする。割合(%)でなく実数があれば実数を優先
@@ -6356,7 +6356,7 @@ Topic: ${theme}
 # CSV format
 - Row 1 is the header: "Name,Image URL,period1,period2,..." (for years, just the number, e.g. 2000)
 - From row 2, one item per row. About 3–10 items
-- Leave the Image URL column empty
+- Image URL column: if the items are countries/territories, use flags (https://flagcdn.com/w320/<lowercase ISO code>.png, e.g. jp, us). Otherwise leave it empty (no logos or photos you cannot confirm are free to use)
 - Periods go oldest to newest, left to right. 10 or more periods is ideal
 - Values are plain numbers only (no thousands separators, units or %). Leave unknown values empty
 - Each period's values should be parts of a whole in the same unit. Prefer raw amounts over percentages when available
