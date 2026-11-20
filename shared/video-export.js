@@ -790,7 +790,7 @@
       var ht = short * 0.043;
       ctx.font = "800 " + Math.round(ht) + "px sans-serif";
       var unitW = (logoImg ? ht * 1.4 : 0) + ctx.measureText(MARK_TEXT).width;
-      var stepX = unitW * 1.6, stepY = ht * 7;
+      var stepX = unitW * 1.84, stepY = ht * 8;
       var off = style === "drift" ? (tSec * short * 0.025) % stepX : 0;
       var nx = Math.ceil(diag / 2 / stepX) + 1, ny = Math.ceil(diag / 2 / stepY) + 1;
       for (var ty = -ny; ty <= ny; ty++) {
