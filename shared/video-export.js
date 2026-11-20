@@ -32,7 +32,7 @@
  *                            MP4 は AAC（無理なら Opus）、WebM は Opus でエンコードする。
  *                            ブラウザが音声のエンコードに対応していなければ、音なしで書き出す
  *     },
- *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [1, 1.5]）
+ *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [0.75, 1.5]）
  *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
  *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
  *     surveyId: "derby_v2"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
@@ -1448,7 +1448,7 @@
     var alpha = typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage());
     function scaleLabel(s) { var o = outputSize(size0, s); return o.width + "×" + o.height; }
     var SCALE_NAMES = { "0.75": "標準", "1": "標準", "1.5": "高画質", "2": "最高画質" };
-    var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [1, 1.5];
+    var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [0.75, 1.5];
     var fpsList = (cfg.fpsOptions && cfg.fpsOptions.length) ? cfg.fpsOptions : [30, 60];
     var FPS_NAMES = { "30": "30fps（標準）", "60": "60fps（なめらか・ファイル大）" };
     var scaleOptions = scales.map(function (s) {
