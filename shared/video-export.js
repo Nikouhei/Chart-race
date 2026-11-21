@@ -33,6 +33,7 @@
  *                            ブラウザが音声のエンコードに対応していなければ、音なしで書き出す
  *     },
  *     scales: [1]            （任意）選べる画質。1つだけなら画質の欄を出さない（既定 [0.75, 1.5]）
+ *     paidScales: [1.5]      （任意）有料の画質。既定は scales 未指定なら [1.5]、指定ありなら []
  *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
  *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
  *     surveyId: "derby_v2"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
@@ -1384,8 +1385,9 @@
     var P = plan();
     var t = P ? P.badgeText(feature) : "";
     if (!t) return "";
-    var cls = P && P.config.paywallEnabled ? "lock" : "paid";
-    return '<em class="grsx-tag ' + cls + '">' + esc(t) + "</em>";
+    // 有料化後は金の冠アイコン（shared/export-plan.js の GRSPlan.crownHtml）
+    if (P && P.config.paywallEnabled && P.crownHtml) return P.crownHtml();
+    return '<em class="grsx-tag paid">' + esc(t) + "</em>";
   }
 
   function fmtSec(ms) {
@@ -1447,16 +1449,20 @@
     var size0 = adapter.getSize();
     var alpha = typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage());
     function scaleLabel(s) { var o = outputSize(size0, s); return o.width + "×" + o.height; }
-    var SCALE_NAMES = { "0.75": "標準", "1": "標準", "1.5": "高画質", "2": "最高画質" };
+    var SCALE_NAMES = { "0.75": "標準（540p）", "1.5": "高画質（HD）", "2": "最高画質（2K）" };
+    // 有料の選択肢は語尾に冠を付ける（<option> の中には画像を置けないので絵文字）
+    var CROWN = " 👑";
     var scales = (cfg.scales && cfg.scales.length) ? cfg.scales : [0.75, 1.5];
+    // 有料の画質。ツールが画質を指定していなければ、高画質（1.5倍＝1080p）を有料にする
+    var paidScales = cfg.paidScales || (cfg.scales ? [] : [1.5]);
     var fpsList = (cfg.fpsOptions && cfg.fpsOptions.length) ? cfg.fpsOptions : [30, 60];
     var FPS_NAMES = { "30": "30fps（標準）", "60": "60fps（なめらか・ファイル大）" };
     var scaleOptions = scales.map(function (s) {
-      return '<option value="' + s + '">' + (SCALE_NAMES[String(s)] || s + "倍") + "（" + scaleLabel(s) + "）" +
-        (P && P.config.paywallEnabled && cfg.paidScales && cfg.paidScales.indexOf(s) >= 0 && !P.canUse("hd_1080") ? "・有料" : "") + "</option>";
+      return '<option value="' + s + '">' + (SCALE_NAMES[String(s)] || "標準（" + scaleLabel(s) + "）") +
+        (P && P.config.paywallEnabled && paidScales.indexOf(s) >= 0 && !P.canUse("hd_1080") ? CROWN : "") + "</option>";
     }).join("") +
       // 最高画質は有料化（paywallEnabled）してから出す。画質を固定しているツールには出さない
-      (!cfg.scales && P && P.config.paywallEnabled ? '<option value="2">最高画質（' + scaleLabel(2) + "）" + (P.canUse("hd_max") ? "" : "・有料") + "</option>" : "");
+      (!cfg.scales && P && P.config.paywallEnabled ? '<option value="2">' + SCALE_NAMES["2"] + (P.canUse("hd_max") ? "" : CROWN) + "</option>" : "");
     var fpsOptions = fpsList.map(function (f) { return '<option value="' + f + '">' + (FPS_NAMES[String(f)] || f + "fps") + "</option>"; }).join("");
     // LINE などのアプリ内ブラウザでは保存できないことが多いので、書き出す前に知らせる（shared/export-cta.js）
     var inAppNote = (window.GRSExportCTA && window.GRSExportCTA.inAppDialogHtml) ? window.GRSExportCTA.inAppDialogHtml() : "";
@@ -1624,7 +1630,7 @@
       if (P && P.config.paywallEnabled) {
         var used = [];
         if (c.scale >= 2) used.push("hd_max");
-        if (cfg.paidScales && cfg.paidScales.indexOf(c.scale) >= 0) used.push("hd_1080");
+        if (paidScales.indexOf(c.scale) >= 0) used.push("hd_1080");
         if (c.mark === "off") used.push("no_watermark");
         if (typeof adapter.paintFrame !== "function" && isAlphaStage(adapter.getStage())) used.push("transparent_export");
         if (typeof adapter.getPaidFeatures === "function") {

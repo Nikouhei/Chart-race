@@ -88,6 +88,56 @@
     return isPro() ? "" : "有料";
   }
 
+  // 有料機能の印（金の冠）。書き出し画面と設定パネルで共通
+  var CROWN_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="#E8A317" stroke="#B07700" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  function crownHtml() {
+    return '<span class="grs-crown" role="img" aria-label="有料機能">' + CROWN_SVG + "</span>";
+  }
+
+  // 設定パネルの有料機能（data-paid-feature="機能名" を付けた要素）に冠を付け、
+  // ホバーで「プレビューは無料」と出す。パスがあれば何も付けない
+  function decoratePaid(root) {
+    if (!CONFIG.paywallEnabled || isPro()) return;
+    injectCrownCss();
+    var els = (root || document).querySelectorAll("[data-paid-feature]");
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (!FEATURES[el.getAttribute("data-paid-feature")] || el.querySelector(".grs-crown") || el.hasAttribute("data-paid-crowned")) continue;
+      // <option> の中には画像もホバーも置けないので、語尾に絵文字の冠だけ付ける
+      if (el.tagName === "OPTION") {
+        el.setAttribute("data-paid-crowned", "");
+        el.textContent = el.textContent + " 👑";
+        continue;
+      }
+      el.classList.add("grs-paid");
+      el.insertAdjacentHTML("beforeend", crownHtml() + '<span class="grs-paid-tip">有料機能・プレビューは無料です</span>');
+    }
+  }
+  function clearPaid() {
+    var els = document.querySelectorAll(".grs-crown, .grs-paid-tip");
+    for (var i = 0; i < els.length; i++) els[i].remove();
+    var opts = document.querySelectorAll("option[data-paid-crowned]");
+    for (var j = 0; j < opts.length; j++) {
+      opts[j].textContent = opts[j].textContent.replace(/ 👑$/, "");
+      opts[j].removeAttribute("data-paid-crowned");
+    }
+  }
+  function injectCrownCss() {
+    if (document.getElementById("grsCrownCss")) return;
+    var el = document.createElement("style");
+    el.id = "grsCrownCss";
+    el.textContent =
+      ".grs-crown{display:inline-block;margin-left:3px;line-height:0;vertical-align:-2px}" +
+      ".grs-paid{position:relative}" +
+      ".grs-paid-tip{display:none;position:absolute;right:0;bottom:calc(100% + 8px);z-index:50;padding:6px 10px;border-radius:6px;" +
+        "background:#2d2a3a;color:#fff;font-size:12px;font-weight:600;line-height:1.4;white-space:nowrap;pointer-events:none;text-transform:none;letter-spacing:normal}" +
+      ".grs-paid-tip:after{content:\"\";position:absolute;top:100%;right:14px;border:5px solid transparent;border-top-color:#2d2a3a}" +
+      ".grs-paid:hover .grs-paid-tip,.grs-paid:focus-visible .grs-paid-tip{display:block}";
+    document.head.appendChild(el);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { decoratePaid(); });
+  else decoratePaid();
+
   async function activateLicense(key) {
     key = String(key || "").trim();
     if (!key) return { ok: false, message: "ライセンスキーを入力してください" };
@@ -103,6 +153,7 @@
       var body = await res.json().catch(function () { return {}; });
       if (res.ok && body && body.valid) {
         lsSet(LS_LICENSE, { key: key, valid: true, checkedAt: Date.now() });
+        clearPaid();
         track("license_activate", { license_result: "ok" });
         return { ok: true };
       }
@@ -392,6 +443,8 @@
     isPro: isPro,
     canUse: canUse,
     badgeText: badgeText,
+    crownHtml: crownHtml,
+    decoratePaid: decoratePaid,
     openUpgrade: openUpgrade,
     gate: gate,
     lockedOf: lockedOf,
