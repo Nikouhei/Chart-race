@@ -44,7 +44,7 @@ const TOOL_DEFS = [
   { id: 'bar-chart-race', icon: 'bars', ja: 'バーチャートレース', en: 'Bar Chart Race', f: ['no_watermark', 'hd_max', 'transparent', 'rounded_bar', 'image_right'] },
   { id: 'line-chart-race', icon: 'line', ja: '線グラフレース', en: 'Line Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
   { id: 'pie-chart-race', icon: 'pie', ja: '円グラフレース', en: 'Pie Chart Race', f: ['no_watermark', 'hd_max', 'transparent'] },
-  { id: 'horse-race', icon: 'flag', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare', 'sound'] },
+  { id: 'horse-race', icon: 'horse', ja: '格付けダービー', en: 'Ranking Derby', f: ['no_watermark', 'hd_1080', 'fanfare', 'sound'] },
 ];
 const toolsFor = (lang, F) => TOOL_DEFS.map((t) => ({
   id: t.id, icon: t.icon, name: t[lang], href: pathFor(t.id, lang), features: t.f.map((k) => F[k]),

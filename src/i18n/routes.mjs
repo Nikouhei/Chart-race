@@ -54,7 +54,7 @@ export const NAV_TOOLS = [
   { id: 'pie-chart-race', cat: 'graph', icon: 'pie', key: 'nav.pieChartRace', desc: 'nav.desc.pieChartRace' },
   { id: 'tournament', cat: 'ranking', icon: 'trophy', key: 'nav.tournament', desc: 'nav.desc.tournament' },
   { id: 'ranking-video', cat: 'ranking', icon: 'podium', key: 'nav.rankingVideo', desc: 'nav.desc.rankingVideo' },
-  { id: 'horse-race', cat: 'ranking', icon: 'flag', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
+  { id: 'horse-race', cat: 'ranking', icon: 'horse', key: 'nav.horseRace', desc: 'nav.desc.horseRace' },
   { id: 'amidakuji', cat: 'other', icon: 'ladder', key: 'nav.amidakuji', desc: 'nav.desc.amidakuji' },
 ];
 

@@ -8,6 +8,7 @@ const ICONS = {
   pie: '<path d="M11 5a8 8 0 1 0 8 8h-8z"/><path d="M14.5 3.5a6 6 0 0 1 6 6h-6z"/>',
   trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4"/><path d="M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4"/><path d="M8.5 20h7"/><path d="M10 17h4"/>',
   podium: '<path d="M9 20V8h6v12"/><path d="M9 13H3v7"/><path d="M15 15.5h6V20"/><path d="M2 20h20"/>',
+  horse: '<path d="M4.5 8c3.5.5 7 .5 9.5-.5 1.5-1 2-3.5 3.5-4.5l1-1 .5 1.5 3.5 3.5c0 1-1 1.3-2 1L18 7.5c-.5 1.5-.5 3-.5 4.5v9H15v-6.5c-2.5.5-5 .5-7.5 0V21H5v-8c-1-1.5-1-3.5-.5-5z"/><path d="M4.5 8.5c-2 1-2.5 3.5-2 6.5"/>',
   flag: '<path d="M5 21V4"/><path d="M5 4h14v9H5"/><path d="M9.67 4v9M14.33 4v9M5 8.5h14"/>',
   ladder: '<path d="M6 3v18M12 3v18M18 3v18"/><path d="M6 8h6M12 13h6M6 17h6"/>',
   // 有料機能

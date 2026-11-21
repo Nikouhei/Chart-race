@@ -18,7 +18,7 @@ const TOOLS = [
   { id: 'bar-chart-race', icon: 'bars', badge: 'Time series', name: 'Bar Chart Race Maker', text: 'Watch bars overtake each other as your data moves through time. The classic format for ranking videos on YouTube and TikTok.', tags: ['CSV / Excel', 'Flags & icons', 'MP4 / WebM'] },
   { id: 'line-chart-race', icon: 'line', badge: 'Line chart', name: 'Line Chart Race Maker', text: 'Lines draw themselves over time with flags and live values at the tips — ideal for comparing trends in reports and explainers.', tags: ['CSV / Excel', 'Custom styles', 'MP4 / WebM'] },
   { id: 'pie-chart-race', icon: 'pie', badge: 'Pie chart', name: 'Pie Chart Race Maker', text: 'Pie and donut charts whose slices grow and shrink over time — perfect for market shares, budgets and energy mixes.', tags: ['CSV / Excel', 'Pie or donut', 'MP4 / WebM'] },
-  { id: 'horse-race', icon: 'flag', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
+  { id: 'horse-race', icon: 'horse', badge: 'Ranking reveal', name: 'Ranking Derby', text: 'Turn any ranking into a horse race in 2D or realistic 3D. The race is different every time, but always finishes in your order.', tags: ['2D & 3D', 'Live captions', 'MP4 / WebM'] },
   { id: 'tournament', icon: 'trophy', badge: 'Bracket', name: 'Tournament Bracket Animator', text: 'Animated single-elimination brackets for 2–32 players. Let winners advance automatically or pick them yourself.', tags: ['2–32 players', '4 layouts', 'Player images'] },
   { id: 'ranking-video', icon: 'podium', badge: 'Countdown', name: 'Ranking Video Maker', text: 'Top 10 countdowns with photos and descriptions. Cards glide in one by one from last place to #1.', tags: ['Photos', '16:9 / 9:16 / 3:4', 'Color themes'] },
 ].map((t) => ({ ...t, href: pathFor(t.id, 'en', { drafts }) })).filter((t) => t.href);
@@ -62,7 +62,7 @@ const FAQ = [
             <div class="demo-tabs">
               <button class="demo-tab-btn is-active" data-tab="tab-barchart"><Fragment set:html={iconSvg('bars')} />Bar chart</button>
               <button class="demo-tab-btn" data-tab="tab-bracket"><Fragment set:html={iconSvg('trophy')} />Bracket</button>
-              <button class="demo-tab-btn" data-tab="tab-derby"><Fragment set:html={iconSvg('flag')} />Derby</button>
+              <button class="demo-tab-btn" data-tab="tab-derby"><Fragment set:html={iconSvg('horse')} />Derby</button>
               <button class="demo-tab-btn" data-tab="tab-ranking"><Fragment set:html={iconSvg('podium')} />Top 5</button>
             </div>
 
@@ -109,7 +109,7 @@ const FAQ = [
             <!-- Tab 3: 格付けダービー -->
             <div id="tab-derby" class="demo-tab-content">
               <div class="demo-header">
-                <span class="demo-title"><Fragment set:html={iconSvg('flag')} />Ranking Derby G1</span>
+                <span class="demo-title"><Fragment set:html={iconSvg('horse')} />Ranking Derby G1</span>
                 <span id="derby-status" style="font-size: 11px; color: #c9a227; font-weight:800;">Pre-race</span>
               </div>
               <div class="derby-stage">
