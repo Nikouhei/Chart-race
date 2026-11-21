@@ -35,6 +35,8 @@ const I18N = {
   ja: {
     loading: 'ライセンスキーを発行しています…',
     ready: 'ライセンスキーを発行しました。同じ内容をメールでもお送りしています。',
+    activated: '✅ このブラウザでは有料プランを有効にしました。キーの入力は不要です。書き出し画面を開いたままのタブがあれば、そのまま書き出せます。',
+    other: '別のブラウザや端末で使うときは、下のキーを書き出し画面の「ライセンスキーをお持ちの方」に入力してください。念のためキーを控えておいてください。',
     timeout: '発行の反映に時間がかかっています。しばらくしてからこのページを開き直すか、メールをご確認ください。届かない場合はお問い合わせください。',
     missing: '購入情報が見つかりませんでした。Stripe の決済画面から戻った直後のページでのみ表示されます。',
     invalid: 'このライセンスキーは現在使えません（返金済みか、期限が切れています）。',
@@ -46,6 +48,8 @@ const I18N = {
   en: {
     loading: 'Issuing your license key…',
     ready: 'Your license key is ready. We have also emailed it to you.',
+    activated: '✅ Your plan is now active in this browser. No need to enter the key. If a tool is still open in another tab, you can export from it right away.',
+    other: 'To use it in another browser or device, enter the key below under “I have a license key” in the export dialog. Please keep a copy of the key.',
     timeout: 'It is taking a little longer than usual. Please reopen this page in a few minutes, or check your email. If it does not arrive, contact us.',
     missing: 'We could not find your purchase. This page only works right after returning from the Stripe checkout.',
     invalid: 'This license key is not active (refunded or expired).',
@@ -56,9 +60,6 @@ const I18N = {
   },
 }[locale];
 
-const HOW = locale === 'en'
-  ? 'How to use: when you export in a tool, open “I have a license key” in the dialog and paste the key.'
-  : '使い方：ツールで書き出すときに表示される案内の「ライセンスキーをお持ちの方」を開き、キーを貼り付けてください。';
 const LINK_NOTE = locale === 'en'
   ? 'Cancel or update your payment method through Link (link.com). Your card statement will show “LINK.COM*”, and receipts are sent by Link.'
   : '解約・お支払い方法の変更は Link（link.com）から行えます。カードの明細には「LINK.COM*」と表示され、領収書は Link から届きます。';
@@ -76,6 +77,7 @@ const ABOUT_LABEL = locale === 'en' ? 'Contact' : 'お問い合わせ';
       .thanks-key code { font-size: clamp(1.2rem, 4.5vw, 1.7rem); font-weight: 700; letter-spacing: 0.06em; padding: 12px 18px; background: #f3f4f6; border-radius: 10px; user-select: all; }
       .thanks-key button { font: inherit; cursor: pointer; padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; }
       .thanks-meta { margin: 0 0 8px; }
+      .thanks-activated { margin: 0 0 12px; padding: 12px 16px; background: #ecfdf3; border: 1px solid #a7e3c1; border-radius: 10px; color: #14532d; font-weight: 600; }
       .thanks-note { color: #4b5563; font-size: 0.92em; }
       [hidden] { display: none !important; }
     </style>
@@ -89,13 +91,14 @@ const ABOUT_LABEL = locale === 'en' ? 'Contact' : 'お問い合わせ';
       <section>
         <p class="thanks-status" id="thanks-status" role="status" aria-live="polite">{I18N.loading}</p>
         <div id="thanks-result" hidden>
+          <p class="thanks-activated" id="thanks-activated" hidden>{I18N.activated}</p>
+          <p class="thanks-meta">{I18N.other}</p>
           <div class="thanks-key">
             <code id="thanks-key"></code>
             <button type="button" id="thanks-copy">{I18N.copy}</button>
           </div>
           <p class="thanks-meta" id="thanks-plan"></p>
           <p class="thanks-meta" id="thanks-expires"></p>
-          <p>{HOW}</p>
           <p class="thanks-note">{LINK_NOTE}</p>
         </div>
         <p class="thanks-note"><a href={ABOUT_HREF}>{ABOUT_LABEL}</a></p>
@@ -130,6 +133,11 @@ const ABOUT_LABEL = locale === 'en' ? 'Contact' : 'お問い合わせ';
         document.getElementById('thanks-plan').textContent = T.plan + ': ' + (T.plans[d.plan] || d.plan);
         document.getElementById('thanks-expires').textContent = (d.plan === 'pass7' ? T.expires : T.renews) + ': ' + fmtDate(d.expires_at);
         resultEl.hidden = false;
+        // このブラウザで自動的に有効にする（ツールと同じ保存先。開いたままのツールのタブにも storage イベントで伝わる）
+        try {
+          localStorage.setItem('grs_license_v1', JSON.stringify({ key: d.key, valid: true, checkedAt: Date.now(), plan: d.plan, expiresAt: d.expires_at }));
+          document.getElementById('thanks-activated').hidden = false;
+        } catch (e) {}
         // 計測: 購入完了（同じ購入でリロードしても1回だけ）
         try {
           var mark = 'grs_purchase_tracked_' + sid;

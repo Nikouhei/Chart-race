@@ -1418,10 +1418,21 @@
     var abort = null;
     var closed = false;
 
+    // 別タブで購入・有効化されたら、開いたままのこの画面からも冠を外し、状態の一行を出す
+    function onLicenseChange(e) {
+      if (!e.detail || !e.detail.pro) return;
+      var opts = back.querySelectorAll("option");
+      for (var i = 0; i < opts.length; i++) opts[i].textContent = opts[i].textContent.replace(/ 👑$/, "");
+      var crowns = body.querySelectorAll(".grs-crown, .grsx-tag.paid");
+      for (var j = 0; j < crowns.length; j++) crowns[j].remove();
+      if (P && P.statusHtml && !body.querySelector(".grsp-status")) body.insertAdjacentHTML("afterbegin", P.statusHtml());
+    }
+    window.addEventListener("grs-license-change", onLicenseChange);
     function close() {
       if (state.busy) { if (abort) abort.abort(); return; }
       closed = true;
       back.remove();
+      window.removeEventListener("grs-license-change", onLicenseChange);
       document.removeEventListener("keydown", onKey, true);
       if (cfg.button) cfg.button.focus();
     }
@@ -1466,7 +1477,9 @@
     var fpsOptions = fpsList.map(function (f) { return '<option value="' + f + '">' + (FPS_NAMES[String(f)] || f + "fps") + "</option>"; }).join("");
     // LINE などのアプリ内ブラウザでは保存できないことが多いので、書き出す前に知らせる（shared/export-cta.js）
     var inAppNote = (window.GRSExportCTA && window.GRSExportCTA.inAppDialogHtml) ? window.GRSExportCTA.inAppDialogHtml() : "";
-    body.innerHTML = inAppNote +
+    // 有料プランが有効なら「有料プラン有効（〜まで）」を一番上に出す
+    var planStatus = (P && P.statusHtml) ? P.statusHtml() : "";
+    body.innerHTML = planStatus + inAppNote +
       '<div class="grsx-thumb"><canvas id="grsxThumb"></canvas></div>' +
       '<div class="grsx-field"><span>形式</span><div class="grsx-seg" data-name="format">' +
         (alpha

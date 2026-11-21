@@ -146,6 +146,8 @@ I18N.registerText('en', {
   '有効にする': 'Activate',
   '確認中…': 'Checking…',
   '有効になりました': 'Activated',
+  '有料プラン有効': 'Pro plan active',
+  '✅ 有料プランが有効になりました。そのまま書き出せます': '✅ Your plan is now active. You can export right away.',
   'ライセンスキーを入力してください': 'Enter your license key',
   'ライセンスの販売はまだ始まっていません': 'Licenses aren’t on sale yet',
   'このライセンスキーは使えません': 'This license key isn’t valid',
@@ -224,6 +226,8 @@ I18N.registerPatterns('en', [
   [/^約(.+)$/, 'about $1'],
   // 前回の続き
   [/^前回の続き（(.+)）が残っています。$/, 'You have unsaved work from last time ($1).'],
+  // 有料プランの状態
+  [/^有料プラン有効（(\d+)月(\d+)日まで）$/, function (m, mo, d) { return 'Pro plan active (until ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mo - 1] + ' ' + d + ')'; }],
   // 書き出しダイアログ
   [/^(.+?)（(\d+×\d+)）・有料$/, '$1 ($2) · Pro'],
   [/^(.+?)（(\d+×\d+)）$/, '$1 ($2)'],

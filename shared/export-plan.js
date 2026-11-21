@@ -152,8 +152,10 @@
       });
       var body = await res.json().catch(function () { return {}; });
       if (res.ok && body && body.valid) {
-        lsSet(LS_LICENSE, { key: key, valid: true, checkedAt: Date.now() });
+        lsSet(LS_LICENSE, { key: key, valid: true, checkedAt: Date.now(), plan: body.plan, expiresAt: body.expires_at });
+        wasPro = true;
         clearPaid();
+        notifyChange();
         track("license_activate", { license_result: "ok" });
         return { ok: true };
       }
@@ -175,10 +177,63 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ license_key: lic.key })
     }).then(function (r) { return r.json(); }).then(function (b) {
-      lsSet(LS_LICENSE, { key: lic.key, valid: !!(b && b.valid), checkedAt: Date.now() });
+      lsSet(LS_LICENSE, { key: lic.key, valid: !!(b && b.valid), checkedAt: Date.now(), plan: b && b.plan, expiresAt: b && b.expires_at });
     }).catch(function () {}); // 通信できないときは前回の結果のまま
   }
   recheckLicense();
+
+  // ── 別タブでの購入・有効化を反映する ──────────────────────
+  // 書き出し画面から「プランを見る」で別タブを開いて購入すると、/thanks がキーを保存する。
+  // 判定（canUse）は毎回 localStorage を読むので次の書き出しは通るが、開いたままの購入案内や冠は古いまま。
+  // storage イベント（別タブの変更）と、タブに戻ったとき（visibilitychange）に確認して画面を更新する。
+  // 書き出しは自動で再開しない（ユーザーがもう一度ボタンを押す）
+  var wasPro = isPro();
+  function notifyChange() {
+    try { window.dispatchEvent(new CustomEvent("grs-license-change", { detail: { pro: isPro() } })); } catch (e) {}
+  }
+  function syncLicense() {
+    var now = isPro();
+    if (now === wasPro) return;
+    wasPro = now;
+    if (now) {
+      var open = document.querySelectorAll(".grsp-backdrop");
+      for (var i = 0; i < open.length; i++) if (open[i]._grspClose) open[i]._grspClose("cancel");
+      clearPaid();
+      toast("✅ 有料プランが有効になりました。そのまま書き出せます");
+      track("license_activate", { license_result: "other_tab" });
+    }
+    notifyChange();
+  }
+  window.addEventListener("storage", function (e) { if (e.key === null || e.key === LS_LICENSE) syncLicense(); });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") syncLicense(); });
+
+  function toast(text) {
+    ensureStyles();
+    var el = document.createElement("div");
+    el.className = "grsp-toast";
+    el.setAttribute("role", "status");
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(function () { el.classList.add("is-out"); }, 5000);
+    setTimeout(function () { el.remove(); }, 5600);
+  }
+
+  // 有料プランの状態（書き出し画面に出す一行）。有効でなければ空文字
+  function statusHtml() {
+    var lic = getLicense();
+    if (!lic || !CONFIG.paywallEnabled) return "";
+    ensureStyles();
+    injectCrownCss();
+    var until = "";
+    if (lic.expiresAt) {
+      try {
+        var d = new Date(lic.expiresAt * 1000);
+        until = "（" + (d.getMonth() + 1) + "月" + d.getDate() + "日まで）";
+      } catch (e) {}
+    }
+    // 英語表示では shared/i18n/en/common.js の辞書・パターンで置き換わる
+    return '<p class="grsp-status">' + crownHtml() + "<span>" + esc("有料プラン有効" + until) + "</span></p>";
+  }
 
   // ── 購入案内（paywallEnabled のときだけ使う）────────────────
   function lockedOf(features) {
@@ -216,7 +271,9 @@
         '<div class="grsp-actions"><button type="button" class="grsp-btn grsp-ghost grsp-close">閉じる</button></div>' +
       '</div>';
     document.body.appendChild(back);
+    back._grspClose = close;
     function close(result) {
+      if (!back.parentNode) return;
       back.remove();
       if (opts.onClose) opts.onClose(result);
     }
@@ -418,6 +475,8 @@
       ".grsp-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}" +
       ".grsp-license{margin-top:12px}.grsp-license summary{cursor:pointer;color:#555}" +
       ".grsp-row{display:flex;gap:8px;margin-top:8px}.grsp-input{flex:1;min-width:0;padding:9px 10px;border:1px solid #cfd4dc;border-radius:6px;font-size:14px}" +
+      ".grsp-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:7000;max-width:calc(100% - 32px);padding:12px 18px;border-radius:10px;background:#14532d;color:#fff;font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:opacity .5s}.grsp-toast.is-out{opacity:0}" +
+      ".grsp-status{display:flex;align-items:center;gap:6px;margin:0 0 10px;font-size:13px;font-weight:700;color:#7a5200}" +
       ".grsp-msg{min-height:1.4em;font-size:12px;margin:6px 0 0!important}" +
       ".grsp-survey{color:#1b1f27;font-size:13px;line-height:1.5}" +
       ".grsp-survey-head{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}.grsp-survey-head span{color:#666;font-size:12px}" +
@@ -449,6 +508,7 @@
     gate: gate,
     lockedOf: lockedOf,
     activateLicense: activateLicense,
+    statusHtml: statusHtml,
     countExport: countExport,
     survey: SURVEYS.charts_v2, // surveyId を指定しないツール（グラフ3ツール）が使う
     surveys: SURVEYS,
