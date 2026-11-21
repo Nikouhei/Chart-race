@@ -1106,7 +1106,7 @@ const soundReady = true;
                 <option value="off">入れない</option>
               </select>
             </div>
-            <div class="field">
+            <div class="field" id="volumeField">
               <label>音量</label>
               <input type="range" id="volume" min="0" max="100" step="5" value="80">
               <div class="timeline-time" id="volumeValue">80%</div>
@@ -1753,6 +1753,12 @@ function applyGroup(ids,values){
     el.value=values[id];
     if(el.tagName==="SELECT"&&el.selectedIndex===-1)el.selectedIndex=0; // 不正値はデフォルトへ
   }
+  syncSfxField();
+}
+/* 歓声・蹄の音を「入れない」にしたら、音量の欄を隠す */
+function syncSfxField(){
+  const sfx=document.getElementById("sfx"), field=document.getElementById("volumeField");
+  if(sfx&&field)field.hidden=sfx.value==="off";
 }
 /* keepRace=true は音量など、レースの中身に関係しない設定。組み直すと競馬風では
    展開が変わってしまう(プレビューと違うレースが書き出される)ので、印を付けない */
@@ -3245,7 +3251,8 @@ const Sound=(()=>{
   };
   fanEl.addEventListener("change",retime);
   cdEl.addEventListener("change",retime);
-  document.getElementById("sfx").addEventListener("change",()=>Sound.prefetch());
+  document.getElementById("sfx").addEventListener("change",()=>{syncSfxField();Sound.prefetch();});
+  syncSfxField();
   syncFan();
   listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn));
   // ツールに触れたら、今の設定で鳴らす音を先に読み込んでおく(初期表示は軽いまま)
