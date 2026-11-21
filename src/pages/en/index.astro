@@ -3,6 +3,8 @@
 // 見た目は日本語トップと共通（src/styles/home.css）。文章は英語圏向けに書いている。
 // 英語版があるツールだけを載せる（ブログ・あみだくじは英語版なし）
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import UpdateHistory from '../../components/UpdateHistory.astro';
+import { UPDATES_EN } from '../../i18n/updates-en.mjs';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import homeCss from '../../styles/home.css?raw';
@@ -233,6 +235,8 @@ const FAQ = [
         </div>
       </div>
     </section>
+
+    <UpdateHistory items={UPDATES_EN['home']} />
   </main>
 
   <SiteFooter locale={locale} />

@@ -6,6 +6,8 @@
  *   構造化データ（SoftwareApplication・HowTo・FAQPage）もここで作る。
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import UpdateHistory from '../UpdateHistory.astro';
+import { UPDATES_EN } from '../../i18n/updates-en.mjs';
 import SiteHeader from '../SiteHeader.astro';
 import SiteFooter from '../SiteFooter.astro';
 import { legacyCss } from '../../../build/legacy-tool.mjs';
@@ -192,6 +194,8 @@ const cta = p.primaryCta || 'Start creating';
         <a class="btn-primary" href={p.appHref}>{cta}</a>
       </div>
     </section>
+
+    {UPDATES_EN[p.pageId] && <UpdateHistory items={UPDATES_EN[p.pageId]} />}
   </main>
 
   <SiteFooter locale={locale} crumbs={[{ name: 'Home', href: '/en/' }, { name: p.appName }]} />

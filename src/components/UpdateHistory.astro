@@ -1,0 +1,40 @@
+---
+// 更新履歴（英語ページ用）。見た目は各ページが持つ .update-history の CSS（日本語版LPの <style> / home.css）を使う。
+// 日本語版の更新履歴を足したら、英語ページの一覧（src/i18n/updates-en.mjs）にも英語で足す。
+interface Entry { date: string; text: string; isNew?: boolean }
+interface Props { items: Entry[]; title?: string; more?: string; visible?: number }
+const { items, title = "What's new", more = 'Show more', visible = 5 } = Astro.props;
+const id = 'upd-' + Math.random().toString(36).slice(2, 8);
+---
+<section class="update-history" id={id}>
+  <div class="wrap">
+    <h2 class="section-title">{title}</h2>
+    <div class="update-list-container">
+      <ul class="update-list">
+        {items.map((it, i) => (
+          <li class={'update-item' + (i >= visible ? ' is-hidden' : '')}>
+            {it.isNew && <span class="badge-new">New</span>}
+            <time class="update-date" datetime={it.date}>{it.date.replace(/-/g, '.')}</time>
+            <span class="update-content" set:html={it.text} />
+          </li>
+        ))}
+      </ul>
+      {items.length > visible && (
+        <div class="update-more-container">
+          <button type="button" class="btn-more" data-update-more>{more}</button>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+<script is:inline define:vars={{ id }}>
+  (function () {
+    var root = document.getElementById(id);
+    var btn = root && root.querySelector('[data-update-more]');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      root.querySelectorAll('.update-item.is-hidden').forEach(function (el) { el.classList.remove('is-hidden'); });
+      btn.style.display = 'none';
+    });
+  })();
+</script>
