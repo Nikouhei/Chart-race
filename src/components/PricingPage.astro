@@ -83,6 +83,7 @@ const TEXT = {
       { q: '7日パスは自動で更新されますか？', a: 'いいえ。7日パスは1回のお支払いで、7日たつと自動的に終了します。続けて使う場合は、もう一度購入するか月額・年額プランをお選びください。' },
       { q: '月額・年額プランの更新日と解約はどうなりますか？', a: '購入日と同じ日に、毎月（年額は毎年）自動で更新されます。解約・お支払い方法の変更は Link（link.com）から行えます。解約しても、お支払い済みの期間の終わりまでは使えます。' },
       { q: 'カードの明細にはどう表示されますか？', a: '「LINK.COM*」と表示されます。領収書は Link から届きます。' },
+      { q: '領収書はもらえますか？', a: 'お支払いが済むと、Link から領収書（レシート）がメールで届きます。経費精算などにお使いください。届かない場合や再発行が必要な場合は、お問い合わせください。' },
       { q: '何台の端末で使えますか？', a: '現在、端末の台数に制限はありません。ライセンスキーはご自身の範囲でお使いください。' },
       { q: '返金はできますか？', a: 'デジタルコンテンツの性質上、お客様のご都合による返金・キャンセルはお受けしていません。ただし、二重にお支払いいただいた場合や、不具合でご利用いただけない場合は、お問い合わせください。確認のうえ返金します。返金したライセンスキーは使えなくなります。' },
     ],
@@ -121,6 +122,7 @@ const TEXT = {
       { q: 'Does the 7-Day Pass renew automatically?', a: 'No. It is a one-time payment and ends after 7 days. To keep going, buy another pass or choose the monthly or yearly plan.' },
       { q: 'How do renewals and cancellation work for monthly and yearly plans?', a: 'Plans renew automatically on the same day each month (or year) as your purchase. You can cancel or update your payment method through Link (link.com). After you cancel, you can keep using the plan until the end of the period you have paid for.' },
       { q: 'What will appear on my card statement?', a: 'It will show “LINK.COM*”. Receipts are sent by Link.' },
+      { q: 'Can I get a receipt?', a: 'Yes. Link emails you a receipt after each payment. If you did not receive it or need another copy, please contact us.' },
       { q: 'How many devices can I use it on?', a: 'There is currently no limit on the number of devices. Please use your key for your own work.' },
       { q: 'Can I get a refund?', a: 'Because this is digital content, we do not offer refunds or cancellations for reasons of personal convenience. If you were charged twice, or you cannot use the Service because of a defect, please contact us. We will review it and refund you if appropriate. A refunded license key stops working.' },
     ],
@@ -159,14 +161,14 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .plan-buy:hover { filter: brightness(1.08); }
       .plan-buy:disabled { opacity: 0.6; cursor: progress; }
       .pricing-status { min-height: 1.6em; margin: 8px 0 0; color: #b42318; font-weight: 600; }
-      .pricing-tax { margin: 0 0 32px; font-size: 0.88rem; color: var(--text-muted); }
       .pricing-features { margin: 0 0 8px; padding-left: 1.4em; }
       .faq-item { margin: 0 0 18px; }
       /* 共通の .content-block h2 / p の装飾がカードの中に効かないようにする */
       .content-block .plan-name { margin: 0 0 8px; padding: 0; border: 0; font-size: 1.15rem; }
       .content-block .plan-price { margin: 4px 0 4px; padding: 0; font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--text-strong); }
       .content-block .plan-fit { margin: 0 0 10px; padding: 0; font-size: 0.86rem; font-weight: 700; line-height: 1.5; color: var(--accent); }
-      .content-block .pricing-tax + .pricing-tax { margin-top: -26px; }
+      .content-block .pricing-notes { margin: 0 0 32px; }
+      .content-block .pricing-notes p { margin: 0; padding: 0; font-size: 0.88rem; line-height: 1.7; color: var(--text-muted); }
       .content-block .plan-note { padding: 0; font-size: 0.9rem; line-height: 1.7; color: var(--text-muted); }
       .plan-buy { white-space: nowrap; font-size: 1rem; }
       .plan-unit { white-space: nowrap; display: inline-block; }
@@ -245,8 +247,10 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
           ))}
         </div>
         <p class="pricing-status" id="pricing-status" role="status" aria-live="polite"></p>
-        <p class="pricing-tax">{TEXT.trustNote}</p>
-        <p class="pricing-tax">{TEXT.taxNote}</p>
+        <div class="pricing-notes">
+          <p>{TEXT.trustNote}</p>
+          <p>{TEXT.taxNote}</p>
+        </div>
       </section>
 
       <section class="pricing-section">
