@@ -70,7 +70,7 @@ const TEXT = {
     tools: TOOLS_JA,
     freeTools: ['トーナメント表', 'ランキング動画', 'あみだくじ'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '文化祭・結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', sale: '¥686', saleNote: '', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', sale: '¥686', saleNote: '', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
       { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', sale: '¥1,106', saleNote: '初月のみ。2か月目から¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
       { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', sale: '¥2,436', saleNote: '初年のみ。2年目から¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
     ],
@@ -159,7 +159,13 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .plan-price { margin: 0 0 4px; font-size: 2rem; font-weight: 700; line-height: 1.2; color: var(--text-strong); }
       .plan-unit { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
       .content-block .sale-banner { margin: 0 0 20px; border: 0; padding: 12px 16px; border-radius: 10px; background: #111; color: #fff !important; font-weight: 700; text-align: center; opacity: 1; }
-      .plan-was { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); margin-right: 4px; }
+      .plan-was { display: block; font-size: 1rem; font-weight: 400; line-height: 1.4; color: var(--text-muted); }
+      .plan-was[hidden], .sale-only[hidden] { display: none; }
+      /* カード内の各行（名前・説明・価格・注記・説明文・ボタン）を3枚で横にそろえる */
+      @supports (grid-template-rows: subgrid) {
+        .plan-card { display: grid; grid-template-rows: subgrid; grid-row: span 6; row-gap: 0; align-content: start; }
+        .plan-card > .plan-buy { align-self: end; }
+      }
       .content-block .plan-sale-note { margin: 0; padding: 0; font-size: 0.82rem; font-weight: 700; color: #b42318; }
       .plan-note { flex: 1; margin: 8px 0 16px; font-size: 0.9rem; color: var(--text-muted); }
       .plan-buy { font: inherit; font-weight: 700; cursor: pointer; padding: 12px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; }
@@ -239,8 +245,8 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               {p.badge && <span class="plan-badge">{p.badge}</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-fit">{p.fit}</p>
-              <p class="plan-price"><span class="sale-only" hidden><s class="plan-was">{p.price}</s> {p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
-              {p.saleNote && <p class="plan-sale-note sale-only" hidden>{p.saleNote}</p>}
+              <p class="plan-price"><s class="plan-was sale-only" hidden>{p.price}</s><span class="sale-only" hidden>{p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
+              <p class="plan-sale-note sale-only" hidden>{p.saleNote}</p>
               <p class="plan-note">{p.note}</p>
               <button
                 type="button"
