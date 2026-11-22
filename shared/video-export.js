@@ -830,15 +830,8 @@
     if (getComputedStyle(stage).position === "static") stage.style.position = "relative";
     stage.appendChild(cv);
     var pending = false;
-    // 有料プランの人はプレビューにも透かしを出さない（書き出しの透かしは書き出し設定で別に判定する）
-    function hidden() {
-      var P = plan();
-      return !!(P && P.config.paywallEnabled && P.isPro());
-    }
     function draw() {
       pending = false;
-      cv.style.display = hidden() ? "none" : "";
-      if (hidden()) return;
       var w = stage.offsetWidth, h = stage.offsetHeight;
       if (!w || !h) return;
       var dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -855,8 +848,6 @@
     try { new ResizeObserver(schedule).observe(stage); } catch (e) { window.addEventListener("resize", schedule); }
     // 背景色やサイズの設定変更（style 属性）に追従する
     new MutationObserver(schedule).observe(stage, { attributes: true, attributeFilter: ["style", "class"] });
-    // 購入・キー入力・期限切れで出し入れする
-    window.addEventListener("grs-license-change", schedule);
     schedule();
   }
 
