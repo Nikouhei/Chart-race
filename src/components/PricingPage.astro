@@ -57,6 +57,7 @@ const TEXT = {
     title: '料金プラン｜GraphRace Studio',
     description: 'GraphRace Studio の料金プラン。透かしなし・高画質・透過書き出しなどが使える 7日パス・月額・年額プランを、必要な期間だけ選べます。',
     heading: '料金プラン',
+    saleBanner: 'ブラックフライデーセール：全プラン30%OFF（11/30 23:59まで）',
     lead: 'ツールは無料で試せます。透かしなしの書き出しや高画質・透過書き出しなどを使いたいときだけ、プランをお選びください。どのプランも使える機能は同じです。',
     crumbs: [{ name: 'ホーム', href: '/' }, { name: '料金プラン' }],
     tagline: 'データビジュアライゼーションツール',
@@ -69,9 +70,9 @@ const TEXT = {
     tools: TOOLS_JA,
     freeTools: ['トーナメント表', 'ランキング動画', 'あみだくじ'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '文化祭・結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
-      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
-      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '文化祭・結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', sale: '¥686', saleNote: '', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
+      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', sale: '¥1,106', saleNote: '初月のみ。2か月目から¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
+      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', sale: '¥2,436', saleNote: '初年のみ。2年目から¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
     ],
     taxNote: '表示は税込です。',
     trustNote: 'アカウント登録は不要です。お支払いは、世界中で使われている決済サービス Stripe の画面で行います。カード情報が当サイトに保存されることはありません。',
@@ -97,6 +98,7 @@ const TEXT = {
     description: 'GraphRace Studio pricing. Choose a 7-day pass, monthly or yearly plan to export without a watermark, in high quality, or with a transparent background.',
     heading: 'Pricing',
     lead: 'You can try every tool for free. Pick a plan only when you want to export without a watermark, in higher quality, or with a transparent background. All plans include the same features.',
+    saleBanner: 'Black Friday sale: 30% off every plan (ends Nov 30, 23:59 JST)',
     crumbs: [{ name: 'Home', href: '/en/' }, { name: 'Pricing' }],
     tagline: 'Data visualization tools',
     featuresEyebrow: 'FEATURES',
@@ -108,9 +110,9 @@ const TEXT = {
     tools: TOOLS_EN,
     freeTools: ['Tournament Bracket', 'Ranking Video'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', fit: 'For a one-off event, class or presentation', price: '$5.99', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
-      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', fit: 'For a project that runs a few months', price: '$12.99', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
-      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', fit: 'For creators who publish regularly', price: '$29.99', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', fit: 'For a one-off event, class or presentation', price: '$5.99', sale: '$4.19', saleNote: '', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
+      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', fit: 'For a project that runs a few months', price: '$12.99', sale: '$9.09', saleNote: 'First month only, then $12.99/month', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
+      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', fit: 'For creators who publish regularly', price: '$29.99', sale: '$20.99', saleNote: 'First year only, then $29.99/year', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
     ],
     taxNote: 'Prices are shown in USD.',
     trustNote: 'No account needed. You pay on the secure checkout page of Stripe, a payment service trusted worldwide. Your card details are never stored on this site.',
@@ -156,6 +158,9 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .plan-name { margin: 0 0 8px; font-size: 1.05rem; font-weight: 700; color: var(--text-strong); }
       .plan-price { margin: 0 0 4px; font-size: 2rem; font-weight: 700; line-height: 1.2; color: var(--text-strong); }
       .plan-unit { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+      .content-block .sale-banner { margin: 0 0 20px; border: 0; padding: 12px 16px; border-radius: 10px; background: #111; color: #fff !important; font-weight: 700; text-align: center; opacity: 1; }
+      .plan-was { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); margin-right: 4px; }
+      .content-block .plan-sale-note { margin: 0; padding: 0; font-size: 0.82rem; font-weight: 700; color: #b42318; }
       .plan-note { flex: 1; margin: 8px 0 16px; font-size: 0.9rem; color: var(--text-muted); }
       .plan-buy { font: inherit; font-weight: 700; cursor: pointer; padding: 12px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; }
       .plan-buy:hover { filter: brightness(1.08); }
@@ -225,6 +230,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
     <h1 class="page-title">{TEXT.heading}</h1>
     <div class="content-block" id="pricing" data-lang={locale} data-i18n={JSON.stringify(I18N)}>
       <section>
+        <p class="sale-banner" id="sale-banner" hidden>{TEXT.saleBanner}</p>
         <p class="pricing-lead">{TEXT.lead}</p>
 
         <div class="pricing-grid">
@@ -233,7 +239,8 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               {p.badge && <span class="plan-badge">{p.badge}</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-fit">{p.fit}</p>
-              <p class="plan-price">{p.price}<span class="plan-unit">{p.unit}</span></p>
+              <p class="plan-price"><span class="sale-only" hidden><s class="plan-was">{p.price}</s> {p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
+              {p.saleNote && <p class="plan-sale-note sale-only" hidden>{p.saleNote}</p>}
               <p class="plan-note">{p.note}</p>
               <button
                 type="button"
@@ -328,6 +335,20 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       var statusEl = document.getElementById('pricing-status');
       var buttons = Array.prototype.slice.call(root.querySelectorAll('.plan-buy'));
 
+      // ブラックフライデーセール（worker/sale.js と同じ期間）。preview・localhost では ?sale=1 で期間外でも表示・適用
+      var SALE_START = Date.parse('2026-11-27T00:00:00+09:00');
+      var SALE_END = Date.parse('2026-12-01T00:00:00+09:00');
+      var host = location.hostname;
+      var testHost = host === 'localhost' || host === '127.0.0.1' || host.indexOf('preview-') === 0;
+      var forceSale = testHost && /[?&]sale=1(&|$)/.test(location.search);
+      var now = Date.now();
+      var saleOn = forceSale || (now >= SALE_START && now < SALE_END);
+      if (saleOn) {
+        document.getElementById('sale-banner').hidden = false;
+        Array.prototype.forEach.call(root.querySelectorAll('.sale-only'), function (el) { el.hidden = false; });
+        Array.prototype.forEach.call(root.querySelectorAll('.sale-off'), function (el) { el.hidden = true; });
+      }
+
       // どこから料金ページへ来たか（同じサイト内の直前のページ。URL には何も足さない）。
       // 言語を切り替えても消えないよう sessionStorage に持つ。個人情報は入らない（ページの種類だけ）
       var SOURCE_RE = /^[a-z0-9-]{1,40}$/;
@@ -362,7 +383,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
           fetch('/api/checkout', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ lookup_key: btn.getAttribute('data-lookup'), lang: lang, source: source }),
+            body: JSON.stringify({ lookup_key: btn.getAttribute('data-lookup'), lang: lang, source: source, force_sale: forceSale }),
           })
             .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
             .then(function (r) {
