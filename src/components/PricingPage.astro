@@ -160,6 +160,15 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       .plan-unit { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
       .content-block .sale-banner { margin: 0 0 20px; border: 0; padding: 12px 16px; border-radius: 10px; background: #111; color: #fff !important; font-weight: 700; text-align: center; opacity: 1; }
       .plan-was { display: block; font-size: 1rem; font-weight: 400; line-height: 1.4; color: var(--text-muted); }
+      .plan-off { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: #e11d48; color: #fff; font-size: 0.78rem; font-weight: 800; line-height: 1.5; vertical-align: 2px; }
+      /* セールバナー: 光が横に流れる＋ゆっくり明滅（動きを減らす設定の人には止める） */
+      .content-block .sale-banner { position: relative; overflow: hidden; background: linear-gradient(90deg, #111 0%, #3b0a1e 50%, #111 100%); background-size: 200% 100%; animation: sale-bg 6s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5); }
+      .content-block .sale-banner::after { content: ''; position: absolute; top: 0; left: -40%; width: 30%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-20deg); animation: sale-shine 3s ease-in-out infinite; pointer-events: none; }
+      .content-block .sale-banner { animation: sale-bg 6s ease-in-out infinite, sale-pulse 2s ease-out infinite; }
+      @keyframes sale-bg { 0%, 100% { background-position: 0% 0; } 50% { background-position: 100% 0; } }
+      @keyframes sale-shine { 0% { left: -40%; } 60%, 100% { left: 120%; } }
+      @keyframes sale-pulse { 0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.55); } 100% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); } }
+      @media (prefers-reduced-motion: reduce) { .content-block .sale-banner, .content-block .sale-banner::after { animation: none; } }
       .plan-was[hidden], .sale-only[hidden] { display: none; }
       /* カード内の各行（名前・説明・価格・注記・説明文・ボタン）を3枚で横にそろえる */
       @supports (grid-template-rows: subgrid) {
@@ -245,7 +254,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               {p.badge && <span class="plan-badge">{p.badge}</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-fit">{p.fit}</p>
-              <p class="plan-price"><s class="plan-was sale-only" hidden>{p.price}</s><span class="sale-only" hidden>{p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
+              <p class="plan-price"><span class="plan-was sale-only" hidden><s>{p.price}</s><span class="plan-off">30%OFF</span></span><span class="sale-only" hidden>{p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
               <p class="plan-sale-note sale-only" hidden>{p.saleNote}</p>
               <p class="plan-note">{p.note}</p>
               <button
