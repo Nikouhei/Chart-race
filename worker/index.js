@@ -3,6 +3,7 @@
 import { handleCheckout } from './checkout.js';
 import { handleWebhook } from './webhook.js';
 import { handleLicense } from './license-api.js';
+import { handleImageProxy } from './image-proxy.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -14,6 +15,7 @@ const routes = {
   '/api/checkout': handleCheckout,
   '/api/stripe-webhook': handleWebhook,
   '/api/license': handleLicense,
+  '/api/img': handleImageProxy,
 };
 
 export default {

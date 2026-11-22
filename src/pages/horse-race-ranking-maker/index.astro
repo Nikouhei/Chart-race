@@ -29,7 +29,7 @@ const soundReady = true;
 >
   <Fragment slot="head">
     <script is:inline src="/shared/export-plan.js?v=2026112105" defer></script>
-    <script is:inline src="/shared/video-export.js?v=2026112105" defer></script>
+    <script is:inline src="/shared/video-export.js?v=2026112201" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
     <script is:inline src="/shared/i18n.js?v=2026112105" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
@@ -1718,7 +1718,9 @@ function syncCoatMode(){
 /* 動画の書き出し中の状態(書き出しの本体はファイル末尾の setupVideoExport)。
    saveState() から触るので、状態の復元(loadState)より前に宣言しておく */
 let exportActive=false;   // 書き出し中は通常の描画ループとシークを止める
-let exportNoMark=false;   // 競馬風の透かし(流れる文字)を書き出しで消すか
+// 有料プランの人はプレビューにも透かしを出さない(書き出しの透かしは書き出し画面の選択に従う)
+function previewNoMark(){const P=window.GRSPlan;return !!(P&&P.config.paywallEnabled&&P.isPro());}
+let exportNoMark=previewNoMark();   // 競馬風の透かし(流れる文字)を消すか(書き出し中は書き出し画面の選択)
 let exportClockMs=0;      // 書き出し中の仮想時計。掲示板のフェードを実時間ではなくこれで進める
 let classicDirty=true;    // 競馬風: 最後にレースを組んだあと設定が変わったか
 const clockNow=()=>exportActive?exportClockMs:performance.now();
@@ -3507,16 +3509,23 @@ function buildRealInput(){
   };
 }
 /* 見せ方だけの設定。
-   透かしの有無は書き出し画面だけで選ぶので、プレビューでは常に出す
-   (競馬風の流れる透かしと同じ扱い)。将来「有料ユーザーのみ・都度課金」に
-   するときも、ここ一箇所を見ればよい */
+   プレビューの透かしは無料なら出し、有料プランなら出さない(previewNoMark)。
+   書き出しの透かしの有無は書き出し画面の選択に従う */
 function realViewConfig(){
   return {
     showMap  : isOn("showMap"),
     showField: isOn("showField"),
-    showMark : true,
+    showMark : !previewNoMark(),
   };
 }
+// 購入・キー入力・期限切れでプレビューの透かしを出し入れする
+function syncPreviewMark(){
+  if(exportActive)return;
+  exportNoMark=previewNoMark();
+  if(window.Real3D&&isReal())Real3D.setView(realViewConfig());
+}
+window.addEventListener("grs-license-change",syncPreviewMark);
+document.addEventListener("DOMContentLoaded",syncPreviewMark); // export-plan.js(defer)の読み込み後
 function applyRealRace(){
   Real3D.setView({aspect:aspectEl.value,...realViewConfig()});
   Real3D.applyConfig(buildRealInput());
@@ -3838,7 +3847,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
         updateStartBtnReal();
       }else{
         exportActive=false;
-        exportNoMark=false;
+        exportNoMark=previewNoMark();
         setCanvasScale(1);
         if(saved&&race)seekTo(saved.t);
         paused=true;
