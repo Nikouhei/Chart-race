@@ -336,7 +336,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       var buttons = Array.prototype.slice.call(root.querySelectorAll('.plan-buy'));
 
       // ブラックフライデーセール（worker/sale.js と同じ期間）。preview・localhost では ?sale=1 で期間外でも表示・適用
-      var SALE_START = Date.parse('2026-11-27T00:00:00+09:00');
+      var SALE_START = Date.parse('2026-11-22T00:00:00+09:00');
       var SALE_END = Date.parse('2026-12-01T00:00:00+09:00');
       var host = location.hostname;
       var testHost = host === 'localhost' || host === '127.0.0.1' || host.indexOf('preview-') === 0;
