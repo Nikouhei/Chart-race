@@ -52,7 +52,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026112105" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026112401" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -683,6 +683,11 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .setting-row[hidden] { display: none; }
+    .range-number { display: flex; align-items: center; gap: 10px; }
+    .range-number input[type="range"] { flex: 1; min-width: 0; margin: 0; accent-color: var(--accent); cursor: pointer; }
+    .range-number input[type="number"] { flex: 0 0 76px; width: 76px; }
 
     input[type="checkbox"] {
       width: 16px;
@@ -1638,6 +1643,15 @@
           </div>
         </div>
       </div>
+      <div class="setting-row" id="barCornerRadiusRow" hidden>
+        <div class="setting-field" style="flex:1 1 100%;">
+          <span>角の丸さ（%）</span>
+          <div class="range-number">
+            <input type="range" id="barCornerRadiusRange" value="100" min="0" max="100" step="1" aria-label="角の丸さ（%）">
+            <input type="number" id="barCornerRadius" value="100" min="0" max="100" step="1" aria-label="角の丸さ（%）">
+          </div>
+        </div>
+      </div>
       <div class="setting-row">
         <div class="setting-field">
           <span>間隔（%）</span>
@@ -2073,7 +2087,7 @@
       'playbackLengthMode', 'playbackCustomSeconds',
       'aspectRatioPreset', 'canvasWidth', 'canvasHeight', 'autoHeight',
       'mainFont', 'layoutTextColor', 'layoutBackgroundColor', 'enableBackgroundColor', 'textOutlineWidth', 'textOutlineColor', 'textShadowStrength',
-      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'barShape', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
+      'chartStyle', 'barColorMode', 'barColorPalette', 'singleBarColor', 'barOrientation', 'barShape', 'barCornerRadius', 'topN', 'barSpacing', 'sortMode', 'sortEnabled', 'showAdvancedBarSettings', 'titleInput', 'sourceInput', 'titleSize', 'titleColor', 'sourceSize', 'sourceColor',
       'labelFontSize', 'nameLabelColor', 'showNameLabels', 'valueLabelColor', 'valueLabelSpace', 'showValueLabels',
       'labelBold', 'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imagePosition', 'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset', 'barEndOffset',
@@ -2322,6 +2336,10 @@
         const boldEl = document.getElementById('labelBold');
         if (boldEl) boldEl.checked = false;
       }
+      // 角の丸さを足す前の保存データは、両端が半円の角丸（100%）で描いていた
+      if (Object.prototype.hasOwnProperty.call(settings, 'barShape') && !Object.prototype.hasOwnProperty.call(settings, 'barCornerRadius')) {
+        document.getElementById('barCornerRadius').value = 100;
+      }
       syncBarSettingsControls();
       updateBarColorControls();
       syncImageToggleAvailability();
@@ -2340,6 +2358,8 @@
       const showAdvanced = document.getElementById('showAdvancedBarSettings')?.checked;
       setSegmentedActive('[data-bar-orientation]', orientation, 'barOrientation');
       setSegmentedActive('[data-bar-shape]', getBarShape(), 'barShape');
+      document.getElementById('barCornerRadiusRow').hidden = getBarShape() !== 'round';
+      document.getElementById('barCornerRadiusRange').value = getBarCornerRadius();
       const imagePosition = getImagePosition();
       setSegmentedActive('[data-image-position]', imagePosition, 'imagePosition');
       const imageMarginLabel = document.getElementById('imageMarginLabel');
@@ -2895,7 +2915,7 @@
       source.style.color = settings.textColor;
     }
 
-    // バーの形：'normal'（標準）／'round'（角丸＝両端が半円のカプセル型。有料予定）
+    // バーの形：'normal'（標準）／'round'（角丸。丸さは getBarCornerRadius で決まる。有料）
     // 有料化するときは、ここで課金判定を見て 'normal' に戻す
     // 画像をバーの中に置くか、バーの右（数字の左）に置くか
     function getImagePosition() {
@@ -2906,12 +2926,20 @@
       return document.getElementById('barShape')?.value === 'round' ? 'round' : 'normal';
     }
 
+    // 角丸のときの角の丸さ（%）。0＝直角、100＝両端が半円のカプセル型
+    function getBarCornerRadius() {
+      const raw = document.getElementById('barCornerRadius').value;
+      const value = raw === '' ? NaN : +raw;
+      return Number.isFinite(value) ? Math.min(Math.max(0, value), 100) : 100;
+    }
+
     function getGraphSettings() {
       const topNValue = +document.getElementById('topN').value;
       const spacingValue = +document.getElementById('barSpacing').value;
       return {
         chartStyle: document.getElementById('chartStyle').value || 'score',
         barShape: getBarShape(),
+        barCornerRadius: getBarCornerRadius(),
         topN: Number.isFinite(topNValue) ? Math.max(1, topNValue) : 10,
         barSpacing: Number.isFinite(spacingValue) ? Math.min(Math.max(0, spacingValue), 80) : 15,
         sortEnabled: document.getElementById('sortEnabled').checked,
@@ -4403,6 +4431,7 @@
         labelFontSize: labelSettings.fontSize,
         barSpacing: graphSettings.barSpacing,
         barShape: graphSettings.barShape,
+        barCornerRadius: graphSettings.barCornerRadius,
         sortEnabled: graphSettings.sortEnabled,
         sortMode: graphSettings.sortMode,
         chartStyle: graphSettings.chartStyle,
@@ -4943,25 +4972,19 @@
       };
     }
 
-    // 角丸（カプセル型）のバーに、縦横比 aspect の四角い画像を収める。
-    // 画像の四隅が端の半円にかからないよう、入らないときは縦横比を保ったまま縮める。
+    // 角丸（角の半径 cornerRadius）のバーに、縦横比 aspect の四角い画像を収める。
+    // 画像の四隅が角の丸みにかからないよう、入らないときは縦横比を保ったまま縮める。
     // 返す x はバー左端からの距離。gap は、置ける範囲の右端から空ける余白、edgePad は縁から空ける最小の余白
-    function fitImageInCapsule(barWidth, barHeight, aspect, wantHeight, gap, edgePad) {
-      const r = Math.min(barWidth, barHeight) / 2;
-      const R = Math.max(0, r - edgePad); // 画像が使える範囲を作る半円の半径
-      const vertical = barWidth < barHeight; // 幅が高さより短いバーは縦長のカプセルになる
+    function fitImageInRoundedBar(barWidth, barHeight, cornerRadius, aspect, wantHeight, gap, edgePad) {
+      const r = Math.min(cornerRadius, barWidth / 2);
+      const R = Math.max(0, r - edgePad); // 画像が使える範囲を作る角の半径
+      const vertical = cornerRadius > 0 && barWidth < cornerRadius * 2; // 左右の丸みがつながるほど短いバーは中央に置く
       // 高さ ih の画像を置ける横方向の範囲 [左端の下限, 右端の上限]。置けないときは null
       const span = ih => {
-        const a = ih / 2;
-        if (!vertical) {
-          if (a > R) return null;
-          const d = Math.sqrt(R * R - a * a);
-          return [r - d, barWidth - r + d];
-        }
-        const c = Math.max(0, a - (barHeight / 2 - r));
+        const c = Math.max(0, ih / 2 - (barHeight / 2 - r)); // 角の丸みの高さへ入り込む量
         if (c > R) return null;
-        const half = Math.sqrt(R * R - c * c);
-        return [r - half, r + half];
+        const d = Math.sqrt(R * R - c * c);
+        return [r - d, barWidth - r + d];
       };
       const fits = ih => {
         const s = span(ih);
@@ -5106,12 +5129,14 @@
       const showsImage = d => Boolean(d.imageUrl && imageSettings.show);
       // バーの右に出す文字（値・ランキングの項目名）を、画像の分だけ右へずらす量
       const outsideImageShift = d => isImageOutside && showsImage(d) ? Math.max(0, imageSettings.marginRight + imgWidth) : 0;
-      // 角丸（カプセル型）：両端を半円にする。幅が高さより短いバーは、幅の半分までで頭打ち。
-      // 端の丸みでバー内の値や丸い画像がはみ出さないよう、バーの高さの15%だけ内側へ寄せる。
-      // 四角い画像は丸みに角がかかるので、fitImageInCapsule で収まる大きさに縮める
+      // 角丸：角の丸さ100%で両端が半円（カプセル型）。半径は、短いバーでは幅の半分までで頭打ち。
+      // 端の丸みでバー内の値や丸い画像がはみ出さないよう、丸さに応じて最大でバーの高さの15%だけ内側へ寄せる。
+      // 四角い画像は丸みに角がかかるので、fitImageInRoundedBar で収まる大きさに縮める
       const isRoundBar = layout.barShape === 'round';
-      const barCapInset = isRoundBar ? yScale.bandwidth() * 0.15 : 0;
-      const barRadius = d => isRoundBar ? Math.min(yScale.bandwidth(), barGeometry(xScale, d.value).width) / 2 : 4;
+      const cornerRatio = layout.barCornerRadius / 100;
+      const cornerRadiusPx = yScale.bandwidth() / 2 * cornerRatio;
+      const barCapInset = isRoundBar ? yScale.bandwidth() * 0.15 * cornerRatio : 0;
+      const barRadius = d => isRoundBar ? Math.min(cornerRadiusPx, barGeometry(xScale, d.value).width / 2) : 4;
       const imageRightGap = imageSettings.marginRight + barCapInset;
       // バーの中での画像の位置と大きさ
       const imageBox = d => {
@@ -5120,7 +5145,7 @@
         }
         const bar = barGeometry(xScale, d.value);
         if (isRoundBar && imageSettings.shape !== 'circle') {
-          const fit = fitImageInCapsule(bar.width, yScale.bandwidth(), imgWidth / imgHeight, imgHeight,
+          const fit = fitImageInRoundedBar(bar.width, yScale.bandwidth(), cornerRadiusPx, imgWidth / imgHeight, imgHeight,
             imageSettings.marginRight, yScale.bandwidth() * 0.05);
           return { x: bar.x + fit.x, y: (yScale.bandwidth() - fit.height) / 2, width: fit.width, height: fit.height };
         }
@@ -6109,6 +6134,22 @@ Topic: ${theme}
         onLayoutSettingChange('barShape');
       });
     });
+    // 角の丸さ：スライダーと数字入力を連動させる（保存するのは数字入力の値）
+    const barCornerRadiusInput = document.getElementById('barCornerRadius');
+    const barCornerRadiusRange = document.getElementById('barCornerRadiusRange');
+    barCornerRadiusRange.addEventListener('input', () => {
+      barCornerRadiusInput.value = barCornerRadiusRange.value;
+      onLayoutSettingChange('barCornerRadius');
+    });
+    barCornerRadiusInput.addEventListener('input', () => {
+      barCornerRadiusRange.value = getBarCornerRadius();
+      onLayoutSettingChange('barCornerRadius');
+    });
+    // 範囲外や空欄は、入力を終えたときに 0〜100 へ直す
+    barCornerRadiusInput.addEventListener('change', () => { barCornerRadiusInput.value = getBarCornerRadius(); });
+    [barCornerRadiusRange, barCornerRadiusInput].forEach(el => el.addEventListener('change', () => {
+      if (window.grsTrack) window.grsTrack('tool_ui_click', { button_id: 'barCornerRadius', button_label: String(getBarCornerRadius()) });
+    }));
     document.querySelectorAll('[data-sort-enabled]').forEach(button => {
       button.addEventListener('click', () => {
         document.getElementById('sortEnabled').checked = button.dataset.sortEnabled === 'true';
