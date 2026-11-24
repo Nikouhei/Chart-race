@@ -20,9 +20,10 @@ const CHART_HISTORY = [
 
 export const UPDATES_EN = {
   home: [
+    { date: '2026-11-24', isNew: true, text: 'Bar chart race: you can now adjust how round the corners are (0–100%) on rounded bars. Bars are sorted largest first by default, so your data appears in ranking order right away.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly) for watermark-free, higher-quality exports. Everything can still be created and exported for free. Also added transparent-background export and rounded bars to the chart races, fanfare volume and export quality to Ranking Derby, and “Create data with AI”.` },
     { date: '2026-11-07', isNew: true, text: 'Bar, line and pie chart races: clearer text with a new shadow-strength option and outlines that scale with the font size. The line chart race no longer jumps when the axis maximum is set to “Auto”.' },
-    { date: '2026-10-26', isNew: true, text: 'Released the Pie Chart Race maker: pie and donut charts whose shares change over time, saved as MP4 or WebM.' },
+    { date: '2026-10-26', text: 'Released the Pie Chart Race maker: pie and donut charts whose shares change over time, saved as MP4 or WebM.' },
     { date: '2026-10-24', text: 'Bar and line chart races: legend settings now live in one “Legend” section, with position, direction and background options.' },
     { date: '2026-10-23', text: 'GraphRace Studio is now available in English.' },
     { date: '2026-10-17', text: 'Ranking Derby: videos can now be saved as MP4, rendered frame by frame so they stay smooth even on slower devices.' },
@@ -33,9 +34,10 @@ export const UPDATES_EN = {
     { date: '2026-06-20', text: 'GraphRace Studio launched.' },
   ],
   'bar-chart-race': [
+    { date: '2026-11-24', isNew: true, text: 'You can now adjust how round the corners are (0–100%) on rounded bars. Bars are sorted largest first by default, so your data appears in ranking order right away.' },
     PAID_CHART('transparent-background export (MOV), rounded bars, images to the right of the bars, a total value display'),
     TEXT_STYLE,
-    { date: '2026-10-24', isNew: true, text: 'Added a “Legend” section to the settings, gathering the category legend options (position, direction, text, background).' },
+    { date: '2026-10-24', text: 'Added a “Legend” section to the settings, gathering the category legend options (position, direction, text, background).' },
     SAVE_BUTTON,
     VIDEO_EXPORT,
     { date: '2026-10-01', text: 'Added video length presets (15, 30, 60 seconds or custom) and playback speeds (1x–8x), and made CSV import more reliable.' },
