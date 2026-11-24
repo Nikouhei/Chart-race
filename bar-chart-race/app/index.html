@@ -2074,6 +2074,8 @@
     let lastRenderedYearDisplayText = '';
     const MAX_HISTORY = 100;
     const ZERO_AXIS_PX_PER_POINT = 5;
+    // バー開始位置「0」の基準。項目名がキャンバスの縁に付かないよう 3 ポイント（15px）右に置く
+    const ZERO_AXIS_BASE_POINTS = 3;
     const MAX_CANVAS_SIZE = 2500;
     const PANEL_MIN_WIDTH = 320;
     const PREVIEW_MIN_WIDTH = 480;
@@ -2319,6 +2321,8 @@
         if (!element) return;
         settings[id] = element.type === 'checkbox' ? element.checked : element.value;
       });
+      // バー開始位置の「0」の基準（この印がない保存データは、基準を変える前のもの）
+      settings.barStartBase = ZERO_AXIS_BASE_POINTS;
       return settings;
     }
 
@@ -2335,6 +2339,11 @@
       if (Object.prototype.hasOwnProperty.call(settings, 'labelFontSize') && !Object.prototype.hasOwnProperty.call(settings, 'labelBold')) {
         const boldEl = document.getElementById('labelBold');
         if (boldEl) boldEl.checked = false;
+      }
+      // バー開始位置の基準を変える前の保存データは、その分を引いて同じ位置に描く
+      if (Object.prototype.hasOwnProperty.call(settings, 'barStartOffset')) {
+        const base = +settings.barStartBase || 0;
+        document.getElementById('barStartOffset').value = (+settings.barStartOffset || 0) + base - ZERO_AXIS_BASE_POINTS;
       }
       // 角の丸さを足す前の保存データは、両端が半円の角丸（100%）で描いていた
       if (Object.prototype.hasOwnProperty.call(settings, 'barShape') && !Object.prototype.hasOwnProperty.call(settings, 'barCornerRadius')) {
@@ -4420,7 +4429,7 @@
       const graphSettings = getGraphSettings();
       const labelSettings = getLabelSettings();
       const zeroAxisPoints = +document.getElementById('barStartOffset').value || 0;
-      const zeroAxisPx = zeroAxisPoints * ZERO_AXIS_PX_PER_POINT;
+      const zeroAxisPx = (zeroAxisPoints + ZERO_AXIS_BASE_POINTS) * ZERO_AXIS_PX_PER_POINT;
       const barEndOffsetPoints = Math.max(0, +document.getElementById('barEndOffset').value || 0);
       const barEndOffsetPx = barEndOffsetPoints * ZERO_AXIS_PX_PER_POINT;
 
