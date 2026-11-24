@@ -1670,9 +1670,9 @@
         <div class="setting-field">
           <span>並び順</span>
           <select id="sortMode">
-            <option value="data">データ順</option>
-            <option value="desc">大きい順</option>
+            <option value="desc" selected>大きい順</option>
             <option value="asc">小さい順</option>
+            <option value="data">データ順</option>
           </select>
         </div>
         <div class="setting-field">
@@ -2943,7 +2943,7 @@
         topN: Number.isFinite(topNValue) ? Math.max(1, topNValue) : 10,
         barSpacing: Number.isFinite(spacingValue) ? Math.min(Math.max(0, spacingValue), 80) : 15,
         sortEnabled: document.getElementById('sortEnabled').checked,
-        sortMode: document.getElementById('sortMode').value || 'data'
+        sortMode: document.getElementById('sortMode').value || 'desc'
       };
     }
 
