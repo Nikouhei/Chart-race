@@ -198,7 +198,7 @@ I18N.registerText('en', {
   '特になかった': 'Nothing in particular',
   '次にほしい機能は？（いくつでも）': 'What would you like next? (select all that apply)',
   'すぐ使えるサンプルデータ集': 'Ready-to-use sample datasets',
-  'AIでデータを用意する手順': 'A guide to preparing data with AI',
+  'AIでデータを取得する機能': 'Fetching data with AI',
   'もっと長い動画': 'Longer videos',
   'BGM': 'Background music',
   '実況の音声': 'Commentary audio',

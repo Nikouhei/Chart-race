@@ -327,7 +327,7 @@
   // 記録は survey_id ごとに持つので、v1 に答えた人にも v2 は1回出る。
   var CHART_WANTED = [
     ["bgm", "BGM・効果音"], ["templates", "デザインのテンプレート"], ["samples", "すぐ使えるサンプルデータ集"],
-    ["ai_data", "AIでデータを用意する手順"], ["long", "もっと長い動画"], ["other", "その他"]
+    ["ai_fetch", "AIでデータを取得する機能"], ["long", "もっと長い動画"], ["other", "その他"]
   ];
   var QUICK_SURVEYS = {
     charts_v2: {
