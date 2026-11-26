@@ -30,6 +30,11 @@ const ldJson = {
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Web',
       url: 'https://graphrace-studio.com/en/horse-race-ranking-maker/',
+      image: [
+        'https://graphrace-studio.com/horse-race-ranking-maker/og/thumb-1x1.webp',
+        'https://graphrace-studio.com/horse-race-ranking-maker/og/thumb-4x3.webp',
+        'https://graphrace-studio.com/horse-race-ranking-maker/og/thumb-16x9.webp',
+      ],
       inLanguage: 'en',
       description: 'A browser tool that turns a ranking into a horse-race-style video. Choose between a lightweight 2D race and a realistic 3D race with CG horses.',
       featureList: [
@@ -54,7 +59,7 @@ const ldJson = {
   ],
 };
 ---
-<BaseLayout pageId="horse-race" title={title} description={description}>
+<BaseLayout pageId="horse-race" title={title} description={description} ogImage="https://graphrace-studio.com/horse-race-ranking-maker/og/thumb-16x9.jpg">
   <Fragment slot="head">
     <!-- 動画書き出し・アンケート・保存への導線（日本語版と同じ部品） -->
     <script is:inline src="/shared/export-plan.js?v=2026112402" defer></script>

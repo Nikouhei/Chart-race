@@ -38,18 +38,22 @@ interface Props {
   steps: { title: string; sub: string; items: Item[] };
   faq: { q: string; a: string }[];
   featureList: string[];
+  /** 検索結果・SNS用の代表画像（/<フォルダ>/og/<ogPrefix>-1x1.webp など）。英語の画像がないツールは 'thumb'（日本語版と共用） */
+  ogPrefix?: string;
 }
 const p = Astro.props;
 const locale = 'en';
 const css = legacyCss(p.jaFile);
 const url = SITE_URL + getPage(p.pageId).paths.en;
+const ogBase = `${SITE_URL}/${p.jaFile.split('/')[0]}/og/${p.ogPrefix || 'thumb-en'}`;
+const ogImages = ['1x1', '4x3', '16x9'].map((r) => `${ogBase}-${r}.webp`);
 const strip = (s: string) => s.replace(/<[^>]+>/g, '');
 const ldJson = {
   '@context': 'https://schema.org',
   '@graph': [
     {
       '@type': 'SoftwareApplication', name: p.appName, applicationCategory: 'MultimediaApplication',
-      operatingSystem: 'Web', url, inLanguage: 'en', description: p.description, featureList: p.featureList,
+      operatingSystem: 'Web', url, image: ogImages, inLanguage: 'en', description: p.description, featureList: p.featureList,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     },
     {
@@ -64,7 +68,7 @@ const ldJson = {
 };
 const cta = p.primaryCta || 'Start creating';
 ---
-<BaseLayout pageId={p.pageId} title={p.title} description={p.description}>
+<BaseLayout pageId={p.pageId} title={p.title} description={p.description} ogImage={`${ogBase}-16x9.jpg`}>
   <Fragment slot="head">
     <!-- 日本語版LPにFAQが無いページ用の既定。日本語版のCSSがあればそちらが後から上書きする -->
     <style is:inline set:html={faqCss}></style>
