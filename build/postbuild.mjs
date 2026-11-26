@@ -6,6 +6,7 @@
  *   2. まだ Astro に移していない既存ファイルを dist にコピー（Astro が出力したものが優先）
  *   3. 既存HTMLのうち、他言語版が公開済みのページに hreflang を差し込む
  *   3b. 既存HTML（ブログ・あみだくじ）のヘッダーを、Astro の共通ヘッダー（SiteHeader）に置き換える
+ *   3c. ブログ記事末尾（<p class="meta">）の「仕様は YYYY年M月時点」注釈を各記事の dateModified と同期する
  *   4. sitemap.xml を作る（言語の対応関係 xhtml:link 入り）
  *   4b. AI 向けスキル（ai-skill/）を dist/ai/ に zip と SKILL.md で書き出す（build/skill-zip.mjs）
  *   5. 株価レースが出力に紛れ込んでいないか確認（あればビルド失敗）
@@ -141,6 +142,29 @@ for (const rel of legacyHtml) {
     replaced++;
   }
   log(`既存HTMLのヘッダーを共通ヘッダーに置き換え: ${replaced} 件`);
+}
+
+// 3c. ブログ記事末尾の「仕様は YYYY年M月時点」注釈を dateModified と同期 ----------
+//   <p class="meta"> 内に限定して置換するため、本文中の歴史的な年月表記は触らない。
+{
+  let synced = 0;
+  for (const rel of legacyHtml) {
+    if (!rel.startsWith('blog/')) continue;
+    const file = path.join(DIST, rel);
+    const html = fs.readFileSync(file, 'utf-8');
+    const dm = html.match(/"dateModified"\s*:\s*"(\d{4})-(\d{2})-\d{2}"/)
+      || html.match(/"datePublished"\s*:\s*"(\d{4})-(\d{2})-\d{2}"/);
+    if (!dm) continue;
+    const ym = `${dm[1]}年${Number(dm[2])}月`;
+    const next = html.replace(/<p class="meta">[\s\S]*?<\/p>/g, (block) =>
+      block.replace(/(仕様は)\d{4}年\d{1,2}月(時点)/g, `$1${ym}$2`)
+    );
+    if (next !== html) {
+      fs.writeFileSync(file, next);
+      synced++;
+    }
+  }
+  if (synced) log(`ブログ記事の仕様時点注釈を dateModified と同期: ${synced} 件`);
 }
 
 // 4. sitemap.xml ------------------------------------------------------------
