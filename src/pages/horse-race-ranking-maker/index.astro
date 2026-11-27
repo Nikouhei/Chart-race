@@ -1999,15 +1999,22 @@ lockSoundUI();
     const isText=el.tagName==="INPUT"&&(el.type==="text"||el.type==="number");
     // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
     // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
-    const keep=(id==="volume"||id==="fanfareVolume"||id==="sfx"||id==="fanfare"||id==="countdown");
+    // 馬上アイコンの大きさも見た目だけなので、レースは組み直さず下で今のレースに直接反映する
+    const keep=(id==="volume"||id==="fanfareVolume"||id==="sfx"||id==="fanfare"||id==="countdown"||id==="iconSize");
     el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
-  // アイコンサイズの表示(%)はドラッグ中もリアルタイムに更新する
+  /* アイコンサイズはドラッグ中もリアルタイムに反映する。
+     大きさはレースを作るときに race.iconScale へ写されるので、表示中のレースにも直接入れる
+     (毎コマ描き直しているので、一時停止中・ゴール後でもすぐ見た目が変わる) */
   const iconSizeEl=document.getElementById("iconSize");
   const iconSizeValueEl=document.getElementById("iconSizeValue");
   if(iconSizeEl&&iconSizeValueEl){
     const syncIconSizeLabel=()=>{iconSizeValueEl.textContent=iconSizeEl.value+"%";};
-    iconSizeEl.addEventListener("input",syncIconSizeLabel);
+    // race は下のほうで let 宣言しているので、読み込み中(syncIconSizeLabel の初回)には触らない
+    iconSizeEl.addEventListener("input",()=>{
+      syncIconSizeLabel();
+      if(race)race.iconScale=(+iconSizeEl.value||100)/100;
+    });
     syncIconSizeLabel();
   }
   // 見た目だけの設定はレースを組み直さず即座に反映する
