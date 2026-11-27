@@ -38,7 +38,7 @@
     "comical-a": { gain: 1.12, loopEnd: 59.6 },
     "comical-b": { gain: 0.98, loopEnd: 59.5 }
   };
-  var FREE_TRACKS = { "comical-a": true, "tense-a": true };
+  var FREE_TRACKS = { "epic-a": true, "comical-a": true, "tense-a": true };
   var ORDER = ["epic-a", "epic-b", "pop-a", "pop-b", "tech-a", "tech-b", "tense-a", "tense-b", "comical-a", "comical-b"];
 
   var LOOP_XFADE = 1.5;    // くり返しのつなぎ目（秒）
