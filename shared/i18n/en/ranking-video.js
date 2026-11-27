@@ -76,6 +76,9 @@ I18N.registerText('en', {
   '一時停止': 'Pause',
   'リセット': 'Reset',
   '速度': 'Speed',
+  'タイトルカード': 'Title card',
+  '表示する': 'Show',
+  '表示しない': 'Hide',
   'ランキングの項目を1つ以上入れてください。': 'Add at least one ranking item.',
 });
 
