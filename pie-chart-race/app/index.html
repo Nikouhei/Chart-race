@@ -7070,6 +7070,10 @@ Topic: ${theme}
       if (typeof updateBgmPlan === 'function') updateBgmPlan();
       document.getElementById('bgmTrack')?.addEventListener('change', updateBgmPlan);
       document.getElementById('bgmTrack')?.addEventListener('input', updateBgmPlan);
+      // 開いたあとで有料パスが有効になった・切れたとき（別タブでの購入など）も表示を合わせる
+      window.addEventListener('grs-license-change', updateBgmPlan);
+      window.addEventListener('storage', updateBgmPlan);
+      document.addEventListener('visibilitychange', updateBgmPlan);
       window.GRSBgm.attachPreview({
         getState: () => {
           const ms = getMsPerPeriod();
