@@ -221,8 +221,8 @@ I18N.registerText('en', {
   // ── BGM（shared/bgm.js）──
   '曲': 'Track',
   '音量': 'Volume',
-  '壮大（オーケストラ） A': 'Epic (orchestral) A',
-  '壮大（オーケストラ） B': 'Epic (orchestral) B',
+  '壮大 A': 'Epic (orchestral) A',
+  '壮大 B': 'Epic (orchestral) B',
   '明るいポップ A': 'Bright pop A',
   '明るいポップ B': 'Bright pop B',
   'テック・エレクトロ A': 'Tech / electronic A',
@@ -235,7 +235,7 @@ I18N.registerText('en', {
   '書き出しには有料パスが必要です（試聴は無料）': 'Exporting with this track requires a paid pass (preview is free).',
   '👑 有料': '👑 Paid',
   // 有料の曲は shared/export-plan.js の decoratePaid が語尾に 👑 を付ける
-  '壮大（オーケストラ） B 👑': 'Epic (orchestral) B 👑',
+  '壮大 B 👑': 'Epic (orchestral) B 👑',
   '明るいポップ A 👑': 'Bright pop A 👑',
   '明るいポップ B 👑': 'Bright pop B 👑',
   'テック・エレクトロ A 👑': 'Tech / electronic A 👑',

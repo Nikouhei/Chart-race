@@ -20,7 +20,7 @@
   // gain: 曲ごとの音量合わせ（RMS ≒ -18dB にそろえる。ピークを超えない範囲）
   // loopEnd: くり返しに使う範囲の終わり（末尾の無音を除く）秒
   var MOODS = {
-    epic:    { label: "壮大（オーケストラ）", ending: { gain: 0.99, soundEnd: 3.3 } },
+    epic:    { label: "壮大", ending: { gain: 0.99, soundEnd: 3.3 } },
     pop:     { label: "明るいポップ",         ending: { gain: 1.05, soundEnd: 3.9 } },
     tech:    { label: "テック・エレクトロ",   ending: { gain: 0.98, soundEnd: 5.4 } },
     tense:   { label: "緊張感・接戦",         ending: { gain: 1.08, soundEnd: 5.1 } },
@@ -33,11 +33,13 @@
     "pop-b":     { gain: 0.71, loopEnd: 59.6 },
     "tech-a":    { gain: 0.87, loopEnd: 59.8 },
     "tech-b":    { gain: 0.79, loopEnd: 59.3 },
-    "tense-a":   { gain: 0.97, loopEnd: 60.0 },
-    "tense-b":   { gain: 0.71, loopEnd: 59.8 },
+    "tense-a":   { gain: 0.97, loopEnd: 47.9 },
+    "tense-b":   { gain: 0.71, loopEnd: 47.8 },
     "comical-a": { gain: 1.12, loopEnd: 59.6 },
     "comical-b": { gain: 0.98, loopEnd: 59.5 }
   };
+  // 緊張感・接戦は元の曲を音程そのままで 1.25 倍速にしたもの（AAC）
+  var M4A = { "tense-a": true, "tense-b": true };
   var FREE_TRACKS = { "epic-a": true, "comical-a": true, "tense-a": true };
   var ORDER = ["epic-a", "epic-b", "pop-a", "pop-b", "tech-a", "tech-b", "tense-a", "tense-b", "comical-a", "comical-b"];
 
@@ -59,7 +61,7 @@
   var cache = {};
   function load(name) {
     if (!cache[name]) {
-      cache[name] = fetch(BASE + name + ".mp3")
+      cache[name] = fetch(BASE + name + (M4A[name] ? ".m4a" : ".mp3"))
         .then(function (r) { if (!r.ok) throw new Error("bgm " + r.status); return r.arrayBuffer(); })
         .then(function (ab) { return new OfflineAudioContext(2, RATE, RATE).decodeAudioData(ab); })
         .catch(function (e) { delete cache[name]; throw e; });
@@ -134,24 +136,24 @@
   // ── プレビュー ──────────────────────────────────────
   /*
    * opts.getState() が { playing, sec, total, rate, trackId, volume, ending } を返す。
-   * sec/total は「書き出したときの時間」（倍速の影響なし）。rate は倍速（音もその速さで鳴らす）
+   * sec/total は「書き出したときの時間」（倍速の影響なし）。rate は倍速。
+   * 倍速は映像の速さだけを変え、音は等速のまま：倍速中の実際の長さ（total / rate）で作り直して鳴らす
    */
   function attachPreview(opts) {
-    var actx = null, src = null, gainNode = null, startedAt = 0, startedSec = 0, curRate = 1;
-    var key = "", buf = null, pending = null, wanted = "";
+    var actx = null, src = null, gainNode = null, startedAt = 0, startedSec = 0;
+    var key = "", buf = null, wanted = "";
 
     function stop() {
       if (src) { try { src.stop(); } catch (e) {} src.disconnect(); src = null; }
     }
-    function curSec() { return startedSec + (actx.currentTime - startedAt) * curRate; }
-    function start(sec, rate) {
+    function curSec() { return startedSec + (actx.currentTime - startedAt); }
+    function start(sec) {
       stop();
       if (!buf || sec >= buf.duration) return;
       src = actx.createBufferSource();
       src.buffer = buf;
-      src.playbackRate.value = rate;
       src.connect(gainNode);
-      startedAt = actx.currentTime; startedSec = sec; curRate = rate;
+      startedAt = actx.currentTime; startedSec = sec;
       src.start(0, Math.max(0, sec));
     }
     function tick() {
@@ -167,20 +169,21 @@
         gainNode.connect(actx.destination);
       }
       if (actx.state === "suspended") actx.resume();
-      var k = [s.trackId, s.total.toFixed(2), s.volume, s.ending].join("|");
+      var rate = s.rate > 0 ? s.rate : 1;
+      var total = s.total / rate, sec = s.sec / rate;
+      var k = [s.trackId, total.toFixed(2), s.volume, s.ending].join("|");
       if (k !== key) {
         if (wanted !== k) {
           wanted = k; stop();
-          pending = mix(s.trackId, s.total, { volume: s.volume, ending: s.ending }).then(function (b) {
+          mix(s.trackId, total, { volume: s.volume, ending: s.ending }).then(function (b) {
             if (wanted === k) { buf = b; key = k; }
           }).catch(function (e) { console.warn("[bgm]", e); });
         }
         return;
       }
-      var rate = s.rate > 0 ? s.rate : 1;
       // 鳴らし始め直後は音声側の時計が進み出すまで少し遅れるので、ずれの判定を待つ
       var settling = src && actx.currentTime - startedAt < 0.6;
-      if (!src || rate !== curRate || (!settling && Math.abs(curSec() - s.sec) > 0.25)) start(s.sec, rate);
+      if (!src || (!settling && Math.abs(curSec() - sec) > 0.25)) start(sec);
     }
     requestAnimationFrame(tick);
     return { stop: stop };

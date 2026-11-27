@@ -18,7 +18,7 @@
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
   <script src="../../shared/export-plan.js?v=2026112704" defer></script>
   <script src="../../shared/video-export.js?v=2026112202" defer></script>
-  <script src="../../shared/bgm.js?v=2026112702" defer></script>
+  <script src="../../shared/bgm.js?v=2026112703" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -1871,8 +1871,8 @@
         <span>曲 <span id="bgmPlanBadge" class="bgm-plan-badge" hidden></span></span>
         <select id="bgmTrack" style="width:100%;">
             <option value="" selected>なし</option>
-            <option value="epic-a">壮大（オーケストラ） A</option>
-            <option value="epic-b" data-paid-feature="bgm">壮大（オーケストラ） B</option>
+            <option value="epic-a">壮大 A</option>
+            <option value="epic-b" data-paid-feature="bgm">壮大 B</option>
             <option value="pop-a" data-paid-feature="bgm">明るいポップ A</option>
             <option value="pop-b" data-paid-feature="bgm">明るいポップ B</option>
             <option value="tech-a" data-paid-feature="bgm">テック・エレクトロ A</option>
@@ -6365,7 +6365,8 @@ Topic: ${theme}
         const hint = document.getElementById('bgmPlanHint');
         const paid = window.GRSBgm.isPaid(id) && !(window.GRSPlan?.canUse?.('bgm'));
         if (badge) {
-          badge.hidden = !id;
+          // 有料パスを持っている人（どの曲でも使える人）には、無料・有料のラベルを出さない
+          badge.hidden = !id || window.GRSPlan?.canUse?.('bgm') !== false;
           badge.className = 'bgm-plan-badge ' + (window.GRSBgm.isPaid(id) ? 'is-paid' : 'is-free');
           badge.textContent = window.GRSBgm.isPaid(id) ? '👑 有料' : '無料';
         }
