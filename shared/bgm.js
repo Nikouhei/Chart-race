@@ -18,13 +18,14 @@
   })();
 
   // gain: 曲ごとの音量合わせ（RMS ≒ -18dB にそろえる。ピークを超えない範囲）
-  // loopEnd: くり返しに使う範囲の終わり（末尾の無音を除く）秒
+  // loopEnd: くり返しに使う範囲の終わり（末尾の無音を除く）秒。head: 先頭の小さすぎる部分を飛ばす秒
+  // ending.cut: しめくくり音の余韻をここから fade 秒で消す（最後の音のすぐ後）。消え終わりを動画の最後にそろえる
   var MOODS = {
-    epic:    { label: "壮大", ending: { gain: 0.99, soundEnd: 3.3 } },
-    pop:     { label: "明るいポップ",         ending: { gain: 1.05, soundEnd: 3.9 } },
-    tech:    { label: "テック・エレクトロ",   ending: { gain: 0.98, soundEnd: 5.4 } },
-    tense:   { label: "緊張感・接戦",         ending: { gain: 1.08, soundEnd: 5.1 } },
-    comical: { label: "コミカル",             ending: { gain: 1.04, soundEnd: 2.9 } }
+    epic:    { label: "壮大",               ending: { gain: 0.99, cut: 2.1, fade: 0.5 } },
+    pop:     { label: "明るいポップ",       ending: { gain: 1.05, cut: 3.3, fade: 0.4 } },
+    tech:    { label: "テック・エレクトロ", ending: { gain: 0.98, cut: 3.5, fade: 0.5 } },
+    tense:   { label: "緊張感・接戦",       ending: { gain: 1.08, cut: 3.6, fade: 0.5 } },
+    comical: { label: "コミカル",           ending: { gain: 1.04, cut: 2.3, fade: 0.4 } }
   };
   var TRACKS = {
     "epic-a":    { gain: 0.85, loopEnd: 59.5 },
@@ -33,7 +34,7 @@
     "pop-b":     { gain: 0.71, loopEnd: 59.6 },
     "tech-a":    { gain: 0.87, loopEnd: 59.8 },
     "tech-b":    { gain: 0.79, loopEnd: 59.3 },
-    "tense-a":   { gain: 0.97, loopEnd: 47.9 },
+    "tense-a":   { gain: 0.97, loopEnd: 47.9, head: 0.1 },
     "tense-b":   { gain: 0.71, loopEnd: 47.8 },
     "comical-a": { gain: 1.12, loopEnd: 59.6 },
     "comical-b": { gain: 0.98, loopEnd: 59.5 }
@@ -45,7 +46,7 @@
 
   var LOOP_XFADE = 1.5;    // くり返しのつなぎ目（秒）
   var BGM_FADE = 1.2;      // しめくくり音の前に BGM を小さくする時間（秒）
-  var END_LEAD = 0.15;     // しめくくり音の鳴り終わりを最後のフレームより少し前に置く（秒）
+  var END_LEAD = 0.03;     // しめくくり音の消え終わりを最後のフレームより少し前に置く（秒）
   var TAIL_FADE = 0.8;     // しめくくり音なしのときの最後のフェードアウト（秒）
   var RATE = 48000;
 
@@ -90,7 +91,7 @@
     // しめくくり音の位置。動画が短すぎるときはしめくくり音だけ（先頭から）
     var endStart = null;
     if (end) {
-      var soundEnd = Math.min(endMeta.soundEnd, end.duration);
+      var soundEnd = Math.min(endMeta.cut + endMeta.fade, end.duration);
       endStart = Math.max(0, T - END_LEAD - soundEnd);
     }
     var bgmEnd = endStart == null ? T : endStart + 0.4;   // しめくくり音に少し重ねてから消す
@@ -99,7 +100,8 @@
     var bus = ctx.createGain();
     bus.gain.value = meta.gain;
     bus.connect(master);
-    var seg = Math.min(meta.loopEnd, main.duration);
+    var head = meta.head || 0;
+    var seg = Math.min(meta.loopEnd, main.duration) - head;
     var step = seg - LOOP_XFADE;
     if (bgmEnd > 0.05) {
       for (var t = 0, k = 0; t < bgmEnd; t += step, k++) {
@@ -114,7 +116,7 @@
           g.gain.linearRampToValueAtTime(0, t + seg);
         }
         src.connect(g); g.connect(bus);
-        src.start(t, 0, len);
+        src.start(t, head, len);
       }
       // 終わり方：しめくくり音の前にフェード、無いときは最後にフェード
       var fadeLen = endStart == null ? Math.min(TAIL_FADE, T / 4) : Math.min(BGM_FADE, bgmEnd / 2);
@@ -126,7 +128,12 @@
       var es = ctx.createBufferSource();
       es.buffer = end;
       var eg = ctx.createGain();
-      eg.gain.value = endMeta.gain;
+      eg.gain.setValueAtTime(endMeta.gain, 0);
+      var cutAt = endStart + endMeta.cut;
+      if (cutAt < T) {   // 余韻を短く切る
+        eg.gain.setValueAtTime(endMeta.gain, cutAt);
+        eg.gain.linearRampToValueAtTime(0.0001, Math.min(T, cutAt + endMeta.fade));
+      }
       es.connect(eg); eg.connect(master);
       es.start(endStart, 0, Math.max(0.01, T - endStart));
     }
@@ -160,7 +167,18 @@
       requestAnimationFrame(tick);
       var s;
       try { s = opts.getState(); } catch (e) { return; }
-      if (!s || !s.playing || !isTrack(s.trackId) || !(s.total > 0)) { stop(); return; }
+      if (!s || !isTrack(s.trackId) || !(s.total > 0)) { stop(); return; }
+      var rate = s.rate > 0 ? s.rate : 1;
+      var total = s.total / rate, sec = s.sec / rate;
+      var k = [s.trackId, total.toFixed(2), s.volume, s.ending].join("|");
+      // 再生前から作っておく（押してから作ると、そのぶん音の出だしが遅れる）
+      if (k !== key && wanted !== k) {
+        wanted = k;
+        mix(s.trackId, total, { volume: s.volume, ending: s.ending }).then(function (b) {
+          if (wanted === k) { buf = b; key = k; if (src) start(curSec()); }
+        }).catch(function (e) { console.warn("[bgm]", e); });
+      }
+      if (!s.playing) { stop(); return; }
       if (!actx) {
         var AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
@@ -169,18 +187,7 @@
         gainNode.connect(actx.destination);
       }
       if (actx.state === "suspended") actx.resume();
-      var rate = s.rate > 0 ? s.rate : 1;
-      var total = s.total / rate, sec = s.sec / rate;
-      var k = [s.trackId, total.toFixed(2), s.volume, s.ending].join("|");
-      if (k !== key) {
-        if (wanted !== k) {
-          wanted = k; stop();
-          mix(s.trackId, total, { volume: s.volume, ending: s.ending }).then(function (b) {
-            if (wanted === k) { buf = b; key = k; }
-          }).catch(function (e) { console.warn("[bgm]", e); });
-        }
-        return;
-      }
+      if (k !== key) { stop(); return; }
       // 鳴らし始め直後は音声側の時計が進み出すまで少し遅れるので、ずれの判定を待つ
       var settling = src && actx.currentTime - startedAt < 0.6;
       if (!src || (!settling && Math.abs(curSec() - sec) > 0.25)) start(sec);
