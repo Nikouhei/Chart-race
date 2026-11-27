@@ -76,8 +76,7 @@ I18N.registerText('en', {
   '一時停止': 'Pause',
   'リセット': 'Reset',
   '速度': 'Speed',
-  '動画として保存する場合は、再生中の画面をOSの画面録画機能（macOS: Shift+Cmd+5 / Windows: Win+G など）でキャプチャしてください。':
-    'To save a video, record the screen while it plays with your OS screen recorder (macOS: Shift+Cmd+5 / Windows: Win+G).',
+  'ランキングの項目を1つ以上入れてください。': 'Add at least one ranking item.',
 });
 
 I18N.registerPatterns('en', [

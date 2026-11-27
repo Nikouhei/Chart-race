@@ -42,7 +42,9 @@
  *   });
  *
  * ── 描き写せるもの ──────────────────────────────────────
- *   HTML: 背景色・背景画像（cover）・角丸・テキスト（折り返し含む）・-webkit-text-stroke（文字の後ろに描く）
+ *   HTML: 背景色・背景画像（cover）・角丸・テキスト（折り返し含む）・-webkit-text-stroke（文字の後ろに描く）・
+ *         <img>（object-fit: fill / contain / cover）・overflow: hidden の切り抜き（角丸込み）・
+ *         transform / opacity（getBoundingClientRect の位置で描くので、移動・拡大は反映される）
  *   SVG : g / rect / circle / ellipse / line / path / polyline / polygon / text(+tspan) / image
  *         塗り・線・破線・不透明度・transform・preserveAspectRatio・
  *         CSS clip-path の circle() / inset(... round ...)
@@ -191,6 +193,11 @@
     for (var i = 0; i < imgs.length; i++) {
       var h = svgHref(imgs[i]);
       if (h && !imgCache.has(absUrl(h))) pending.push(loadImage(h));
+    }
+    var htmlImgs = stage.querySelectorAll("img");
+    for (var j = 0; j < htmlImgs.length; j++) {
+      var src = htmlImgs[j].currentSrc || htmlImgs[j].src;
+      if (src && !imgCache.has(absUrl(src))) pending.push(loadImage(src));
     }
     var bg = cssUrl(getComputedStyle(stage).backgroundImage);
     if (bg && !imgCache.has(absUrl(bg))) pending.push(loadImage(bg));
@@ -391,6 +398,15 @@
     }
     positioned.sort(function (p, q) { return p.z - q.z || p.i - q.i; });
     var self = this;
+    // overflow: hidden の要素は、子をその箱（角丸込み）で切り抜く。ステージ自体は書き出しの枠で切れるので除く
+    var clip = !isRoot && (cs.overflowX !== "visible" || cs.overflowY !== "visible");
+    if (clip) {
+      var B = this.local(el.getBoundingClientRect());
+      if (B.w <= 0 || B.h <= 0) return;
+      this.ctx.save();
+      this.base();
+      this.ctx.clip(roundRectPath(B.x, B.y, B.w, B.h, num(cs.borderTopLeftRadius, 0)));
+    }
     var draw = function (n) {
       if (n.nodeType === 3) self.paintText(n, cs, a);
       else if (n.tagName.toLowerCase() === "svg") self.paintSvgRoot(n, a);
@@ -399,15 +415,31 @@
     };
     flow.forEach(draw);
     positioned.forEach(function (p) { draw(p.n); });
+    if (clip) this.ctx.restore();
   };
 
   Painter.prototype.paintImgEl = function (el, alpha) {
     var ent = imgCache.get(absUrl(el.currentSrc || el.src));
     if (!ent || ent.state !== "ok") return;
     var L = this.local(el.getBoundingClientRect());
+    if (L.w <= 0 || L.h <= 0) return;
+    var cs = getComputedStyle(el), ctx = this.ctx, img = ent.img;
     this.base();
-    this.ctx.globalAlpha = alpha * num(getComputedStyle(el).opacity, 1);
-    this.ctx.drawImage(ent.img, L.x, L.y, L.w, L.h);
+    ctx.globalAlpha = alpha * num(cs.opacity, 1);
+    var fit = cs.objectFit, iw = img.naturalWidth, ih = img.naturalHeight;
+    if ((fit !== "contain" && fit !== "cover") || !iw || !ih) {
+      ctx.drawImage(img, L.x, L.y, L.w, L.h);
+      return;
+    }
+    // object-position は中央のみ対応
+    var s = fit === "contain" ? Math.min(L.w / iw, L.h / ih) : Math.max(L.w / iw, L.h / ih);
+    var dw = iw * s, dh = ih * s;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(L.x, L.y, L.w, L.h);
+    ctx.clip();
+    ctx.drawImage(img, L.x + (L.w - dw) / 2, L.y + (L.h - dh) / 2, dw, dh);
+    ctx.restore();
   };
 
   Painter.prototype.paintText = function (node, cs, alpha) {

@@ -15,6 +15,8 @@
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261108" defer></script>
+  <!-- 動画の書き出し（MP4 / WebM）。課金判定（export-plan.js）は読み込まない＝すべて無料・透かしは既定でなし -->
+  <script src="../../shared/video-export.js?v=2026112701" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,7 +33,7 @@
   <!-- ツール共通レジストリ（下書き自動保存に使用） -->
   <script src="../../shared/registry.js?v=20261026"></script>
   <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
-  <script src="../../shared/i18n.js?v=2026112705" data-i18n-bundles="common,ranking-video"></script>
+  <script src="../../shared/i18n.js?v=2026112706" data-i18n-bundles="common,ranking-video"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -257,7 +259,15 @@
     .rv-play-controls .spd input { flex: 1; accent-color: var(--accent); }
     .rv-seek-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .rv-seek-row input { flex: 1; accent-color: var(--accent); cursor: pointer; }
-    .rec-hint { margin: 10px 0 0; font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+    #exportVideoBtn {
+      width: 100%; min-height: 42px; margin-top: 12px; padding: 9px 13px;
+      font-size: 13px; font-family: inherit; font-weight: 600; cursor: pointer;
+      background: transparent; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    #exportVideoBtn svg { width: 16px; height: 16px; display: block; }
+    #exportVideoBtn:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    #exportVideoBtn:disabled { border-color: var(--panel-surface-2); color: var(--text-muted); background: transparent; cursor: default; }
 
     /* リサイザー */
     .panel-resizer { width: 8px; flex: 0 0 8px; background: var(--panel-border); cursor: col-resize; position: relative; z-index: 200; }
@@ -501,7 +511,7 @@
           <input type="range" id="rv-speed" min="1" max="5" step="1" value="3" />
         </div>
       </div>
-      <p class="rec-hint">動画として保存する場合は、再生中の画面をOSの画面録画機能（macOS: Shift+Cmd+5 / Windows: Win+G など）でキャプチャしてください。</p>
+      <button id="exportVideoBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>動画を書き出す（MP4 / WebM）</span></button>
     </div>
   </div>
 
@@ -995,9 +1005,52 @@
     if (window.saveSessionDraft) window.saveSessionDraft(TOOL_ID, makeProjectPayload());
   });
 
+  // --- 動画書き出し（shared/video-export.js）---
+  // プレビューと同じ applyFrame を、実時間ではなく指定時刻の位置で呼んで1コマずつ描き写す。
+  // 計測: ボタンは tool_ui_click（button_id=exportVideoBtn）、書き出し本体は export_start / export_complete。
+  function setupVideoExport() {
+    if (!window.GRSVideoExport) return;
+    const btn = $('exportVideoBtn');
+    let saved = null;
+    const durationMs = () => maxOffset > 0 ? maxOffset / pxPerSec() * 1000 : 3000; // 動かないときは3秒の静止画
+    window.GRSVideoExport.attach({
+      button: btn,
+      fileBase: 'ranking-video',
+      scales: [0.75, 1.5],
+      paidScales: [],
+      previewMark: false,
+      defaultWatermark: () => 'off',
+      adapter: {
+        isReady: () => items.length > 0,
+        getStage: () => canvasEl,
+        getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
+        getDurationMs: durationMs,
+        beginExport() {
+          saved = { offset, playing };
+          setPlaying(false);
+          offset = 0;
+          applyFrame();
+        },
+        renderAt(tMs) {
+          offset = Math.min(maxOffset, tMs / 1000 * pxPerSec());
+          applyFrame();
+        },
+        endExport() {
+          if (!saved) return;
+          offset = saved.offset;
+          applyFrame();
+          saved = null;
+        },
+      },
+      onNotReady: () => alert('ランキングの項目を1つ以上入れてください。'),
+    });
+  }
+
   // --- 起動 ---
   renderItemList();
   rebuild();
+  if (window.GRSVideoExport) setupVideoExport();
+  else window.addEventListener('load', setupVideoExport, { once: true });
   window.addEventListener('resize', fitToScreen);
   if (window.offerSessionDraftRestore) window.offerSessionDraftRestore(TOOL_ID, loadProjectPayload);
 })();
