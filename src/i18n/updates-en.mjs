@@ -7,7 +7,7 @@ const PAID_CHART = (extra) => ({ date: '2026-11-21', isNew: true, text: `Launche
 const TEXT_STYLE = { date: '2026-11-07', isNew: true, text: 'Text is easier to read: choose a shadow strength, text outlines now scale with the font size, labels can be bold, and the “Title & source” settings have their own section.' };
 const VIDEO_EXPORT = { date: '2026-10-10', text: 'Added video export: save your animation as an MP4 or WebM file, including from a phone browser.' };
 const SAVE_BUTTON = { date: '2026-10-17', text: 'Added a “Save video” button to the timeline, and a save prompt when the preview finishes. If the page is opened inside an in-app browser (such as LINE), you are told up front that saving may not work.' };
-const BGM = { date: '2026-11-27', isNew: true, text: 'Added background music: pick from 10 tracks (epic, pop, tech, tense and comical), hear it in the preview, and export it straight into your MP4 or WebM video. Tracks loop smoothly for longer videos and finish with a clean closing sting. Epic A, Tense A and Comical A are free.' };
+const BGM = { date: '2026-11-27', isNew: true, text: 'Added background music: hear it in the preview and export it straight into your MP4 or WebM video. Tracks loop smoothly for longer videos and finish with a clean closing sting.' };
 const CHART_HISTORY = [
   { date: '2026-07-10', text: 'Added support for a category column, with automatic colors per group and a legend.' },
   { date: '2026-07-01', text: 'You can now switch your data between the bar chart race and the line chart race.' },
@@ -21,7 +21,7 @@ const CHART_HISTORY = [
 
 export const UPDATES_EN = {
   home: [
-    { date: '2026-11-27', isNew: true, text: 'Bar, line and pie chart races: added background music. Choose from 10 tracks (3 are free) and export them into your MP4 or WebM video, ending with a clean closing sting.' },
+    { date: '2026-11-27', isNew: true, text: 'Bar, line and pie chart races: added background music. Export it into your MP4 or WebM video, ending with a clean closing sting.' },
     { date: '2026-11-24', isNew: true, text: 'Bar chart race: you can now adjust how round the corners are (0–100%) on rounded bars. Bars are sorted largest first by default, so your data appears in ranking order right away.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly) for watermark-free, higher-quality exports. Everything can still be created and exported for free. Also added transparent-background export and rounded bars to the chart races, fanfare volume and export quality to Ranking Derby, and “Create data with AI”.` },
     { date: '2026-11-07', isNew: true, text: 'Bar, line and pie chart races: clearer text with a new shadow-strength option and outlines that scale with the font size. The line chart race no longer jumps when the axis maximum is set to “Auto”.' },
