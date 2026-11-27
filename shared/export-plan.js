@@ -430,6 +430,21 @@
     }
   };
 
+  // ランキング動画メーカー（無料ツール）。用途と次にほしい機能
+  QUICK_SURVEYS.ranking_v1 = {
+    head: "書き出しを待つあいだに、2問だけ教えてください",
+    questions: [
+      { key: "use_case", label: "何に使う動画ですか？", options: [
+        ["sns", "YouTube・SNS"], ["school", "学校・授業"], ["work", "仕事・プレゼン"],
+        ["event", "イベント・パーティー"], ["personal", "個人で楽しむ"], ["other", "その他"]
+      ] },
+      { key: "wanted_features", label: "次にほしい機能は？（いくつでも）", multi: true, options: [
+        ["bgm", "BGM・効果音"], ["templates", "デザインのテンプレート"], ["reveal", "1位の発表を盛り上げる演出"],
+        ["motion", "カードの動き方を選べる"], ["layout", "文字・画像の配置を自由に"], ["other", "その他"]
+      ] }
+    ]
+  };
+
   function shouldShowFor(lsKey) {
     var s = lsGet(lsKey);
     if (!s) return true;

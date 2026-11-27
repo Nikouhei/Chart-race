@@ -37,6 +37,8 @@
  *     fpsOptions: [30]       （任意）選べる fps。1つだけなら欄を出さない（既定 [30, 60]）
  *     previewMark: false     （任意）プレビューに共通の透かしを重ねない
  *     surveyId: "derby_v2"   （任意）書き出し中に出すアンケート（GRSPlan.surveys のキー）
+ *     free: true             （任意）無料ツール（ランキング動画）。透かしの欄を出さず常に透かしなし、
+ *                            課金判定・プランの状態表示もしない。export-plan.js はアンケートのためだけに読む
  *     defaultWatermark()     （任意）透かしの初期値 "on" / "off"。null なら前回の選択
  *     trackParams()          （任意）書き出すボタンの計測に足すパラメータ { 名前: 値 }
  *   });
@@ -1469,7 +1471,7 @@
       for (var i = 0; i < opts.length; i++) opts[i].textContent = opts[i].textContent.replace(/ 👑$/, "");
       var crowns = body.querySelectorAll(".grs-crown, .grsx-tag.paid");
       for (var j = 0; j < crowns.length; j++) crowns[j].remove();
-      if (P && P.statusHtml && !body.querySelector(".grsp-status")) body.insertAdjacentHTML("afterbegin", P.statusHtml());
+      if (!cfg.free && P && P.statusHtml && !body.querySelector(".grsp-status")) body.insertAdjacentHTML("afterbegin", P.statusHtml());
     }
     window.addEventListener("grs-license-change", onLicenseChange);
     function close() {
@@ -1522,7 +1524,7 @@
     // LINE などのアプリ内ブラウザでは保存できないことが多いので、書き出す前に知らせる（shared/export-cta.js）
     var inAppNote = (window.GRSExportCTA && window.GRSExportCTA.inAppDialogHtml) ? window.GRSExportCTA.inAppDialogHtml() : "";
     // 有料プランが有効なら「有料プラン有効（〜まで）」を一番上に出す
-    var planStatus = (P && P.statusHtml) ? P.statusHtml() : "";
+    var planStatus = (!cfg.free && P && P.statusHtml) ? P.statusHtml() : "";
     body.innerHTML = planStatus + inAppNote +
       '<div class="grsx-thumb"><canvas id="grsxThumb"></canvas></div>' +
       '<div class="grsx-field"><span>形式</span><div class="grsx-seg" data-name="format">' +
@@ -1535,7 +1537,7 @@
       "</div></div>" +
       '<p class="grsx-note" id="grsxAlphaNote" hidden></p>' +
       '<p class="grsx-note grsx-webm-note" id="grsxWebmNote" hidden>WebM はスマホで再生できないことがあります。</p>' +
-      '<div class="grsx-field"><span>透かし</span><div class="grsx-seg" data-name="mark">' +
+      '<div class="grsx-field"' + (cfg.free ? " hidden" : "") + '><span>透かし</span><div class="grsx-seg" data-name="mark">' +
         '<label><input type="radio" name="grsxMark" value="on"><b>あり</b></label>' +
         '<label><input type="radio" name="grsxMark" value="off"><b>なし ' +
           // 有料化前は「β版特典」として無料で消せることを控えめに伝える
@@ -1570,7 +1572,7 @@
     radio("grsxFormat", alpha ? "mov" : "mp4");
     // ツール側に透かしの設定がある場合（格付けダービーのリアル競馬風）はそれに合わせる
     var mark0 = (typeof cfg.defaultWatermark === "function" && cfg.defaultWatermark()) || last.mark;
-    radio("grsxMark", mark0 === "off" && (!P || P.canUse("no_watermark")) ? "off" : "on");
+    radio("grsxMark", cfg.free || (mark0 === "off" && (!P || P.canUse("no_watermark"))) ? "off" : "on");
     var scaleSel = body.querySelector("#grsxScale");
     scaleSel.value = String(last.scale || scales[0]);
     if (!scaleSel.value) scaleSel.value = String(scales[0]);
@@ -1684,7 +1686,7 @@
     // ── 書き出し ──
     async function run(c) {
       // 有料化後：使われている有料機能をここでまとめて判定する（購入案内は1回だけ）
-      if (P && P.config.paywallEnabled) {
+      if (P && P.config.paywallEnabled && !cfg.free) {
         var used = [];
         if (c.scale >= 2) used.push("hd_max");
         if (paidScales.indexOf(c.scale) >= 0) used.push("hd_1080");

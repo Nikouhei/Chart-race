@@ -227,6 +227,13 @@ I18N.registerText('en', {
   'フルHDの高画質': 'Full HD quality',
   '3Dの馬に画像追加': 'Images on the 3D horses',
   '結果発表の演出を増やす': 'More results-announcement effects',
+  // ranking_v1
+  '学校・授業': 'School / class',
+  '仕事・プレゼン': 'Work / presentations',
+  'イベント・パーティー': 'Event / party',
+  '1位の発表を盛り上げる演出': 'A bigger reveal for #1',
+  'カードの動き方を選べる': 'More ways for cards to move',
+  '文字・画像の配置を自由に': 'Free placement of text and images',
 });
 
 I18N.registerPatterns('en', [

@@ -15,8 +15,9 @@
   </script>
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261108" defer></script>
-  <!-- 動画の書き出し（MP4 / WebM）。課金判定（export-plan.js）は読み込まない＝すべて無料・透かしは既定でなし -->
-  <script src="../../shared/video-export.js?v=2026112701" defer></script>
+  <!-- 動画の書き出し（MP4 / WebM）。無料ツールなので free: true（透かし・課金判定なし）。export-plan.js はアンケート用 -->
+  <script src="../../shared/export-plan.js?v=2026112801" defer></script>
+  <script src="../../shared/video-export.js?v=2026112801" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,7 +34,7 @@
   <!-- ツール共通レジストリ（下書き自動保存に使用） -->
   <script src="../../shared/registry.js?v=20261026"></script>
   <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
-  <script src="../../shared/i18n.js?v=2026112706" data-i18n-bundles="common,ranking-video"></script>
+  <script src="../../shared/i18n.js?v=2026112801" data-i18n-bundles="common,ranking-video"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -1016,10 +1017,11 @@
     window.GRSVideoExport.attach({
       button: btn,
       fileBase: 'ranking-video',
+      free: true,
+      surveyId: 'ranking_v1',
       scales: [0.75, 1.5],
       paidScales: [],
       previewMark: false,
-      defaultWatermark: () => 'off',
       adapter: {
         isReady: () => items.length > 0,
         getStage: () => canvasEl,
