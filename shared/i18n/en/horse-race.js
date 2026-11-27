@@ -26,6 +26,7 @@ I18N.registerText('en', {
 
   // ── 動画設定 ──
   '動画設定': 'Video',
+  '再生・保存': 'Play & save',
   '画面サイズ': 'Aspect ratio',
   '画面サイズについて': 'About aspect ratio',
   'YouTubeなど横長の動画向け': 'Landscape videos such as YouTube',
@@ -141,6 +142,7 @@ I18N.registerText('en', {
 
   // ── 画面表示 ──
   '画面表示': 'Display',
+  '画面・表示': 'Screen & overlays',
   'コースマップ': 'Track map',
   '隊列パネル': 'Position panel',
   '表示した内容はそのまま動画にも記録されます。カメラワークは自動です。': 'Everything shown here is included in the video. Camera work is automatic.',
@@ -167,6 +169,7 @@ I18N.registerText('en', {
 
   // ── サウンド ──
   'サウンド': 'Sound',
+  '演出・サウンド': 'Intro & sound',
   // 初回訪問者にだけ出る、3Dの存在を知らせる案内
   '3Dの馬が走るモードもあります': 'There\u2019s a 3D mode, too',
   'いま開いているのは、すぐ使える軽い「競馬風」です。こちらに切り替えると、実際の競馬場のようなコースをCGの馬が走ります。':

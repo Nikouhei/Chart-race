@@ -31,7 +31,7 @@ const soundReady = true;
     <script is:inline src="/shared/export-plan.js?v=2026112704" defer></script>
     <script is:inline src="/shared/video-export.js?v=2026112202" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026112705" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026112706" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
@@ -579,6 +579,10 @@ const soundReady = true;
       padding:16px;
       box-shadow:0 4px 18px rgba(0,0,0,.35);
     }
+    /* パネル同士の間隔。.mode-real などで隠れたパネルは数えない */
+    .umarace .umarace-side>.panel+.panel{margin-top:14px}
+    /* 再生・保存パネル: ボタンの下のタイムラインを少し離す */
+    .umarace .panel>.btn+.field{margin-top:14px}
     .umarace .panel h3{
       font-size:13px;letter-spacing:.18em;color:#5c5540;font-weight:700;
       border-bottom:2px solid var(--line);padding-bottom:8px;margin:0 0 12px;
@@ -966,40 +970,19 @@ const soundReady = true;
         <!-- 設定はすべてこの列に集約し、入り切らない分はこの列だけをスクロールさせる。
              「レース開始」はいつでも押せるよう先頭に置いている -->
         <div class="umarace-side">
+          <!-- 再生・保存はいつでも押せるよう先頭に置き、畳まない -->
           <div class="panel">
-            <h3>動画設定</h3>
-            <div class="field">
-              <label>画面サイズ<span class="info-tip" tabindex="0" role="button" aria-label="画面サイズについて">i<span class="info-bubble"><b>16:9</b>YouTubeなど横長の動画向け<b>3:4・1:1</b>SNSのタイムライン投稿向け<b>9:16</b>ショート・リールなど縦長向け</span></span></label>
-              <!-- 選択肢はモードで入れ替わる(3:4は競馬風だけ / 1:1はリアルだけ)。
-                   中身は setAspectOptions() が組み直す -->
-              <select id="aspect">
-                <option value="16:9" selected>16:9 横長</option>
-                <option value="3:4">3:4 縦長</option>
-                <option value="9:16">9:16 縦長</option>
-              </select>
-            </div>
-            <div class="field mode-classic">
-              <label>実況テロップ</label>
-              <select id="captions">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-            <div class="field mode-classic">
-              <label>馬上アイコンの大きさ<span class="info-tip" tabindex="0" role="button" aria-label="馬上アイコンの大きさについて">i<span class="info-bubble">馬の背に乗せた丸いアイコン画像の大きさです。<p>名前ラベルの大きさは変わりません。</p></span></span></label>
-              <input type="range" id="iconSize" min="80" max="130" step="5" value="100">
-              <div class="timeline-time" id="iconSizeValue">100%</div>
-            </div>
+            <h3>再生・保存</h3>
+            <button class="btn btn-start" id="startBtn">▶ レース開始</button>
+            <button class="btn btn-secondary" id="exportVideoBtn" type="button" title="レースを動画ファイル（MP4 / WebM）にして保存します">⬇ 動画を保存（MP4 / WebM）</button>
             <div class="field">
               <label>再生タイムライン</label>
               <input type="range" id="timeline" min="0" max="1000" value="0" disabled>
               <div class="timeline-time" id="timelineTime">0.0s / 0.0s</div>
             </div>
-            <button class="btn btn-start" id="startBtn">▶ レース開始</button>
-            <button class="btn btn-secondary" id="exportVideoBtn" type="button" title="レースを動画ファイル（MP4 / WebM）にして保存します">⬇ 動画を保存（MP4 / WebM）</button>
           </div>
 
-          <div class="panel" style="margin-top:14px">
+          <div class="panel">
             <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble"><b>⠿ ドラッグ</b>最終順位を入れ替えます<b>数字</b>出走枠。画面のどこを走るかで、着順とは別に決められます<span class="mode-real"><b>脚質</b>大逃げ・逃げ・先行・差し・追込から選ぶ道中の位置取り。大逃げは2番手以下を大きく引き離します。自動なら抽選で決まり、大逃げは出ても1頭だけです</span><b>頭数</b>2〜16頭<p>展開は毎回ランダムですが、必ずこの順位でゴールします。</p></span></span></h3>
             <!-- 毛色パターンはリスト内の色の見え方を決める設定なので、リストの直前に置く -->
             <div class="field field-inline mode-real">
@@ -1014,7 +997,7 @@ const soundReady = true;
             <p class="hint">設定は自動保存されます。<a href="#" id="resetState">初期状態に戻す</a></p>
           </div>
 
-          <details class="panel" style="margin-top:14px" open>
+          <details class="panel" open>
             <summary>レース設定</summary>
             <div class="field">
               <label>レース名</label>
@@ -1064,6 +1047,57 @@ const soundReady = true;
                 <option value="real">リアル</option>
               </select>
             </div>
+            <div class="field mode-real">
+              <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
+              <input type="number" id="seed" value="1" min="0" max="99999" step="1">
+            </div>
+            <p class="hint mode-real" id="courseInfo"></p>
+          </details>
+
+          <!-- 画面に重ねて出すものはモードを問わずここにまとめる -->
+          <details class="panel" open>
+            <summary>画面・表示</summary>
+            <div class="field">
+              <label>画面サイズ<span class="info-tip" tabindex="0" role="button" aria-label="画面サイズについて">i<span class="info-bubble"><b>16:9</b>YouTubeなど横長の動画向け<b>3:4・1:1</b>SNSのタイムライン投稿向け<b>9:16</b>ショート・リールなど縦長向け</span></span></label>
+              <!-- 選択肢はモードで入れ替わる(3:4は競馬風だけ / 1:1はリアルだけ)。
+                   中身は setAspectOptions() が組み直す -->
+              <select id="aspect">
+                <option value="16:9" selected>16:9 横長</option>
+                <option value="3:4">3:4 縦長</option>
+                <option value="9:16">9:16 縦長</option>
+              </select>
+            </div>
+            <div class="field mode-classic">
+              <label>実況テロップ</label>
+              <select id="captions">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field mode-classic">
+              <label>馬上アイコンの大きさ<span class="info-tip" tabindex="0" role="button" aria-label="馬上アイコンの大きさについて">i<span class="info-bubble">馬の背に乗せた丸いアイコン画像の大きさです。<p>名前ラベルの大きさは変わりません。</p></span></span></label>
+              <input type="range" id="iconSize" min="80" max="130" step="5" value="100">
+              <div class="timeline-time" id="iconSizeValue">100%</div>
+            </div>
+            <div class="field mode-real">
+              <label>コースマップ</label>
+              <select id="showMap">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <div class="field mode-real">
+              <label>隊列パネル</label>
+              <select id="showField">
+                <option value="on" selected>表示する</option>
+                <option value="off">表示しない</option>
+              </select>
+            </div>
+            <p class="hint mode-real">表示した内容はそのまま動画にも記録されます。カメラワークは自動です。</p>
+          </details>
+
+          <details class="panel" open>
+            <summary>演出・サウンド</summary>
             <div class="field">
               <label>スタート前の演出<span class="info-tip" tabindex="0" role="button" aria-label="スタート前の演出について">i<span class="info-bubble"><b>カウントダウン</b>スタート前に3・2・1を出します<b>ファンファーレ</b>ファンファーレが流れ、そのあいだ画面にレース名と出馬表（馬番順）が出ます<p>なしにすると、いきなり走り出します。</p></span></span></label>
               <select id="countdown">
@@ -1095,15 +1129,6 @@ const soundReady = true;
               <input type="range" id="fanfareVolume" min="0" max="150" step="5" value="100">
               <div class="timeline-time" id="fanfareVolumeValue">100%</div>
             </div>
-            <div class="field mode-real">
-              <label>展開シード<span class="info-tip" tabindex="0" role="button" aria-label="展開シードについて">i<span class="info-bubble">同じ着順のまま、道中の展開だけを変えたいときに数字を変えます。<p>同じ数字なら、何度でも同じレースが再現されます。</p></span></span></label>
-              <input type="number" id="seed" value="1" min="0" max="99999" step="1">
-            </div>
-            <p class="hint mode-real" id="courseInfo"></p>
-          </details>
-
-          <details class="panel" style="margin-top:14px" open>
-            <summary>サウンド</summary>
             <div class="field">
               <label data-paid-feature="derby_sound">歓声・蹄の音</label>
               <select id="sfx">
@@ -1116,30 +1141,11 @@ const soundReady = true;
               <input type="range" id="volume" min="0" max="100" step="5" value="80">
               <div class="timeline-time" id="volumeValue">80%</div>
             </div>
-            <p class="hint">音はプレビューでも流れ、保存する動画にも入ります。</p>
+            <p class="hint" id="soundHint">音はプレビューでも流れ、保存する動画にも入ります。</p>
           </details>
 
-          <details class="panel mode-real" style="margin-top:14px" open>
-            <summary>画面表示</summary>
-            <div class="field">
-              <label>コースマップ</label>
-              <select id="showMap">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>隊列パネル</label>
-              <select id="showField">
-                <option value="on" selected>表示する</option>
-                <option value="off">表示しない</option>
-              </select>
-            </div>
-            <p class="hint">表示した内容はそのまま動画にも記録されます。カメラワークは自動です。</p>
-          </details>
-
-          <details class="panel" style="margin-top:14px" open>
-            <summary>結果発表設定</summary>
+          <details class="panel" open>
+            <summary>結果発表</summary>
             <div class="field">
               <label>掲示板タイトル</label>
               <input type="text" id="boardTitle" value="結果発表" maxlength="16" data-i18n-value>
@@ -1967,14 +1973,12 @@ function lockSoundUI(){
   vol.value=0;vol.disabled=true;
   const volVal=document.getElementById("volumeValue");
   if(volVal)volVal.textContent="0%";
-  const panel=sfx.closest("details");
-  if(panel){
-    const sum=panel.querySelector("summary");
-    if(sum)sum.textContent+=soon;
-    // 音が鳴らないので「音はプレビューでも流れ…」の説明は出さない
-    const hint=panel.querySelector(".hint");
-    if(hint)hint.hidden=true;
-  }
+  // パネルは演出と同居しているので、見出しではなく「歓声・蹄の音」の項目名に（準備中）を付ける
+  const sfxLabel=sfx.closest(".field")?.querySelector("label");
+  if(sfxLabel)sfxLabel.textContent+=soon;
+  // 音が鳴らないので「音はプレビューでも流れ…」の説明は出さない
+  const hint=document.getElementById("soundHint");
+  if(hint)hint.hidden=true;
   const listen=document.getElementById("fanfareListen");
   if(listen)listen.disabled=true;
 }
