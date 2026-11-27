@@ -21,6 +21,7 @@ const CHART_HISTORY = [
 
 export const UPDATES_EN = {
   home: [
+    { date: '2026-11-27', isNew: true, text: 'Ranking Video: the title card can now be hidden.' },
     { date: '2026-11-27', isNew: true, text: 'Ranking Video: added video export. Save your countdown as an MP4 or WebM file — no screen recording needed. It is free, with no watermark.' },
     { date: '2026-11-27', isNew: true, text: 'Ranking Derby: reorganized the settings panel into clear sections so it is easier to find what you need.' },
     { date: '2026-11-27', isNew: true, text: 'Bar, line and pie chart races: added background music. Export it into your MP4 or WebM video, ending with a clean closing sting.' },
@@ -77,6 +78,7 @@ export const UPDATES_EN = {
     { date: '2026-07-18', text: 'Released Ranking Derby, a horse-race style ranking video maker.' },
   ],
   'ranking-video': [
+    { date: '2026-11-27', isNew: true, text: 'The title card can now be hidden.' },
     { date: '2026-11-27', isNew: true, text: 'Added video export: save your countdown as an MP4 or WebM file with no screen recording. Free, with no watermark.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} for other tools. The Ranking Video maker is not affected: every feature stays free, with no watermark.` },
     { date: '2026-07-07', isNew: true, text: 'Released the Ranking Video maker, where ranking cards slide in from the right.' },
