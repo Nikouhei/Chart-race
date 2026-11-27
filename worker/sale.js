@@ -5,7 +5,7 @@ export const SALE = {
   coupon: 'BF2026', // 30%OFF・duration once（月額/年額は初回の支払いだけ割引）
   promo: 'bf2026', // metadata に入れて、セール経由の購入を見分ける
   start: Date.parse('2026-11-22T00:00:00+09:00'),
-  end: Date.parse('2026-12-01T00:00:00+09:00'), // 11/30 23:59:59 JST まで
+  end: Date.parse('2026-12-01T00:00:00+09:00'), // 11/30 23:59:59 JST まで（Stripe のクーポン BF2026 の有効期限 11/30 と合わせる）
 };
 
 export function isSaleActive(now = Date.now()) {

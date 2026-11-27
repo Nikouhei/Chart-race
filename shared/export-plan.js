@@ -39,7 +39,17 @@
     // パス確認のサーバー側エンドポイント（worker/license-api.js。キーを D1 と照合する）
     licenseEndpoint: "/api/license",
     // ライセンスを一度確認したら、次に確認しなおすまでの日数
-    licenseRecheckDays: 7
+    licenseRecheckDays: 7,
+    // 決済画面を作る API（worker/checkout.js）。購入案内の「7日パスで書き出す」から直接呼ぶ
+    checkoutEndpoint: "/api/checkout",
+    pass7: {
+      lookup: "grs_pass7",
+      price: { ja: "¥980", en: "$5.99" },
+      salePrice: { ja: "¥686", en: "$4.19" }
+    },
+    // セール期間（worker/sale.js・src/components/PricingPage.astro と同じ。日本時間 11/30 23:59 まで。変えるときは3か所そろえる）
+    saleStart: Date.parse("2026-11-22T00:00:00+09:00"),
+    saleEnd: Date.parse("2026-12-01T00:00:00+09:00")
   };
 
   // 有料予定の機能と表示名
@@ -244,6 +254,56 @@
     return CONFIG.pricingUrls[lang] || CONFIG.pricingUrls.ja;
   }
 
+  function uiLang() {
+    return (document.documentElement.lang || "ja").slice(0, 2) === "en" ? "en" : "ja";
+  }
+  // 購入元のツール名（/bar-chart-race/app/ → bar-chart-race）。決済のメタデータに入れて、どのツールから買われたかを見分ける
+  function pageSource() {
+    var seg = location.pathname.replace(/^\/[a-z]{2}(?=\/|$)/, "").split("/")[1] || "";
+    seg = seg.replace(/\.html$/, "");
+    return /^[a-z0-9-]{1,40}$/.test(seg) ? seg : "";
+  }
+  function isSaleOn() {
+    var now = Date.now();
+    return now >= CONFIG.saleStart && now < CONFIG.saleEnd;
+  }
+  function planPriceHtml() {
+    var lang = uiLang(), p = CONFIG.pass7;
+    if (isSaleOn()) {
+      return '<s class="grsp-was">' + esc(p.price[lang]) + '</s>' + esc(p.salePrice[lang]);
+    }
+    return esc(p.price[lang]);
+  }
+  // 7日パスの決済画面を別タブで開く。元のタブは動かさない（作業中のデータが消えないように）。
+  // 購入が済むと /thanks がキーを保存し、このタブには storage イベントで伝わる（syncLicense）
+  function startCheckout(btn, msgEl, featureKeys, from) {
+    var tab = null;
+    // fetch のあとに開くとポップアップとして止められるので、先に空のタブを開く
+    try { tab = window.open("", "_blank"); if (tab) tab.opener = null; } catch (e) { tab = null; }
+    btn.disabled = true;
+    msgEl.style.color = "";
+    msgEl.textContent = "決済画面を開いています…";
+    track("checkout_start", { plan: "pass7", plan_feature: featureKeys, upgrade_from: from || "export_gate" });
+    fetch(CONFIG.checkoutEndpoint, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ lookup_key: CONFIG.pass7.lookup, lang: uiLang(), source: pageSource() })
+    })
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
+      .then(function (r) {
+        if (!(r.ok && r.d && r.d.url)) throw new Error("checkout_failed");
+        btn.disabled = false;
+        if (tab) { tab.location.href = r.d.url; msgEl.textContent = "別のタブで決済画面を開きました"; }
+        else { msgEl.innerHTML = '<a target="_blank" rel="noopener" href="' + esc(r.d.url) + '">決済画面を開く</a>'; }
+      })
+      .catch(function () {
+        try { if (tab) tab.close(); } catch (e) {}
+        btn.disabled = false;
+        msgEl.style.color = "#b42318";
+        msgEl.textContent = "決済画面を開けませんでした。しばらくしてからもう一度お試しください";
+      });
+  }
+
   // features … 機能キーの配列（1つでも可）。複数ならまとめて一覧で1回だけ出す
   // opts.from … 計測用の表示元／opts.allowStrip … 「有料機能を外して書き出す」を出すか
   // opts.onClose(result) … result は "bought"（パスが有効になった）／ "strip" ／ "cancel"
@@ -258,11 +318,16 @@
       '<div class="grsp-modal" role="dialog" aria-modal="true" aria-labelledby="grspUpTitle">' +
         '<h3 id="grspUpTitle">有料パスが必要な機能が使われています</h3>' +
         '<ul class="grsp-list">' + list.map(function (f) { return "<li>" + esc(FEATURES[f]) + "</li>"; }).join("") + "</ul>" +
-        '<p>書き出すには有料パスが必要です。パスなしで書き出す場合は、これらを標準の設定に戻します。</p>' +
-        '<div class="grsp-cta">' +
-        '<a class="grsp-btn grsp-primary" target="_blank" rel="noopener" href="' + esc(pricingUrl()) + '" data-track="upgrade_click" data-track-plan-feature="' + esc(featureKeys) + '" data-track-upgrade-from="export_gate">プランを見る</a>' +
-        (opts.allowStrip ? '<button type="button" class="grsp-btn grsp-ghost grsp-strip">有料機能を外して書き出す</button>' : "") +
+        '<div class="grsp-plan">' +
+          '<div class="grsp-plan-head"><span class="grsp-plan-left"><span class="grsp-plan-name">7日パス</span>' + (isSaleOn() ? '<span class="grsp-off">30%OFF</span>' : "") + '</span><span class="grsp-plan-price">' + planPriceHtml() + '</span></div>' +
+          (isSaleOn() ? '<p class="grsp-sale-note">ブラックフライデー価格・11/30まで</p>' : "") +
+          '<p class="grsp-plan-note">イベントなど単発の利用に。自動更新なし</p>' +
+          '<button type="button" class="grsp-btn grsp-primary grsp-buy">7日パスで書き出す</button>' +
+          '<p class="grsp-msg grsp-buymsg" aria-live="polite"></p>' +
+          '<p class="grsp-more"><a target="_blank" rel="noopener" href="' + esc(pricingUrl()) + '" data-track="upgrade_click" data-track-plan-feature="' + esc(featureKeys) + '" data-track-upgrade-from="export_gate">月額・年額プランを見る</a></p>' +
         '</div>' +
+        (opts.allowStrip ? '<button type="button" class="grsp-btn grsp-ghost grsp-block grsp-strip">有料機能を外して書き出す</button>' : "") +
+        '<p class="grsp-trust">登録不要・決済はStripe（Link）で安全に処理されます</p>' +
         '<details class="grsp-license"><summary>ライセンスキーをお持ちの方</summary>' +
           '<div class="grsp-row"><input type="text" class="grsp-input" placeholder="GRS-XXXX-XXXX-XXXX" autocomplete="off">' +
           '<button type="button" class="grsp-btn grsp-primary grsp-activate">有効にする</button></div>' +
@@ -281,6 +346,10 @@
     back.addEventListener("click", function (e) { if (e.target === back) close("cancel"); });
     var strip = back.querySelector(".grsp-strip");
     if (strip) strip.addEventListener("click", function () { close("strip"); });
+    var buy = back.querySelector(".grsp-buy");
+    buy.addEventListener("click", function () {
+      startCheckout(buy, back.querySelector(".grsp-buymsg"), featureKeys, opts.from);
+    });
     back.querySelector(".grsp-activate").addEventListener("click", async function () {
       var msg = back.querySelector(".grsp-msg");
       msg.textContent = "確認中…";
@@ -474,6 +543,19 @@
       ".grsp-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}" +
       ".grsp-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}" +
       ".grsp-license{margin-top:12px}.grsp-license summary{cursor:pointer;color:#555}" +
+      ".grsp-plan{border:1px solid #cfd4dc;border-radius:8px;padding:12px 14px;margin-top:12px}" +
+      ".grsp-plan-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}" +
+      ".grsp-plan-left{display:flex;align-items:baseline;gap:6px}" +
+      ".grsp-off{background:#fde8e8;color:#b42318;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px}" +
+      ".grsp-sale-note{margin:2px 0 4px!important;font-size:12px;font-weight:700;color:#b42318!important}" +
+      ".grsp-plan-name{font-weight:700}.grsp-plan-price{font-size:20px;font-weight:700}" +
+      ".grsp-was{font-size:13px;font-weight:400;color:#777;margin-right:6px}" +
+      ".grsp-plan-note{margin:2px 0 10px!important;font-size:12px;color:#555!important}" +
+      ".grsp-plan .grsp-buy{display:flex;width:100%}" +
+      ".grsp-buymsg{min-height:0;margin:8px 0 0!important}.grsp-buymsg:empty{display:none}.grsp-buymsg a{color:var(--accent,#6E62F0);text-decoration:underline}" +
+      ".grsp-more{margin:10px 0 0!important;text-align:center;font-size:13px}.grsp-more a{color:var(--accent,#6E62F0);text-decoration:underline}" +
+      ".grsp-block{display:flex;width:100%;margin-top:10px;background:#fff;border:1px solid #cfd4dc}" +
+      ".grsp-trust{margin:10px 0 0!important;font-size:12px;color:#777!important;text-align:center}" +
       ".grsp-row{display:flex;gap:8px;margin-top:8px}.grsp-input{flex:1;min-width:0;padding:9px 10px;border:1px solid #cfd4dc;border-radius:6px;font-size:14px}" +
       ".grsp-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:7000;max-width:calc(100% - 32px);padding:12px 18px;border-radius:10px;background:#14532d;color:#fff;font-size:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:opacity .5s}.grsp-toast.is-out{opacity:0}" +
       ".grsp-status{display:flex;align-items:center;gap:6px;margin:0 0 10px;font-size:13px;font-weight:700;color:#7a5200}" +
