@@ -21,6 +21,7 @@ const CHART_HISTORY = [
 
 export const UPDATES_EN = {
   home: [
+    { date: '2026-11-27', isNew: true, text: 'Ranking Derby: reorganized the settings panel into clear sections so it is easier to find what you need.' },
     { date: '2026-11-27', isNew: true, text: 'Bar, line and pie chart races: added background music. Export it into your MP4 or WebM video, ending with a clean closing sting.' },
     { date: '2026-11-24', isNew: true, text: 'Bar chart race: you can now adjust how round the corners are (0–100%) on rounded bars. Bars are sorted largest first by default, so your data appears in ranking order right away.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly) for watermark-free, higher-quality exports. Everything can still be created and exported for free. Also added transparent-background export and rounded bars to the chart races, fanfare volume and export quality to Ranking Derby, and “Create data with AI”.` },
@@ -68,6 +69,7 @@ export const UPDATES_EN = {
     { date: '2026-10-26', isNew: true, text: 'Released the Pie Chart Race maker: switch between pie and donut, group small items into “Other”, fine-tune labels and the legend, and save as MP4 or WebM.' },
   ],
   'horse-race-ranking-maker': [
+    { date: '2026-11-27', isNew: true, text: 'Tidied up the settings panel into clear sections: Play & save, Horses, Race, Screen & overlays, Intro & sound, and Results. Every section can be collapsed. The rider icon size now updates as soon as you move the slider.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly): export without the watermark, in 1080p, and with sound. Also added an export quality option, fanfare volume and crown decorations on the race card, and fixed the race title not showing before the start in 3D.` },
     { date: '2026-10-17', isNew: true, text: 'Videos can now be saved as MP4, rendered frame by frame so they stay smooth even on slower devices and play right away on phones.' },
     { date: '2026-08-02', isNew: true, text: 'Added the 3D mode, where horses race on a realistic course. Switch modes with the buttons at the top; your entries and race settings carry over.' },
