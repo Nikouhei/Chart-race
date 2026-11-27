@@ -11,6 +11,7 @@ I18N.register('en', {
 });
 
 I18N.registerText('en', {
+  'BGM（有料の曲）': 'BGM (paid tracks)',
   // ── 共通の短い文言 ──
   'GraphRace Studio ロゴ': 'GraphRace Studio logo',
   '閉じる': 'Close',

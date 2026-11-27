@@ -16,8 +16,9 @@
   <!-- 行動計測（ボタン操作・書き出しなど）。詳細は analytics/README.md -->
   <script src="../../shared/analytics.js?v=20261108" defer></script>
   <!-- 動画書き出し（WebM / MP4）と、無料・有料の判定＋アンケート -->
-  <script src="../../shared/export-plan.js?v=2026112703" defer></script>
+  <script src="../../shared/export-plan.js?v=2026112704" defer></script>
   <script src="../../shared/video-export.js?v=2026112202" defer></script>
+  <script src="../../shared/bgm.js?v=2026112701" defer></script>
   <script src="../../shared/export-cta.js?v=2026102501" defer></script>
   <meta name="robots" content="noindex">
   <meta charset="UTF-8">
@@ -52,7 +53,7 @@
   </noscript>
   <link rel="stylesheet" href="../../shared/tokens.css">
   <!-- 共有 i18n スケルトン（下地のみ。formatLocale 等を提供。registry より前に読み込む） -->
-  <script src="../../shared/i18n.js?v=2026112703" data-i18n-bundles="common,chart-race"></script>
+  <script src="../../shared/i18n.js?v=2026112704" data-i18n-bundles="common,chart-race"></script>
   <!-- 共有ツールレジストリ（ツール切替＋データ引き継ぎ） -->
   <script src="../../shared/background-mode.js?v=2026110805" defer></script>
   <script src="../../shared/registry.js?v=20261026"></script>
@@ -2014,6 +2015,36 @@
       <p class="playback-hint" style="margin-top:2px;">※倍速ボタンはプレビュー用です。書き出しは「動画の長さ」で決まります。</p>
     </div>
 
+    <div class="input-group">
+      <label>BGM</label>
+      <div class="setting-row">
+        <div class="setting-field">
+          <span>曲</span>
+          <select id="bgmTrack">
+            <option value="" selected>なし</option>
+            <option value="epic-a">壮大（オーケストラ） A</option>
+            <option value="epic-b">壮大（オーケストラ） B</option>
+            <option value="pop-a">明るいポップ A</option>
+            <option value="pop-b">明るいポップ B</option>
+            <option value="tech-a">テック・エレクトロ A</option>
+            <option value="tech-b">テック・エレクトロ B</option>
+            <option value="tense-a">緊張感・接戦 A（無料）</option>
+            <option value="tense-b">緊張感・接戦 B</option>
+            <option value="comical-a">コミカル A（無料）</option>
+            <option value="comical-b">コミカル B</option>
+          </select>
+        </div>
+        <div class="setting-field">
+          <span>音量</span>
+          <input type="range" id="bgmVolume" min="0" max="100" step="5" value="80">
+        </div>
+      </div>
+      <label style="display:flex; align-items:center; gap:6px; font-weight:normal; margin-top:6px;">
+        <input type="checkbox" id="bgmEnding" checked style="width:auto; margin:0;"> 最後の約5秒をしめくくり音にする
+      </label>
+      <p class="playback-hint" style="margin-top:2px;">※試聴は無料です。「（無料）」以外の曲を入れて書き出すには有料パスが必要です。</p>
+    </div>
+
     <!-- 再生プレビュー（円グラフの割合を期間に合わせて補間するアニメーション） -->
     <button id="startBtn" disabled></button>
     <button id="exportVideoBtn" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg><span>動画を書き出す（MP4 / WebM）</span></button>
@@ -2234,7 +2265,7 @@
       'showRankingItemAfterBar', 'showRankingValueInsideBar',
       'imageMarginRight', 'imageSizing', 'imageShape', 'barStartOffset',
       'lineWidth', 'showPointMarkers', 'lineGlow', 'lineRaceXMode', 'xLabelMax',
-      'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel', 'seriesLabelMode', 'playbackLengthMode', 'playbackCustomSeconds',
+      'lineCount', 'lineSortEnabled', 'lineSortMode', 'lineCurve', 'lineDash', 'showEndLabel', 'seriesLabelMode', 'playbackLengthMode', 'playbackCustomSeconds', 'bgmTrack', 'bgmVolume', 'bgmEnding',
       'valuePrefix', 'valueSuffix', 'decimalPlaces', 'negativeStyle', 'trimTrailingZeros', 'hideSmallThousands',
       'showTimeCounter', 'timeCounterColor', 'timeCounterOpacity', 'timeCounterSize', 'timeCounterX', 'timeCounterY',
       'axisTextColor', 'axisTextSize', 'axisLineColor', 'axisLineWidth', 'axisScaleMode', 'axisLineDash', 'axisFixedMax', 'showYGridLines',
@@ -7010,6 +7041,33 @@ Topic: ${theme}
       }
     });
 
+    // --- BGM（shared/bgm.js）：プレビューで鳴らす。書き出しは adapter.getAudio ---
+    const getBgmOptions = () => ({
+      trackId: document.getElementById('bgmTrack')?.value || '',
+      volume: (parseFloat(document.getElementById('bgmVolume')?.value) || 0) / 100,
+      ending: document.getElementById('bgmEnding')?.checked !== false
+    });
+    const attachBgm = () => {
+      if (!window.GRSBgm) return;
+      window.GRSBgm.attachPreview({
+        getState: () => {
+          const ms = getMsPerPeriod();
+          return Object.assign(getBgmOptions(), {
+            playing: playback.state === 'playing',
+            sec: (playback.yearIndex || 0) * ms / 1000,
+            total: ms * Math.max(0, years.length - 1) / 1000,
+            rate: playbackSpeedMultiplier
+          });
+        }
+      });
+      document.getElementById('bgmTrack')?.addEventListener('change', (e) => {
+        if (e.target.value) window.grsTrack?.('bgm_select', { sound: e.target.value });
+      });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachBgm, { once: true });
+    else if (window.GRSBgm) attachBgm();
+    else window.addEventListener('load', attachBgm, { once: true });
+
     // --- 動画書き出し（shared/video-export.js）---
     // 円グラフは毎フレーム全体を描き直す（トランジションを使わない）ので、
     // 指定時刻の位置で renderPreviewFrame を呼ぶだけでプレビューと同じ絵になる。
@@ -7025,6 +7083,14 @@ Topic: ${theme}
       let saved = null;
       const adapter = {
         isReady: () => years.length > 0 && !startBtn.disabled,
+        getPaidFeatures: () => (window.GRSBgm?.isPaid(getBgmOptions().trackId) ? ['bgm'] : []),
+        stripPaidFeatures: (locked) => {
+          if (locked.includes('bgm')) document.getElementById('bgmTrack').value = '';
+        },
+        getAudio: (sec) => {
+          const o = getBgmOptions();
+          return window.GRSBgm && window.GRSBgm.isTrack(o.trackId) ? window.GRSBgm.mix(o.trackId, sec, o) : null;
+        },
         getStage: () => document.getElementById('chartArea'),
         getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
         getDurationMs: () => getMsPerPeriod() * Math.max(0, years.length - 1),

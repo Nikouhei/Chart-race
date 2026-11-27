@@ -332,7 +332,7 @@ const CUSTOM_DIMENSIONS = [
   ["error_message", "エラー内容"], ["error_source", "エラー発生ファイル"], ["error_line", "エラー行番号"],
   // 動画書き出し（shared/video-export.js）
   ["watermark", "透かし"], ["export_scale", "書き出し画質"], ["export_fps", "書き出しfps"], ["aspect_ratio", "アスペクト比"],
-  // 格付けダービーの音の設定（export_start / sound_preview）。ファンファーレの種類・none・-nosfx・mute
+  // 音の設定。格付けダービー（export_start / sound_preview）はファンファーレの種類・none・-nosfx・mute、チャートレースの bgm_select は曲ID（epic-a など）
   ["sound", "サウンド設定"],
   // 格付けダービーの書き出し時のモード（2d=競馬風 / 3d=リアル競馬風）
   ["tool_mode", "ツールモード"],
