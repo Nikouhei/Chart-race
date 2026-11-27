@@ -589,15 +589,16 @@ const soundReady = true;
     }
     .umarace details.panel summary{
       font-size:13px;letter-spacing:.18em;color:#5c5540;font-weight:700;
-      padding-bottom:8px;margin:0;cursor:pointer;list-style:none;
+      padding:0;margin:0;cursor:pointer;list-style:none;
       display:flex;align-items:center;justify-content:space-between;
     }
     .umarace details.panel summary::-webkit-details-marker{display:none}
     .umarace details.panel summary::after{
       content:"▸";font-size:12px;color:#8a8060;transition:transform .2s;
     }
+    /* 閉じているときは余白も線もなし(文字がパネルの上下中央に来る)。開いたときだけ付ける */
     .umarace details.panel[open] summary{
-      border-bottom:2px solid var(--line);margin-bottom:12px;
+      padding-bottom:8px;border-bottom:2px solid var(--line);margin-bottom:12px;
     }
     .umarace details.panel[open] summary::after{transform:rotate(90deg)}
     .umarace #timeline{width:100%;accent-color:var(--gold);cursor:pointer}
@@ -982,8 +983,9 @@ const soundReady = true;
             </div>
           </div>
 
-          <div class="panel">
-            <h3>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble"><b>⠿ ドラッグ</b>最終順位を入れ替えます<b>数字</b>出走枠。画面のどこを走るかで、着順とは別に決められます<span class="mode-real"><b>脚質</b>大逃げ・逃げ・先行・差し・追込から選ぶ道中の位置取り。大逃げは2番手以下を大きく引き離します。自動なら抽選で決まり、大逃げは出ても1頭だけです</span><b>頭数</b>2〜16頭<p>展開は毎回ランダムですが、必ずこの順位でゴールします。</p></span></span></h3>
+          <details class="panel" open>
+            <!-- iマークは文字と並べたいので、矢印と離れるよう span で包む -->
+            <summary><span>出走馬(上から最終順位)<span class="info-tip" tabindex="0" role="button" aria-label="出走馬の設定方法">i<span class="info-bubble"><b>⠿ ドラッグ</b>最終順位を入れ替えます<b>数字</b>出走枠。画面のどこを走るかで、着順とは別に決められます<span class="mode-real"><b>脚質</b>大逃げ・逃げ・先行・差し・追込から選ぶ道中の位置取り。大逃げは2番手以下を大きく引き離します。自動なら抽選で決まり、大逃げは出ても1頭だけです</span><b>頭数</b>2〜16頭<p>展開は毎回ランダムですが、必ずこの順位でゴールします。</p></span></span></span></summary>
             <!-- 毛色パターンはリスト内の色の見え方を決める設定なので、リストの直前に置く -->
             <div class="field field-inline mode-real">
               <label>毛色<span class="info-tip" tabindex="0" role="button" aria-label="毛色について">i<span class="info-bubble"><b>リアル</b>鹿毛・芦毛・青鹿毛・青毛の4種から選びます<b>カラー</b>白い毛並みに馬体色を乗せるので、16頭すべて見分けられます。競馬風で決めた色がそのまま使われます<p>どちらを選んでも、もう一方の設定は消えません。</p></span></span></label>
@@ -995,7 +997,7 @@ const soundReady = true;
             <div id="entries"></div>
             <button class="btn btn-add" id="addEntry">＋ 出走馬を追加</button>
             <p class="hint">設定は自動保存されます。<a href="#" id="resetState">初期状態に戻す</a></p>
-          </div>
+          </details>
 
           <details class="panel" open>
             <summary>レース設定</summary>
@@ -3423,6 +3425,8 @@ requestAnimationFrame(loop);
     tip.addEventListener("focus",show);
     tip.addEventListener("pointerleave",hide);
     tip.addEventListener("blur",hide);
+    // 開閉する見出し(summary)の中にあるiマークは、押してもパネルを開閉させない
+    if(tip.closest("summary"))tip.addEventListener("click",e=>e.preventDefault());
   });
   // 列のスクロールや画面サイズの変化に追従させる(captureで内側の要素も拾う)
   addEventListener("scroll",()=>{if(activeTip)place(activeTip);},true);
