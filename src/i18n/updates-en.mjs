@@ -72,7 +72,7 @@ export const UPDATES_EN = {
     { date: '2026-10-26', isNew: true, text: 'Released the Pie Chart Race maker: switch between pie and donut, group small items into “Other”, fine-tune labels and the legend, and save as MP4 or WebM.' },
   ],
   'horse-race-ranking-maker': [
-    { date: '2026-11-28', isNew: true, text: 'Added race music: pick from six tracks each for 2D and 3D. The music plays from the moment the gates open until the winner crosses the line, and you can listen before choosing. “Bright Pop Rock” and “Epic 1” are free to use. You can now also adjust the volume of the crowd and hoofbeats.' },
+    { date: '2026-11-28', isNew: true, text: 'Added race music: pick from six tracks each for 2D and 3D. The music plays from the moment the gates open until the winner crosses the line, and you can listen before choosing. You can now also adjust the volume of the crowd and hoofbeats.' },
     { date: '2026-11-27', isNew: true, text: 'Tidied up the settings panel into clear sections: Play & save, Horses, Race, Screen & overlays, Intro & sound, and Results. Every section can be collapsed. The rider icon size now updates as soon as you move the slider.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly): export without the watermark, in 1080p, and with sound. Also added an export quality option, fanfare volume and crown decorations on the race card, and fixed the race title not showing before the start in 3D.` },
     { date: '2026-10-17', isNew: true, text: 'Videos can now be saved as MP4, rendered frame by frame so they stay smooth even on slower devices and play right away on phones.' },
