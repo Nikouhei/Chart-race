@@ -34,7 +34,7 @@
   <!-- ツール共通レジストリ（下書き自動保存に使用） -->
   <script src="../../shared/registry.js?v=20261026"></script>
   <!-- 表示言語（?lang=en で英語。日本語のときは辞書を読み込まない） -->
-  <script src="../../shared/i18n.js?v=2026112802" data-i18n-bundles="common,ranking-video"></script>
+  <script src="../../shared/i18n.js?v=2026112803" data-i18n-bundles="common,ranking-video"></script>
 
   <!-- アイコンフォント -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
@@ -188,6 +188,12 @@
     .fs-item:last-child { margin-bottom: 0; }
     .fs-item label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
     .fs-item input[type="range"] { width: 100%; accent-color: var(--accent); }
+    /* BGM: 曲の選択と試聴ボタンを1行に */
+    .bgm-row { display: flex; gap: 6px; align-items: stretch; }
+    .bgm-row .app-input { flex: 1; min-width: 0; }
+    .bgm-listen { flex: none; padding: 0 12px; font-size: 12px; font-weight: 600; border: 1px solid var(--border, #d0d5dd); border-radius: 8px; background: transparent; color: inherit; cursor: pointer; white-space: nowrap; }
+    .bgm-listen.playing { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .bgm-listen:disabled { opacity: .45; cursor: default; }
 
     /* 配色スウォッチ */
     .rv-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -505,6 +511,32 @@
           </div>
         </div>
       </div>
+
+      <!-- BGM。全曲無料。曲は Eleven Music で生成（2026-11-28。元の mp3 とプロンプトは ranking-video-maker/音声素材/bgm/、配信用は ../audio/bgm-<id>.m4a） -->
+      <div class="accordion-section open">
+        <button type="button" class="accordion-toggle" aria-expanded="true"><span>BGM</span><span class="accordion-icon"><i class="ti ti-chevron-down" aria-hidden="true"></i></span></button>
+        <div class="accordion-content">
+          <div class="field">
+            <span class="field-label">曲</span>
+            <div class="bgm-row">
+              <select id="bgmTrack" class="app-input">
+                <option value="" selected>なし</option>
+                <option value="variety-1">ワクワク・バラエティ 1</option>
+                <option value="variety-2">ワクワク・バラエティ 2</option>
+                <option value="pop-1">明るいポップ 1</option>
+                <option value="pop-2">明るいポップ 2</option>
+                <option value="lofi-1">おしゃれ Lo-fi 1</option>
+                <option value="lofi-2">おしゃれ Lo-fi 2</option>
+                <option value="emo-1">感動・エモーショナル 1</option>
+                <option value="emo-2">感動・エモーショナル 2</option>
+              </select>
+              <button type="button" class="bgm-listen" id="bgmListen" data-track="sound_preview" title="BGMを試聴">▶ 試聴</button>
+            </div>
+            <div class="fs-item" id="bgmVolumeWrap" style="margin-top:10px" hidden><label>音量<span id="bgmVolumeVal">80%</span></label><input type="range" id="bgmVolume" min="0" max="100" step="5" value="80"></div>
+            <p class="hint">プレビューで流れ、書き出す動画にも入ります。動画が長いときはくり返し、最後は短くフェードアウトします。全曲無料です。</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="play-block">
@@ -680,6 +712,7 @@
       return;
     }
     applyFrame();
+    bgmSync();
     rafId = requestAnimationFrame(tick);
   }
   function setPlaying(on) {
@@ -691,6 +724,7 @@
       : '<i class="ti ti-player-play" style="font-size:14px;vertical-align:-2px" aria-hidden="true"></i> 再生';
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     if (on) rafId = requestAnimationFrame(tick);
+    bgmSync();
   }
   $('rv-play').addEventListener('click', () => {
     if (!playing && offset >= maxOffset) offset = 0; // 終端で再生 → 最初から
@@ -967,7 +1001,8 @@
         fsTitle: $('fsTitle').value, fsRank: $('fsRank').value,
         fsName: $('fsName').value, fsDesc: $('fsDesc').value
       },
-      speed: speed
+      speed: speed,
+      bgm: { track: bgmId() || '', volume: Number(bgmVolEl.value) }
     };
   }
   function loadProjectPayload(p) {
@@ -1014,6 +1049,12 @@
       if (v) { $(id).value = v; $(valId).textContent = v + '%'; wrap.style.setProperty(cssVar, String(v / 100)); }
     });
     if (p.speed >= 1 && p.speed <= 5) { speed = p.speed; $('rv-speed').value = speed; }
+    if (p.bgm) {
+      bgmSel.value = BGMS[p.bgm.track] ? p.bgm.track : '';
+      const v = Number(p.bgm.volume);
+      if (v >= 0 && v <= 100) bgmVolEl.value = v;
+      syncBgmUI();
+    }
     offset = 0;
     renderItemList();
     rebuild();
@@ -1021,6 +1062,155 @@
   window.addEventListener('pagehide', () => {
     if (window.saveSessionDraft) window.saveSessionDraft(TOOL_ID, makeProjectPayload());
   });
+
+  // --- BGM ---
+  // 曲は約60秒。動画が長いときは end 秒までを端を重ねてくり返し、最後は BGM_FADE 秒でフェードアウトする。
+  // プレビューも書き出しも、動画の長さぶんの音を1本作って（bgmMix）その再生位置に合わせて流すので、同じ音になる。
+  // gain: 曲ごとの大きさをそろえる倍率（平均の大きさ -18dBFS 相当）。end: 曲の終わりの自然なフェードの手前
+  const BGM_BASE = '../audio/';
+  const BGMS = {
+    'variety-1': { gain: 0.69, end: 57.5 }, 'variety-2': { gain: 0.77, end: 57.5 },
+    'pop-1': { gain: 1.07, end: 54 },       'pop-2': { gain: 0.84, end: 55 },
+    'lofi-1': { gain: 0.71, end: 56.5 },    'lofi-2': { gain: 0.76, end: 55 },
+    'emo-1': { gain: 0.92, end: 53 },       'emo-2': { gain: 0.94, end: 55 },
+  };
+  const BGM_LEVEL = 0.9;   // 音量100%のときの大きさ
+  const BGM_FADE = 1.5;    // 最後のフェードアウト（秒）
+  const BGM_RATE = 48000;
+  const bgmSel = $('bgmTrack'), bgmVolEl = $('bgmVolume'), bgmListenBtn = $('bgmListen');
+  const bgmFiles = {};
+  let bgmDecoder = null;
+  const bgmId = () => BGMS[bgmSel.value] ? bgmSel.value : null;
+  const bgmVol = () => Math.max(0, Math.min(1, (Number(bgmVolEl.value) || 0) / 100));
+  function bgmLoad(id) {
+    if (!bgmFiles[id]) {
+      bgmFiles[id] = fetch(BGM_BASE + 'bgm-' + id + '.m4a')
+        .then(r => { if (!r.ok) throw new Error(id + ': ' + r.status); return r.arrayBuffer(); })
+        .then(ab => { if (!bgmDecoder) bgmDecoder = new OfflineAudioContext(2, 1, BGM_RATE); return bgmDecoder.decodeAudioData(ab); })
+        .catch(e => { delete bgmFiles[id]; throw e; });
+    }
+    return bgmFiles[id];
+  }
+  async function bgmMix(id, T, rate, vol) {
+    const buf = await bgmLoad(id), meta = BGMS[id];
+    T = Math.max(0.5, T);
+    const oc = new OfflineAudioContext(2, Math.ceil(T * rate), rate);
+    const out = oc.createGain(); out.connect(oc.destination);
+    const lv = BGM_LEVEL * meta.gain * vol, fade = Math.min(BGM_FADE, T / 3);
+    out.gain.setValueAtTime(lv, 0);
+    out.gain.setValueAtTime(lv, Math.max(0, T - fade));
+    out.gain.linearRampToValueAtTime(0, T);
+    // つなぎ目が鳴らないよう、くり返すときは端を少し重ねる
+    const XF = 0.4, L = Math.min(meta.end, buf.duration);
+    let t = 0, first = true;
+    while (t < T - 0.05) {
+      const end = Math.min(T, t + L), last = end >= T;
+      const s = oc.createBufferSource(); s.buffer = buf;
+      const g = oc.createGain(); s.connect(g); g.connect(out);
+      g.gain.setValueAtTime(first ? 1 : 0, t);
+      if (!first) g.gain.linearRampToValueAtTime(1, t + XF);
+      if (!last) { g.gain.setValueAtTime(1, Math.max(t + XF, end - XF)); g.gain.linearRampToValueAtTime(0, end); }
+      s.start(t); s.stop(end + 0.02);
+      if (last) break;
+      first = false; t = end - XF;
+    }
+    return oc.startRendering();
+  }
+  // プレビュー再生
+  const live = { ac: null, master: null, src: null, t0: 0, buf: null, key: null, buildingKey: null, failedKey: null, listen: null };
+  function bgmCtx() {
+    if (!live.ac) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      live.ac = new C();
+      live.master = live.ac.createGain(); live.master.connect(live.ac.destination);
+    }
+    live.master.gain.value = bgmVol();
+    if (live.ac.state === 'suspended') live.ac.resume().catch(() => {});
+    return live.ac;
+  }
+  function bgmStop() {
+    if (live.src) { try { live.src.stop(); } catch (_) {} live.src.disconnect(); live.src = null; }
+  }
+  /* 再生中は毎コマ呼ぶ。速度を変えると動画の長さが変わるので、そのときは音を作り直す */
+  function bgmSync() {
+    const id = bgmId();
+    if (!id || !playing) { bgmStop(); return; }
+    const pps = pxPerSec();
+    const T = maxOffset > 0 ? maxOffset / pps : 3, sec = offset / pps;
+    const key = id + '|' + T.toFixed(2);
+    if (live.key !== key) {
+      if (live.buildingKey !== key && live.failedKey !== key) {
+        live.buildingKey = key;
+        bgmMix(id, T, BGM_RATE, 1).then(b => {
+          if (live.buildingKey === key) { live.buf = b; live.key = key; live.buildingKey = null; }
+        }).catch(e => {
+          console.warn('[ランキング動画] BGMを用意できませんでした', e);
+          if (live.buildingKey === key) { live.buildingKey = null; live.failedKey = key; }
+        });
+      }
+      bgmStop();
+      return;
+    }
+    const ac = bgmCtx(); if (!ac) return;
+    const pos = ac.currentTime - live.t0;
+    if (live.src && Math.abs(pos - sec) < 0.15) return;
+    bgmStop();
+    if (sec >= live.buf.duration) return;
+    const s = ac.createBufferSource(); s.buffer = live.buf; s.connect(live.master);
+    s.start(0, sec);
+    live.src = s; live.t0 = ac.currentTime - sec;
+  }
+  // 試聴（もう一度押すと止まる）
+  function stopListen() {
+    if (live.listen) { try { live.listen.stop(); } catch (_) {} live.listen = null; }
+    bgmListenBtn.classList.remove('playing');
+    bgmListenBtn.textContent = '▶ 試聴';
+  }
+  bgmListenBtn.addEventListener('click', async () => {
+    if (bgmListenBtn.classList.contains('playing')) { stopListen(); return; }
+    const id = bgmId(); if (!id) return;
+    const ac = bgmCtx(); if (!ac) return;
+    bgmListenBtn.classList.add('playing');
+    bgmListenBtn.textContent = '■ 停止';
+    try {
+      const buf = await bgmLoad(id);
+      if (!bgmListenBtn.classList.contains('playing') || bgmId() !== id) return;
+      const s = ac.createBufferSource(); s.buffer = buf;
+      const g = ac.createGain(); g.gain.value = BGM_LEVEL * BGMS[id].gain;   // 全体の音量は master（音量スライダー）
+      s.connect(g); g.connect(live.master); s.start();
+      live.listen = s;
+      s.onended = () => { if (live.listen === s) stopListen(); };
+    } catch (e) {
+      stopListen();
+      alert('音を読み込めませんでした。通信環境をご確認ください。');
+    }
+  });
+  function syncBgmUI() {
+    const id = bgmId();
+    $('bgmVolumeWrap').hidden = !id;
+    bgmListenBtn.disabled = !id;
+    bgmListenBtn.setAttribute('data-track-sound', 'bgm-' + (id || 'none'));
+    $('bgmVolumeVal').textContent = bgmVolEl.value + '%';
+  }
+  bgmSel.addEventListener('change', () => {
+    stopListen();
+    syncBgmUI();
+    const id = bgmId();
+    if (id) {
+      bgmLoad(id).catch(() => {});
+      // 計測: チャートレース・格付けダービーと同じ bgm_select（sound=曲ID）
+      window.grsTrack?.('bgm_select', { sound: 'bgm-' + id });
+    }
+    bgmSync();
+  });
+  bgmVolEl.addEventListener('input', () => {
+    $('bgmVolumeVal').textContent = bgmVolEl.value + '%';
+    if (live.master) live.master.gain.value = bgmVol();
+  });
+  // 再生ボタンを押した時点で音の準備を始める（ブラウザの自動再生制限にかからないよう、操作の中で作る）
+  $('rv-play').addEventListener('click', () => { if (bgmId()) { bgmCtx(); stopListen(); } });
+  syncBgmUI();
 
   // --- 動画書き出し（shared/video-export.js）---
   // プレビューと同じ applyFrame を、実時間ではなく指定時刻の位置で呼んで1コマずつ描き写す。
@@ -1038,11 +1228,19 @@
       scales: [0.75, 1.5],
       paidScales: [],
       previewMark: false,
+      // 計測: export_start の sound に曲ID（bgm-pop-1 など。なしは none）
+      trackParams: () => ({ sound: bgmId() ? 'bgm-' + bgmId() : 'none' }),
       adapter: {
         isReady: () => items.length > 0,
         getStage: () => canvasEl,
         getSize: () => ({ width: resolveCanvasWidth(), height: resolveCanvasHeight() }),
         getDurationMs: durationMs,
+        // 動画に入れる音。プレビューと同じ作り方で、長さだけ書き出しの尺に合わせる
+        getAudio(sec, rate) {
+          const id = bgmId();
+          if (!id || bgmVol() <= 0) return null;
+          return bgmMix(id, sec, rate, bgmVol());
+        },
         beginExport() {
           saved = { offset, playing };
           setPlaying(false);

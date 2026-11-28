@@ -25,6 +25,7 @@ Stripe/
 装飾/
 # 競馬風の音の素材（生成元の mp3・生成スクリプト・試聴ページ）。配信するのは assets/audio/ だけ
 horse-race-ranking-maker/競馬風音声/
+ranking-video-maker/音声素材/
 # Wrangler のローカル状態・秘密情報
 .wrangler/
 .env*

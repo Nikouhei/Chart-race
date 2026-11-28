@@ -80,6 +80,22 @@ I18N.registerText('en', {
   '表示する': 'Show',
   '表示しない': 'Hide',
   'ランキングの項目を1つ以上入れてください。': 'Add at least one ranking item.',
+  // BGM（2026-11）
+  '曲': 'Track',
+  'ワクワク・バラエティ 1': 'Fun Variety Show 1',
+  'ワクワク・バラエティ 2': 'Fun Variety Show 2',
+  '明るいポップ 1': 'Bright Pop 1',
+  '明るいポップ 2': 'Bright Pop 2',
+  'おしゃれ Lo-fi 1': 'Chill Lo-fi 1',
+  'おしゃれ Lo-fi 2': 'Chill Lo-fi 2',
+  '感動・エモーショナル 1': 'Emotional 1',
+  '感動・エモーショナル 2': 'Emotional 2',
+  '▶ 試聴': '▶ Listen',
+  '■ 停止': '■ Stop',
+  'BGMを試聴': 'Listen to the music',
+  '音量': 'Volume',
+  'プレビューで流れ、書き出す動画にも入ります。動画が長いときはくり返し、最後は短くフェードアウトします。全曲無料です。': 'Plays in the preview and is included in your exported video. It loops for longer videos and fades out briefly at the end. All tracks are free.',
+  '音を読み込めませんでした。通信環境をご確認ください。': 'Couldn’t load the sound. Please check your connection.',
 });
 
 I18N.registerPatterns('en', [
