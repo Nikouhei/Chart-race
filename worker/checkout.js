@@ -1,7 +1,7 @@
 // POST /api/checkout  { lookup_key, lang, source? }  →  { url }（Stripe の Checkout 画面）
 import { PLANS, LANGS } from './plans.js';
 import { StripeError, stripeRequest, findPriceByLookupKey } from './stripe.js';
-import { SALE, isSaleActive } from './sale.js';
+import { activeSale, saleById } from './sale.js';
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -33,9 +33,9 @@ export async function handleCheckout(request, env) {
   // セール中ならクーポンを付ける。preview・localhost だけは期間外でも force_sale で試せる
   const h = reqUrl.hostname;
   const isTestHost = h === 'localhost' || h === '127.0.0.1' || h.startsWith('preview-');
-  const sale = isSaleActive() || (isTestHost && input.force_sale === true);
+  const sale = activeSale() || (isTestHost && input.force_sale ? saleById(input.force_sale) : null);
   const metadata = source ? { plan, lang, source } : { plan, lang };
-  if (sale) metadata.promo = SALE.promo;
+  if (sale) metadata.promo = sale.promo;
   const prefix = lang === 'en' ? '/en' : '';
   const params = {
     mode,
@@ -60,7 +60,7 @@ export async function handleCheckout(request, env) {
     let session;
     if (sale) {
       try {
-        session = await stripeRequest(env, 'POST', '/checkout/sessions', { ...params, discounts: [{ coupon: SALE.coupon }] });
+        session = await stripeRequest(env, 'POST', '/checkout/sessions', { ...params, discounts: [{ coupon: sale.coupon }] });
       } catch (err) {
         // クーポンが無い・期限切れなどでも購入は止めない（通常価格で続ける）
         if (!(err instanceof StripeError)) throw err;

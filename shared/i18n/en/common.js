@@ -142,6 +142,7 @@ I18N.registerText('en', {
   '有料機能を外して書き出す': 'Export without Pro features',
   '7日パス': '7-Day Pass',
   'ブラックフライデー価格・11/30まで': 'Black Friday price · ends Nov 30 (JST)',
+  'サイバーウィーク価格・日本時間 12/8 16:59まで': 'Cyber Week price · ends Dec 7, 11:59 PM PT',
   'イベントなど単発の利用に。自動更新なし': 'For a one-off event or project. No auto-renewal.',
   '7日パスで書き出す': 'Get a 7-Day Pass and export',
   '月額・年額プランを見る': 'See monthly and yearly plans',

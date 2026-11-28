@@ -59,7 +59,11 @@ const TEXT = {
     title: '料金プラン｜GraphRace Studio',
     description: 'GraphRace Studio の料金プラン。透かしなし・高画質・透過書き出しなどが使える 7日パス・月額・年額プランを、必要な期間だけ選べます。',
     heading: '料金プラン',
-    saleBanner: 'ブラックフライデーセール：全プラン30%OFF（11/30 23:59まで）',
+    // セールごとの帯・バッジ（id は worker/sale.js の SALES と同じ）
+    sales: {
+      bf: { banner: 'ブラックフライデーセール：全プラン30%OFF（11/30 23:59まで）', off: '30%OFF' },
+      cw: { banner: 'サイバーウィークセール：全プラン20%OFF（日本時間 12/8 16:59まで）', off: '20%OFF' },
+    },
     lead: 'ツールは無料で試せます。透かしなしの書き出しや高画質・透過書き出しなどを使いたいときだけ、プランをお選びください。どのプランも使える機能は同じです。',
     crumbs: [{ name: 'ホーム', href: '/' }, { name: '料金プラン' }],
     tagline: 'データビジュアライゼーションツール',
@@ -72,9 +76,9 @@ const TEXT = {
     tools: TOOLS_JA,
     freeTools: ['トーナメント表', 'ランキング動画', 'あみだくじ'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', sale: '¥686', saleNote: '', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
-      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', sale: '¥1,106', saleNote: '初月のみ。2か月目から¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
-      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', sale: '¥2,436', saleNote: '初年のみ。2年目から¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7日パス', fit: '結婚式・社内イベントなど、1回だけ使いたい方に', price: '¥980', sale: { bf: '¥686', cw: '¥784' }, saleNote: '', unit: '（1回のお支払い）', note: '購入から7日間使えます。自動更新はありません。', cta: '購入する', ctaLabel: '7日パスを購入する' },
+      { key: 'monthly', lookup: 'grs_monthly', name: '月額プラン', fit: '数か月だけ集中して作りたい方に', price: '¥1,580', sale: { bf: '¥1,106', cw: '¥1,264' }, saleNote: '初月のみ。2か月目から¥1,580', unit: '／月', note: '毎月自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '月額プランを購入する' },
+      { key: 'yearly', lookup: 'grs_yearly', name: '年額プラン', fit: '動画を作り続ける方に', price: '¥3,480', sale: { bf: '¥2,436', cw: '¥2,784' }, saleNote: '初年のみ。2年目から¥3,480', unit: '／年', note: '月あたり約290円。毎年自動で更新されます。いつでも解約できます。', cta: '購入する', ctaLabel: '年額プランを購入する', badge: 'おすすめ' },
     ],
     taxNote: '表示は税込です。',
     trustNote: 'アカウント登録は不要です。お支払いは、世界中で使われている決済サービス Stripe の画面で行います。カード情報が当サイトに保存されることはありません。',
@@ -100,7 +104,10 @@ const TEXT = {
     description: 'GraphRace Studio pricing. Choose a 7-day pass, monthly or yearly plan to export without a watermark, in high quality, or with a transparent background.',
     heading: 'Pricing',
     lead: 'You can try every tool for free. Pick a plan only when you want to export without a watermark, in higher quality, or with a transparent background. All plans include the same features.',
-    saleBanner: 'Black Friday sale: 30% off every plan (ends Nov 30, 23:59 JST)',
+    sales: {
+      bf: { banner: 'Black Friday sale: 30% off every plan (ends Nov 30, 23:59 JST)', off: '30% OFF' },
+      cw: { banner: 'Cyber Week sale: 20% off every plan (ends Dec 7, 11:59 PM PT)', off: '20% OFF' },
+    },
     crumbs: [{ name: 'Home', href: '/en/' }, { name: 'Pricing' }],
     tagline: 'Data visualization tools',
     featuresEyebrow: 'FEATURES',
@@ -112,9 +119,9 @@ const TEXT = {
     tools: TOOLS_EN,
     freeTools: ['Tournament Bracket', 'Ranking Video'],
     plans: [
-      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', fit: 'For a one-off event, class or presentation', price: '$5.99', sale: '$4.19', saleNote: '', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
-      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', fit: 'For a project that runs a few months', price: '$12.99', sale: '$9.09', saleNote: 'First month only, then $12.99/month', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
-      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', fit: 'For creators who publish regularly', price: '$29.99', sale: '$20.99', saleNote: 'First year only, then $29.99/year', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
+      { key: 'pass7', lookup: 'grs_pass7', name: '7-Day Pass', fit: 'For a one-off event, class or presentation', price: '$5.99', sale: { bf: '$4.19', cw: '$4.79' }, saleNote: '', unit: '(one-time payment)', note: 'Works for 7 days from purchase. It does not renew automatically.', cta: 'Buy now', ctaLabel: 'Buy the 7-Day Pass' },
+      { key: 'monthly', lookup: 'grs_monthly', name: 'Monthly plan', fit: 'For a project that runs a few months', price: '$12.99', sale: { bf: '$9.09', cw: '$10.39' }, saleNote: 'First month only, then $12.99/month', unit: '/ month', note: 'Renews automatically every month. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the monthly plan' },
+      { key: 'yearly', lookup: 'grs_yearly', name: 'Yearly plan', fit: 'For creators who publish regularly', price: '$29.99', sale: { bf: '$20.99', cw: '$23.99' }, saleNote: 'First year only, then $29.99/year', unit: '/ year', note: 'About $2.50 a month. Renews automatically every year. Cancel anytime.', cta: 'Buy now', ctaLabel: 'Buy the yearly plan', badge: 'Best value' },
     ],
     taxNote: 'Prices are shown in USD.',
     trustNote: 'No account needed. You pay on the secure checkout page of Stripe, a payment service trusted worldwide. Your card details are never stored on this site.',
@@ -247,7 +254,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
     <h1 class="page-title">{TEXT.heading}</h1>
     <div class="content-block" id="pricing" data-lang={locale} data-i18n={JSON.stringify(I18N)}>
       <section>
-        <p class="sale-banner" id="sale-banner" hidden>{TEXT.saleBanner}</p>
+        {Object.entries(TEXT.sales).map(([id, s]) => (<p class="sale-banner sale-only" data-sale={id} hidden>{s.banner}</p>))}
         <p class="pricing-lead">{TEXT.lead}</p>
 
         <div class="pricing-grid">
@@ -256,7 +263,7 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
               {p.badge && <span class="plan-badge">{p.badge}</span>}
               <h2 class="plan-name">{p.name}</h2>
               <p class="plan-fit">{p.fit}</p>
-              <p class="plan-price"><span class="plan-was sale-only" hidden><s>{p.price}</s><span class="plan-off">30%OFF</span></span><span class="sale-only" hidden>{p.sale}</span><span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
+              <p class="plan-price">{Object.entries(TEXT.sales).map(([id, s]) => (<Fragment><span class="plan-was sale-only" data-sale={id} hidden><s>{p.price}</s><span class="plan-off">{s.off}</span></span><span class="sale-only" data-sale={id} hidden>{p.sale[id]}</span></Fragment>))}<span class="sale-off">{p.price}</span><span class="plan-unit">{p.unit}</span></p>
               <p class="plan-sale-note sale-only" hidden>{p.saleNote}</p>
               <p class="plan-note">{p.note}</p>
               <button
@@ -352,17 +359,23 @@ const PRIVACY_HREF = `${PREFIX}/privacy.html`;
       var statusEl = document.getElementById('pricing-status');
       var buttons = Array.prototype.slice.call(root.querySelectorAll('.plan-buy'));
 
-      // ブラックフライデーセール（worker/sale.js と同じ期間）。preview・localhost では ?sale=1 で期間外でも表示・適用
-      var SALE_START = Date.parse('2026-11-22T00:00:00+09:00');
-      var SALE_END = Date.parse('2026-12-01T00:00:00+09:00');
+      // セール（worker/sale.js の SALES と同じ id・期間）。preview・localhost では ?sale=bf / ?sale=cw（?sale=1 は最後のセール）で期間外でも表示・適用
+      var SALES = [
+        { id: 'bf', start: Date.parse('2026-11-22T00:00:00+09:00'), end: Date.parse('2026-12-01T00:00:00+09:00') },
+        { id: 'cw', start: Date.parse('2026-12-01T00:00:00+09:00'), end: Date.parse('2026-12-08T00:00:00-08:00') }, // 米国太平洋時間 12/7 23:59 まで
+      ];
       var host = location.hostname;
       var testHost = host === 'localhost' || host === '127.0.0.1' || host.indexOf('preview-') === 0;
-      var forceSale = testHost && /[?&]sale=1(&|$)/.test(location.search);
+      var mSale = testHost && location.search.match(/[?&]sale=([a-z0-9]+)(&|$)/);
+      var forceSale = mSale ? (mSale[1] === '1' ? SALES[SALES.length - 1].id : mSale[1]) : '';
       var now = Date.now();
-      var saleOn = forceSale || (now >= SALE_START && now < SALE_END);
-      if (saleOn) {
-        document.getElementById('sale-banner').hidden = false;
-        Array.prototype.forEach.call(root.querySelectorAll('.sale-only'), function (el) { el.hidden = false; });
+      var cur = SALES.filter(function (s) { return now >= s.start && now < s.end; })[0];
+      var saleId = forceSale || (cur ? cur.id : '');
+      if (saleId) {
+        Array.prototype.forEach.call(root.querySelectorAll('.sale-only'), function (el) {
+          var id = el.getAttribute('data-sale');
+          if (!id || id === saleId) el.hidden = false;
+        });
         Array.prototype.forEach.call(root.querySelectorAll('.sale-off'), function (el) { el.hidden = true; });
       }
 

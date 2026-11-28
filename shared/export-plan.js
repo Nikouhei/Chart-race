@@ -45,11 +45,14 @@
     pass7: {
       lookup: "grs_pass7",
       price: { ja: "¥980", en: "$5.99" },
-      salePrice: { ja: "¥686", en: "$4.19" }
+      salePrice: { bf: { ja: "¥686", en: "$4.19" }, cw: { ja: "¥784", en: "$4.79" } }
     },
-    // セール期間（worker/sale.js・src/components/PricingPage.astro と同じ。日本時間 11/30 23:59 まで。変えるときは3か所そろえる）
-    saleStart: Date.parse("2026-11-22T00:00:00+09:00"),
-    saleEnd: Date.parse("2026-12-01T00:00:00+09:00")
+    // セール（worker/sale.js の SALES・src/components/PricingPage.astro と同じ id・期間。変えるときは3か所そろえる）
+    sales: [
+      { id: "bf", start: Date.parse("2026-11-22T00:00:00+09:00"), end: Date.parse("2026-12-01T00:00:00+09:00"), off: "30%OFF", note: "ブラックフライデー価格・11/30まで" },
+      // 日本時間 12/1 0:00 〜 米国太平洋時間 12/7 23:59
+      { id: "cw", start: Date.parse("2026-12-01T00:00:00+09:00"), end: Date.parse("2026-12-08T00:00:00-08:00"), off: "20%OFF", note: "サイバーウィーク価格・日本時間 12/8 16:59まで" }
+    ]
   };
 
   // 有料予定の機能と表示名
@@ -264,14 +267,23 @@
     seg = seg.replace(/\.html$/, "");
     return /^[a-z0-9-]{1,40}$/.test(seg) ? seg : "";
   }
-  function isSaleOn() {
-    var now = Date.now();
-    return now >= CONFIG.saleStart && now < CONFIG.saleEnd;
+  // いま開催中のセール（無ければ null）。preview・localhost では ?sale=bf / ?sale=cw（?sale=1 は最後のセール）で期間外でも試せる
+  function forcedSaleId() {
+    var h = location.hostname;
+    if (!(h === "localhost" || h === "127.0.0.1" || h.indexOf("preview-") === 0)) return "";
+    var m = location.search.match(/[?&]sale=([a-z0-9]+)(&|$)/);
+    if (!m) return "";
+    return m[1] === "1" ? CONFIG.sales[CONFIG.sales.length - 1].id : m[1];
+  }
+  function activeSale() {
+    var f = forcedSaleId(), now = Date.now();
+    return CONFIG.sales.filter(function (s) { return f ? s.id === f : (now >= s.start && now < s.end); })[0] || null;
   }
   function planPriceHtml() {
     var lang = uiLang(), p = CONFIG.pass7;
-    if (isSaleOn()) {
-      return '<s class="grsp-was">' + esc(p.price[lang]) + '</s>' + esc(p.salePrice[lang]);
+    var sale = activeSale();
+    if (sale) {
+      return '<s class="grsp-was">' + esc(p.price[lang]) + '</s>' + esc(p.salePrice[sale.id][lang]);
     }
     return esc(p.price[lang]);
   }
@@ -288,7 +300,7 @@
     fetch(CONFIG.checkoutEndpoint, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ lookup_key: CONFIG.pass7.lookup, lang: uiLang(), source: pageSource() })
+      body: JSON.stringify({ lookup_key: CONFIG.pass7.lookup, lang: uiLang(), source: pageSource(), force_sale: forcedSaleId() || undefined })
     })
       .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
       .then(function (r) {
@@ -312,6 +324,7 @@
     opts = opts || {};
     var list = (Array.isArray(features) ? features : [features]).filter(function (f) { return FEATURES[f]; });
     var featureKeys = list.join(",");
+    var sale = activeSale();
     ensureStyles();
     var back = document.createElement("div");
     back.className = "grsp-backdrop";
@@ -320,8 +333,8 @@
         '<h3 id="grspUpTitle">有料パスが必要な機能が使われています</h3>' +
         '<ul class="grsp-list">' + list.map(function (f) { return "<li>" + esc(FEATURES[f]) + "</li>"; }).join("") + "</ul>" +
         '<div class="grsp-plan">' +
-          '<div class="grsp-plan-head"><span class="grsp-plan-left"><span class="grsp-plan-name">7日パス</span>' + (isSaleOn() ? '<span class="grsp-off">30%OFF</span>' : "") + '</span><span class="grsp-plan-price">' + planPriceHtml() + '</span></div>' +
-          (isSaleOn() ? '<p class="grsp-sale-note">ブラックフライデー価格・11/30まで</p>' : "") +
+          '<div class="grsp-plan-head"><span class="grsp-plan-left"><span class="grsp-plan-name">7日パス</span>' + (sale ? '<span class="grsp-off">' + esc(sale.off) + '</span>' : "") + '</span><span class="grsp-plan-price">' + planPriceHtml() + '</span></div>' +
+          (sale ? '<p class="grsp-sale-note">' + esc(sale.note) + '</p>' : "") +
           '<p class="grsp-plan-note">イベントなど単発の利用に。自動更新なし</p>' +
           '<button type="button" class="grsp-btn grsp-primary grsp-buy">7日パスで書き出す</button>' +
           '<p class="grsp-msg grsp-buymsg" aria-live="polite"></p>' +
