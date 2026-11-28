@@ -1137,6 +1137,11 @@ const soundReady = true;
                 <option value="on" selected data-paid-feature="derby_sound">入れる</option>
                 <option value="off">入れない</option>
               </select>
+              <div id="sfxVolumeWrap">
+                <label class="sub-label" for="sfxVolume">歓声・蹄の音の音量</label>
+                <input type="range" id="sfxVolume" min="0" max="150" step="5" value="100">
+                <div class="timeline-time" id="sfxVolumeValue">100%</div>
+              </div>
             </div>
             <!-- レース中のBGM。ゲートが開いてから1着の入線まで流す。曲は競馬風(2D)とリアル(3D)で別。
                  data-paid-feature="bgm" の付いた曲は有料、付いていない曲は無料 -->
@@ -1394,7 +1399,7 @@ const soundReady = true;
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.11.28</span>
-              <span class="update-content">レース中のBGMを追加しました。2D（競馬風）とリアル競馬風（3D）でそれぞれ6曲から選べ、ゲートが開いてから1着のゴールまで流れます。試聴もできます。「明るいポップロック」と「壮大 1」は無料で使えます。</span>
+              <span class="update-content">レース中のBGMを追加しました。2D（競馬風）とリアル競馬風（3D）でそれぞれ6曲から選べ、ゲートが開いてから1着のゴールまで流れます。試聴もできます。「明るいポップロック」と「壮大 1」は無料で使えます。あわせて、歓声・蹄の音の音量も調整できるようにしました。</span>
             </li>
             <li class="update-item">
               <span class="badge-new">New</span>
@@ -1779,7 +1784,7 @@ const clockNow=()=>exportActive?exportClockMs:performance.now();
 const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
-  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","fanfareVolume","sfx","volume","bgmVolume"],
+  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","fanfareVolume","sfx","sfxVolume","volume","bgmVolume"],
   classic:["duration","drama","captions","iconSize","bgm2d"],
   real   :["coursePreset","handed","algo","seed","palette","showMap","showField","bgm3d"],
 };
@@ -1814,6 +1819,8 @@ function syncSfxField(){
   const sfx=document.getElementById("sfx"), field=document.getElementById("volumeField");
   // 全体の音量は歓声・蹄の音かBGMのどちらかがあるときに出す
   if(sfx&&field)field.hidden=sfx.value==="off"&&!bgmId();
+  const sw=document.getElementById("sfxVolumeWrap");
+  if(sfx&&sw)sw.hidden=sfx.value==="off";
 }
 /* keepRace=true は音量など、レースの中身に関係しない設定。組み直すと競馬風では
    展開が変わってしまう(プレビューと違うレースが書き出される)ので、印を付けない */
@@ -2044,7 +2051,7 @@ lockSoundUI();
     // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
     // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
     // 馬上アイコンの大きさも見た目だけなので、レースは組み直さず下で今のレースに直接反映する
-    const keep=(id==="volume"||id==="fanfareVolume"||id==="bgm2d"||id==="bgm3d"||id==="bgmVolume"||id==="sfx"||id==="fanfare"||id==="countdown"||id==="iconSize");
+    const keep=(id==="volume"||id==="fanfareVolume"||id==="bgm2d"||id==="bgm3d"||id==="bgmVolume"||id==="sfxVolume"||id==="sfx"||id==="fanfare"||id==="countdown"||id==="iconSize");
     el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
   /* アイコンサイズはドラッグ中もリアルタイムに反映する。
@@ -2775,6 +2782,8 @@ function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("
    100%でそのまま、150%まで上げられる(この音が鳴るのは歓声が小さい出走前なので割れにくい) */
 function fanfareVolume(){ return Math.max(0,Math.min(1.5,(+document.getElementById("fanfareVolume").value||0)/100)); }
 function sfxOn(){ return SOUND_READY && document.getElementById("sfx").value==="on"; }
+/* 歓声・蹄の音だけの音量(ざわめき・ゲート・蹄・盛り上がり・入線の歓声をまとめて)。100%でそのまま、150%まで */
+function sfxVolume(){ const el=document.getElementById("sfxVolume"); return el?Math.max(0,Math.min(1.5,(+el.value||0)/100)):1; }
 function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()||bgmId()); }
 
 /* ---- レース中のBGM ----
@@ -3224,9 +3233,10 @@ const Sound=(()=>{
       loopTo(oc,B.bgm,from,to,bg,BGMS[opt.bgm].end);
     }
     if(sfx){
+      const sx=oc.createGain();sx.gain.value=opt.sfxVol==null?1:opt.sfxVol;sx.connect(out);
       const S=m.start, G=m.firstGoal!=null?m.firstGoal:S+10, A=m.allGoal!=null?m.allGoal:G+1;
       // スタンドのざわめき: ファンファーレ中は控えめ、レースが進むほど大きく
-      const amb=oc.createGain();amb.connect(out);
+      const amb=oc.createGain();amb.connect(sx);
       amb.gain.setValueAtTime(m.intro>0?0.22:0.32,0);
       amb.gain.setValueAtTime(m.intro>0?0.22:0.32,Math.max(0,S-1));
       amb.gain.linearRampToValueAtTime(0.42,S+0.3);
@@ -3234,10 +3244,10 @@ const Sound=(()=>{
       amb.gain.linearRampToValueAtTime(0.4,G+4);
       loopTo(oc,B.amb,0,T,amb);
       // ゲートが開く音
-      one(oc,B.gate,S-0.12,out,0.9);
+      one(oc,B.gate,S-0.12,sx,0.9);
       // 蹄の音: ゴール前スローのあいだは低くこもらせる
       const lp=oc.createBiquadFilter();lp.type="lowpass";lp.frequency.setValueAtTime(16000,0);
-      const hoof=oc.createGain();lp.connect(hoof);hoof.connect(out);
+      const hoof=oc.createGain();lp.connect(hoof);hoof.connect(sx);
       hoof.gain.setValueAtTime(0,0);
       hoof.gain.setValueAtTime(0,S);
       hoof.gain.linearRampToValueAtTime(0.75,S+0.5);
@@ -3255,21 +3265,21 @@ const Sound=(()=>{
       // 直線での盛り上がり: 素材の終わり(ピーク)が1着の入線に来るように置く
       const riseAt=G-B.rise.duration+0.4;
       const from=Math.max(S+1,riseAt);
-      const rg=one(oc,B.rise,from,out,0.85,from-riseAt);
+      const rg=one(oc,B.rise,from,sx,0.85,from-riseAt);
       if(rg){
         // 素材の途中から入るとき(短いレース)は、いきなり大きくならないようにふわっと入れる
         if(from>riseAt+0.1){rg.gain.setValueAtTime(0,from);rg.gain.linearRampToValueAtTime(0.85,Math.min(G,from+1.5));}
         rg.gain.setValueAtTime(0.85,G);rg.gain.linearRampToValueAtTime(0,G+0.6);
       }
       // 入線の大歓声
-      one(oc,B.fin,G-0.05,out,1.0);
+      one(oc,B.fin,G-0.05,sx,1.0);
     }
     return oc.startRendering();
   }
   function keyOf(m){
     const r=x=>x==null?null:Math.round(x*100)/100;
     return JSON.stringify([r(m.intro),r(m.start),r(m.firstGoal),r(m.allGoal),r(m.slowA),r(m.slowB),r(m.total),
-      fanfareId(),fanfareVolume(),sfxOn(),bgmId(),bgmVolume()]);
+      fanfareId(),fanfareVolume(),sfxOn(),sfxVolume(),bgmId(),bgmVolume()]);
   }
   function stop(){
     if(live.src){try{live.src.stop();}catch(_){} live.src.disconnect();live.src=null;}
@@ -3280,7 +3290,7 @@ const Sound=(()=>{
     if(live.failedKey===key)return null;   // 読み込めなかった設定は、設定が変わるまで再挑戦しない
     if(live.buildingKey!==key){
       live.buildingKey=key;
-      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1,fanVol:fanfareVolume(),bgm:bgmId(),bgmVol:bgmVolume()}).then(b=>{
+      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1,fanVol:fanfareVolume(),sfxVol:sfxVolume(),bgm:bgmId(),bgmVol:bgmVolume()}).then(b=>{
         if(live.buildingKey===key){live.buf=b;live.key=key;}
       }).catch(e=>{console.warn("[格付けダービー] 音を用意できませんでした",e);
         if(live.buildingKey===key){live.buildingKey=null;live.failedKey=key;}});
@@ -3385,6 +3395,9 @@ const Sound=(()=>{
     if(e.target.value!=="none")window.grsTrack?.("bgm_select",{sound:"bgm-"+e.target.value});
   }));
   bgmVolEl.addEventListener("input",()=>{bgmVolVal.textContent=bgmVolEl.value+"%";});
+  const sfxVolEl=document.getElementById("sfxVolume"), sfxVolVal=document.getElementById("sfxVolumeValue");
+  const syncSfxVol=()=>{sfxVolVal.textContent=sfxVolEl.value+"%";};
+  sfxVolEl.addEventListener("input",syncSfxVol);syncSfxVol();
   bgmVolVal.textContent=bgmVolEl.value+"%";
   bgmListen.addEventListener("click",()=>Sound.toggleListen(bgmListen,"bgm"));
   window.grsSyncBgm=syncBgm;   // モード切替(switchMode)で、表示するBGMの欄が変わったときに呼ぶ
@@ -3887,7 +3900,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
     getPaidFeatures(){
       const used=[];
       if(fanfareId())used.push("derby_fanfare");
-      if(sfxOn()&&soundVolume()>0)used.push("derby_sound");
+      if(sfxOn()&&soundVolume()>0&&sfxVolume()>0)used.push("derby_sound");
       if(bgmPaid()&&soundVolume()>0&&bgmVolume()>0)used.push("bgm");
       return used;
     },
@@ -3917,7 +3930,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       if(!m)return null;
       Sound.stop();
       return Sound.mix(Object.assign({},m,{total:sec}),
-        {fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume(),fanVol:fanfareVolume(),bgm:bgmId(),bgmVol:bgmVolume()});
+        {fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume(),fanVol:fanfareVolume(),sfxVol:sfxVolume(),bgm:bgmId(),bgmVol:bgmVolume()});
     },
     getDurationMs(){
       if(isReal()){const s=ensureReal();return Math.max(0,s.totalFrames-1)/Real3D.FPS*1000;}
@@ -4005,7 +4018,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v2", // 2問だけの短いアンケート
       // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute、BGMは +bgm-曲ID
-      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx")+(bgmId()?"+bgm-"+bgmId():""))}),
+      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()&&sfxVolume()>0?"":"-nosfx")+(bgmId()?"+bgm-"+bgmId():""))}),
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
       }

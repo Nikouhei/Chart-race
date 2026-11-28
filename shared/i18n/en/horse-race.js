@@ -210,6 +210,7 @@ I18N.registerText('en', {
   '👑の付いた曲は有料プランで使えます（試聴とプレビューは無料）。': 'Tracks marked 👑 need a paid plan (listening and previews are free).',
   'BGMを試聴': 'Listen to the music',
   'BGMの音量': 'Music volume',
+  '歓声・蹄の音の音量': 'Crowd & hoofbeats volume',
   '明るいポップロック 1': 'Bright Pop Rock 1',
   '明るいポップロック 1 👑': 'Bright Pop Rock 1 👑',
   '明るいポップロック 2': 'Bright Pop Rock 2',
