@@ -31,7 +31,7 @@ const soundReady = true;
     <script is:inline src="/shared/export-plan.js?v=2026112801" defer></script>
     <script is:inline src="/shared/video-export.js?v=2026112801" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026112802" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026112803" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
@@ -1106,6 +1106,14 @@ const soundReady = true;
 
           <details class="panel" open>
             <summary>演出・サウンド</summary>
+            <div class="field" id="volumeField">
+              <label for="volume">全体の音量</label>
+              <div class="range-row">
+                <input type="range" id="volume" min="0" max="100" step="5" value="80">
+                <div class="timeline-time" id="volumeValue">80%</div>
+              </div>
+              <p class="hint">下の音すべてにかかります。</p>
+            </div>
             <div class="field">
               <label>スタート前の演出<span class="info-tip" tabindex="0" role="button" aria-label="スタート前の演出について">i<span class="info-bubble"><b>カウントダウン</b>スタート前に3・2・1を出します<b>ファンファーレ</b>ファンファーレが流れ、そのあいだ画面にレース名と出馬表（馬番順）が出ます<p>なしにすると、いきなり走り出します。</p></span></span></label>
               <select id="countdown">
@@ -1132,7 +1140,7 @@ const soundReady = true;
                 <button type="button" class="btn-listen" id="fanfareListen" data-track="sound_preview" title="ファンファーレを試聴">▶ 試聴</button>
               </div>
               <!-- ファンファーレだけの音量。歓声や蹄の音とのバランスをここで取る
-                   （サウンドの「音量」は全体にかかる） -->
+                   （「全体の音量」はすべての音にかかる） -->
               <label class="sub-label" for="fanfareVolume">ファンファーレの音量</label>
               <div class="range-row">
                 <input type="range" id="fanfareVolume" min="0" max="150" step="5" value="100">
@@ -1184,13 +1192,6 @@ const soundReady = true;
                   <input type="range" id="bgmVolume" min="0" max="150" step="5" value="100">
                   <div class="timeline-time" id="bgmVolumeValue">100%</div>
                 </div>
-              </div>
-            </div>
-            <div class="field" id="volumeField">
-              <label>音量</label>
-              <div class="range-row">
-                <input type="range" id="volume" min="0" max="100" step="5" value="80">
-                <div class="timeline-time" id="volumeValue">80%</div>
               </div>
             </div>
             <p class="hint" id="soundHint">音はプレビューでも流れ、保存する動画にも入ります。</p>

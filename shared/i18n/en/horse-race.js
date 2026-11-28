@@ -236,6 +236,8 @@ I18N.registerText('en', {
   'スポーツハイライト風 2': 'Sports Highlights 2',
   'スポーツハイライト風 2 👑': 'Sports Highlights 2 👑',
   '音量': 'Volume',
+  '全体の音量': 'Master volume',
+  '下の音すべてにかかります。': 'Applies to all the sounds below.',
   '音はプレビューでも流れ、保存する動画にも入ります。': 'You’ll hear the sound in the preview, and it’s included in the saved video.',
   '出馬表': 'The Field',
   '音を読み込めませんでした。通信環境をご確認ください。': 'Couldn’t load the sound. Please check your connection.',
