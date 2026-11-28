@@ -296,6 +296,31 @@
       margin-bottom: 0;
     }
 
+    /* 縦型（9:16）デモ動画・スクショの表示枠 */
+    .demo-video-vertical {
+      margin: 24px 0 28px;
+      text-align: center;
+    }
+    .demo-video-vertical video,
+    .demo-video-vertical img {
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      aspect-ratio: 9 / 16;
+      border-radius: 14px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--panel-border);
+      background: #11131a;
+      display: block;
+      margin: 0 auto;
+    }
+    .demo-video-vertical figcaption {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
     /* フッター */
     footer.site-footer {
       padding: 32px 0;
@@ -576,13 +601,10 @@
         <h2 id="s3">【作り方①】ランキング動画メーカーで「2026年買ってよかったものTOP10」を作る</h2>
 
         <figure class="fig">
-          <picture>
-            <source srcset="../../ranking-video-maker/og/thumb-16x9.webp" type="image/webp">
-            <img src="../../ranking-video-maker/og/thumb-16x9.jpg"
-              alt="ランキング動画メーカーで作成した、第4位から第1位までの写真・タイトル・一言コメントがカード形式で並ぶ画面イメージ"
-              width="1600" height="900" loading="lazy" decoding="async">
-          </picture>
-          <figcaption>ランキング動画メーカーの出力イメージ。写真・名前・コメントを入れるだけで、順位カードが滑らかに流れる動画を自動生成できます</figcaption>
+          <img src="ranking-tool-screen-9x16.webp"
+            alt="ランキング動画メーカーの編集画面。左側のパネルに2026年買ってよかったものTOP10のタイトルと10項目を入力し、右側に9:16縦型のプレビューが表示されている"
+            width="1280" height="800" loading="lazy" decoding="async">
+          <figcaption>ランキング動画メーカーの実際の画面。左のパネルに順位・写真・コメントを入れるだけで、右側の9:16縦型プレビューがリアルタイムで仕上がります</figcaption>
         </figure>
 
         <p>
@@ -591,30 +613,44 @@
 
         <h3>ステップ1：10位〜1位の項目と写真・一言コメントを用意する</h3>
         <p>
-          最初にメモ帳などで10個分のリストを作っておくと入力が一瞬で終わります。コメントは長文にすると読まれにくいため、<strong>20〜35文字の「ひとこと結論」</strong>に絞るのがコツです。
+          最初にメモ帳などで10個分のリストを作っておくと入力が一瞬で終わります。コメントは長文にすると読まれにくいため、<strong>25〜35文字の「ひとこと結論」</strong>に絞るのがコツです。
         </p>
         <ul>
-          <li>第10位：マグネット式スマホスタンド（角度調整が自在で撮影が劇的に楽に）</li>
-          <li>第9位：保温タンブラー 450ml（冬のデスク作業でも3時間ずっと熱いまま）</li>
-          <li>……（中略）……</li>
-          <li>第2位：軽量モバイルバッテリー 10000mAh（ケーブル一体型で荷物が減った）</li>
-          <li>第1位：ノイズキャンセリングヘッドホン（集中力が別次元。今年のベストバイ）</li>
+          <li>第10位：マグネット式スマホスタンド（角度調整が自在で撮影や動画視聴が劇的に楽に。デスクの定位置に定着。）</li>
+          <li>第9位：真空断熱タンブラー（冬のデスク作業でも3時間ずっと温かいまま。結露しないのも地味に最高。）</li>
+          <li>……（中略：第8位〜第3位）……</li>
+          <li>第2位：ケーブル一体型バッテリー（10000mAhでケーブル忘れゼロ。外出時の荷物がこれ1つでスッキリ。）</li>
+          <li>第1位：ノイキャンヘッドホン（周囲の雑音がスッと消えて集中力が別次元。間違いなく今年のベストバイ。）</li>
         </ul>
 
         <h3>ステップ2：ツールを開いて画面比率を選び、データを入力する</h3>
         <p>
-          <a href="../../ranking-video-maker/app/">ランキング動画メーカー</a>を開き、まず投稿先に合わせた画面比率（YouTube通常動画なら<strong>16:9</strong>、ショート・TikTok・リールなら<strong>9:16</strong>）を選びます。あとは10位から1位まで、順位・アイテム名・写真・一言コメントを順番に入力していくだけです。
+          <a href="../../ranking-video-maker/app/">ランキング動画メーカー</a>を開き、まず投稿先に合わせた画面比率（YouTube通常動画なら<strong>16:9</strong>、ショート・TikTok・リールなら<strong>9:16</strong>）を選びます。タイトルカードを「表示する」にして「2026年 買ってよかったもの TOP10」と入力し、あとは10位から1位まで順位・アイテム名・写真・一言コメントを順番に入れていくだけです。
         </p>
 
         <h3>ステップ3：流れるスピードと配色を調整してプレビューする</h3>
         <p>
-          入力が終わったら再生ボタンでプレビューします。TOP10をショート動画（60秒以内）に収めたい場合はスクロール速度をやや速めに、YouTube通常動画でナレーションを当てたい場合はゆったりめに調整してください。タイトルや背景色に冬らしい落ち着いた濃色やゴールドの差し色を使うと、一気に年末感が出ます。
+          入力が終わったら再生ボタンでプレビューします。TOP10をショート動画（30〜40秒前後）に収めたい場合は速度を<strong>4</strong>あたりに、YouTube通常動画でナレーションを当てたい場合はゆったりめに調整してください。
         </p>
+
+        <figure class="demo-video-vertical">
+          <img src="ranking-demo-9x16-poster.webp"
+            alt="9:16縦型ランキング動画のスクリーンショット。第1位ノイキャンヘッドホンと第2位ケーブル一体型バッテリーのカードが並んで表示されている"
+            width="540" height="960" loading="lazy" decoding="async">
+          <figcaption>動画そのもののスクリーンショット（9:16縦型）。スマホの画面幅でも写真・順位・一言コメントがくっきり読めます</figcaption>
+        </figure>
 
         <h3>ステップ4：動画を書き出し、必要に応じてBGM・音声を足す</h3>
         <p>
-          納得できたら動画ファイルとして書き出します。そのままXやYouTubeに投稿しても成立しますし、CapCutなどの編集アプリに読み込んでフリーBGMや自分の声（アフレコ）を乗せると、さらに視聴維持率が高まります。スマホだけで仕上げる細かい手順は<a href="../how-to-make-ranking-video/">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</a>でも詳しく解説しています。
+          納得できたら「動画を書き出す（MP4 / WebM）」から保存します。下は実際にツールから書き出した9:16（縦型・タイトルカードあり・約31秒）の完成サンプルです。このままYouTubeショートやTikTok、Instagramリールに投稿しても成立しますし、編集アプリでBGMやアフレコを乗せるとさらに視聴維持率が高まります。スマホだけで仕上げる細かい手順は<a href="../how-to-make-ranking-video/">YouTubeでよく見るランキング動画の作り方｜スマホでも無料！</a>でも詳しく解説しています。
         </p>
+
+        <figure class="demo-video-vertical">
+          <video controls playsinline muted loop preload="metadata" poster="ranking-demo-9x16-poster.webp" width="540" height="960">
+            <source src="ranking-demo-9x16.mp4" type="video/mp4">
+          </video>
+          <figcaption>ランキング動画メーカーから直接書き出した完成サンプル（9:16縦型・タイトルあり・第10位→第1位・約31秒）</figcaption>
+        </figure>
 
         <div class="cta">
           <span class="bt">「2026年 買ってよかったものTOP10」を今すぐ作ってみる</span>
