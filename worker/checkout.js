@@ -33,7 +33,9 @@ export async function handleCheckout(request, env) {
   // セール中ならクーポンを付ける。preview・localhost だけは期間外でも force_sale で試せる
   const h = reqUrl.hostname;
   const isTestHost = h === 'localhost' || h === '127.0.0.1' || h.startsWith('preview-');
-  const sale = activeSale() || (isTestHost && input.force_sale ? saleById(input.force_sale) : null);
+  // 指定があればそれを優先（期間中の別セールより先に見る）
+  const forced = isTestHost && input.force_sale ? saleById(input.force_sale) : null;
+  const sale = forced || activeSale();
   const metadata = source ? { plan, lang, source } : { plan, lang };
   if (sale) metadata.promo = sale.promo;
   const prefix = lang === 'en' ? '/en' : '';
