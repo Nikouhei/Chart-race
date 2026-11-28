@@ -4063,6 +4063,10 @@ global.Real3D={
     await loadWatermark();
     resizeBound=()=>resize();
     addEventListener("resize",resizeBound);
+    /* 描画先の大きさはウィンドウ以外でも変わる(初回読み込み中にレイアウトが落ち着く、
+       競馬風(2D)を表示しているあいだに窓の大きさが変わる、など)。
+       ウィンドウの resize だけだと古い大きさのまま小さく残るので、描画先そのものを見張る */
+    if(typeof ResizeObserver==="function") new ResizeObserver(resizeBound).observe(viewport);
     resize();
     tick();
     emit("ready",result);
