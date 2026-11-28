@@ -23,6 +23,8 @@ migrations/
 Stripe/
 # 装飾の元データ（透過PNGの原寸）。配信するのは変換後の assets/decor/*.webp だけ
 装飾/
+# 競馬風の音の素材（生成元の mp3・生成スクリプト・試聴ページ）。配信するのは assets/audio/ だけ
+horse-race-ranking-maker/競馬風音声/
 # Wrangler のローカル状態・秘密情報
 .wrangler/
 .env*

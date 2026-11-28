@@ -10,7 +10,7 @@ import SiteFooter from '../../components/SiteFooter.astro';
 import { iconSvg } from '../../i18n/icons.mjs';
 const locale = 'ja';
 /* 音まわり(ファンファーレ・歓声・蹄の音)を使えるようにするか。有料プランの公開に合わせて有効にした(2026-11)。
-   書き出しでは有料機能(shared/export-plan.js の derby_fanfare / derby_sound)として判定する。
+   書き出しでは有料機能(shared/export-plan.js の derby_fanfare / derby_sound / bgm)として判定する。
    false にすると、選択肢だけ出して選べなくする(「（準備中）」の表示)。
    ★ツール部分には Astro の式を書けない(英語版がこのファイルをそのまま取り出すため)ので、
      head のメタタグで渡してスクリプト側で読む */
@@ -31,7 +31,7 @@ const soundReady = true;
     <script is:inline src="/shared/export-plan.js?v=2026112801" defer></script>
     <script is:inline src="/shared/video-export.js?v=2026112801" defer></script>
     <script is:inline src="/shared/export-cta.js?v=2026102501" defer></script>
-    <script is:inline src="/shared/i18n.js?v=2026112801" data-i18n-bundles="common,horse-race"></script>
+    <script is:inline src="/shared/i18n.js?v=2026112802" data-i18n-bundles="common,horse-race"></script>
     <meta name="grs-sound-ready" content={soundReady ? '1' : '0'}>
   <style is:inline>
     /* 共有デザイントークン（tokens.cssが読み込めない環境向けのフォールバックを含む定義） */
@@ -1138,6 +1138,37 @@ const soundReady = true;
                 <option value="off">入れない</option>
               </select>
             </div>
+            <!-- レース中のBGM。ゲートが開いてから1着の入線まで流す。曲は競馬風(2D)とリアル(3D)で別。
+                 data-paid-feature="bgm" の付いた曲は有料、付いていない曲は無料 -->
+            <div class="field">
+              <label>レース中のBGM<span class="info-tip" tabindex="0" role="button" aria-label="レース中のBGMについて">i<span class="info-bubble">ゲートが開いてから1着がゴールするまで流れます。<p>👑の付いた曲は有料プランで使えます（試聴とプレビューは無料）。</p></span></span></label>
+              <div class="sound-row">
+                <select id="bgm2d" class="mode-classic">
+                  <option value="none" selected>なし</option>
+                  <option value="2d-pop-1">明るいポップロック 1</option>
+                  <option value="2d-pop-2">明るいポップロック 2</option>
+                  <option value="2d-gallop-1" data-paid-feature="bgm">疾走ギャロップ 1</option>
+                  <option value="2d-gallop-2" data-paid-feature="bgm">疾走ギャロップ 2</option>
+                  <option value="2d-comical-1" data-paid-feature="bgm">コミカル 1</option>
+                  <option value="2d-comical-2" data-paid-feature="bgm">コミカル 2</option>
+                </select>
+                <select id="bgm3d" class="mode-real">
+                  <option value="none" selected>なし</option>
+                  <option value="3d-epic-1">壮大 1</option>
+                  <option value="3d-epic-2" data-paid-feature="bgm">壮大 2</option>
+                  <option value="3d-orchestral-1" data-paid-feature="bgm">中継風オーケストラ 1</option>
+                  <option value="3d-orchestral-2" data-paid-feature="bgm">中継風オーケストラ 2</option>
+                  <option value="3d-hybrid-1" data-paid-feature="bgm">スポーツハイライト風 1</option>
+                  <option value="3d-hybrid-2" data-paid-feature="bgm">スポーツハイライト風 2</option>
+                </select>
+                <button type="button" class="btn-listen" id="bgmListen" data-track="sound_preview" title="BGMを試聴">▶ 試聴</button>
+              </div>
+              <div id="bgmVolumeWrap" hidden>
+                <label class="sub-label" for="bgmVolume">BGMの音量</label>
+                <input type="range" id="bgmVolume" min="0" max="150" step="5" value="100">
+                <div class="timeline-time" id="bgmVolumeValue">100%</div>
+              </div>
+            </div>
             <div class="field" id="volumeField">
               <label>音量</label>
               <input type="range" id="volume" min="0" max="100" step="5" value="80">
@@ -1325,7 +1356,7 @@ const soundReady = true;
         <div class="faq-list">
           <details class="faq-item">
             <summary class="faq-q">利用は無料ですか？商用利用やYouTubeでの配信に使っても問題ありませんか？</summary>
-            <div class="faq-a">はい、無料でご利用いただけます。商用利用をはじめ、YouTubeやTikTokへの動画投稿、SNSへのシェアなども自由に行っていただいて問題ありません。事前のご連絡は不要です。無料版で書き出した動画には GraphRace Studio の透かしが入り、これがクレジット表記の代わりになります。透かしなし・高画質（1080p）・ファンファーレ・サウンド（歓声・蹄の音）は有料プランで使えます（有料プランではクレジット表記は不要です）。</div>
+            <div class="faq-a">はい、無料でご利用いただけます。商用利用をはじめ、YouTubeやTikTokへの動画投稿、SNSへのシェアなども自由に行っていただいて問題ありません。事前のご連絡は不要です。無料版で書き出した動画には GraphRace Studio の透かしが入り、これがクレジット表記の代わりになります。透かしなし・高画質（1080p）・ファンファーレ・サウンド（歓声・蹄の音）・一部のBGMは有料プランで使えます（有料プランではクレジット表記は不要です）。</div>
           </details>
           <details class="faq-item">
             <summary class="faq-q">作成したレース動画を保存するにはどうすればいいですか？</summary>
@@ -1360,6 +1391,11 @@ const soundReady = true;
         <h2 class="section-title">更新履歴</h2>
         <div class="update-list-container">
           <ul class="update-list">
+            <li class="update-item">
+              <span class="badge-new">New</span>
+              <span class="update-date">2026.11.28</span>
+              <span class="update-content">レース中のBGMを追加しました。2D（競馬風）とリアル競馬風（3D）でそれぞれ6曲から選べ、ゲートが開いてから1着のゴールまで流れます。試聴もできます。「明るいポップロック」と「壮大 1」は無料で使えます。</span>
+            </li>
             <li class="update-item">
               <span class="badge-new">New</span>
               <span class="update-date">2026.11.27</span>
@@ -1743,9 +1779,9 @@ const clockNow=()=>exportActive?exportClockMs:performance.now();
 const STATE_KEY="umarace-state-v2";
 const LEGACY_KEY="umarace-state-v1";   // 競馬風だけだった頃の保存データ
 const SETTING_GROUPS={
-  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","fanfareVolume","sfx","volume"],
-  classic:["duration","drama","captions","iconSize"],
-  real   :["coursePreset","handed","algo","seed","palette","showMap","showField"],
+  common :["raceName","countdown","aspect","boardTitle","boardColor","boardImage","boardMargin","fanfare","fanfareVolume","sfx","volume","bgmVolume"],
+  classic:["duration","drama","captions","iconSize","bgm2d"],
+  real   :["coursePreset","handed","algo","seed","palette","showMap","showField","bgm3d"],
 };
 let toolMode="classic";   // "classic"=競馬風 / "real"=リアル競馬風
 /* 計測：どのモードで起きたイベントか分かるよう、全イベントに tool_mode（2d=競馬風 / 3d=リアル競馬風）を付ける。
@@ -1776,7 +1812,8 @@ function applyGroup(ids,values){
 /* 歓声・蹄の音を「入れない」にしたら、音量の欄を隠す */
 function syncSfxField(){
   const sfx=document.getElementById("sfx"), field=document.getElementById("volumeField");
-  if(sfx&&field)field.hidden=sfx.value==="off";
+  // 全体の音量は歓声・蹄の音かBGMのどちらかがあるときに出す
+  if(sfx&&field)field.hidden=sfx.value==="off"&&!bgmId();
 }
 /* keepRace=true は音量など、レースの中身に関係しない設定。組み直すと競馬風では
    展開が変わってしまう(プレビューと違うレースが書き出される)ので、印を付けない */
@@ -1988,6 +2025,8 @@ function lockSoundUI(){
   if(hint)hint.hidden=true;
   const listen=document.getElementById("fanfareListen");
   if(listen)listen.disabled=true;
+  // BGM も選べなくする
+  ["bgm2d","bgm3d"].forEach(n=>{const el=document.getElementById(n);if(el){el.value="none";el.disabled=true;}});
 }
 
 // 前回の設定を復元し、以後は設定変更のたびに自動保存
@@ -2005,7 +2044,7 @@ lockSoundUI();
     // 音量・歓声の有無は展開に関係しない。ファンファーレはスタート前の長さだけが変わるので、
     // 競馬風は今のレースのまま前置きだけ付け替える(下の Sound の設定を参照)
     // 馬上アイコンの大きさも見た目だけなので、レースは組み直さず下で今のレースに直接反映する
-    const keep=(id==="volume"||id==="fanfareVolume"||id==="sfx"||id==="fanfare"||id==="countdown"||id==="iconSize");
+    const keep=(id==="volume"||id==="fanfareVolume"||id==="bgm2d"||id==="bgm3d"||id==="bgmVolume"||id==="sfx"||id==="fanfare"||id==="countdown"||id==="iconSize");
     el.addEventListener(isText?"input":"change",()=>saveState(keep));
   });
   /* アイコンサイズはドラッグ中もリアルタイムに反映する。
@@ -2736,7 +2775,34 @@ function soundVolume(){ return Math.max(0,Math.min(1,(+document.getElementById("
    100%でそのまま、150%まで上げられる(この音が鳴るのは歓声が小さい出走前なので割れにくい) */
 function fanfareVolume(){ return Math.max(0,Math.min(1.5,(+document.getElementById("fanfareVolume").value||0)/100)); }
 function sfxOn(){ return SOUND_READY && document.getElementById("sfx").value==="on"; }
-function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()); }
+function soundActive(){ return soundVolume()>0&&(fanfareId()||sfxOn()||bgmId()); }
+
+/* ---- レース中のBGM ----
+   ゲートが開いてから1着の入線まで流す(入線で歓声に渡すようにフェードアウト)。
+   曲は Eleven Music で生成(2026-11-28)。元の mp3 とプロンプトは horse-race-ranking-maker/競馬風音声/bgm/、
+   配信用は assets/audio/bgm-<id>.m4a(AAC 128kbps)。
+   gain: 曲ごとの大きさをそろえる倍率(平均の大きさ -18dBFS 相当に合わせた値)
+   end : くり返しに使う範囲の終わり[秒]。生成した曲は最後が自然に消えていくので、その手前まで。
+         レースがこれより長いときは頭からつないで(端を重ねて)流す
+   無料の曲は data-paid-feature を付けていない option(BGM_FREE と合わせること) */
+const BGMS={
+  "2d-pop-1":{gain:0.76,end:58.5},"2d-pop-2":{gain:0.91,end:58},
+  "2d-gallop-1":{gain:1.12,end:58.5},"2d-gallop-2":{gain:0.76,end:58},
+  "2d-comical-1":{gain:0.98,end:58},"2d-comical-2":{gain:0.77,end:58},
+  "3d-epic-1":{gain:0.62,end:140},"3d-epic-2":{gain:0.63,end:145},
+  "3d-orchestral-1":{gain:0.65,end:145},"3d-orchestral-2":{gain:0.76,end:145},
+  "3d-hybrid-1":{gain:0.59,end:144},"3d-hybrid-2":{gain:0.61,end:146},
+};
+const BGM_FREE={"2d-pop-1":true,"2d-pop-2":true,"3d-epic-1":true};
+const BGM_LEVEL=0.55;   // 歓声・蹄の音に対するBGMの大きさ(BGMの音量100%のとき)
+function bgmSelect(){ return document.getElementById(toolMode==="real"?"bgm3d":"bgm2d"); }
+function bgmId(){
+  if(!SOUND_READY)return null;
+  const el=bgmSelect(); const v=el&&el.value;
+  return BGMS[v]?v:null;
+}
+function bgmVolume(){ const el=document.getElementById("bgmVolume"); return el?Math.max(0,Math.min(1.5,(+el.value||0)/100)):1; }
+function bgmPaid(){ const id=bgmId(); return !!id&&!BGM_FREE[id]; }
 
 /* ---- 出走前シーンの装飾画像 ----
    冠飾りと月桂樹は Canvas では出せない質感なので画像で持つ。
@@ -3070,7 +3136,7 @@ const Sound=(()=>{
 
   function load(name){
     if(!files[name]){
-      files[name]=fetch(SOUND_BASE+name+".mp3")
+      files[name]=fetch(SOUND_BASE+name+(name.startsWith("bgm-")?".m4a":".mp3"))
         .then(r=>{if(!r.ok)throw new Error(name+": "+r.status);return r.arrayBuffer();})
         .then(ab=>{
           if(!decoder)decoder=new OfflineAudioContext(2,1,RATE);
@@ -3096,11 +3162,13 @@ const Sound=(()=>{
     const f=fanfareId();
     if(f)load("fanfare-"+f).catch(()=>{});
     if(sfxOn())["crowd-ambient-loop","gate","hooves-loop","crowd-rise","crowd-finish"].forEach(n=>load(n).catch(()=>{}));
+    const b=bgmId();
+    if(b)load("bgm-"+b).catch(()=>{});
   }
 
   /* つなぎ目が鳴らないよう、ループ素材は端を少し重ねて並べる */
-  function loopTo(oc,buf,from,to,dest){
-    const XF=0.35,L=buf.duration;
+  function loopTo(oc,buf,from,to,dest,len){
+    const XF=0.35,L=Math.min(len||buf.duration,buf.duration);
     let t=from,first=true;
     while(t<to-0.05){
       const end=Math.min(to,t+L);
@@ -3132,6 +3200,7 @@ const Sound=(()=>{
       need.amb=load("crowd-ambient-loop");need.gate=load("gate");need.hoof=load("hooves-loop");
       need.rise=load("crowd-rise");need.fin=load("crowd-finish");
     }
+    if(opt.bgm&&BGMS[opt.bgm])need.bgm=load("bgm-"+opt.bgm);
     const B={};
     for(const k in need)B[k]=await need[k];
     const T=Math.max(0.5,m.total);
@@ -3142,6 +3211,18 @@ const Sound=(()=>{
     out.gain.setValueAtTime(vol,Math.max(0,T-0.8));
     out.gain.linearRampToValueAtTime(0,T);   // 最後は静かに終わる
     if(B.fan)one(oc,B.fan,0.15,out,opt.fanVol==null?1:opt.fanVol);
+    if(B.bgm){
+      // レース中のBGM: ゲートが開く直前にふわっと入り、1着の入線から歓声に渡すように消える
+      const S=m.start, G=m.firstGoal!=null?m.firstGoal:S+10;
+      const lv=BGM_LEVEL*BGMS[opt.bgm].gain*(opt.bgmVol==null?1:opt.bgmVol);
+      const from=Math.max(0,S-0.15), to=Math.min(T,Math.max(from+0.6,G+1.2));
+      const bg=oc.createGain();bg.connect(out);
+      bg.gain.setValueAtTime(0,from);
+      bg.gain.linearRampToValueAtTime(lv,from+0.3);
+      bg.gain.setValueAtTime(lv,Math.max(from+0.3,G-0.1));
+      bg.gain.linearRampToValueAtTime(0,to);
+      loopTo(oc,B.bgm,from,to,bg,BGMS[opt.bgm].end);
+    }
     if(sfx){
       const S=m.start, G=m.firstGoal!=null?m.firstGoal:S+10, A=m.allGoal!=null?m.allGoal:G+1;
       // スタンドのざわめき: ファンファーレ中は控えめ、レースが進むほど大きく
@@ -3188,7 +3269,7 @@ const Sound=(()=>{
   function keyOf(m){
     const r=x=>x==null?null:Math.round(x*100)/100;
     return JSON.stringify([r(m.intro),r(m.start),r(m.firstGoal),r(m.allGoal),r(m.slowA),r(m.slowB),r(m.total),
-      fanfareId(),fanfareVolume(),sfxOn()]);
+      fanfareId(),fanfareVolume(),sfxOn(),bgmId(),bgmVolume()]);
   }
   function stop(){
     if(live.src){try{live.src.stop();}catch(_){} live.src.disconnect();live.src=null;}
@@ -3199,7 +3280,7 @@ const Sound=(()=>{
     if(live.failedKey===key)return null;   // 読み込めなかった設定は、設定が変わるまで再挑戦しない
     if(live.buildingKey!==key){
       live.buildingKey=key;
-      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1,fanVol:fanfareVolume()}).then(b=>{
+      live.building=mix(m,{fanfare:fanfareId(),sfx:sfxOn(),vol:1,fanVol:fanfareVolume(),bgm:bgmId(),bgmVol:bgmVolume()}).then(b=>{
         if(live.buildingKey===key){live.buf=b;live.key=key;}
       }).catch(e=>{console.warn("[格付けダービー] 音を用意できませんでした",e);
         if(live.buildingKey===key){live.buildingKey=null;live.failedKey=key;}});
@@ -3224,26 +3305,36 @@ const Sound=(()=>{
     live.src=s;live.t0=c.currentTime-o.sec;
   }
   function setVolume(){ if(master)master.gain.value=soundVolume(); }
-  /* ファンファーレの試聴。もう一度押すと止まる */
-  async function toggleListen(btn){
-    if(listen){try{listen.stop();}catch(_){} listen=null;btn.classList.remove("playing");btn.textContent="▶ 試聴";return;}
-    const f=fanfareId(); if(!f)return;
+  /* 試聴。kind="fanfare"=ファンファーレ / "bgm"=レース中のBGM。もう一度押すと止まる。
+     別の試聴ボタンを押したときは、鳴っているほうを止めてから鳴らす */
+  let listenBtn=null;
+  function resetListen(){
+    if(listen){try{listen.stop();}catch(_){} listen=null;}
+    if(listenBtn){listenBtn.classList.remove("playing");listenBtn.textContent=_t("▶ 試聴");listenBtn=null;}
+  }
+  async function toggleListen(btn,kind){
+    const same=listenBtn===btn;
+    resetListen();
+    if(same)return;
+    const isBgm=kind==="bgm";
+    const id=isBgm?bgmId():fanfareId(); if(!id)return;
     const c=liveCtx(); if(!c)return;
-    btn.classList.add("playing");btn.textContent="■ 停止";
+    btn.classList.add("playing");btn.textContent=_t("■ 停止");listenBtn=btn;
     try{
-      const buf=await load("fanfare-"+f);
-      if(!btn.classList.contains("playing"))return;
+      const buf=await load((isBgm?"bgm-":"fanfare-")+id);
+      if(listenBtn!==btn)return;
       const s=c.createBufferSource();s.buffer=buf;
-      const g=c.createGain();g.gain.value=fanfareVolume();   // 本番と同じ大きさで聴けるように
+      // 本番と同じ大きさで聴けるように
+      const g=c.createGain();g.gain.value=isBgm?BGM_LEVEL*BGMS[id].gain*bgmVolume():fanfareVolume();
       s.connect(g);g.connect(master);s.start();
       listen=s;
-      s.onended=()=>{if(listen===s){listen=null;btn.classList.remove("playing");btn.textContent="▶ 試聴";}};
+      s.onended=()=>{if(listen===s)resetListen();};
     }catch(e){
-      btn.classList.remove("playing");btn.textContent="▶ 試聴";
-      statusEl.textContent="音を読み込めませんでした。通信環境をご確認ください。";
+      resetListen();
+      statusEl.textContent=_t("音を読み込めませんでした。通信環境をご確認ください。");
     }
   }
-  return {load,prefetch,mix,sync,stop,setVolume,toggleListen,RATE};
+  return {load,prefetch,mix,sync,stop,setVolume,toggleListen,stopListen:resetListen,RATE};
 })();
 {
   const volEl=document.getElementById("volume"), volVal=document.getElementById("volumeValue");
@@ -3277,7 +3368,27 @@ const Sound=(()=>{
   document.getElementById("sfx").addEventListener("change",()=>{syncSfxField();Sound.prefetch();});
   syncSfxField();
   syncFan();
-  listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn));
+  listenBtn.addEventListener("click",()=>Sound.toggleListen(listenBtn,"fanfare"));
+  // レース中のBGM。曲を変えても展開は変わらないので、組み直さずに音だけ作り直す(Sound.sync が設定の変化で作り直す)
+  const bgmListen=document.getElementById("bgmListen");
+  const bgmVolEl=document.getElementById("bgmVolume"), bgmVolVal=document.getElementById("bgmVolumeValue");
+  const syncBgm=()=>{
+    const id=bgmId();
+    document.getElementById("bgmVolumeWrap").hidden=!id;
+    bgmListen.disabled=!id;
+    bgmListen.setAttribute("data-track-sound","bgm-"+(id||"none"));
+    syncSfxField();
+  };
+  ["bgm2d","bgm3d"].forEach(n=>document.getElementById(n).addEventListener("change",e=>{
+    Sound.stopListen();syncBgm();Sound.prefetch();
+    // 計測: チャートレースと同じ bgm_select(sound=曲ID)。「なし」は送らない
+    if(e.target.value!=="none")window.grsTrack?.("bgm_select",{sound:"bgm-"+e.target.value});
+  }));
+  bgmVolEl.addEventListener("input",()=>{bgmVolVal.textContent=bgmVolEl.value+"%";});
+  bgmVolVal.textContent=bgmVolEl.value+"%";
+  bgmListen.addEventListener("click",()=>Sound.toggleListen(bgmListen,"bgm"));
+  window.grsSyncBgm=syncBgm;   // モード切替(switchMode)で、表示するBGMの欄が変わったときに呼ぶ
+  syncBgm();
   // ツールに触れたら、今の設定で鳴らす音を先に読み込んでおく(初期表示は軽いまま)
   document.getElementById("tool").addEventListener("pointerdown",()=>{Sound.prefetch();prefetchDecor();},{once:true});
 }
@@ -3617,6 +3728,8 @@ async function switchMode(next){
 
   toolMode=next;
   document.getElementById("tool").dataset.toolMode=next;
+  Sound.stopListen();
+  if(window.grsSyncBgm)window.grsSyncBgm();   // BGMの曲は2Dと3Dで別の欄
   for(const m in tabs)tabs[m].setAttribute("aria-selected",String(m===next));
   taglineEl.textContent=TAGLINES[next];
   setAspectOptions(next,prev);
@@ -3775,6 +3888,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       const used=[];
       if(fanfareId())used.push("derby_fanfare");
       if(sfxOn()&&soundVolume()>0)used.push("derby_sound");
+      if(bgmPaid()&&soundVolume()>0&&bgmVolume()>0)used.push("bgm");
       return used;
     },
     /* 「有料機能を外して書き出す」を選んだとき、ファンファーレはカウントダウンに戻し、歓声・蹄の音は切る */
@@ -3784,6 +3898,10 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       }
       if(locked.includes("derby_sound")){
         const sfx=document.getElementById("sfx"); sfx.value="off"; sfx.dispatchEvent(new Event("change",{bubbles:true}));
+      }
+      // 有料のBGMは「なし」にする(無料の曲に勝手に差し替えない)
+      if(locked.includes("bgm")){
+        const el=bgmSelect(); el.value="none"; el.dispatchEvent(new Event("change",{bubbles:true}));
       }
     },
     ownWatermark:true,
@@ -3799,7 +3917,7 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       if(!m)return null;
       Sound.stop();
       return Sound.mix(Object.assign({},m,{total:sec}),
-        {fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume(),fanVol:fanfareVolume()});
+        {fanfare:fanfareId(),sfx:sfxOn(),vol:soundVolume(),fanVol:fanfareVolume(),bgm:bgmId(),bgmVol:bgmVolume()});
     },
     getDurationMs(){
       if(isReal()){const s=ensureReal();return Math.max(0,s.totalFrames-1)/Real3D.FPS*1000;}
@@ -3886,8 +4004,8 @@ for(const m in tabs)tabs[m].addEventListener("click",()=>switchMode(m));
       fpsOptions:[EXPORT_FPS],
       previewMark:false,   // 透かしはツール自身が描く
       surveyId:"derby_v2", // 2問だけの短いアンケート
-      // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute
-      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx"))}),
+      // 音の設定。ファンファーレの種類(none=ファンファーレなし)。歓声なしは -nosfx、音量0は mute、BGMは +bgm-曲ID
+      trackParams:()=>({sound:soundVolume()===0?"mute":((fanfareId()||"none")+(sfxOn()?"":"-nosfx")+(bgmId()?"+bgm-"+bgmId():""))}),
       onNotReady:()=>{
         statusEl.textContent=isReal()?"3Dの読み込みが終わってから書き出してください。":"出走馬は2頭以上必要です。";
       }

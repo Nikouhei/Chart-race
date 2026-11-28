@@ -21,6 +21,7 @@ const CHART_HISTORY = [
 
 export const UPDATES_EN = {
   home: [
+    { date: '2026-11-28', isNew: true, text: 'Ranking Derby: added race music, with six tracks each for 2D and 3D (some are free).' },
     { date: '2026-11-27', isNew: true, text: 'Ranking Video: the title card can now be hidden.' },
     { date: '2026-11-27', isNew: true, text: 'Ranking Video: added video export. Save your countdown as an MP4 or WebM file — no screen recording needed. It is free, with no watermark.' },
     { date: '2026-11-27', isNew: true, text: 'Ranking Derby: reorganized the settings panel into clear sections so it is easier to find what you need.' },
@@ -71,6 +72,7 @@ export const UPDATES_EN = {
     { date: '2026-10-26', isNew: true, text: 'Released the Pie Chart Race maker: switch between pie and donut, group small items into “Other”, fine-tune labels and the legend, and save as MP4 or WebM.' },
   ],
   'horse-race-ranking-maker': [
+    { date: '2026-11-28', isNew: true, text: 'Added race music: pick from six tracks each for 2D and 3D. The music plays from the moment the gates open until the winner crosses the line, and you can listen before choosing. “Bright Pop Rock” and “Epic 1” are free to use.' },
     { date: '2026-11-27', isNew: true, text: 'Tidied up the settings panel into clear sections: Play & save, Horses, Race, Screen & overlays, Intro & sound, and Results. Every section can be collapsed. The rider icon size now updates as soon as you move the slider.' },
     { date: '2026-11-21', isNew: true, text: `Launched ${PRICING} (7-Day Pass, monthly and yearly): export without the watermark, in 1080p, and with sound. Also added an export quality option, fanfare volume and crown decorations on the race card, and fixed the race title not showing before the start in 3D.` },
     { date: '2026-10-17', isNew: true, text: 'Videos can now be saved as MP4, rendered frame by frame so they stay smooth even on slower devices and play right away on phones.' },
