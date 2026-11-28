@@ -604,6 +604,10 @@ const soundReady = true;
     .umarace #timeline{width:100%;accent-color:var(--gold);cursor:pointer}
     .umarace #timeline:disabled{cursor:default;opacity:.5}
     .umarace .timeline-time{font-size:11px;color:#8a8060;text-align:right;margin-top:2px}
+    /* 設定のスライダー: 値(%)をスライダーの右に並べて、縦に場所を取らないようにする */
+    .umarace .range-row{display:flex;align-items:center;gap:10px}
+    .umarace .range-row input[type=range]{flex:1;min-width:0;margin:0}
+    .umarace .range-row .timeline-time{flex:none;min-width:3.2em;margin-top:0}
     /* 並べ替えの判定は行の offsetTop 基準なので、基準点(offsetParent)をこの箱に固定する。
        positionを外すと offsetTop がページ全体からの距離になり、入れ替え先の計算が壊れる */
     .umarace #entries{position:relative}
@@ -1078,8 +1082,10 @@ const soundReady = true;
             </div>
             <div class="field mode-classic">
               <label>馬上アイコンの大きさ<span class="info-tip" tabindex="0" role="button" aria-label="馬上アイコンの大きさについて">i<span class="info-bubble">馬の背に乗せた丸いアイコン画像の大きさです。<p>名前ラベルの大きさは変わりません。</p></span></span></label>
-              <input type="range" id="iconSize" min="80" max="130" step="5" value="100">
-              <div class="timeline-time" id="iconSizeValue">100%</div>
+              <div class="range-row">
+                <input type="range" id="iconSize" min="80" max="130" step="5" value="100">
+                <div class="timeline-time" id="iconSizeValue">100%</div>
+              </div>
             </div>
             <div class="field mode-real">
               <label>コースマップ</label>
@@ -1128,8 +1134,10 @@ const soundReady = true;
               <!-- ファンファーレだけの音量。歓声や蹄の音とのバランスをここで取る
                    （サウンドの「音量」は全体にかかる） -->
               <label class="sub-label" for="fanfareVolume">ファンファーレの音量</label>
-              <input type="range" id="fanfareVolume" min="0" max="150" step="5" value="100">
-              <div class="timeline-time" id="fanfareVolumeValue">100%</div>
+              <div class="range-row">
+                <input type="range" id="fanfareVolume" min="0" max="150" step="5" value="100">
+                <div class="timeline-time" id="fanfareVolumeValue">100%</div>
+              </div>
             </div>
             <div class="field">
               <label data-paid-feature="derby_sound">歓声・蹄の音</label>
@@ -1139,8 +1147,10 @@ const soundReady = true;
               </select>
               <div id="sfxVolumeWrap">
                 <label class="sub-label" for="sfxVolume">歓声・蹄の音の音量</label>
-                <input type="range" id="sfxVolume" min="0" max="150" step="5" value="100">
-                <div class="timeline-time" id="sfxVolumeValue">100%</div>
+                <div class="range-row">
+                  <input type="range" id="sfxVolume" min="0" max="150" step="5" value="100">
+                  <div class="timeline-time" id="sfxVolumeValue">100%</div>
+                </div>
               </div>
             </div>
             <!-- レース中のBGM。ゲートが開いてから1着の入線まで流す。曲は競馬風(2D)とリアル(3D)で別。
@@ -1170,14 +1180,18 @@ const soundReady = true;
               </div>
               <div id="bgmVolumeWrap" hidden>
                 <label class="sub-label" for="bgmVolume">BGMの音量</label>
-                <input type="range" id="bgmVolume" min="0" max="150" step="5" value="100">
-                <div class="timeline-time" id="bgmVolumeValue">100%</div>
+                <div class="range-row">
+                  <input type="range" id="bgmVolume" min="0" max="150" step="5" value="100">
+                  <div class="timeline-time" id="bgmVolumeValue">100%</div>
+                </div>
               </div>
             </div>
             <div class="field" id="volumeField">
               <label>音量</label>
-              <input type="range" id="volume" min="0" max="100" step="5" value="80">
-              <div class="timeline-time" id="volumeValue">80%</div>
+              <div class="range-row">
+                <input type="range" id="volume" min="0" max="100" step="5" value="80">
+                <div class="timeline-time" id="volumeValue">80%</div>
+              </div>
             </div>
             <p class="hint" id="soundHint">音はプレビューでも流れ、保存する動画にも入ります。</p>
           </details>
